@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Upload, Copy, Share2 } from "lucide-react";
+import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
 
 const PALETTE_COLORS = [
   { name: "Lime Green", hsl: "82 100% 48%" },
