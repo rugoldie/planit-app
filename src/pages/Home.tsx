@@ -13,16 +13,20 @@ const Home = () => {
         <User className="w-5 h-5 text-card-foreground" />
       </button>
 
-      <div className="flex flex-col items-center justify-center flex-1 gap-5">
+      <div className="flex flex-col items-center mt-8">
+        <h1 className="text-7xl font-extrabold text-foreground tracking-tight">planit</h1>
+      </div>
+
+      <div className="flex flex-col items-center justify-center flex-1 gap-8">
         <button
           onClick={() => {}}
-          className="w-full max-w-xs bg-card text-card-foreground rounded-[var(--radius)] py-5 text-xl font-bold shadow-sm"
+          className="w-full max-w-sm bg-card text-card-foreground rounded-[var(--radius)] py-7 text-2xl font-extrabold shadow-sm"
         >
           Host
         </button>
         <button
           onClick={() => {}}
-          className="w-full max-w-xs bg-card text-card-foreground rounded-[var(--radius)] py-5 text-xl font-bold shadow-sm"
+          className="w-full max-w-sm bg-card text-card-foreground rounded-[var(--radius)] py-7 text-2xl font-extrabold shadow-sm"
         >
           Join
         </button>
