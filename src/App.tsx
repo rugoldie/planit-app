@@ -4,6 +4,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import Splash from "./pages/Splash";
 import SignUp from "./pages/SignUp";
 import Home from "./pages/Home";
+import HostEvent from "./pages/HostEvent";
+import EventView from "./pages/EventView";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
@@ -17,6 +19,8 @@ const App = () => (
           <Route path="/" element={<Splash />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/home" element={<Home />} />
+          <Route path="/host" element={<HostEvent />} />
+          <Route path="/event/:code" element={<EventView />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

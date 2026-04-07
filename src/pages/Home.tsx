@@ -19,7 +19,7 @@ const Home = () => {
 
       <div className="flex flex-col items-center justify-center flex-1 gap-12 px-2">
         <button
-          onClick={() => {}}
+          onClick={() => navigate("/host")}
           className="w-full max-w-md bg-card text-card-foreground rounded-[var(--radius)] py-10 text-3xl font-extrabold shadow-sm"
         >
           Host
