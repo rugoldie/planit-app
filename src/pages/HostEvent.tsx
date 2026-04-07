@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Upload, Copy, Share2 } from "lucide-react";
+import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
 
 const PALETTE_COLORS = [
   { name: "Lime Green", hsl: "82 100% 48%" },
@@ -119,157 +120,167 @@ const HostEvent = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-background px-5 py-6 pb-10">
-      <button onClick={() => navigate("/home")} className="self-start mb-6">
+      <button onClick={() => navigate("/home")} className="self-start mb-4">
         <ArrowLeft className="w-6 h-6 text-foreground" />
       </button>
 
       {/* Title */}
-      <div className="bg-card rounded-[var(--radius)] p-5 mb-4 shadow-sm">
+      <div className="bg-card rounded-[var(--radius)] px-4 py-3 mb-2 shadow-sm">
         <input
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Event name..."
-          className="w-full bg-transparent text-3xl font-extrabold text-card-foreground placeholder:text-muted-foreground outline-none"
+          className="w-full bg-transparent text-2xl font-extrabold text-card-foreground placeholder:text-muted-foreground/70 outline-none"
         />
       </div>
 
       {/* Vibe */}
-      <div className="bg-card rounded-[var(--radius)] p-5 mb-4 shadow-sm">
+      <div className="bg-card rounded-[var(--radius)] px-4 py-3 mb-2 shadow-sm">
         <textarea
           value={vibe}
           onChange={(e) => setVibe(e.target.value)}
           placeholder="Set the vibe... e.g. sit down dinner, pub crawl, smart casual night out"
           rows={2}
           maxLength={120}
-          className="w-full bg-transparent text-base text-card-foreground placeholder:text-muted-foreground outline-none resize-none"
+          className="w-full bg-transparent text-sm text-card-foreground placeholder:text-muted-foreground/70 outline-none resize-none"
         />
       </div>
 
       {/* Details */}
-      <div className="bg-card rounded-[var(--radius)] p-5 mb-3 shadow-sm flex items-center gap-3">
-        <span className="text-xl">📍</span>
+      <div className="bg-card rounded-[var(--radius)] px-4 py-3 mb-1.5 shadow-sm flex items-center gap-2.5">
+        <span className="text-lg">📍</span>
         <input
           type="text"
           value={location}
           onChange={(e) => setLocation(e.target.value)}
           placeholder="Where"
-          className="w-full bg-transparent text-base text-card-foreground placeholder:text-muted-foreground outline-none"
+          className="w-full bg-transparent text-sm text-card-foreground placeholder:text-muted-foreground/70 outline-none"
         />
       </div>
 
-      <div className="bg-card rounded-[var(--radius)] p-5 mb-3 shadow-sm flex items-center gap-3">
-        <span className="text-xl">📅</span>
+      <div className="bg-card rounded-[var(--radius)] px-4 py-3 mb-1.5 shadow-sm flex items-center gap-2.5">
+        <span className="text-lg">📅</span>
         <input
           type="datetime-local"
           value={dateTime}
           onChange={(e) => setDateTime(e.target.value)}
-          className="w-full bg-transparent text-base text-card-foreground outline-none"
+          className="w-full bg-transparent text-sm text-card-foreground outline-none"
         />
       </div>
 
-      <div className="bg-card rounded-[var(--radius)] p-5 mb-3 shadow-sm flex items-center gap-3">
-        <span className="text-xl">👗</span>
+      <div className="bg-card rounded-[var(--radius)] px-4 py-3 mb-1.5 shadow-sm flex items-center gap-2.5">
+        <span className="text-lg">👗</span>
         <input
           type="text"
           value={dressCode}
           onChange={(e) => setDressCode(e.target.value)}
           placeholder="Theme / dress code"
-          className="w-full bg-transparent text-base text-card-foreground placeholder:text-muted-foreground outline-none"
+          className="w-full bg-transparent text-sm text-card-foreground placeholder:text-muted-foreground/70 outline-none"
         />
       </div>
 
-      <div className="bg-card rounded-[var(--radius)] p-5 mb-6 shadow-sm flex items-start gap-3">
-        <span className="text-xl mt-0.5">➕</span>
+      <div className="bg-card rounded-[var(--radius)] px-4 py-3 mb-3 shadow-sm flex items-start gap-2.5">
+        <span className="text-lg mt-0.5">➕</span>
         <textarea
           value={extra}
           onChange={(e) => setExtra(e.target.value)}
           placeholder="Anything else..."
           rows={2}
-          className="w-full bg-transparent text-base text-card-foreground placeholder:text-muted-foreground outline-none resize-none"
+          className="w-full bg-transparent text-sm text-card-foreground placeholder:text-muted-foreground/70 outline-none resize-none"
         />
       </div>
 
-      {/* Customisation */}
-      <p className="text-foreground font-extrabold text-lg mb-3">Make it yours</p>
-
-      {/* Background colour */}
-      <div className="bg-card rounded-[var(--radius)] p-5 mb-4 shadow-sm">
-        <p className="text-card-foreground font-bold text-sm mb-3">Background colour</p>
-        <div className="flex flex-wrap gap-3">
-          {PALETTE_COLORS.map((c) => (
-            <button
-              key={c.name}
-              onClick={() => { setBgColor(c.hsl); setBgPhoto(null); setBgPreset(null); }}
-              className="w-9 h-9 rounded-full border-2 transition-all"
-              style={{
-                backgroundColor: `hsl(${c.hsl})`,
-                borderColor: bgColor === c.hsl && !bgPhoto && !bgPreset ? "hsl(0 0% 10%)" : "hsl(0 0% 85%)",
-                transform: bgColor === c.hsl && !bgPhoto && !bgPreset ? "scale(1.15)" : "scale(1)",
-              }}
-              title={c.name}
-            />
-          ))}
-        </div>
-      </div>
-
-      {/* Background photo */}
-      <div className="bg-card rounded-[var(--radius)] p-5 mb-4 shadow-sm">
-        <p className="text-card-foreground font-bold text-sm mb-3">Background photo</p>
-        <div className="flex gap-3 mb-4">
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            className="flex-1 bg-secondary text-secondary-foreground rounded-[var(--radius)] py-3 text-sm font-bold flex items-center justify-center gap-2"
-          >
-            <Upload className="w-4 h-4" /> Upload photo
+      {/* Make it yours — opens bottom sheet */}
+      <Drawer>
+        <DrawerTrigger asChild>
+          <button className="bg-card rounded-[var(--radius)] px-4 py-3.5 mb-6 shadow-sm w-full text-center text-sm font-bold text-card-foreground">
+            Make it yours ✦
           </button>
-          <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileUpload} />
-          {uploadedPhoto && (
-            <button
-              onClick={() => { setBgPhoto(uploadedPhoto); setBgPreset(null); }}
-              className="w-12 h-12 rounded-xl overflow-hidden border-2"
-              style={{ borderColor: bgPhoto === uploadedPhoto ? "hsl(0 0% 10%)" : "transparent" }}
-            >
-              <img src={uploadedPhoto} alt="Uploaded" className="w-full h-full object-cover" />
-            </button>
-          )}
-        </div>
-        <div className="grid grid-cols-3 gap-3">
-          {PRESET_BACKGROUNDS.map((p) => (
-            <button
-              key={p.name}
-              onClick={() => { setBgPreset(p.gradient); setBgPhoto(null); }}
-              className="h-16 rounded-xl border-2 transition-all"
-              style={{
-                background: p.gradient,
-                borderColor: bgPreset === p.gradient ? "hsl(0 0% 10%)" : "transparent",
-              }}
-            >
-              <span className="text-[10px] font-bold text-card drop-shadow-sm">{p.name}</span>
-            </button>
-          ))}
-        </div>
-      </div>
+        </DrawerTrigger>
+        <DrawerContent className="px-5 pb-8 pt-2">
+          <div className="mx-auto w-10 h-1 rounded-full bg-muted mb-5" />
 
-      {/* Text size */}
-      <div className="bg-card rounded-[var(--radius)] p-5 mb-8 shadow-sm">
-        <p className="text-card-foreground font-bold text-sm mb-3">Text size</p>
-        <div className="flex gap-2">
-          {TEXT_SIZES.map((s) => (
+          {/* Background colour */}
+          <p className="text-card-foreground font-bold text-sm mb-2">Background colour</p>
+          <div className="flex flex-wrap gap-2.5 mb-5">
+            {PALETTE_COLORS.map((c) => (
+              <button
+                key={c.name}
+                onClick={() => { setBgColor(c.hsl); setBgPhoto(null); setBgPreset(null); }}
+                className="w-8 h-8 rounded-full border-2 transition-all"
+                style={{
+                  backgroundColor: `hsl(${c.hsl})`,
+                  borderColor: bgColor === c.hsl && !bgPhoto && !bgPreset ? "hsl(0 0% 10%)" : "hsl(0 0% 85%)",
+                  transform: bgColor === c.hsl && !bgPhoto && !bgPreset ? "scale(1.15)" : "scale(1)",
+                }}
+                title={c.name}
+              />
+            ))}
+          </div>
+
+          {/* Background photo */}
+          <p className="text-card-foreground font-bold text-sm mb-2">Background photo</p>
+          <div className="flex gap-2.5 mb-3">
             <button
-              key={s}
-              onClick={() => setTextSize(s)}
-              className={`flex-1 py-2.5 rounded-[var(--radius)] text-sm font-bold transition-all ${
-                textSize === s
-                  ? "bg-secondary text-secondary-foreground"
-                  : "bg-muted text-muted-foreground"
-              }`}
+              onClick={() => fileInputRef.current?.click()}
+              className="flex-1 bg-secondary text-secondary-foreground rounded-[var(--radius)] py-2.5 text-sm font-bold flex items-center justify-center gap-2"
             >
-              {s}
+              <Upload className="w-4 h-4" /> Upload photo
             </button>
-          ))}
-        </div>
-      </div>
+            <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileUpload} />
+            {uploadedPhoto && (
+              <button
+                onClick={() => { setBgPhoto(uploadedPhoto); setBgPreset(null); }}
+                className="w-11 h-11 rounded-xl overflow-hidden border-2"
+                style={{ borderColor: bgPhoto === uploadedPhoto ? "hsl(0 0% 10%)" : "transparent" }}
+              >
+                <img src={uploadedPhoto} alt="Uploaded" className="w-full h-full object-cover" />
+              </button>
+            )}
+          </div>
+          <div className="grid grid-cols-3 gap-2.5 mb-5">
+            {PRESET_BACKGROUNDS.map((p) => (
+              <button
+                key={p.name}
+                onClick={() => { setBgPreset(p.gradient); setBgPhoto(null); }}
+                className="h-14 rounded-xl border-2 transition-all"
+                style={{
+                  background: p.gradient,
+                  borderColor: bgPreset === p.gradient ? "hsl(0 0% 10%)" : "transparent",
+                }}
+              >
+                <span className="text-[10px] font-bold text-card drop-shadow-sm">{p.name}</span>
+              </button>
+            ))}
+          </div>
+
+          {/* Text size */}
+          <p className="text-card-foreground font-bold text-sm mb-2">Text size</p>
+          <div className="flex gap-2 mb-6">
+            {TEXT_SIZES.map((s) => (
+              <button
+                key={s}
+                onClick={() => setTextSize(s)}
+                className={`flex-1 py-2 rounded-[var(--radius)] text-sm font-bold transition-all ${
+                  textSize === s
+                    ? "bg-secondary text-secondary-foreground"
+                    : "bg-muted text-muted-foreground"
+                }`}
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+
+          {/* Done button */}
+          <DrawerTrigger asChild>
+            <button className="w-full bg-secondary text-secondary-foreground rounded-[var(--radius)] py-4 text-base font-extrabold">
+              Done
+            </button>
+          </DrawerTrigger>
+        </DrawerContent>
+      </Drawer>
 
       {/* Create button */}
       <button
