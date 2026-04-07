@@ -5,11 +5,11 @@ const Splash = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-background px-6">
-      <div className="flex flex-col items-center mt-32 mb-auto">
-        <h1 className="text-7xl font-extrabold text-primary tracking-tight">Planit</h1>
+      <div className="flex flex-col items-center mt-32">
+        <h1 className="text-7xl font-extrabold text-foreground tracking-tight">planit</h1>
       </div>
 
-      <div className="flex flex-col gap-4 w-full max-w-xs">
+      <div className="flex flex-col gap-4 w-full max-w-xs mx-auto flex-1 justify-center">
         <button
           onClick={() => navigate("/home")}
           className="bg-card text-card-foreground rounded-[var(--radius)] py-4 text-lg font-bold shadow-sm"
