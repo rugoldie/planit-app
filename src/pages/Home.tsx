@@ -17,16 +17,16 @@ const Home = () => {
         <h1 className="text-7xl font-extrabold text-foreground tracking-tight">planit</h1>
       </div>
 
-      <div className="flex flex-col items-center justify-center flex-1 gap-8">
+      <div className="flex flex-col items-center justify-center flex-1 gap-12 px-2">
         <button
           onClick={() => {}}
-          className="w-full max-w-sm bg-card text-card-foreground rounded-[var(--radius)] py-7 text-2xl font-extrabold shadow-sm"
+          className="w-full max-w-md bg-card text-card-foreground rounded-[var(--radius)] py-10 text-3xl font-extrabold shadow-sm"
         >
           Host
         </button>
         <button
           onClick={() => {}}
-          className="w-full max-w-sm bg-card text-card-foreground rounded-[var(--radius)] py-7 text-2xl font-extrabold shadow-sm"
+          className="w-full max-w-md bg-card text-card-foreground rounded-[var(--radius)] py-10 text-3xl font-extrabold shadow-sm"
         >
           Join
         </button>
