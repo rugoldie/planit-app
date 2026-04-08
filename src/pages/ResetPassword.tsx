@@ -11,19 +11,46 @@ const ResetPassword = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [ready, setReady] = useState(false);
+  const [checking, setChecking] = useState(true);
 
   useEffect(() => {
-    // Listen for the PASSWORD_RECOVERY event from the redirect
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "PASSWORD_RECOVERY") {
+    let mounted = true;
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!mounted) return;
+      if (event === "PASSWORD_RECOVERY" || (event === "SIGNED_IN" && session)) {
         setReady(true);
+        setChecking(false);
       }
     });
-    // Also check if we already have a session (user clicked link)
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) setReady(true);
-    });
-    return () => subscription.unsubscribe();
+
+    // Check URL hash for recovery tokens (handles case where event already fired)
+    const hash = window.location.hash;
+    if (hash && hash.includes("type=recovery")) {
+      // Let Supabase client process the hash automatically, then check session
+      setTimeout(async () => {
+        if (!mounted) return;
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          setReady(true);
+        }
+        setChecking(false);
+      }, 1000);
+    } else {
+      // Also check if already have a valid session from the redirect
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (!mounted) return;
+        if (session) {
+          setReady(true);
+        }
+        setChecking(false);
+      });
+    }
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const handleUpdate = async () => {
@@ -37,13 +64,15 @@ const ResetPassword = () => {
       return;
     }
     setLoading(true);
-    const { error } = await supabase.auth.updateUser({ password });
+    const { error: updateError } = await supabase.auth.updateUser({ password });
     setLoading(false);
-    if (error) {
-      setError(error.message);
+    if (updateError) {
+      setError(updateError.message);
     } else {
       setSuccess(true);
-      setTimeout(() => navigate("/home"), 2000);
+      // Sign out so they can log in with new password
+      await supabase.auth.signOut();
+      setTimeout(() => navigate("/login"), 2000);
     }
   };
 
@@ -58,11 +87,21 @@ const ResetPassword = () => {
           <h2 className="text-xl font-bold text-card-foreground mb-4">New password</h2>
           {success ? (
             <p className="text-muted-foreground text-sm">
-              Password updated! Redirecting…
+              Password updated! Redirecting to login…
+            </p>
+          ) : checking ? (
+            <p className="text-muted-foreground text-sm">
+              Verifying reset link…
             </p>
           ) : !ready ? (
-            <p className="text-muted-foreground text-sm">
-              Loading…
+            <p className="text-destructive text-sm">
+              This reset link is invalid or has expired. Please{" "}
+              <button
+                onClick={() => navigate("/forgot-password")}
+                className="underline font-semibold text-primary"
+              >
+                request a new one
+              </button>.
             </p>
           ) : (
             <>
