@@ -1,8 +1,10 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { AuthProvider } from "@/contexts/AuthContext";
 import Splash from "./pages/Splash";
 import SignUp from "./pages/SignUp";
+import Login from "./pages/Login";
 import Home from "./pages/Home";
 import HostEvent from "./pages/HostEvent";
 import EventView from "./pages/EventView";
@@ -16,19 +18,22 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Splash />} />
-          <Route path="/signup" element={<SignUp />} />
-          <Route path="/home" element={<Home />} />
-          <Route path="/host" element={<HostEvent />} />
-          <Route path="/event/:code" element={<EventView />} />
-          <Route path="/join" element={<JoinEvent />} />
-          <Route path="/guest/:code" element={<GuestEventView />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
+      <AuthProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Splash />} />
+            <Route path="/signup" element={<SignUp />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/home" element={<Home />} />
+            <Route path="/host" element={<HostEvent />} />
+            <Route path="/event/:code" element={<EventView />} />
+            <Route path="/join" element={<JoinEvent />} />
+            <Route path="/guest/:code" element={<GuestEventView />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

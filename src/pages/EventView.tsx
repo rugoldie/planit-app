@@ -1,11 +1,33 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const EventView = () => {
   const { code } = useParams();
   const navigate = useNavigate();
-  const events = JSON.parse(localStorage.getItem("planit_events") || "[]");
-  const event = events.find((e: any) => e.code === code);
+  const [event, setEvent] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    supabase
+      .from("events")
+      .select("*")
+      .eq("code", code)
+      .single()
+      .then(({ data }) => {
+        setEvent(data);
+        setLoading(false);
+      });
+  }, [code]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-background">
+        <p className="text-muted-foreground">Loading...</p>
+      </div>
+    );
+  }
 
   if (!event) {
     return (
@@ -18,16 +40,16 @@ const EventView = () => {
     );
   }
 
-  const textClass = event.textSize === "Small" ? "text-base" : event.textSize === "Large" ? "text-4xl" : "text-2xl";
-  const hasBgImage = event.bgPhoto && (event.bgPhoto.startsWith("blob:") || event.bgPhoto.startsWith("linear-gradient"));
-  const bgStyle: React.CSSProperties = hasBgImage && !event.bgPhoto.startsWith("linear-gradient")
-    ? { backgroundImage: `url(${event.bgPhoto})`, backgroundSize: "cover", backgroundPosition: "center" }
+  const textClass = event.text_size === "Small" ? "text-base" : event.text_size === "Large" ? "text-4xl" : "text-2xl";
+  const hasBgImage = event.bg_photo && (event.bg_photo.startsWith("blob:") || event.bg_photo.startsWith("linear-gradient") || event.bg_photo.startsWith("http"));
+  const bgStyle: React.CSSProperties = hasBgImage && !event.bg_photo.startsWith("linear-gradient")
+    ? { backgroundImage: `url(${event.bg_photo})`, backgroundSize: "cover", backgroundPosition: "center" }
     : hasBgImage
-      ? { background: event.bgPhoto }
-      : { backgroundColor: `hsl(${event.bgColor})` };
+      ? { background: event.bg_photo }
+      : { backgroundColor: `hsl(${event.bg_color})` };
 
-  const bubbleBg = event.bubbleColor ? `hsl(${event.bubbleColor})` : undefined;
-  const bubbleText = event.bubbleTextColor ? `hsl(${event.bubbleTextColor})` : undefined;
+  const bubbleBg = event.bubble_color ? `hsl(${event.bubble_color})` : undefined;
+  const bubbleText = event.bubble_text_color ? `hsl(${event.bubble_text_color})` : undefined;
 
   return (
     <div className="flex flex-col min-h-screen px-5 py-6" style={bgStyle}>
@@ -49,44 +71,32 @@ const EventView = () => {
         {event.vibe && <p className="text-muted-foreground mt-2 text-sm">{event.vibe}</p>}
       </div>
 
-      {(event.location || event.dateTime || event.dressCode || event.extra) && (
+      {(event.location || event.date_time || event.dress_code || event.extra) && (
         <div className="flex flex-col gap-3">
           {event.location && (
-            <div
-              className="rounded-[var(--radius)] p-4 backdrop-blur-sm flex items-center gap-3 border border-border"
-              style={{ backgroundColor: bubbleBg || undefined }}
-            >
+            <div className="rounded-[var(--radius)] p-4 backdrop-blur-sm flex items-center gap-3 border border-border" style={{ backgroundColor: bubbleBg }}>
               <span className="text-xl">📍</span>
-              <span className="text-sm font-semibold" style={{ color: bubbleText || undefined }}>{event.location}</span>
+              <span className="text-sm font-semibold" style={{ color: bubbleText }}>{event.location}</span>
             </div>
           )}
-          {event.dateTime && (
-            <div
-              className="rounded-[var(--radius)] p-4 backdrop-blur-sm flex items-center gap-3 border border-border"
-              style={{ backgroundColor: bubbleBg || undefined }}
-            >
+          {event.date_time && (
+            <div className="rounded-[var(--radius)] p-4 backdrop-blur-sm flex items-center gap-3 border border-border" style={{ backgroundColor: bubbleBg }}>
               <span className="text-xl">📅</span>
-              <span className="text-sm font-semibold" style={{ color: bubbleText || undefined }}>
-                {new Date(event.dateTime).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}
+              <span className="text-sm font-semibold" style={{ color: bubbleText }}>
+                {new Date(event.date_time).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}
               </span>
             </div>
           )}
-          {event.dressCode && (
-            <div
-              className="rounded-[var(--radius)] p-4 backdrop-blur-sm flex items-center gap-3 border border-border"
-              style={{ backgroundColor: bubbleBg || undefined }}
-            >
+          {event.dress_code && (
+            <div className="rounded-[var(--radius)] p-4 backdrop-blur-sm flex items-center gap-3 border border-border" style={{ backgroundColor: bubbleBg }}>
               <span className="text-xl">👗</span>
-              <span className="text-sm font-semibold" style={{ color: bubbleText || undefined }}>{event.dressCode}</span>
+              <span className="text-sm font-semibold" style={{ color: bubbleText }}>{event.dress_code}</span>
             </div>
           )}
           {event.extra && (
-            <div
-              className="rounded-[var(--radius)] p-4 backdrop-blur-sm flex items-center gap-3 border border-border"
-              style={{ backgroundColor: bubbleBg || undefined }}
-            >
+            <div className="rounded-[var(--radius)] p-4 backdrop-blur-sm flex items-center gap-3 border border-border" style={{ backgroundColor: bubbleBg }}>
               <span className="text-xl">➕</span>
-              <span className="text-sm font-semibold" style={{ color: bubbleText || undefined }}>{event.extra}</span>
+              <span className="text-sm font-semibold" style={{ color: bubbleText }}>{event.extra}</span>
             </div>
           )}
         </div>

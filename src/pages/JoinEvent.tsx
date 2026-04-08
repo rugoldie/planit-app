@@ -1,20 +1,29 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const JoinEvent = () => {
   const navigate = useNavigate();
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleJoin = () => {
-    const events = JSON.parse(localStorage.getItem("planit_events") || "[]");
-    const event = events.find((e: any) => e.code === code.toUpperCase().trim());
+  const handleJoin = async () => {
+    setLoading(true);
+    setError("");
+    const { data: event } = await supabase
+      .from("events")
+      .select("id, code")
+      .eq("code", code.toUpperCase().trim())
+      .single();
+
     if (event) {
       navigate(`/guest/${event.code}`);
     } else {
       setError("Event not found. Check your code and try again.");
     }
+    setLoading(false);
   };
 
   return (
@@ -41,10 +50,10 @@ const JoinEvent = () => {
 
       <button
         onClick={handleJoin}
-        disabled={code.trim().length < 6}
+        disabled={code.trim().length < 6 || loading}
         className="w-full bg-primary text-primary-foreground rounded-[var(--radius)] py-5 text-xl font-extrabold disabled:opacity-40"
       >
-        Join Event
+        {loading ? "Joining..." : "Join Event"}
       </button>
     </div>
   );

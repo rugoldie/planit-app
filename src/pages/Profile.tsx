@@ -1,47 +1,60 @@
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Camera, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 const DAYS = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 
+type EventEntry = { name: string; date: string; code: string; role: "Host" | "Guest" };
+
 const Profile = () => {
   const navigate = useNavigate();
-  const raw = localStorage.getItem("planit_user");
-  const user = raw ? JSON.parse(raw) : { name: "User", events: [] };
-  const [profilePhoto, setProfilePhoto] = useState<string | null>(
-    localStorage.getItem("planit_profile_photo")
-  );
+  const { user, profile, refreshProfile } = useAuth();
+  const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
   const [tab, setTab] = useState<"upcoming" | "past">("upcoming");
   const [calMonth, setCalMonth] = useState(new Date().getMonth());
   const [calYear, setCalYear] = useState(new Date().getFullYear());
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const [allEvents, setAllEvents] = useState<EventEntry[]>([]);
 
-  // Gather all events from localStorage
-  const allEvents = useMemo(() => {
-    const events: { name: string; date: string; code: string; role: "Host" | "Guest" }[] = [];
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key?.startsWith("planit_event_")) {
-        try {
-          const ev = JSON.parse(localStorage.getItem(key)!);
-          const code = key.replace("planit_event_", "");
-          events.push({ name: ev.name || "Untitled", date: ev.date || "", code, role: "Host" });
-        } catch {}
-      }
-    }
-    // Also add events from user profile
-    if (user.events) {
-      user.events.forEach((e: any) => {
-        if (!events.find(ev => ev.name === e.name && ev.date === e.date)) {
-          events.push({ name: e.name, date: e.date, code: "", role: "Guest" });
+  useEffect(() => {
+    if (profile?.avatar_url) setProfilePhoto(profile.avatar_url);
+  }, [profile]);
+
+  // Fetch events
+  useEffect(() => {
+    if (!user) return;
+    const fetchEvents = async () => {
+      // Events hosted
+      const { data: hosted } = await supabase
+        .from("events")
+        .select("title, date_time, code")
+        .eq("host_id", user.id);
+
+      // Events joined as guest
+      const { data: guestEntries } = await supabase
+        .from("event_guests")
+        .select("event_id, events(title, date_time, code)")
+        .eq("user_id", user.id);
+
+      const events: EventEntry[] = [];
+      (hosted || []).forEach((e: any) => {
+        events.push({ name: e.title || "Untitled", date: e.date_time || "", code: e.code, role: "Host" });
+      });
+      (guestEntries || []).forEach((g: any) => {
+        const ev = g.events;
+        if (ev && !events.find(e => e.code === ev.code)) {
+          events.push({ name: ev.title || "Untitled", date: ev.date_time || "", code: ev.code, role: "Guest" });
         }
       });
-    }
-    return events;
-  }, []);
+      setAllEvents(events);
+    };
+    fetchEvents();
+  }, [user]);
 
   const hostedCount = allEvents.filter(e => e.role === "Host").length;
   const joinedCount = allEvents.filter(e => e.role === "Guest").length;
@@ -51,7 +64,6 @@ const Profile = () => {
   const past = allEvents.filter(e => e.date && new Date(e.date) < now);
   const displayedEvents = tab === "upcoming" ? upcoming : past;
 
-  // Calendar helpers
   const firstDay = new Date(calYear, calMonth, 1).getDay();
   const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
 
@@ -69,14 +81,15 @@ const Profile = () => {
     return map;
   }, [allEvents, calMonth, calYear]);
 
-  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file || !user) return;
     const reader = new FileReader();
-    reader.onload = () => {
+    reader.onload = async () => {
       const result = reader.result as string;
       setProfilePhoto(result);
-      localStorage.setItem("planit_profile_photo", result);
+      await supabase.from("profiles").update({ avatar_url: result }).eq("user_id", user.id);
+      refreshProfile();
     };
     reader.readAsDataURL(file);
   };
@@ -90,14 +103,17 @@ const Profile = () => {
     else setCalMonth(m => m + 1);
   };
 
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate("/");
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-background px-5 py-6 overflow-y-auto">
-      {/* Back arrow */}
       <button onClick={() => navigate("/home")} className="self-start mb-4">
         <ArrowLeft className="w-7 h-7 text-muted-foreground" />
       </button>
 
-      {/* Profile photo */}
       <div className="flex flex-col items-center mb-6">
         <div className="relative">
           <div className="w-28 h-28 rounded-full bg-card border-2 border-border overflow-hidden flex items-center justify-center">
@@ -105,7 +121,7 @@ const Profile = () => {
               <img src={profilePhoto} alt="Profile" className="w-full h-full object-cover" />
             ) : (
               <span className="text-4xl font-bold text-muted-foreground">
-                {user.name?.charAt(0)?.toUpperCase() || "U"}
+                {profile?.name?.charAt(0)?.toUpperCase() || "U"}
               </span>
             )}
           </div>
@@ -119,9 +135,8 @@ const Profile = () => {
           <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} />
         </div>
 
-        <h1 className="text-2xl font-bold text-secondary-foreground mt-4">{user.name}</h1>
+        <h1 className="text-2xl font-bold text-secondary-foreground mt-4">{profile?.name || "User"}</h1>
 
-        {/* Counters */}
         <div className="flex gap-3 mt-3">
           <div className="bg-card rounded-full px-4 py-2 flex items-center gap-2 border border-border">
             <span className="text-primary font-bold">{hostedCount}</span>
@@ -205,12 +220,12 @@ const Profile = () => {
         {displayedEvents.length > 0 ? displayedEvents.map((ev, i) => (
           <button
             key={i}
-            onClick={() => ev.code ? navigate(`/event/${ev.code}`) : null}
+            onClick={() => ev.role === "Host" ? navigate(`/event/${ev.code}`) : navigate(`/guest/${ev.code}`)}
             className="bg-card border border-border rounded-[var(--radius)] px-5 py-4 text-left flex items-center justify-between"
           >
             <div>
               <p className="font-bold text-secondary-foreground">{ev.name}</p>
-              <p className="text-muted-foreground text-sm">{ev.date || "No date set"}</p>
+              <p className="text-muted-foreground text-sm">{ev.date ? new Date(ev.date).toLocaleDateString() : "No date set"}</p>
             </div>
             <Badge className={`text-xs ${
               ev.role === "Host"
@@ -227,12 +242,8 @@ const Profile = () => {
         )}
       </div>
 
-      {/* Log out */}
       <button
-        onClick={() => {
-          localStorage.removeItem("planit_user");
-          navigate("/");
-        }}
+        onClick={handleLogout}
         className="w-full bg-card border border-border rounded-[var(--radius)] py-4 text-lg font-bold text-primary mb-2"
       >
         Log out

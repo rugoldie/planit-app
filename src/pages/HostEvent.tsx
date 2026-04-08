@@ -2,6 +2,8 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowLeft, Upload, Copy, Share2 } from "lucide-react";
 import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 const PALETTE_COLORS = [
   { name: "Dark Grey", hsl: "0 0% 17%" },
@@ -46,6 +48,7 @@ const generateCode = () => {
 
 const HostEvent = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const editCode = searchParams.get("edit");
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -60,54 +63,80 @@ const HostEvent = () => {
   const [bgPhoto, setBgPhoto] = useState<string | null>(null);
   const [bgPreset, setBgPreset] = useState<string | null>(null);
   const [textSize, setTextSize] = useState<typeof TEXT_SIZES[number]>("Medium");
-  const [bubbleColor, setBubbleColor] = useState(BUBBLE_COLORS[1].hsl); // lime green default
+  const [bubbleColor, setBubbleColor] = useState(BUBBLE_COLORS[1].hsl);
   const [bubbleTextColor, setBubbleTextColor] = useState(BUBBLE_COLORS[1].text);
   const [showCode, setShowCode] = useState(false);
   const [eventCode, setEventCode] = useState("");
   const [uploadedPhoto, setUploadedPhoto] = useState<string | null>(null);
+  const [eventId, setEventId] = useState<string | null>(null);
 
   // Load event data if editing
   useEffect(() => {
     if (editCode) {
-      const events = JSON.parse(localStorage.getItem("planit_events") || "[]");
-      const event = events.find((e: any) => e.code === editCode);
-      if (event) {
-        setTitle(event.title || "");
-        setVibe(event.vibe || "");
-        setLocation(event.location || "");
-        setDateTime(event.dateTime || "");
-        setDressCode(event.dressCode || "");
-        setExtra(event.extra || "");
-        setBgColor(event.bgColor || PALETTE_COLORS[0].hsl);
-        setTextSize(event.textSize || "Medium");
-        setBubbleColor(event.bubbleColor || BUBBLE_COLORS[1].hsl);
-        setBubbleTextColor(event.bubbleTextColor || BUBBLE_COLORS[1].text);
-        setEventCode(editCode);
-        if (event.bgPhoto?.startsWith("linear-gradient")) {
-          setBgPreset(event.bgPhoto);
-        } else if (event.bgPhoto) {
-          setBgPhoto(event.bgPhoto);
-          setUploadedPhoto(event.bgPhoto);
-        }
-      }
+      supabase
+        .from("events")
+        .select("*")
+        .eq("code", editCode)
+        .single()
+        .then(({ data }) => {
+          if (data) {
+            setTitle(data.title || "");
+            setVibe(data.vibe || "");
+            setLocation(data.location || "");
+            setDateTime(data.date_time ? new Date(data.date_time).toISOString().slice(0, 16) : "");
+            setDressCode(data.dress_code || "");
+            setExtra(data.extra || "");
+            setBgColor(data.bg_color || PALETTE_COLORS[0].hsl);
+            setTextSize((data.text_size as typeof TEXT_SIZES[number]) || "Medium");
+            setBubbleColor(data.bubble_color || BUBBLE_COLORS[1].hsl);
+            setBubbleTextColor(data.bubble_text_color || BUBBLE_COLORS[1].text);
+            setEventCode(editCode);
+            setEventId(data.id);
+            if (data.bg_photo?.startsWith("linear-gradient")) {
+              setBgPreset(data.bg_photo);
+            } else if (data.bg_photo) {
+              setBgPhoto(data.bg_photo);
+              setUploadedPhoto(data.bg_photo);
+            }
+          }
+        });
     }
   }, [editCode]);
 
-  const handleCreate = () => {
+  const handleCreate = async () => {
+    if (!user) return;
     const code = editCode || generateCode();
-    setEventCode(code);
-    const event = { title, vibe, location, dateTime, dressCode, extra, bgColor, bgPhoto: bgPhoto || bgPreset, textSize, bubbleColor, bubbleTextColor, code };
-    const existing = JSON.parse(localStorage.getItem("planit_events") || "[]");
-    if (editCode) {
-      const idx = existing.findIndex((e: any) => e.code === editCode);
-      if (idx !== -1) existing[idx] = event;
-    } else {
-      existing.push(event);
-    }
-    localStorage.setItem("planit_events", JSON.stringify(existing));
-    if (editCode) {
+    const eventData = {
+      host_id: user.id,
+      code,
+      title,
+      vibe: vibe || null,
+      location: location || null,
+      date_time: dateTime ? new Date(dateTime).toISOString() : null,
+      dress_code: dressCode || null,
+      extra: extra || null,
+      bg_color: bgColor,
+      bg_photo: bgPhoto || bgPreset || null,
+      text_size: textSize,
+      bubble_color: bubbleColor,
+      bubble_text_color: bubbleTextColor,
+    };
+
+    if (editCode && eventId) {
+      await supabase.from("events").update(eventData).eq("id", eventId);
       navigate("/event/" + code);
     } else {
+      const { error } = await supabase.from("events").insert(eventData);
+      if (error) {
+        // Code collision — try again
+        if (error.code === "23505") {
+          const newCode = generateCode();
+          await supabase.from("events").insert({ ...eventData, code: newCode });
+          setEventCode(newCode);
+        }
+      } else {
+        setEventCode(code);
+      }
       setShowCode(true);
     }
   };
@@ -134,7 +163,6 @@ const HostEvent = () => {
     }
   };
 
-  // Compute live preview background
   const previewBgStyle: React.CSSProperties = bgPhoto
     ? { backgroundImage: `url(${bgPhoto})`, backgroundSize: "cover", backgroundPosition: "center" }
     : bgPreset
@@ -181,7 +209,6 @@ const HostEvent = () => {
         <ArrowLeft className="w-6 h-6 text-muted-foreground" />
       </button>
 
-      {/* Title */}
       <div className="bg-card rounded-[var(--radius)] px-4 py-3 mb-2 border border-border">
         <input
           type="text"
@@ -192,7 +219,6 @@ const HostEvent = () => {
         />
       </div>
 
-      {/* Vibe */}
       <div className="bg-card rounded-[var(--radius)] px-4 py-3 mb-2 border border-border">
         <textarea
           value={vibe}
@@ -204,7 +230,6 @@ const HostEvent = () => {
         />
       </div>
 
-      {/* Details — dynamic bubble colour */}
       <div
         className="rounded-[var(--radius)] px-4 py-3 mb-1.5 flex items-center gap-2.5"
         style={{ backgroundColor: `hsl(${bubbleColor})`, color: `hsl(${bubbleTextColor})` }}
@@ -264,7 +289,6 @@ const HostEvent = () => {
         />
       </div>
 
-      {/* Make it yours — opens bottom sheet */}
       <Drawer>
         <DrawerTrigger asChild>
           <button className="bg-secondary rounded-[var(--radius)] px-4 py-3.5 mb-6 w-full text-center text-sm font-bold text-primary border border-border">
@@ -274,7 +298,6 @@ const HostEvent = () => {
         <DrawerContent className="bg-card px-5 pb-8 pt-2 border-t border-border">
           <div className="mx-auto w-10 h-1 rounded-full bg-muted-foreground/30 mb-5" />
 
-          {/* Bubble colour */}
           <p className="text-card-foreground font-bold text-sm mb-2">Bubble colour</p>
           <div className="flex flex-wrap gap-2.5 mb-5">
             {BUBBLE_COLORS.map((c) => (
@@ -292,7 +315,6 @@ const HostEvent = () => {
             ))}
           </div>
 
-          {/* Background colour */}
           <p className="text-card-foreground font-bold text-sm mb-2">Background colour</p>
           <div className="flex flex-wrap gap-2.5 mb-5">
             {PALETTE_COLORS.map((c) => (
@@ -310,7 +332,6 @@ const HostEvent = () => {
             ))}
           </div>
 
-          {/* Background photo */}
           <p className="text-card-foreground font-bold text-sm mb-2">Background photo</p>
           <div className="flex gap-2.5 mb-3">
             <button
@@ -346,7 +367,6 @@ const HostEvent = () => {
             ))}
           </div>
 
-          {/* Text size */}
           <p className="text-card-foreground font-bold text-sm mb-2">Text size</p>
           <div className="flex gap-2 mb-6">
             {TEXT_SIZES.map((s) => (
@@ -364,7 +384,6 @@ const HostEvent = () => {
             ))}
           </div>
 
-          {/* Done button */}
           <DrawerTrigger asChild>
             <button className="w-full bg-secondary text-secondary-foreground rounded-[var(--radius)] py-4 text-base font-extrabold border border-border">
               Done
@@ -373,7 +392,6 @@ const HostEvent = () => {
         </DrawerContent>
       </Drawer>
 
-      {/* Create / Update button */}
       <button
         onClick={handleCreate}
         className="w-full bg-primary text-primary-foreground rounded-[var(--radius)] py-5 text-xl font-extrabold"

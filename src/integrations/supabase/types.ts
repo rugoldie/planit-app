@@ -14,7 +14,166 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      comments: {
+        Row: {
+          created_at: string
+          event_id: string
+          id: string
+          text: string
+          user_id: string
+          user_name: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          id?: string
+          text: string
+          user_id: string
+          user_name?: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          id?: string
+          text?: string
+          user_id?: string
+          user_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comments_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_guests: {
+        Row: {
+          created_at: string
+          event_id: string
+          id: string
+          rsvp_status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          id?: string
+          rsvp_status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          id?: string
+          rsvp_status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_guests_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      events: {
+        Row: {
+          bg_color: string | null
+          bg_photo: string | null
+          bubble_color: string | null
+          bubble_text_color: string | null
+          code: string
+          created_at: string
+          date_time: string | null
+          dress_code: string | null
+          extra: string | null
+          host_id: string
+          id: string
+          location: string | null
+          text_size: string | null
+          title: string
+          updated_at: string
+          vibe: string | null
+        }
+        Insert: {
+          bg_color?: string | null
+          bg_photo?: string | null
+          bubble_color?: string | null
+          bubble_text_color?: string | null
+          code: string
+          created_at?: string
+          date_time?: string | null
+          dress_code?: string | null
+          extra?: string | null
+          host_id: string
+          id?: string
+          location?: string | null
+          text_size?: string | null
+          title?: string
+          updated_at?: string
+          vibe?: string | null
+        }
+        Update: {
+          bg_color?: string | null
+          bg_photo?: string | null
+          bubble_color?: string | null
+          bubble_text_color?: string | null
+          code?: string
+          created_at?: string
+          date_time?: string | null
+          dress_code?: string | null
+          extra?: string | null
+          host_id?: string
+          id?: string
+          location?: string | null
+          text_size?: string | null
+          title?: string
+          updated_at?: string
+          vibe?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          email: string | null
+          id: string
+          name: string
+          phone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string
+          phone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string
+          phone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
