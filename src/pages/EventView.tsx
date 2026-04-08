@@ -215,6 +215,7 @@ const EventView = () => {
   );
 
   const textClass = event.text_size === "Small" ? "text-base" : event.text_size === "Large" ? "text-4xl" : "text-2xl";
+  const vibeTextClass = event.text_size === "Small" ? "text-xs" : event.text_size === "Large" ? "text-base" : "text-sm";
   const hasBgImage = event.bg_photo && (event.bg_photo.startsWith("blob:") || event.bg_photo.startsWith("linear-gradient") || event.bg_photo.startsWith("http"));
   const bgStyle: React.CSSProperties = hasBgImage && !event.bg_photo.startsWith("linear-gradient")
     ? { backgroundImage: `url(${event.bg_photo})`, backgroundSize: "cover", backgroundPosition: "center" }
@@ -332,7 +333,7 @@ const EventView = () => {
       {/* Title card */}
       <div className="bg-card/90 rounded-[var(--radius)] p-6 mb-4 backdrop-blur-sm border border-border">
         <h1 className={`font-extrabold text-card-foreground ${textClass}`}>{event.title || "Untitled Event"}</h1>
-        {event.vibe && <p className="text-muted-foreground mt-2 text-sm">{event.vibe}</p>}
+        {event.vibe && <p className={`text-muted-foreground mt-2 ${vibeTextClass}`}>{event.vibe}</p>}
       </div>
 
       {/* Detail bubbles */}
