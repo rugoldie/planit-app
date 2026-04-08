@@ -57,7 +57,7 @@ const GuestEventView = () => {
         // Get profiles for all users
         const userIds = data.map((d: any) => d.user_id);
         const { data: profiles } = await supabase
-          .from("profiles_public")
+          .from("profiles_public" as any)
           .select("user_id, name, avatar_url")
           .in("user_id", userIds);
         const profileMap = new Map((profiles || []).map((p: any) => [p.user_id, p]));
