@@ -270,7 +270,7 @@ const GuestEventView = () => {
           {event.date_time && (
             <div className="rounded-[var(--radius)] p-4 backdrop-blur-sm flex items-center gap-3 border border-border" style={{ backgroundColor: bubbleBg }}>
               <span className="text-xl">📅</span>
-              <span className="text-sm font-semibold" style={{ color: bubbleText }}>
+              <span className={bubbleTextClass} style={{ color: bubbleText }}>
                 {new Date(event.date_time).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}
               </span>
             </div>
@@ -278,13 +278,13 @@ const GuestEventView = () => {
           {event.dress_code && (
             <div className="rounded-[var(--radius)] p-4 backdrop-blur-sm flex items-center gap-3 border border-border" style={{ backgroundColor: bubbleBg }}>
               <span className="text-xl">👗</span>
-              <span className="text-sm font-semibold" style={{ color: bubbleText }}>{event.dress_code}</span>
+              <span className={bubbleTextClass} style={{ color: bubbleText }}>{event.dress_code}</span>
             </div>
           )}
           {event.extra && (
             <div className="rounded-[var(--radius)] p-4 backdrop-blur-sm flex items-center gap-3 border border-border" style={{ backgroundColor: bubbleBg }}>
               <span className="text-xl">➕</span>
-              <span className="text-sm font-semibold" style={{ color: bubbleText }}>{event.extra}</span>
+              <span className={bubbleTextClass} style={{ color: bubbleText }}>{event.extra}</span>
             </div>
           )}
         </div>
