@@ -26,11 +26,23 @@ const EventView = () => {
       ? { background: event.bgPhoto }
       : { backgroundColor: `hsl(${event.bgColor})` };
 
+  const bubbleBg = event.bubbleColor ? `hsl(${event.bubbleColor})` : undefined;
+  const bubbleText = event.bubbleTextColor ? `hsl(${event.bubbleTextColor})` : undefined;
+
   return (
     <div className="flex flex-col min-h-screen px-5 py-6" style={bgStyle}>
-      <button onClick={() => navigate(-1)} className="self-start mb-6">
-        <ArrowLeft className="w-6 h-6 text-muted-foreground" />
-      </button>
+      <div className="flex items-center justify-between mb-6">
+        <button onClick={() => navigate(-1)} className="self-start">
+          <ArrowLeft className="w-6 h-6 text-muted-foreground" />
+        </button>
+        <button
+          onClick={() => navigate(`/host?edit=${code}`)}
+          className="px-4 py-1.5 rounded-full text-xs font-bold"
+          style={{ backgroundColor: "hsl(0 0% 22%)", color: "hsl(82 100% 48%)" }}
+        >
+          Edit
+        </button>
+      </div>
 
       <div className="bg-card/90 rounded-[var(--radius)] p-6 mb-4 backdrop-blur-sm border border-border">
         <h1 className={`font-extrabold text-card-foreground ${textClass}`}>{event.title || "Untitled Event"}</h1>
@@ -40,29 +52,41 @@ const EventView = () => {
       {(event.location || event.dateTime || event.dressCode || event.extra) && (
         <div className="flex flex-col gap-3">
           {event.location && (
-            <div className="bg-card/90 rounded-[var(--radius)] p-4 backdrop-blur-sm flex items-center gap-3 border border-border">
+            <div
+              className="rounded-[var(--radius)] p-4 backdrop-blur-sm flex items-center gap-3 border border-border"
+              style={{ backgroundColor: bubbleBg || undefined }}
+            >
               <span className="text-xl">📍</span>
-              <span className="text-card-foreground text-sm font-semibold">{event.location}</span>
+              <span className="text-sm font-semibold" style={{ color: bubbleText || undefined }}>{event.location}</span>
             </div>
           )}
           {event.dateTime && (
-            <div className="bg-card/90 rounded-[var(--radius)] p-4 backdrop-blur-sm flex items-center gap-3 border border-border">
+            <div
+              className="rounded-[var(--radius)] p-4 backdrop-blur-sm flex items-center gap-3 border border-border"
+              style={{ backgroundColor: bubbleBg || undefined }}
+            >
               <span className="text-xl">📅</span>
-              <span className="text-card-foreground text-sm font-semibold">
+              <span className="text-sm font-semibold" style={{ color: bubbleText || undefined }}>
                 {new Date(event.dateTime).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}
               </span>
             </div>
           )}
           {event.dressCode && (
-            <div className="bg-card/90 rounded-[var(--radius)] p-4 backdrop-blur-sm flex items-center gap-3 border border-border">
+            <div
+              className="rounded-[var(--radius)] p-4 backdrop-blur-sm flex items-center gap-3 border border-border"
+              style={{ backgroundColor: bubbleBg || undefined }}
+            >
               <span className="text-xl">👗</span>
-              <span className="text-card-foreground text-sm font-semibold">{event.dressCode}</span>
+              <span className="text-sm font-semibold" style={{ color: bubbleText || undefined }}>{event.dressCode}</span>
             </div>
           )}
           {event.extra && (
-            <div className="bg-card/90 rounded-[var(--radius)] p-4 backdrop-blur-sm flex items-center gap-3 border border-border">
+            <div
+              className="rounded-[var(--radius)] p-4 backdrop-blur-sm flex items-center gap-3 border border-border"
+              style={{ backgroundColor: bubbleBg || undefined }}
+            >
               <span className="text-xl">➕</span>
-              <span className="text-card-foreground text-sm font-semibold">{event.extra}</span>
+              <span className="text-sm font-semibold" style={{ color: bubbleText || undefined }}>{event.extra}</span>
             </div>
           )}
         </div>
