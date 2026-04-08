@@ -214,7 +214,9 @@ const EventView = () => {
     </div>
   );
 
-  const textClass = event.text_size === "Small" ? "text-base" : event.text_size === "Large" ? "text-4xl" : "text-2xl";
+  const titleClass = event.text_size === "Small" ? "text-lg font-bold" : event.text_size === "Large" ? "text-4xl font-extrabold" : "text-2xl font-extrabold";
+  const vibeClass = event.text_size === "Small" ? "text-xs" : event.text_size === "Large" ? "text-base" : "text-sm";
+  const bubbleTextClass = event.text_size === "Small" ? "text-xs font-medium" : event.text_size === "Large" ? "text-base font-bold" : "text-sm font-semibold";
   const hasBgImage = event.bg_photo && (event.bg_photo.startsWith("blob:") || event.bg_photo.startsWith("linear-gradient") || event.bg_photo.startsWith("http"));
   const bgStyle: React.CSSProperties = hasBgImage && !event.bg_photo.startsWith("linear-gradient")
     ? { backgroundImage: `url(${event.bg_photo})`, backgroundSize: "cover", backgroundPosition: "center" }
