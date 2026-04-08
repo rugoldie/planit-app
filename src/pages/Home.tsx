@@ -25,7 +25,7 @@ const Home = () => {
           Host
         </button>
         <button
-          onClick={() => {}}
+          onClick={() => navigate("/join")}
           className="w-full max-w-md bg-primary text-primary-foreground rounded-[var(--radius)] py-10 text-3xl font-extrabold"
         >
           Join
