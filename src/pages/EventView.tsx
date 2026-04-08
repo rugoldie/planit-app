@@ -288,15 +288,6 @@ const EventView = () => {
             {event.code}
           </button>
 
-          {/* Edit button */}
-          <button
-            onClick={() => navigate(`/host?edit=${code}`)}
-            className="px-4 py-1.5 rounded-full text-xs font-bold"
-            style={{ backgroundColor: "#383838", color: "#aaee44" }}
-          >
-            Edit
-          </button>
-
           {/* DM icon */}
           <button
             onClick={() => setShowDMs(true)}
@@ -316,14 +307,23 @@ const EventView = () => {
               <MoreVertical className="w-4 h-4 text-muted-foreground" />
             </button>
             {showMenu && (
-              <div className="absolute right-0 top-11 rounded-xl border border-border shadow-lg z-50 overflow-hidden" style={{ backgroundColor: "#383838" }}>
-                <button
-                  onClick={() => { setShowMenu(false); setShowDeleteDialog(true); }}
-                  className="px-5 py-3 text-sm font-semibold text-red-400 hover:bg-red-500/10 w-full text-left whitespace-nowrap"
-                >
-                  Delete Event
-                </button>
-              </div>
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setShowMenu(false)} />
+                <div className="absolute right-0 top-11 rounded-xl border border-border shadow-lg z-50 overflow-hidden" style={{ backgroundColor: "#383838" }}>
+                  <button
+                    onClick={() => { setShowMenu(false); navigate(`/host?edit=${code}`); }}
+                    className="px-5 py-3 text-sm font-semibold text-white hover:bg-white/10 w-full text-left whitespace-nowrap"
+                  >
+                    Edit event
+                  </button>
+                  <button
+                    onClick={() => { setShowMenu(false); setShowDeleteDialog(true); }}
+                    className="px-5 py-3 text-sm font-semibold text-red-400 hover:bg-red-500/10 w-full text-left whitespace-nowrap"
+                  >
+                    Delete event
+                  </button>
+                </div>
+              </>
             )}
           </div>
         </div>
