@@ -33,6 +33,16 @@ const Profile = () => {
           No events yet
         </div>
       )}
+
+      <button
+        onClick={() => {
+          localStorage.removeItem("planit_user");
+          navigate("/");
+        }}
+        className="mt-auto mb-4 w-full bg-secondary text-primary rounded-[var(--radius)] py-4 text-lg font-bold"
+      >
+        Log out
+      </button>
     </div>
   );
 };
