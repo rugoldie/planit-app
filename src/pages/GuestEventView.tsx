@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, MessageCircle, X, Send } from "lucide-react";
+import { ArrowLeft, MessageCircle, X, Send, Plus } from "lucide-react";
 
 type Message = { from: "guest" | "host"; text: string; time: string };
+type Comment = { name: string; text: string; time: string };
 
 const GuestEventView = () => {
   const { code } = useParams();
@@ -15,6 +16,14 @@ const GuestEventView = () => {
   const [showChat, setShowChat] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [draft, setDraft] = useState("");
+
+  // Comments
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [commentDraft, setCommentDraft] = useState("");
+
+  // Gallery
+  const [photos, setPhotos] = useState<string[]>([]);
+  const photoInput = useRef<HTMLInputElement>(null);
 
   // Load saved RSVP & messages
   useEffect(() => {
