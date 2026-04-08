@@ -363,7 +363,7 @@ const EventView = () => {
           {event.extra && (
             <div className="rounded-[var(--radius)] p-4 backdrop-blur-sm flex items-center gap-3 border border-border" style={{ backgroundColor: bubbleBg }}>
               <span className="text-xl">➕</span>
-              <span className="text-sm font-semibold" style={{ color: bubbleText }}>{event.extra}</span>
+              <span className={bubbleTextClass} style={{ color: bubbleText }}>{event.extra}</span>
             </div>
           )}
         </div>
