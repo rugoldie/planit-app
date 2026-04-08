@@ -55,7 +55,7 @@ const HostEvent = () => {
   const [dateTime, setDateTime] = useState("");
   const [dressCode, setDressCode] = useState("");
   const [extra, setExtra] = useState("");
-  const [bgColor, setBgColor] = useState(PALETTE_COLORS[0].hsl);
+  const [bgColor, setBgColor] = useState("0 0% 17%");
   const [bgPhoto, setBgPhoto] = useState<string | null>(null);
   const [bgPreset, setBgPreset] = useState<string | null>(null);
   const [textSize, setTextSize] = useState<typeof TEXT_SIZES[number]>("Medium");
