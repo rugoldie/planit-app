@@ -1,5 +1,5 @@
-import { useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useRef, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowLeft, Upload, Copy, Share2 } from "lucide-react";
 import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
 
@@ -14,6 +14,15 @@ const PALETTE_COLORS = [
   { name: "Sky Blue", hsl: "200 80% 65%" },
   { name: "Cream", hsl: "40 60% 90%" },
   { name: "Forest Green", hsl: "150 50% 30%" },
+];
+
+const BUBBLE_COLORS = [
+  { name: "White", hsl: "0 0% 100%", text: "0 0% 10%" },
+  { name: "Lime Green", hsl: "82 100% 48%", text: "0 0% 10%" },
+  { name: "Dark Grey", hsl: "0 0% 22%", text: "0 0% 100%" },
+  { name: "Black", hsl: "0 0% 5%", text: "0 0% 100%" },
+  { name: "Blush Pink", hsl: "340 80% 85%", text: "0 0% 10%" },
+  { name: "Sky Blue", hsl: "200 80% 65%", text: "0 0% 10%" },
 ];
 
 const PRESET_BACKGROUNDS = [
@@ -36,6 +45,8 @@ const generateCode = () => {
 
 const HostEvent = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const editCode = searchParams.get("edit");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [title, setTitle] = useState("");
@@ -48,18 +59,56 @@ const HostEvent = () => {
   const [bgPhoto, setBgPhoto] = useState<string | null>(null);
   const [bgPreset, setBgPreset] = useState<string | null>(null);
   const [textSize, setTextSize] = useState<typeof TEXT_SIZES[number]>("Medium");
+  const [bubbleColor, setBubbleColor] = useState(BUBBLE_COLORS[1].hsl); // lime green default
+  const [bubbleTextColor, setBubbleTextColor] = useState(BUBBLE_COLORS[1].text);
   const [showCode, setShowCode] = useState(false);
   const [eventCode, setEventCode] = useState("");
   const [uploadedPhoto, setUploadedPhoto] = useState<string | null>(null);
 
+  // Load event data if editing
+  useEffect(() => {
+    if (editCode) {
+      const events = JSON.parse(localStorage.getItem("planit_events") || "[]");
+      const event = events.find((e: any) => e.code === editCode);
+      if (event) {
+        setTitle(event.title || "");
+        setVibe(event.vibe || "");
+        setLocation(event.location || "");
+        setDateTime(event.dateTime || "");
+        setDressCode(event.dressCode || "");
+        setExtra(event.extra || "");
+        setBgColor(event.bgColor || PALETTE_COLORS[0].hsl);
+        setTextSize(event.textSize || "Medium");
+        setBubbleColor(event.bubbleColor || BUBBLE_COLORS[1].hsl);
+        setBubbleTextColor(event.bubbleTextColor || BUBBLE_COLORS[1].text);
+        setEventCode(editCode);
+        if (event.bgPhoto?.startsWith("linear-gradient")) {
+          setBgPreset(event.bgPhoto);
+        } else if (event.bgPhoto) {
+          setBgPhoto(event.bgPhoto);
+          setUploadedPhoto(event.bgPhoto);
+        }
+      }
+    }
+  }, [editCode]);
+
   const handleCreate = () => {
-    const code = generateCode();
+    const code = editCode || generateCode();
     setEventCode(code);
-    const event = { title, vibe, location, dateTime, dressCode, extra, bgColor, bgPhoto: bgPhoto || bgPreset, textSize, code };
+    const event = { title, vibe, location, dateTime, dressCode, extra, bgColor, bgPhoto: bgPhoto || bgPreset, textSize, bubbleColor, bubbleTextColor, code };
     const existing = JSON.parse(localStorage.getItem("planit_events") || "[]");
-    existing.push(event);
+    if (editCode) {
+      const idx = existing.findIndex((e: any) => e.code === editCode);
+      if (idx !== -1) existing[idx] = event;
+    } else {
+      existing.push(event);
+    }
     localStorage.setItem("planit_events", JSON.stringify(existing));
-    setShowCode(true);
+    if (editCode) {
+      navigate("/event/" + code);
+    } else {
+      setShowCode(true);
+    }
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -84,12 +133,19 @@ const HostEvent = () => {
     }
   };
 
+  // Compute live preview background
+  const previewBgStyle: React.CSSProperties = bgPhoto
+    ? { backgroundImage: `url(${bgPhoto})`, backgroundSize: "cover", backgroundPosition: "center" }
+    : bgPreset
+      ? { background: bgPreset }
+      : { backgroundColor: `hsl(${bgColor})` };
+
   if (showCode) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-background px-6">
         <div className="bg-card rounded-[var(--radius)] p-8 w-full max-w-sm text-center border border-border">
           <p className="text-muted-foreground text-sm font-semibold mb-2">Your event code</p>
-          <p className="text-5xl font-extrabold text-foreground tracking-widest mb-4">{eventCode}</p>
+          <p className="text-5xl font-extrabold text-primary tracking-widest mb-4">{eventCode}</p>
           <p className="text-muted-foreground text-sm">Share this code with your guests</p>
         </div>
 
@@ -119,7 +175,7 @@ const HostEvent = () => {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-background px-5 py-6 pb-10">
+    <div className="flex flex-col min-h-screen px-5 py-6 pb-10 transition-all duration-300" style={previewBgStyle}>
       <button onClick={() => navigate("/home")} className="self-start mb-4">
         <ArrowLeft className="w-6 h-6 text-muted-foreground" />
       </button>
@@ -147,59 +203,93 @@ const HostEvent = () => {
         />
       </div>
 
-      {/* Details — lime green accent bubbles */}
-      <div className="bg-primary rounded-[var(--radius)] px-4 py-3 mb-1.5 flex items-center gap-2.5">
+      {/* Details — dynamic bubble colour */}
+      <div
+        className="rounded-[var(--radius)] px-4 py-3 mb-1.5 flex items-center gap-2.5"
+        style={{ backgroundColor: `hsl(${bubbleColor})`, color: `hsl(${bubbleTextColor})` }}
+      >
         <span className="text-lg">📍</span>
         <input
           type="text"
           value={location}
           onChange={(e) => setLocation(e.target.value)}
           placeholder="Where"
-          className="w-full bg-transparent text-sm text-primary-foreground placeholder:text-primary-foreground/50 outline-none"
+          className="w-full bg-transparent text-sm font-medium outline-none placeholder:opacity-50"
+          style={{ color: `hsl(${bubbleTextColor})` }}
         />
       </div>
 
-      <div className="bg-primary rounded-[var(--radius)] px-4 py-3 mb-1.5 flex items-center gap-2.5">
+      <div
+        className="rounded-[var(--radius)] px-4 py-3 mb-1.5 flex items-center gap-2.5"
+        style={{ backgroundColor: `hsl(${bubbleColor})`, color: `hsl(${bubbleTextColor})` }}
+      >
         <span className="text-lg">📅</span>
         <input
           type="datetime-local"
           value={dateTime}
           onChange={(e) => setDateTime(e.target.value)}
-          className="w-full bg-transparent text-sm text-primary-foreground outline-none"
+          className="w-full bg-transparent text-sm font-medium outline-none"
+          style={{ color: `hsl(${bubbleTextColor})` }}
         />
       </div>
 
-      <div className="bg-primary rounded-[var(--radius)] px-4 py-3 mb-1.5 flex items-center gap-2.5">
+      <div
+        className="rounded-[var(--radius)] px-4 py-3 mb-1.5 flex items-center gap-2.5"
+        style={{ backgroundColor: `hsl(${bubbleColor})`, color: `hsl(${bubbleTextColor})` }}
+      >
         <span className="text-lg">👗</span>
         <input
           type="text"
           value={dressCode}
           onChange={(e) => setDressCode(e.target.value)}
           placeholder="Theme / dress code"
-          className="w-full bg-transparent text-sm text-primary-foreground placeholder:text-primary-foreground/50 outline-none"
+          className="w-full bg-transparent text-sm font-medium outline-none placeholder:opacity-50"
+          style={{ color: `hsl(${bubbleTextColor})` }}
         />
       </div>
 
-      <div className="bg-primary rounded-[var(--radius)] px-4 py-3 mb-3 flex items-start gap-2.5">
+      <div
+        className="rounded-[var(--radius)] px-4 py-3 mb-3 flex items-start gap-2.5"
+        style={{ backgroundColor: `hsl(${bubbleColor})`, color: `hsl(${bubbleTextColor})` }}
+      >
         <span className="text-lg mt-0.5">➕</span>
         <textarea
           value={extra}
           onChange={(e) => setExtra(e.target.value)}
           placeholder="Anything else..."
           rows={2}
-          className="w-full bg-transparent text-sm text-primary-foreground placeholder:text-primary-foreground/50 outline-none resize-none"
+          className="w-full bg-transparent text-sm font-medium outline-none resize-none placeholder:opacity-50"
+          style={{ color: `hsl(${bubbleTextColor})` }}
         />
       </div>
 
       {/* Make it yours — opens bottom sheet */}
       <Drawer>
         <DrawerTrigger asChild>
-          <button className="bg-secondary rounded-[var(--radius)] px-4 py-3.5 mb-6 w-full text-center text-sm font-bold text-foreground border border-border">
+          <button className="bg-secondary rounded-[var(--radius)] px-4 py-3.5 mb-6 w-full text-center text-sm font-bold text-primary border border-border">
             Make it yours ✦
           </button>
         </DrawerTrigger>
         <DrawerContent className="bg-card px-5 pb-8 pt-2 border-t border-border">
           <div className="mx-auto w-10 h-1 rounded-full bg-muted-foreground/30 mb-5" />
+
+          {/* Bubble colour */}
+          <p className="text-card-foreground font-bold text-sm mb-2">Bubble colour</p>
+          <div className="flex flex-wrap gap-2.5 mb-5">
+            {BUBBLE_COLORS.map((c) => (
+              <button
+                key={c.name}
+                onClick={() => { setBubbleColor(c.hsl); setBubbleTextColor(c.text); }}
+                className="w-8 h-8 rounded-full border-2 transition-all"
+                style={{
+                  backgroundColor: `hsl(${c.hsl})`,
+                  borderColor: bubbleColor === c.hsl ? "hsl(82 80% 60%)" : "hsl(0 0% 30%)",
+                  transform: bubbleColor === c.hsl ? "scale(1.15)" : "scale(1)",
+                }}
+                title={c.name}
+              />
+            ))}
+          </div>
 
           {/* Background colour */}
           <p className="text-card-foreground font-bold text-sm mb-2">Background colour</p>
@@ -282,12 +372,12 @@ const HostEvent = () => {
         </DrawerContent>
       </Drawer>
 
-      {/* Create button */}
+      {/* Create / Update button */}
       <button
         onClick={handleCreate}
         className="w-full bg-primary text-primary-foreground rounded-[var(--radius)] py-5 text-xl font-extrabold"
       >
-        Create Event
+        {editCode ? "Update Event" : "Create Event"}
       </button>
     </div>
   );
