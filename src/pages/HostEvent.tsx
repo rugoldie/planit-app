@@ -263,7 +263,7 @@ const HostEvent = () => {
         className="rounded-[var(--radius)] px-4 py-3 mb-1.5 flex items-center gap-2.5"
         style={{ backgroundColor: `hsl(${bubbleColor})`, color: `hsl(${bubbleTextColor})` }}
       >
-        <span className="text-lg">👗</span>
+        <span className="text-lg">🎭</span>
         <input
           type="text"
           value={dressCode}
