@@ -31,6 +31,10 @@ const GuestEventView = () => {
     if (saved) { setRsvp(saved); setBarMinimised(true); }
     const msgs = JSON.parse(localStorage.getItem(`planit_dm_${code}`) || "[]");
     setMessages(msgs);
+    const savedComments = JSON.parse(localStorage.getItem(`planit_comments_${code}`) || "[]");
+    setComments(savedComments);
+    const savedPhotos = JSON.parse(localStorage.getItem(`planit_photos_${code}`) || "[]");
+    setPhotos(savedPhotos);
   }, [code]);
 
   if (!event) {
