@@ -4,6 +4,7 @@ import { ArrowLeft, Upload, Copy, Share2 } from "lucide-react";
 import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
 
 const PALETTE_COLORS = [
+  { name: "Dark Grey", hsl: "0 0% 17%" },
   { name: "Lime Green", hsl: "82 100% 48%" },
   { name: "Black", hsl: "0 0% 10%" },
   { name: "White", hsl: "0 0% 100%" },
