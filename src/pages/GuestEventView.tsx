@@ -146,6 +146,7 @@ const GuestEventView = () => {
     return () => { supabase.removeChannel(channel); };
   }, [event, user]);
 
+  const goingList = useMemo(() => rsvpList.filter(r => r.status === "yes"), [rsvpList]);
   const maybeList = useMemo(() => rsvpList.filter(r => r.status === "maybe"), [rsvpList]);
 
   if (loading) {
