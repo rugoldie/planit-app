@@ -72,6 +72,29 @@ const GuestEventView = () => {
     setDraft("");
   };
 
+  const sendComment = () => {
+    if (!commentDraft.trim()) return;
+    const user = JSON.parse(localStorage.getItem("planit_user") || "{}");
+    const c: Comment = { name: user.name || "Guest", text: commentDraft.trim(), time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) };
+    const updated = [...comments, c];
+    setComments(updated);
+    localStorage.setItem(`planit_comments_${code}`, JSON.stringify(updated));
+    setCommentDraft("");
+  };
+
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const updated = [...photos, reader.result as string];
+      setPhotos(updated);
+      localStorage.setItem(`planit_photos_${code}`, JSON.stringify(updated));
+    };
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  };
+
   const rsvpLabel = rsvp === "yes" ? "You're going! 🎉" : rsvp === "no" ? "You're not going 👎" : "You're a maybe 🤷";
 
   return (
