@@ -165,11 +165,42 @@ const GuestEventView = () => {
     setTimeout(() => setBarMinimised(true), 1500);
   };
 
-  const sendMessage = () => {
-    if (!draft.trim()) return;
-    // DMs remain local for now
-    const msg = { from: "guest", text: draft.trim(), time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) };
-    setMessages(prev => [...prev, msg]);
+  // Fetch DMs with host
+  useEffect(() => {
+    if (!event || !user) return;
+    const hostId = event.host_id;
+    const fetchDMs = async () => {
+      const { data } = await supabase
+        .from("direct_messages")
+        .select("*")
+        .eq("event_id", event.id)
+        .or(`and(sender_id.eq.${user.id},receiver_id.eq.${hostId}),and(sender_id.eq.${hostId},receiver_id.eq.${user.id})`)
+        .order("created_at", { ascending: true });
+      if (data) {
+        setMessages(data.map((m: any) => ({
+          id: m.id,
+          from: m.sender_id === user.id ? "guest" : "host",
+          text: m.text,
+          time: new Date(m.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        })));
+      }
+    };
+    fetchDMs();
+    const channel = supabase
+      .channel(`guest-dms-${event.id}-${user.id}`)
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "direct_messages", filter: `event_id=eq.${event.id}` }, () => fetchDMs())
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [event, user]);
+
+  const sendMessage = async () => {
+    if (!draft.trim() || !user || !event) return;
+    await supabase.from("direct_messages").insert({
+      event_id: event.id,
+      sender_id: user.id,
+      receiver_id: event.host_id,
+      text: draft.trim(),
+    });
     setDraft("");
   };
 
