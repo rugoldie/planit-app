@@ -26,6 +26,8 @@ const App = () => (
             <Route path="/" element={<Splash />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/home" element={<Home />} />
             <Route path="/host" element={<HostEvent />} />
             <Route path="/event/:code" element={<EventView />} />
