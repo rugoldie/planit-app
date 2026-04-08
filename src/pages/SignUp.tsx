@@ -60,12 +60,12 @@ const SignUp = () => {
   return (
     <div className="flex flex-col min-h-screen bg-background px-6 py-8">
       <button onClick={handleBack} className="self-start">
-        <ArrowLeft className="w-7 h-7 text-foreground" />
+        <ArrowLeft className="w-7 h-7 text-muted-foreground" />
       </button>
 
       <div className="flex flex-col items-center justify-center flex-1">
         {step === 0 && (
-          <div className="bg-card rounded-[var(--radius)] p-8 w-full max-w-xs shadow-sm">
+          <div className="bg-card rounded-[var(--radius)] p-8 w-full max-w-xs border border-border">
             <h2 className="text-xl font-bold text-card-foreground mb-4">
               What's your email?
             </h2>
@@ -74,13 +74,13 @@ const SignUp = () => {
               placeholder="Email address"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-muted text-foreground rounded-[var(--radius)] px-4 py-3 text-base outline-none placeholder:text-muted-foreground"
+              className="w-full bg-muted text-card-foreground rounded-[var(--radius)] px-4 py-3 text-base outline-none placeholder:text-muted-foreground border border-border"
             />
           </div>
         )}
 
         {step === 1 && (
-          <div className="bg-card rounded-[var(--radius)] p-8 w-full max-w-xs shadow-sm">
+          <div className="bg-card rounded-[var(--radius)] p-8 w-full max-w-xs border border-border">
             <h2 className="text-xl font-bold text-card-foreground mb-4">
               What's your number?
             </h2>
@@ -89,13 +89,13 @@ const SignUp = () => {
               placeholder="Phone number"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              className="w-full bg-muted text-foreground rounded-[var(--radius)] px-4 py-3 text-base outline-none placeholder:text-muted-foreground"
+              className="w-full bg-muted text-card-foreground rounded-[var(--radius)] px-4 py-3 text-base outline-none placeholder:text-muted-foreground border border-border"
             />
           </div>
         )}
 
         {step === 2 && (
-          <div className="bg-card rounded-[var(--radius)] p-8 w-full max-w-xs shadow-sm">
+          <div className="bg-card rounded-[var(--radius)] p-8 w-full max-w-xs border border-border">
             <h2 className="text-xl font-bold text-card-foreground mb-4">
               Enter your code
             </h2>
@@ -113,7 +113,7 @@ const SignUp = () => {
                   value={digit}
                   onChange={(e) => handleCodeChange(i, e.target.value)}
                   onKeyDown={(e) => handleCodeKeyDown(i, e)}
-                  className="w-10 h-12 bg-muted text-foreground text-center text-lg font-bold rounded-[var(--radius)] outline-none"
+                  className="w-10 h-12 bg-muted text-card-foreground text-center text-lg font-bold rounded-[var(--radius)] outline-none border border-border"
                 />
               ))}
             </div>
@@ -127,7 +127,7 @@ const SignUp = () => {
         )}
 
         {step === 3 && (
-          <div className="bg-card rounded-[var(--radius)] p-8 w-full max-w-xs shadow-sm">
+          <div className="bg-card rounded-[var(--radius)] p-8 w-full max-w-xs border border-border">
             <h2 className="text-xl font-bold text-card-foreground mb-4">
               What's your name?
             </h2>
@@ -136,7 +136,7 @@ const SignUp = () => {
               placeholder="Your name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full bg-muted text-foreground rounded-[var(--radius)] px-4 py-3 text-base outline-none placeholder:text-muted-foreground"
+              className="w-full bg-muted text-card-foreground rounded-[var(--radius)] px-4 py-3 text-base outline-none placeholder:text-muted-foreground border border-border"
             />
           </div>
         )}
@@ -145,7 +145,7 @@ const SignUp = () => {
       <button
         onClick={handleContinue}
         disabled={isButtonDisabled()}
-        className="w-full max-w-xs mx-auto bg-foreground text-background rounded-[var(--radius)] py-4 text-lg font-bold disabled:opacity-50"
+        className="w-full max-w-xs mx-auto bg-primary text-primary-foreground rounded-[var(--radius)] py-4 text-lg font-bold disabled:opacity-50"
       >
         {step === 2 ? "Verify" : step === 3 ? "Let's go" : "Continue"}
       </button>

@@ -12,13 +12,13 @@ const Splash = () => {
       <div className="flex flex-col gap-4 w-full max-w-xs mx-auto flex-1 justify-center">
         <button
           onClick={() => navigate("/home")}
-          className="bg-card text-card-foreground rounded-[var(--radius)] py-4 text-lg font-bold shadow-sm"
+          className="bg-secondary text-secondary-foreground rounded-[var(--radius)] py-4 text-lg font-bold"
         >
           Log in
         </button>
         <button
           onClick={() => navigate("/signup")}
-          className="bg-card text-card-foreground rounded-[var(--radius)] py-4 text-lg font-bold shadow-sm"
+          className="bg-primary text-primary-foreground rounded-[var(--radius)] py-4 text-lg font-bold"
         >
           Sign up
         </button>
