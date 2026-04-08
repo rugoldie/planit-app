@@ -1,54 +1,129 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, MessageCircle, X, Send, Maximize2, ChevronDown, ChevronUp } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
-type Message = { from: "guest" | "host"; text: string; time: string };
-type Comment = { name: string; text: string; time: string; photo?: string };
-type RsvpEntry = { name: string; photo?: string; status: "yes" | "no" | "maybe" };
+type Comment = { id: string; user_name: string; text: string; created_at: string; avatar_url?: string };
+type RsvpEntry = { name: string; avatar_url?: string; status: string; user_id: string };
 
 const GuestEventView = () => {
   const { code } = useParams();
   const navigate = useNavigate();
-  const events = JSON.parse(localStorage.getItem("planit_events") || "[]");
-  const event = events.find((e: any) => e.code === code);
+  const { user, profile } = useAuth();
 
+  const [event, setEvent] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   const [rsvp, setRsvp] = useState<string | null>(null);
   const [barMinimised, setBarMinimised] = useState(false);
   const [showChat, setShowChat] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<any[]>([]);
   const [draft, setDraft] = useState("");
 
-  // Comments
   const [comments, setComments] = useState<Comment[]>([]);
   const [commentDraft, setCommentDraft] = useState("");
   const [showFullComments, setShowFullComments] = useState(false);
   const fullCommentInputRef = useRef<HTMLInputElement>(null);
 
-  // Gallery
   const [photos, setPhotos] = useState<string[]>([]);
   const photoInput = useRef<HTMLInputElement>(null);
 
-  // Who's going
   const [rsvpList, setRsvpList] = useState<RsvpEntry[]>([]);
   const [guestListExpanded, setGuestListExpanded] = useState(false);
 
-  // Load saved data
+  // Fetch event
   useEffect(() => {
-    const saved = localStorage.getItem(`planit_rsvp_${code}`);
-    if (saved) { setRsvp(saved); setBarMinimised(true); }
-    const msgs = JSON.parse(localStorage.getItem(`planit_dm_${code}`) || "[]");
-    setMessages(msgs);
-    const savedComments = JSON.parse(localStorage.getItem(`planit_comments_${code}`) || "[]");
-    setComments(savedComments);
-    const savedPhotos = JSON.parse(localStorage.getItem(`planit_photos_${code}`) || "[]");
-    setPhotos(savedPhotos);
-    const savedRsvps = JSON.parse(localStorage.getItem(`planit_rsvps_${code}`) || "[]");
-    setRsvpList(savedRsvps);
+    if (!code) return;
+    supabase
+      .from("events")
+      .select("*")
+      .eq("code", code)
+      .single()
+      .then(({ data }) => {
+        setEvent(data);
+        setLoading(false);
+      });
   }, [code]);
+
+  // Fetch RSVPs
+  useEffect(() => {
+    if (!event) return;
+    const fetchRsvps = async () => {
+      const { data } = await supabase
+        .from("event_guests")
+        .select("user_id, rsvp_status")
+        .eq("event_id", event.id);
+      if (data) {
+        // Get profiles for all users
+        const userIds = data.map((d: any) => d.user_id);
+        const { data: profiles } = await supabase
+          .from("profiles")
+          .select("user_id, name, avatar_url")
+          .in("user_id", userIds);
+        const profileMap = new Map((profiles || []).map((p: any) => [p.user_id, p]));
+        const list: RsvpEntry[] = data.map((d: any) => {
+          const p = profileMap.get(d.user_id);
+          return { name: p?.name || "Guest", avatar_url: p?.avatar_url, status: d.rsvp_status, user_id: d.user_id };
+        });
+        setRsvpList(list);
+        // Set current user's RSVP
+        if (user) {
+          const mine = data.find((d: any) => d.user_id === user.id);
+          if (mine) {
+            setRsvp(mine.rsvp_status);
+            setBarMinimised(true);
+          }
+        }
+      }
+    };
+    fetchRsvps();
+
+    // Realtime RSVPs
+    const channel = supabase
+      .channel(`rsvps-${event.id}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "event_guests", filter: `event_id=eq.${event.id}` }, () => {
+        fetchRsvps();
+      })
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [event, user]);
+
+  // Fetch comments
+  useEffect(() => {
+    if (!event) return;
+    const fetchComments = async () => {
+      const { data } = await supabase
+        .from("comments")
+        .select("*")
+        .eq("event_id", event.id)
+        .order("created_at", { ascending: true });
+      if (data) {
+        // Get avatar urls
+        const userIds = [...new Set(data.map((c: any) => c.user_id))];
+        const { data: profiles } = await supabase.from("profiles").select("user_id, avatar_url").in("user_id", userIds);
+        const avatarMap = new Map((profiles || []).map((p: any) => [p.user_id, p.avatar_url]));
+        setComments(data.map((c: any) => ({ ...c, avatar_url: avatarMap.get(c.user_id) })));
+      }
+    };
+    fetchComments();
+
+    const channel = supabase
+      .channel(`comments-${event.id}`)
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "comments", filter: `event_id=eq.${event.id}` }, () => {
+        fetchComments();
+      })
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [event]);
 
   const goingList = useMemo(() => rsvpList.filter(r => r.status === "yes"), [rsvpList]);
   const maybeList = useMemo(() => rsvpList.filter(r => r.status === "maybe"), [rsvpList]);
-  const notGoingList = useMemo(() => rsvpList.filter(r => r.status === "no"), [rsvpList]);
+
+  if (loading) {
+    return <div className="flex items-center justify-center min-h-screen bg-background"><p className="text-muted-foreground">Loading...</p></div>;
+  }
 
   if (!event) {
     return (
@@ -59,50 +134,54 @@ const GuestEventView = () => {
     );
   }
 
-  const textClass = event.textSize === "Small" ? "text-base" : event.textSize === "Large" ? "text-4xl" : "text-2xl";
-  const hasBgImage = event.bgPhoto && (event.bgPhoto.startsWith("blob:") || event.bgPhoto.startsWith("linear-gradient"));
-  const bgStyle: React.CSSProperties = hasBgImage && !event.bgPhoto.startsWith("linear-gradient")
-    ? { backgroundImage: `url(${event.bgPhoto})`, backgroundSize: "cover", backgroundPosition: "center" }
+  const textClass = event.text_size === "Small" ? "text-base" : event.text_size === "Large" ? "text-4xl" : "text-2xl";
+  const hasBgImage = event.bg_photo && (event.bg_photo.startsWith("blob:") || event.bg_photo.startsWith("linear-gradient") || event.bg_photo.startsWith("http"));
+  const bgStyle: React.CSSProperties = hasBgImage && !event.bg_photo.startsWith("linear-gradient")
+    ? { backgroundImage: `url(${event.bg_photo})`, backgroundSize: "cover", backgroundPosition: "center" }
     : hasBgImage
-      ? { background: event.bgPhoto }
-      : { backgroundColor: `hsl(${event.bgColor})` };
+      ? { background: event.bg_photo }
+      : { backgroundColor: `hsl(${event.bg_color})` };
 
-  const bubbleBg = event.bubbleColor ? `hsl(${event.bubbleColor})` : undefined;
-  const bubbleText = event.bubbleTextColor ? `hsl(${event.bubbleTextColor})` : undefined;
+  const bubbleBg = event.bubble_color ? `hsl(${event.bubble_color})` : undefined;
+  const bubbleText = event.bubble_text_color ? `hsl(${event.bubble_text_color})` : undefined;
 
-  const handleRsvp = (response: string) => {
+  const handleRsvp = async (response: string) => {
+    if (!user || !event) return;
     setRsvp(response);
-    localStorage.setItem(`planit_rsvp_${code}`, response);
 
-    // Update shared RSVP list
-    const user = JSON.parse(localStorage.getItem("planit_user") || "{}");
-    const name = user.name || "Guest";
-    const photo = user.photo || "";
-    const currentList: RsvpEntry[] = JSON.parse(localStorage.getItem(`planit_rsvps_${code}`) || "[]");
-    const filtered = currentList.filter(r => r.name !== name);
-    const updated = [...filtered, { name, photo, status: response as RsvpEntry["status"] }];
-    setRsvpList(updated);
-    localStorage.setItem(`planit_rsvps_${code}`, JSON.stringify(updated));
+    const { data: existing } = await supabase
+      .from("event_guests")
+      .select("id")
+      .eq("event_id", event.id)
+      .eq("user_id", user.id)
+      .single();
+
+    if (existing) {
+      await supabase.from("event_guests").update({ rsvp_status: response }).eq("id", existing.id);
+    } else {
+      await supabase.from("event_guests").insert({ event_id: event.id, user_id: user.id, rsvp_status: response });
+    }
 
     setTimeout(() => setBarMinimised(true), 1500);
   };
 
   const sendMessage = () => {
     if (!draft.trim()) return;
-    const msg: Message = { from: "guest", text: draft.trim(), time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) };
-    const updated = [...messages, msg];
-    setMessages(updated);
-    localStorage.setItem(`planit_dm_${code}`, JSON.stringify(updated));
+    // DMs remain local for now
+    const msg = { from: "guest", text: draft.trim(), time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) };
+    setMessages(prev => [...prev, msg]);
     setDraft("");
   };
 
-  const sendComment = () => {
-    if (!commentDraft.trim()) return;
-    const user = JSON.parse(localStorage.getItem("planit_user") || "{}");
-    const c: Comment = { name: user.name || "Guest", text: commentDraft.trim(), time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }), photo: user.photo || "" };
-    const updated = [...comments, c];
-    setComments(updated);
-    localStorage.setItem(`planit_comments_${code}`, JSON.stringify(updated));
+  const sendComment = async () => {
+    if (!commentDraft.trim() || !user || !event) return;
+    const userName = profile?.name || "Guest";
+    await supabase.from("comments").insert({
+      event_id: event.id,
+      user_id: user.id,
+      user_name: userName,
+      text: commentDraft.trim(),
+    });
     setCommentDraft("");
   };
 
@@ -111,16 +190,13 @@ const GuestEventView = () => {
     if (!file) return;
     const reader = new FileReader();
     reader.onload = () => {
-      const updated = [...photos, reader.result as string];
-      setPhotos(updated);
-      localStorage.setItem(`planit_photos_${code}`, JSON.stringify(updated));
+      setPhotos(prev => [...prev, reader.result as string]);
     };
     reader.readAsDataURL(file);
     e.target.value = "";
   };
 
   const rsvpLabel = rsvp === "yes" ? "You're going! 🎉" : rsvp === "no" ? "You're not going 👎" : "You're a maybe 🤷";
-
   const getInitials = (name: string) => name.charAt(0).toUpperCase();
 
   const statusBadge = (status: string) => {
@@ -128,6 +204,8 @@ const GuestEventView = () => {
     if (status === "maybe") return <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-muted text-muted-foreground">Maybe</span>;
     return <span className="text-[10px] font-bold px-2 py-0.5 rounded-full text-muted-foreground" style={{ backgroundColor: "#2b2b2b" }}>Can't make it</span>;
   };
+
+  const formatTime = (ts: string) => new Date(ts).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
   return (
     <div className="flex flex-col min-h-screen px-5 py-6 pb-28" style={bgStyle}>
@@ -148,7 +226,7 @@ const GuestEventView = () => {
       </div>
 
       {/* Detail bubbles */}
-      {(event.location || event.dateTime || event.dressCode || event.extra) && (
+      {(event.location || event.date_time || event.dress_code || event.extra) && (
         <div className="flex flex-col gap-2">
           {event.location && (
             <div className="rounded-[var(--radius)] p-4 backdrop-blur-sm flex items-center gap-3 border border-border" style={{ backgroundColor: bubbleBg }}>
@@ -156,18 +234,18 @@ const GuestEventView = () => {
               <span className="text-sm font-semibold" style={{ color: bubbleText }}>{event.location}</span>
             </div>
           )}
-          {event.dateTime && (
+          {event.date_time && (
             <div className="rounded-[var(--radius)] p-4 backdrop-blur-sm flex items-center gap-3 border border-border" style={{ backgroundColor: bubbleBg }}>
               <span className="text-xl">📅</span>
               <span className="text-sm font-semibold" style={{ color: bubbleText }}>
-                {new Date(event.dateTime).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}
+                {new Date(event.date_time).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}
               </span>
             </div>
           )}
-          {event.dressCode && (
+          {event.dress_code && (
             <div className="rounded-[var(--radius)] p-4 backdrop-blur-sm flex items-center gap-3 border border-border" style={{ backgroundColor: bubbleBg }}>
               <span className="text-xl">👗</span>
-              <span className="text-sm font-semibold" style={{ color: bubbleText }}>{event.dressCode}</span>
+              <span className="text-sm font-semibold" style={{ color: bubbleText }}>{event.dress_code}</span>
             </div>
           )}
           {event.extra && (
@@ -188,14 +266,13 @@ const GuestEventView = () => {
 
         {!guestListExpanded ? (
           <>
-            {/* Going row */}
             <div className="flex items-center gap-3 mb-2">
               <div className="flex items-center gap-2 overflow-x-auto flex-1">
                 {goingList.length === 0 && <p className="text-muted-foreground text-xs">No one yet</p>}
                 {goingList.map((r, i) => (
                   <div key={i} className="flex flex-col items-center shrink-0">
                     <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center overflow-hidden border-2 border-primary">
-                      {r.photo ? <img src={r.photo} alt="" className="w-full h-full object-cover" /> : <span className="text-xs font-bold text-muted-foreground">{getInitials(r.name)}</span>}
+                      {r.avatar_url ? <img src={r.avatar_url} alt="" className="w-full h-full object-cover" /> : <span className="text-xs font-bold text-muted-foreground">{getInitials(r.name)}</span>}
                     </div>
                     <span className="text-[10px] text-muted-foreground mt-1 max-w-[40px] truncate">{r.name.split(" ")[0]}</span>
                   </div>
@@ -204,13 +281,12 @@ const GuestEventView = () => {
               {goingList.length > 0 && <span className="text-primary font-bold text-xs shrink-0">{goingList.length} going</span>}
             </div>
 
-            {/* Maybe row */}
             {maybeList.length > 0 && (
               <div className="flex items-center gap-2 overflow-x-auto">
                 {maybeList.map((r, i) => (
                   <div key={i} className="flex flex-col items-center shrink-0">
                     <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center overflow-hidden opacity-60">
-                      {r.photo ? <img src={r.photo} alt="" className="w-full h-full object-cover" /> : <span className="text-[10px] font-bold text-muted-foreground">{getInitials(r.name)}</span>}
+                      {r.avatar_url ? <img src={r.avatar_url} alt="" className="w-full h-full object-cover" /> : <span className="text-[10px] font-bold text-muted-foreground">{getInitials(r.name)}</span>}
                     </div>
                     <span className="text-[9px] text-muted-foreground mt-0.5 max-w-[36px] truncate">{r.name.split(" ")[0]}</span>
                   </div>
@@ -220,13 +296,12 @@ const GuestEventView = () => {
             )}
           </>
         ) : (
-          /* Expanded full guest list */
           <div className="space-y-2 max-h-64 overflow-y-auto">
             {rsvpList.length === 0 && <p className="text-muted-foreground text-xs text-center py-3">No RSVPs yet</p>}
             {rsvpList.map((r, i) => (
               <div key={i} className="flex items-center gap-3 rounded-xl px-3 py-2" style={{ backgroundColor: "#2b2b2b" }}>
                 <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center overflow-hidden shrink-0">
-                  {r.photo ? <img src={r.photo} alt="" className="w-full h-full object-cover" /> : <span className="text-[10px] font-bold text-muted-foreground">{getInitials(r.name)}</span>}
+                  {r.avatar_url ? <img src={r.avatar_url} alt="" className="w-full h-full object-cover" /> : <span className="text-[10px] font-bold text-muted-foreground">{getInitials(r.name)}</span>}
                 </div>
                 <span className="text-white text-sm font-semibold flex-1">{r.name}</span>
                 {statusBadge(r.status)}
@@ -251,8 +326,8 @@ const GuestEventView = () => {
           {comments.map((c, i) => (
             <div key={i} className="rounded-xl px-3 py-2" style={{ backgroundColor: "#2b2b2b" }}>
               <div className="flex items-center gap-2">
-                <span className="text-primary text-xs font-bold">{c.name}</span>
-                <span className="text-muted-foreground text-[10px]">{c.time}</span>
+                <span className="text-primary text-xs font-bold">{c.user_name}</span>
+                <span className="text-muted-foreground text-[10px]">{formatTime(c.created_at)}</span>
               </div>
               <p className="text-white text-sm mt-0.5">{c.text}</p>
             </div>
@@ -337,12 +412,12 @@ const GuestEventView = () => {
             {comments.map((c, i) => (
               <div key={i} className="flex items-start gap-3">
                 <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center overflow-hidden shrink-0">
-                  {c.photo ? <img src={c.photo} alt="" className="w-full h-full object-cover" /> : <span className="text-[10px] font-bold text-muted-foreground">{getInitials(c.name)}</span>}
+                  {c.avatar_url ? <img src={c.avatar_url} alt="" className="w-full h-full object-cover" /> : <span className="text-[10px] font-bold text-muted-foreground">{getInitials(c.user_name)}</span>}
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-0.5">
-                    <span className="text-primary text-xs font-bold">{c.name}</span>
-                    <span className="text-muted-foreground text-[10px]">{c.time}</span>
+                    <span className="text-primary text-xs font-bold">{c.user_name}</span>
+                    <span className="text-muted-foreground text-[10px]">{formatTime(c.created_at)}</span>
                   </div>
                   <div className="rounded-2xl rounded-tl-sm px-3 py-2 inline-block" style={{ backgroundColor: "#383838" }}>
                     <p className="text-white text-sm">{c.text}</p>
@@ -383,7 +458,7 @@ const GuestEventView = () => {
             {messages.length === 0 && (
               <p className="text-muted-foreground text-sm text-center mt-10">Send a private message to the host — e.g. dietary needs, questions, or a heads up.</p>
             )}
-            {messages.map((m, i) => (
+            {messages.map((m: any, i: number) => (
               <div key={i} className={`flex ${m.from === "guest" ? "justify-end" : "justify-start"}`}>
                 <div className={`max-w-[75%] rounded-2xl px-4 py-2.5 ${m.from === "guest" ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground border border-border"}`}>
                   <p className="text-sm">{m.text}</p>

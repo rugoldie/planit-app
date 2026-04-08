@@ -1,7 +1,16 @@
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { useEffect } from "react";
 
 const Splash = () => {
   const navigate = useNavigate();
+  const { user, loading } = useAuth();
+
+  useEffect(() => {
+    if (!loading && user) {
+      navigate("/home");
+    }
+  }, [user, loading, navigate]);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-background px-6">
@@ -11,7 +20,7 @@ const Splash = () => {
 
       <div className="flex flex-col gap-4 w-full max-w-xs mx-auto flex-1 justify-center">
         <button
-          onClick={() => navigate("/home")}
+          onClick={() => navigate("/login")}
           className="bg-secondary text-secondary-foreground rounded-[var(--radius)] py-4 text-lg font-bold border border-border"
         >
           Log in
