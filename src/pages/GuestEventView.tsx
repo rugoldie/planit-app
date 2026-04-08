@@ -1,9 +1,10 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, MessageCircle, X, Send, Plus } from "lucide-react";
+import { ArrowLeft, MessageCircle, X, Send, Maximize2, ChevronDown, ChevronUp } from "lucide-react";
 
 type Message = { from: "guest" | "host"; text: string; time: string };
-type Comment = { name: string; text: string; time: string };
+type Comment = { name: string; text: string; time: string; photo?: string };
+type RsvpEntry = { name: string; photo?: string; status: "yes" | "no" | "maybe" };
 
 const GuestEventView = () => {
   const { code } = useParams();
@@ -20,12 +21,18 @@ const GuestEventView = () => {
   // Comments
   const [comments, setComments] = useState<Comment[]>([]);
   const [commentDraft, setCommentDraft] = useState("");
+  const [showFullComments, setShowFullComments] = useState(false);
+  const fullCommentInputRef = useRef<HTMLInputElement>(null);
 
   // Gallery
   const [photos, setPhotos] = useState<string[]>([]);
   const photoInput = useRef<HTMLInputElement>(null);
 
-  // Load saved RSVP & messages
+  // Who's going
+  const [rsvpList, setRsvpList] = useState<RsvpEntry[]>([]);
+  const [guestListExpanded, setGuestListExpanded] = useState(false);
+
+  // Load saved data
   useEffect(() => {
     const saved = localStorage.getItem(`planit_rsvp_${code}`);
     if (saved) { setRsvp(saved); setBarMinimised(true); }
@@ -35,7 +42,13 @@ const GuestEventView = () => {
     setComments(savedComments);
     const savedPhotos = JSON.parse(localStorage.getItem(`planit_photos_${code}`) || "[]");
     setPhotos(savedPhotos);
+    const savedRsvps = JSON.parse(localStorage.getItem(`planit_rsvps_${code}`) || "[]");
+    setRsvpList(savedRsvps);
   }, [code]);
+
+  const goingList = useMemo(() => rsvpList.filter(r => r.status === "yes"), [rsvpList]);
+  const maybeList = useMemo(() => rsvpList.filter(r => r.status === "maybe"), [rsvpList]);
+  const notGoingList = useMemo(() => rsvpList.filter(r => r.status === "no"), [rsvpList]);
 
   if (!event) {
     return (
@@ -60,6 +73,17 @@ const GuestEventView = () => {
   const handleRsvp = (response: string) => {
     setRsvp(response);
     localStorage.setItem(`planit_rsvp_${code}`, response);
+
+    // Update shared RSVP list
+    const user = JSON.parse(localStorage.getItem("planit_user") || "{}");
+    const name = user.name || "Guest";
+    const photo = user.photo || "";
+    const currentList: RsvpEntry[] = JSON.parse(localStorage.getItem(`planit_rsvps_${code}`) || "[]");
+    const filtered = currentList.filter(r => r.name !== name);
+    const updated = [...filtered, { name, photo, status: response as RsvpEntry["status"] }];
+    setRsvpList(updated);
+    localStorage.setItem(`planit_rsvps_${code}`, JSON.stringify(updated));
+
     setTimeout(() => setBarMinimised(true), 1500);
   };
 
@@ -75,7 +99,7 @@ const GuestEventView = () => {
   const sendComment = () => {
     if (!commentDraft.trim()) return;
     const user = JSON.parse(localStorage.getItem("planit_user") || "{}");
-    const c: Comment = { name: user.name || "Guest", text: commentDraft.trim(), time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) };
+    const c: Comment = { name: user.name || "Guest", text: commentDraft.trim(), time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }), photo: user.photo || "" };
     const updated = [...comments, c];
     setComments(updated);
     localStorage.setItem(`planit_comments_${code}`, JSON.stringify(updated));
@@ -96,6 +120,14 @@ const GuestEventView = () => {
   };
 
   const rsvpLabel = rsvp === "yes" ? "You're going! 🎉" : rsvp === "no" ? "You're not going 👎" : "You're a maybe 🤷";
+
+  const getInitials = (name: string) => name.charAt(0).toUpperCase();
+
+  const statusBadge = (status: string) => {
+    if (status === "yes") return <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary text-primary-foreground">Going</span>;
+    if (status === "maybe") return <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-muted text-muted-foreground">Maybe</span>;
+    return <span className="text-[10px] font-bold px-2 py-0.5 rounded-full text-muted-foreground" style={{ backgroundColor: "#2b2b2b" }}>Can't make it</span>;
+  };
 
   return (
     <div className="flex flex-col min-h-screen px-5 py-6 pb-28" style={bgStyle}>
@@ -147,9 +179,71 @@ const GuestEventView = () => {
         </div>
       )}
 
+      {/* Who's going section */}
+      <div className="mt-4 rounded-[var(--radius)] p-4 border border-border" style={{ backgroundColor: "#383838" }}>
+        <button onClick={() => setGuestListExpanded(!guestListExpanded)} className="flex items-center justify-between w-full mb-3">
+          <h2 className="text-white font-bold text-sm">Who's going</h2>
+          {guestListExpanded ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+        </button>
+
+        {!guestListExpanded ? (
+          <>
+            {/* Going row */}
+            <div className="flex items-center gap-3 mb-2">
+              <div className="flex items-center gap-2 overflow-x-auto flex-1">
+                {goingList.length === 0 && <p className="text-muted-foreground text-xs">No one yet</p>}
+                {goingList.map((r, i) => (
+                  <div key={i} className="flex flex-col items-center shrink-0">
+                    <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center overflow-hidden border-2 border-primary">
+                      {r.photo ? <img src={r.photo} alt="" className="w-full h-full object-cover" /> : <span className="text-xs font-bold text-muted-foreground">{getInitials(r.name)}</span>}
+                    </div>
+                    <span className="text-[10px] text-muted-foreground mt-1 max-w-[40px] truncate">{r.name.split(" ")[0]}</span>
+                  </div>
+                ))}
+              </div>
+              {goingList.length > 0 && <span className="text-primary font-bold text-xs shrink-0">{goingList.length} going</span>}
+            </div>
+
+            {/* Maybe row */}
+            {maybeList.length > 0 && (
+              <div className="flex items-center gap-2 overflow-x-auto">
+                {maybeList.map((r, i) => (
+                  <div key={i} className="flex flex-col items-center shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center overflow-hidden opacity-60">
+                      {r.photo ? <img src={r.photo} alt="" className="w-full h-full object-cover" /> : <span className="text-[10px] font-bold text-muted-foreground">{getInitials(r.name)}</span>}
+                    </div>
+                    <span className="text-[9px] text-muted-foreground mt-0.5 max-w-[36px] truncate">{r.name.split(" ")[0]}</span>
+                  </div>
+                ))}
+                <span className="text-muted-foreground text-[10px] font-semibold shrink-0">{maybeList.length} maybe</span>
+              </div>
+            )}
+          </>
+        ) : (
+          /* Expanded full guest list */
+          <div className="space-y-2 max-h-64 overflow-y-auto">
+            {rsvpList.length === 0 && <p className="text-muted-foreground text-xs text-center py-3">No RSVPs yet</p>}
+            {rsvpList.map((r, i) => (
+              <div key={i} className="flex items-center gap-3 rounded-xl px-3 py-2" style={{ backgroundColor: "#2b2b2b" }}>
+                <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center overflow-hidden shrink-0">
+                  {r.photo ? <img src={r.photo} alt="" className="w-full h-full object-cover" /> : <span className="text-[10px] font-bold text-muted-foreground">{getInitials(r.name)}</span>}
+                </div>
+                <span className="text-white text-sm font-semibold flex-1">{r.name}</span>
+                {statusBadge(r.status)}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
       {/* Comments section */}
       <div className="mt-4 rounded-[var(--radius)] p-4 border border-border" style={{ backgroundColor: "#383838" }}>
-        <h2 className="text-white font-bold text-sm mb-3">Comments</h2>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-white font-bold text-sm">Comments</h2>
+          <button onClick={() => setShowFullComments(true)}>
+            <Maximize2 className="w-4 h-4 text-primary" />
+          </button>
+        </div>
         <div className="space-y-2 max-h-48 overflow-y-auto mb-3">
           {comments.length === 0 && (
             <p className="text-muted-foreground text-xs text-center py-3">No comments yet — be the first!</p>
@@ -225,6 +319,55 @@ const GuestEventView = () => {
           </div>
         )}
       </div>
+
+      {/* Full-screen comments overlay */}
+      {showFullComments && (
+        <div className="fixed inset-0 z-[60] flex flex-col" style={{ backgroundColor: "#2b2b2b" }}>
+          <div className="flex items-center gap-3 px-5 py-4 border-b border-border">
+            <button onClick={() => setShowFullComments(false)}>
+              <ArrowLeft className="w-5 h-5 text-muted-foreground" />
+            </button>
+            <h2 className="text-white font-bold text-base">Comments</h2>
+          </div>
+
+          <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
+            {comments.length === 0 && (
+              <p className="text-muted-foreground text-sm text-center mt-10">No comments yet — be the first!</p>
+            )}
+            {comments.map((c, i) => (
+              <div key={i} className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center overflow-hidden shrink-0">
+                  {c.photo ? <img src={c.photo} alt="" className="w-full h-full object-cover" /> : <span className="text-[10px] font-bold text-muted-foreground">{getInitials(c.name)}</span>}
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <span className="text-primary text-xs font-bold">{c.name}</span>
+                    <span className="text-muted-foreground text-[10px]">{c.time}</span>
+                  </div>
+                  <div className="rounded-2xl rounded-tl-sm px-3 py-2 inline-block" style={{ backgroundColor: "#383838" }}>
+                    <p className="text-white text-sm">{c.text}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="px-4 py-3 border-t border-border flex gap-2">
+            <input
+              ref={fullCommentInputRef}
+              value={commentDraft}
+              onChange={(e) => setCommentDraft(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && sendComment()}
+              placeholder="Write a comment..."
+              className="flex-1 rounded-full px-4 py-2.5 text-sm text-white placeholder:text-muted-foreground outline-none border border-border"
+              style={{ backgroundColor: "#383838" }}
+            />
+            <button onClick={sendComment} className="w-10 h-10 rounded-full bg-primary flex items-center justify-center shrink-0">
+              <Send className="w-4 h-4 text-primary-foreground" />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* DM overlay */}
       {showChat && (
