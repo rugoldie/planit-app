@@ -147,6 +147,60 @@ const GuestEventView = () => {
         </div>
       )}
 
+      {/* Comments section */}
+      <div className="mt-4 rounded-[var(--radius)] p-4 border border-border" style={{ backgroundColor: "#383838" }}>
+        <h2 className="text-white font-bold text-sm mb-3">Comments</h2>
+        <div className="space-y-2 max-h-48 overflow-y-auto mb-3">
+          {comments.length === 0 && (
+            <p className="text-muted-foreground text-xs text-center py-3">No comments yet — be the first!</p>
+          )}
+          {comments.map((c, i) => (
+            <div key={i} className="rounded-xl px-3 py-2" style={{ backgroundColor: "#2b2b2b" }}>
+              <div className="flex items-center gap-2">
+                <span className="text-primary text-xs font-bold">{c.name}</span>
+                <span className="text-muted-foreground text-[10px]">{c.time}</span>
+              </div>
+              <p className="text-white text-sm mt-0.5">{c.text}</p>
+            </div>
+          ))}
+        </div>
+        <div className="flex gap-2">
+          <input
+            value={commentDraft}
+            onChange={(e) => setCommentDraft(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && sendComment()}
+            placeholder="Write a comment..."
+            className="flex-1 rounded-full px-4 py-2 text-sm text-white placeholder:text-muted-foreground outline-none border border-border"
+            style={{ backgroundColor: "#2b2b2b" }}
+          />
+          <button onClick={sendComment} className="w-9 h-9 rounded-full bg-primary flex items-center justify-center shrink-0">
+            <Send className="w-4 h-4 text-primary-foreground" />
+          </button>
+        </div>
+      </div>
+
+      {/* Gallery section */}
+      <div className="mt-4 rounded-[var(--radius)] p-4 border border-border" style={{ backgroundColor: "#383838" }}>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-white font-bold text-sm">Gallery</h2>
+          <button onClick={() => photoInput.current?.click()} className="text-xs font-bold bg-primary text-primary-foreground rounded-full px-3 py-1">
+            Add photo
+          </button>
+          <input ref={photoInput} type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} />
+        </div>
+        {photos.length === 0 ? (
+          <p className="text-muted-foreground text-xs text-center py-4">No photos yet — add the first one!</p>
+        ) : (
+          <div className="grid grid-cols-3 gap-1.5">
+            {photos.map((src, i) => (
+              <div key={i} className="aspect-square rounded-lg overflow-hidden">
+                <img src={src} alt="" className="w-full h-full object-cover" />
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
       {/* RSVP floating bar */}
       <div className="fixed bottom-4 left-4 right-4 z-50">
         {barMinimised && rsvp ? (
