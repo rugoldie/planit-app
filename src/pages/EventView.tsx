@@ -26,43 +26,80 @@ const EventView = () => {
       ? { background: event.bgPhoto }
       : { backgroundColor: `hsl(${event.bgColor})` };
 
+  // Bubble colour from event, fallback to primary
+  const bubbleBg = event.bubbleColor ? `hsl(${event.bubbleColor})` : undefined;
+  const bubbleTextIsLight = event.bubbleColor && parseFloat(event.bubbleColor.split(" ")[2]) < 50;
+  const bubbleTextColor = bubbleBg ? (bubbleTextIsLight ? "hsl(0 0% 95%)" : "hsl(0 0% 10%)") : undefined;
+
   return (
     <div className="flex flex-col min-h-screen px-5 py-6" style={bgStyle}>
-      <button onClick={() => navigate(-1)} className="self-start mb-6">
-        <ArrowLeft className="w-6 h-6 text-muted-foreground" />
-      </button>
+      <div className="flex items-center justify-between mb-6">
+        <button onClick={() => navigate(-1)} className="self-start">
+          <ArrowLeft className="w-6 h-6 text-muted-foreground" />
+        </button>
+        <button
+          onClick={() => navigate(`/host?edit=${code}`)}
+          className="text-primary text-sm font-bold"
+        >
+          Edit
+        </button>
+      </div>
 
-      <div className="bg-card/90 rounded-[var(--radius)] p-6 mb-4 backdrop-blur-sm border border-border">
-        <h1 className={`font-extrabold text-card-foreground ${textClass}`}>{event.title || "Untitled Event"}</h1>
-        {event.vibe && <p className="text-muted-foreground mt-2 text-sm">{event.vibe}</p>}
+      <div
+        className="rounded-[var(--radius)] p-6 mb-4 backdrop-blur-sm border border-border"
+        style={bubbleBg ? { backgroundColor: bubbleBg } : undefined}
+      >
+        <h1
+          className={`font-extrabold ${textClass}`}
+          style={bubbleTextColor ? { color: bubbleTextColor } : undefined}
+        >
+          {event.title || "Untitled Event"}
+        </h1>
+        {event.vibe && (
+          <p className="mt-2 text-sm" style={bubbleTextColor ? { color: bubbleTextColor, opacity: 0.7 } : undefined}>
+            {event.vibe}
+          </p>
+        )}
       </div>
 
       {(event.location || event.dateTime || event.dressCode || event.extra) && (
         <div className="flex flex-col gap-3">
           {event.location && (
-            <div className="bg-card/90 rounded-[var(--radius)] p-4 backdrop-blur-sm flex items-center gap-3 border border-border">
+            <div
+              className="rounded-[var(--radius)] p-4 backdrop-blur-sm flex items-center gap-3 border border-border"
+              style={bubbleBg ? { backgroundColor: bubbleBg } : undefined}
+            >
               <span className="text-xl">📍</span>
-              <span className="text-card-foreground text-sm font-semibold">{event.location}</span>
+              <span className="text-sm font-semibold" style={bubbleTextColor ? { color: bubbleTextColor } : undefined}>{event.location}</span>
             </div>
           )}
           {event.dateTime && (
-            <div className="bg-card/90 rounded-[var(--radius)] p-4 backdrop-blur-sm flex items-center gap-3 border border-border">
+            <div
+              className="rounded-[var(--radius)] p-4 backdrop-blur-sm flex items-center gap-3 border border-border"
+              style={bubbleBg ? { backgroundColor: bubbleBg } : undefined}
+            >
               <span className="text-xl">📅</span>
-              <span className="text-card-foreground text-sm font-semibold">
+              <span className="text-sm font-semibold" style={bubbleTextColor ? { color: bubbleTextColor } : undefined}>
                 {new Date(event.dateTime).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}
               </span>
             </div>
           )}
           {event.dressCode && (
-            <div className="bg-card/90 rounded-[var(--radius)] p-4 backdrop-blur-sm flex items-center gap-3 border border-border">
+            <div
+              className="rounded-[var(--radius)] p-4 backdrop-blur-sm flex items-center gap-3 border border-border"
+              style={bubbleBg ? { backgroundColor: bubbleBg } : undefined}
+            >
               <span className="text-xl">👗</span>
-              <span className="text-card-foreground text-sm font-semibold">{event.dressCode}</span>
+              <span className="text-sm font-semibold" style={bubbleTextColor ? { color: bubbleTextColor } : undefined}>{event.dressCode}</span>
             </div>
           )}
           {event.extra && (
-            <div className="bg-card/90 rounded-[var(--radius)] p-4 backdrop-blur-sm flex items-center gap-3 border border-border">
+            <div
+              className="rounded-[var(--radius)] p-4 backdrop-blur-sm flex items-center gap-3 border border-border"
+              style={bubbleBg ? { backgroundColor: bubbleBg } : undefined}
+            >
               <span className="text-xl">➕</span>
-              <span className="text-card-foreground text-sm font-semibold">{event.extra}</span>
+              <span className="text-sm font-semibold" style={bubbleTextColor ? { color: bubbleTextColor } : undefined}>{event.extra}</span>
             </div>
           )}
         </div>
