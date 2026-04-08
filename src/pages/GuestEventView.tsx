@@ -57,7 +57,7 @@ const GuestEventView = () => {
         // Get profiles for all users
         const userIds = data.map((d: any) => d.user_id);
         const { data: profiles } = await supabase
-          .from("profiles")
+          .from("profiles_public")
           .select("user_id, name, avatar_url")
           .in("user_id", userIds);
         const profileMap = new Map((profiles || []).map((p: any) => [p.user_id, p]));
@@ -101,7 +101,7 @@ const GuestEventView = () => {
       if (data) {
         // Get avatar urls
         const userIds = [...new Set(data.map((c: any) => c.user_id))];
-        const { data: profiles } = await supabase.from("profiles").select("user_id, avatar_url").in("user_id", userIds);
+        const { data: profiles } = await supabase.from("profiles_public" as any).select("user_id, avatar_url").in("user_id", userIds);
         const avatarMap = new Map((profiles || []).map((p: any) => [p.user_id, p.avatar_url]));
         setComments(data.map((c: any) => ({ ...c, avatar_url: avatarMap.get(c.user_id) })));
       }
