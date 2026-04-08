@@ -8,9 +8,9 @@ const Home = () => {
     <div className="flex flex-col min-h-screen bg-background px-6 py-8">
       <button
         onClick={() => navigate("/profile")}
-        className="self-start bg-card rounded-full w-11 h-11 flex items-center justify-center shadow-sm"
+        className="self-start bg-secondary rounded-full w-11 h-11 flex items-center justify-center border border-border"
       >
-        <User className="w-5 h-5 text-card-foreground" />
+        <User className="w-5 h-5 text-muted-foreground" />
       </button>
 
       <div className="flex flex-col items-center mt-8">
@@ -20,13 +20,13 @@ const Home = () => {
       <div className="flex flex-col items-center justify-center flex-1 gap-12 px-2">
         <button
           onClick={() => navigate("/host")}
-          className="w-full max-w-md bg-card text-card-foreground rounded-[var(--radius)] py-10 text-3xl font-extrabold shadow-sm"
+          className="w-full max-w-md bg-primary text-primary-foreground rounded-[var(--radius)] py-10 text-3xl font-extrabold"
         >
           Host
         </button>
         <button
           onClick={() => {}}
-          className="w-full max-w-md bg-card text-card-foreground rounded-[var(--radius)] py-10 text-3xl font-extrabold shadow-sm"
+          className="w-full max-w-md bg-primary text-primary-foreground rounded-[var(--radius)] py-10 text-3xl font-extrabold"
         >
           Join
         </button>
