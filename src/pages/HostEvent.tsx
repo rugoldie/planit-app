@@ -215,7 +215,7 @@ const HostEvent = () => {
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Event name..."
-          className="w-full bg-transparent text-2xl font-extrabold text-card-foreground placeholder:text-muted-foreground outline-none"
+          className={`w-full bg-transparent text-card-foreground placeholder:text-muted-foreground outline-none ${textSize === "Small" ? "text-lg font-bold" : textSize === "Large" ? "text-4xl font-extrabold" : "text-2xl font-extrabold"}`}
         />
       </div>
 
@@ -226,7 +226,7 @@ const HostEvent = () => {
           placeholder="Set the vibe... e.g. sit down dinner, pub crawl, smart casual night out"
           rows={2}
           maxLength={120}
-          className="w-full bg-transparent text-sm text-card-foreground placeholder:text-muted-foreground outline-none resize-none"
+          className={`w-full bg-transparent text-card-foreground placeholder:text-muted-foreground outline-none resize-none ${textSize === "Small" ? "text-xs" : textSize === "Large" ? "text-base" : "text-sm"}`}
         />
       </div>
 
