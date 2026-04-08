@@ -240,7 +240,7 @@ const HostEvent = () => {
           value={location}
           onChange={(e) => setLocation(e.target.value)}
           placeholder="Where"
-          className="w-full bg-transparent text-sm font-medium outline-none placeholder:opacity-50"
+          className={`w-full bg-transparent outline-none placeholder:opacity-50 ${textSize === "Small" ? "text-xs font-medium" : textSize === "Large" ? "text-base font-bold" : "text-sm font-medium"}`}
           style={{ color: `hsl(${bubbleTextColor})` }}
         />
       </div>
@@ -254,7 +254,7 @@ const HostEvent = () => {
           type="datetime-local"
           value={dateTime}
           onChange={(e) => setDateTime(e.target.value)}
-          className="w-full bg-transparent text-sm font-medium outline-none"
+          className={`w-full bg-transparent outline-none ${textSize === "Small" ? "text-xs font-medium" : textSize === "Large" ? "text-base font-bold" : "text-sm font-medium"}`}
           style={{ color: `hsl(${bubbleTextColor})` }}
         />
       </div>
@@ -269,7 +269,7 @@ const HostEvent = () => {
           value={dressCode}
           onChange={(e) => setDressCode(e.target.value)}
           placeholder="Theme / dress code"
-          className="w-full bg-transparent text-sm font-medium outline-none placeholder:opacity-50"
+          className={`w-full bg-transparent outline-none placeholder:opacity-50 ${textSize === "Small" ? "text-xs font-medium" : textSize === "Large" ? "text-base font-bold" : "text-sm font-medium"}`}
           style={{ color: `hsl(${bubbleTextColor})` }}
         />
       </div>
@@ -284,7 +284,7 @@ const HostEvent = () => {
           onChange={(e) => setExtra(e.target.value)}
           placeholder="Anything else..."
           rows={2}
-          className="w-full bg-transparent text-sm font-medium outline-none resize-none placeholder:opacity-50"
+          className={`w-full bg-transparent outline-none resize-none placeholder:opacity-50 ${textSize === "Small" ? "text-xs font-medium" : textSize === "Large" ? "text-base font-bold" : "text-sm font-medium"}`}
           style={{ color: `hsl(${bubbleTextColor})` }}
         />
       </div>
