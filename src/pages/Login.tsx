@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import PasswordInput from "@/components/PasswordInput";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -38,13 +39,7 @@ const Login = () => {
             onChange={(e) => setEmail(e.target.value)}
             className="w-full bg-muted text-card-foreground rounded-[var(--radius)] px-4 py-3 text-base outline-none placeholder:text-muted-foreground border border-border mb-3"
           />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full bg-muted text-card-foreground rounded-[var(--radius)] px-4 py-3 text-base outline-none placeholder:text-muted-foreground border border-border"
-          />
+          <PasswordInput value={password} onChange={(e) => setPassword(e.target.value)} />
           {error && <p className="text-destructive text-xs mt-2 font-semibold">{error}</p>}
           <button
             type="button"
