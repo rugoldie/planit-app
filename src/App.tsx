@@ -5,6 +5,8 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import Splash from "./pages/Splash";
 import SignUp from "./pages/SignUp";
 import Login from "./pages/Login";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import Home from "./pages/Home";
 import HostEvent from "./pages/HostEvent";
 import EventView from "./pages/EventView";
