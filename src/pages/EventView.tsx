@@ -333,8 +333,8 @@ const EventView = () => {
 
       {/* Title card */}
       <div className="bg-card/90 rounded-[var(--radius)] p-6 mb-4 backdrop-blur-sm border border-border">
-        <h1 className={`font-extrabold text-card-foreground ${textClass}`}>{event.title || "Untitled Event"}</h1>
-        {event.vibe && <p className="text-muted-foreground mt-2 text-sm">{event.vibe}</p>}
+        <h1 className={`text-card-foreground ${titleClass}`}>{event.title || "Untitled Event"}</h1>
+        {event.vibe && <p className={`text-muted-foreground mt-2 ${vibeClass}`}>{event.vibe}</p>}
       </div>
 
       {/* Detail bubbles */}
