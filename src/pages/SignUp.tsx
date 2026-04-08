@@ -2,12 +2,15 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import PasswordInput from "@/components/PasswordInput";
+import CountryCodeSelector from "@/components/CountryCodeSelector";
 
 const SignUp = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [countryCode, setCountryCode] = useState("+44");
   const [phone, setPhone] = useState("");
   const [code, setCode] = useState(["", "", "", "", "", ""]);
   const [name, setName] = useState("");
@@ -45,20 +48,16 @@ const SignUp = () => {
   const handleContinue = async () => {
     setError("");
     if (step === 0) {
-      // Email step — just advance
       setStep(1);
     } else if (step === 1) {
-      // Password step — just advance
       setStep(2);
     } else if (step === 2) {
-      // Phone step — just advance (phone stored later)
       setStep(3);
     } else if (step === 3) {
-      // Verification — skip real SMS for now, just advance
       setStep(4);
     } else if (step === 4) {
-      // Name step — do the actual signup
       setLoading(true);
+      const fullPhone = `${countryCode}${phone}`;
       const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
@@ -71,11 +70,10 @@ const SignUp = () => {
         setLoading(false);
         return;
       }
-      // Update profile with phone
       if (data.user) {
         await supabase
           .from("profiles")
-          .update({ phone, name })
+          .update({ phone: fullPhone, name })
           .eq("user_id", data.user.id);
       }
       setLoading(false);
@@ -119,12 +117,10 @@ const SignUp = () => {
             <h2 className="text-xl font-bold text-card-foreground mb-4">
               Create a password
             </h2>
-            <input
-              type="password"
-              placeholder="At least 6 characters"
+            <PasswordInput
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-muted text-card-foreground rounded-[var(--radius)] px-4 py-3 text-base outline-none placeholder:text-muted-foreground border border-border"
+              placeholder="At least 6 characters"
             />
           </div>
         )}
@@ -134,13 +130,16 @@ const SignUp = () => {
             <h2 className="text-xl font-bold text-card-foreground mb-4">
               What's your number?
             </h2>
-            <input
-              type="tel"
-              placeholder="Phone number"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              className="w-full bg-muted text-card-foreground rounded-[var(--radius)] px-4 py-3 text-base outline-none placeholder:text-muted-foreground border border-border"
-            />
+            <div className="flex gap-2">
+              <CountryCodeSelector value={countryCode} onChange={setCountryCode} />
+              <input
+                type="tel"
+                placeholder="Phone number"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                className="flex-1 bg-muted text-card-foreground rounded-[var(--radius)] px-4 py-3 text-base outline-none placeholder:text-muted-foreground border border-border"
+              />
+            </div>
           </div>
         )}
 
