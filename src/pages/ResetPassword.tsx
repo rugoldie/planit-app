@@ -106,19 +106,16 @@ const ResetPassword = () => {
             </p>
           ) : (
             <>
-              <input
-                type="password"
-                placeholder="New password"
+              <PasswordInput
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-muted text-card-foreground rounded-[var(--radius)] px-4 py-3 text-base outline-none placeholder:text-muted-foreground border border-border mb-3"
+                placeholder="New password"
+                className="mb-3"
               />
-              <input
-                type="password"
-                placeholder="Confirm password"
+              <PasswordInput
                 value={confirm}
                 onChange={(e) => setConfirm(e.target.value)}
-                className="w-full bg-muted text-card-foreground rounded-[var(--radius)] px-4 py-3 text-base outline-none placeholder:text-muted-foreground border border-border"
+                placeholder="Confirm password"
               />
               {error && <p className="text-destructive text-xs mt-2 font-semibold">{error}</p>}
             </>
