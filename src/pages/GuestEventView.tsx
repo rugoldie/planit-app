@@ -118,7 +118,34 @@ const GuestEventView = () => {
     return () => { supabase.removeChannel(channel); };
   }, [event]);
 
-  const goingList = useMemo(() => rsvpList.filter(r => r.status === "yes"), [rsvpList]);
+  // Fetch DMs with host
+  useEffect(() => {
+    if (!event || !user) return;
+    const hostId = event.host_id;
+    const fetchDMs = async () => {
+      const { data } = await supabase
+        .from("direct_messages")
+        .select("*")
+        .eq("event_id", event.id)
+        .or(`and(sender_id.eq.${user.id},receiver_id.eq.${hostId}),and(sender_id.eq.${hostId},receiver_id.eq.${user.id})`)
+        .order("created_at", { ascending: true });
+      if (data) {
+        setMessages(data.map((m: any) => ({
+          id: m.id,
+          from: m.sender_id === user.id ? "guest" : "host",
+          text: m.text,
+          time: new Date(m.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        })));
+      }
+    };
+    fetchDMs();
+    const channel = supabase
+      .channel(`guest-dms-${event.id}-${user.id}`)
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "direct_messages", filter: `event_id=eq.${event.id}` }, () => fetchDMs())
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [event, user]);
+
   const maybeList = useMemo(() => rsvpList.filter(r => r.status === "maybe"), [rsvpList]);
 
   if (loading) {
