@@ -5,6 +5,8 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import Splash from "./pages/Splash";
 import SignUp from "./pages/SignUp";
 import Login from "./pages/Login";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import Home from "./pages/Home";
 import HostEvent from "./pages/HostEvent";
 import EventView from "./pages/EventView";
@@ -24,6 +26,8 @@ const App = () => (
             <Route path="/" element={<Splash />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/home" element={<Home />} />
             <Route path="/host" element={<HostEvent />} />
             <Route path="/event/:code" element={<EventView />} />

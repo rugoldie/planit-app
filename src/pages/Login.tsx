@@ -46,6 +46,13 @@ const Login = () => {
             className="w-full bg-muted text-card-foreground rounded-[var(--radius)] px-4 py-3 text-base outline-none placeholder:text-muted-foreground border border-border"
           />
           {error && <p className="text-destructive text-xs mt-2 font-semibold">{error}</p>}
+          <button
+            type="button"
+            onClick={() => navigate("/forgot-password")}
+            className="text-sm text-muted-foreground underline mt-3 w-full text-center"
+          >
+            Forgot password?
+          </button>
         </div>
       </div>
 
