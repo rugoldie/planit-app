@@ -214,7 +214,9 @@ const EventView = () => {
     </div>
   );
 
-  const textClass = event.text_size === "Small" ? "text-base" : event.text_size === "Large" ? "text-4xl" : "text-2xl";
+  const titleClass = event.text_size === "Small" ? "text-lg font-bold" : event.text_size === "Large" ? "text-4xl font-extrabold" : "text-2xl font-extrabold";
+  const vibeClass = event.text_size === "Small" ? "text-xs" : event.text_size === "Large" ? "text-base" : "text-sm";
+  const bubbleTextClass = event.text_size === "Small" ? "text-xs font-medium" : event.text_size === "Large" ? "text-base font-bold" : "text-sm font-semibold";
   const hasBgImage = event.bg_photo && (event.bg_photo.startsWith("blob:") || event.bg_photo.startsWith("linear-gradient") || event.bg_photo.startsWith("http"));
   const bgStyle: React.CSSProperties = hasBgImage && !event.bg_photo.startsWith("linear-gradient")
     ? { backgroundImage: `url(${event.bg_photo})`, backgroundSize: "cover", backgroundPosition: "center" }
@@ -331,8 +333,8 @@ const EventView = () => {
 
       {/* Title card */}
       <div className="bg-card/90 rounded-[var(--radius)] p-6 mb-4 backdrop-blur-sm border border-border">
-        <h1 className={`font-extrabold text-card-foreground ${textClass}`}>{event.title || "Untitled Event"}</h1>
-        {event.vibe && <p className="text-muted-foreground mt-2 text-sm">{event.vibe}</p>}
+        <h1 className={`text-card-foreground ${titleClass}`}>{event.title || "Untitled Event"}</h1>
+        {event.vibe && <p className={`text-muted-foreground mt-2 ${vibeClass}`}>{event.vibe}</p>}
       </div>
 
       {/* Detail bubbles */}
@@ -341,13 +343,13 @@ const EventView = () => {
           {event.location && (
             <div className="rounded-[var(--radius)] p-4 backdrop-blur-sm flex items-center gap-3 border border-border" style={{ backgroundColor: bubbleBg }}>
               <span className="text-xl">📍</span>
-              <span className="text-sm font-semibold" style={{ color: bubbleText }}>{event.location}</span>
+              <span className={bubbleTextClass} style={{ color: bubbleText }}>{event.location}</span>
             </div>
           )}
           {event.date_time && (
             <div className="rounded-[var(--radius)] p-4 backdrop-blur-sm flex items-center gap-3 border border-border" style={{ backgroundColor: bubbleBg }}>
               <span className="text-xl">📅</span>
-              <span className="text-sm font-semibold" style={{ color: bubbleText }}>
+              <span className={bubbleTextClass} style={{ color: bubbleText }}>
                 {new Date(event.date_time).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}
               </span>
             </div>
@@ -355,13 +357,13 @@ const EventView = () => {
           {event.dress_code && (
             <div className="rounded-[var(--radius)] p-4 backdrop-blur-sm flex items-center gap-3 border border-border" style={{ backgroundColor: bubbleBg }}>
               <span className="text-xl">👗</span>
-              <span className="text-sm font-semibold" style={{ color: bubbleText }}>{event.dress_code}</span>
+              <span className={bubbleTextClass} style={{ color: bubbleText }}>{event.dress_code}</span>
             </div>
           )}
           {event.extra && (
             <div className="rounded-[var(--radius)] p-4 backdrop-blur-sm flex items-center gap-3 border border-border" style={{ backgroundColor: bubbleBg }}>
               <span className="text-xl">➕</span>
-              <span className="text-sm font-semibold" style={{ color: bubbleText }}>{event.extra}</span>
+              <span className={bubbleTextClass} style={{ color: bubbleText }}>{event.extra}</span>
             </div>
           )}
         </div>
