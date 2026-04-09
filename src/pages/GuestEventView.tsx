@@ -293,28 +293,28 @@ const GuestEventView = () => {
       {(event.location || event.date_time || event.dress_code || event.extra) && (
         <div className="flex flex-col gap-2">
           {event.location && (
-            <div className="p-4 backdrop-blur-sm flex items-center gap-3" style={{ backgroundColor: bubbleBg, borderLeft: `3px solid ${stripeColor}`, borderRadius: "0 12px 12px 0" }}>
-              <span className="text-xl" style={{ color: stripeColor }}>📍</span>
+            <div className="p-4 backdrop-blur-sm flex items-center gap-3" style={{ backgroundColor: bubbleBg, borderRadius: "12px" }}>
+              <span className="text-xl">📍</span>
               <span className={bubbleTextClass} style={{ color: bubbleText }}>{event.location}</span>
             </div>
           )}
           {event.date_time && (
-            <div className="p-4 backdrop-blur-sm flex items-center gap-3" style={{ backgroundColor: bubbleBg, borderLeft: `3px solid ${stripeColor}`, borderRadius: "0 12px 12px 0" }}>
-              <span className="text-xl" style={{ color: stripeColor }}>📅</span>
+            <div className="p-4 backdrop-blur-sm flex items-center gap-3" style={{ backgroundColor: bubbleBg, borderRadius: "12px" }}>
+              <span className="text-xl">📅</span>
               <span className={bubbleTextClass} style={{ color: bubbleText }}>
                 {new Date(event.date_time).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}
               </span>
             </div>
           )}
           {event.dress_code && (
-            <div className="p-4 backdrop-blur-sm flex items-center gap-3" style={{ backgroundColor: bubbleBg, borderLeft: `3px solid ${stripeColor}`, borderRadius: "0 12px 12px 0" }}>
-              <span className="text-xl" style={{ color: stripeColor }}>🎭</span>
+            <div className="p-4 backdrop-blur-sm flex items-center gap-3" style={{ backgroundColor: bubbleBg, borderRadius: "12px" }}>
+              <span className="text-xl">🎭</span>
               <span className={bubbleTextClass} style={{ color: bubbleText }}>{event.dress_code}</span>
             </div>
           )}
           {event.extra && (
-            <div className="p-4 backdrop-blur-sm flex items-center gap-3" style={{ backgroundColor: bubbleBg, borderLeft: `3px solid ${stripeColor}`, borderRadius: "0 12px 12px 0" }}>
-              <span className="text-xl" style={{ color: stripeColor }}>➕</span>
+            <div className="p-4 backdrop-blur-sm flex items-center gap-3" style={{ backgroundColor: bubbleBg, borderRadius: "12px" }}>
+              <span className="text-xl">➕</span>
               <span className={bubbleTextClass} style={{ color: bubbleText }}>{event.extra}</span>
             </div>
           )}
