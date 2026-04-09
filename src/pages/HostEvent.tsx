@@ -86,6 +86,7 @@ const HostEvent = () => {
   const [bgColor, setBgColor] = useState("0 0% 17%");
   const [bgPhoto, setBgPhoto] = useState<string | null>(null);
   const [bgPreset, setBgPreset] = useState<string | null>(null);
+  const [bgPresetIsImage, setBgPresetIsImage] = useState(false);
   const [textSize, setTextSize] = useState<typeof TEXT_SIZES[number]>("Medium");
   const [bubbleColor, setBubbleColor] = useState(BUBBLE_COLORS[1].hsl);
   const [bubbleTextColor, setBubbleTextColor] = useState(BUBBLE_COLORS[1].text);
@@ -203,7 +204,9 @@ const HostEvent = () => {
   const previewBgStyle: React.CSSProperties = bgPhoto
     ? { backgroundImage: `url(${bgPhoto})`, backgroundSize: "cover", backgroundPosition: "center" }
     : bgPreset
-      ? { background: bgPreset }
+      ? bgPresetIsImage
+        ? { backgroundImage: bgPreset.replace(/^url\(/, '').replace(/\)$/, '').replace(/^['"]|['"]$/g, '') ? bgPreset : bgPreset, backgroundSize: "cover", backgroundPosition: "center" }
+        : { background: bgPreset }
       : { backgroundColor: `hsl(${bgColor})` };
 
   if (showCode) {
