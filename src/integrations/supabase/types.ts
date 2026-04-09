@@ -119,6 +119,30 @@ export type Database = {
           },
         ]
       }
+      event_photos: {
+        Row: {
+          created_at: string
+          event_id: string
+          id: string
+          photo_url: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          id?: string
+          photo_url: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          id?: string
+          photo_url?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       events: {
         Row: {
           bg_color: string | null

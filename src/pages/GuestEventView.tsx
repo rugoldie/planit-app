@@ -25,7 +25,8 @@ const GuestEventView = () => {
   const [showFullComments, setShowFullComments] = useState(false);
   const fullCommentInputRef = useRef<HTMLInputElement>(null);
 
-  const [photos, setPhotos] = useState<string[]>([]);
+  const [photos, setPhotos] = useState<{ id: string; photo_url: string }[]>([]);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const photoInput = useRef<HTMLInputElement>(null);
 
   const [rsvpList, setRsvpList] = useState<RsvpEntry[]>([]);
@@ -118,7 +119,26 @@ const GuestEventView = () => {
     return () => { supabase.removeChannel(channel); };
   }, [event]);
 
-  // Fetch DMs with host
+  // Fetch photos
+  useEffect(() => {
+    if (!event) return;
+    const fetchPhotos = async () => {
+      const { data } = await supabase
+        .from("event_photos")
+        .select("id, photo_url")
+        .eq("event_id", event.id)
+        .order("created_at", { ascending: true });
+      if (data) setPhotos(data);
+    };
+    fetchPhotos();
+    const channel = supabase
+      .channel(`photos-${event.id}`)
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "event_photos", filter: `event_id=eq.${event.id}` }, () => fetchPhotos())
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [event]);
+
+
   useEffect(() => {
     if (!event || !user) return;
     const hostId = event.host_id;
@@ -218,14 +238,16 @@ const GuestEventView = () => {
     setCommentDraft("");
   };
 
-  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      setPhotos(prev => [...prev, reader.result as string]);
-    };
-    reader.readAsDataURL(file);
+    if (!file || !user || !event) return;
+    setUploadingPhoto(true);
+    const filePath = `${event.id}/${Date.now()}_${file.name}`;
+    const { error: uploadError } = await supabase.storage.from("event-photos").upload(filePath, file);
+    if (uploadError) { setUploadingPhoto(false); return; }
+    const { data: urlData } = supabase.storage.from("event-photos").getPublicUrl(filePath);
+    await supabase.from("event_photos").insert({ event_id: event.id, user_id: user.id, photo_url: urlData.publicUrl });
+    setUploadingPhoto(false);
     e.target.value = "";
   };
 
@@ -247,8 +269,11 @@ const GuestEventView = () => {
         <button onClick={() => navigate("/home")}>
           <ArrowLeft className="w-6 h-6 text-muted-foreground" />
         </button>
-        <button onClick={() => setShowChat(true)} className="w-9 h-9 rounded-full bg-secondary/80 flex items-center justify-center border border-border">
-          <MessageCircle className="w-4 h-4 text-primary" />
+        <button onClick={() => setShowChat(true)} className="flex flex-col items-center gap-0.5">
+          <div className="w-9 h-9 rounded-full bg-secondary/80 flex items-center justify-center border border-border">
+            <MessageCircle className="w-4 h-4 text-primary" />
+          </div>
+          <span className="text-[9px] font-semibold" style={{ color: "#aaee44" }}>Message host</span>
         </button>
       </div>
 
@@ -390,13 +415,14 @@ const GuestEventView = () => {
           </button>
           <input ref={photoInput} type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} />
         </div>
-        {photos.length === 0 ? (
+        {uploadingPhoto && <p className="text-primary text-xs text-center py-2">Uploading...</p>}
+        {photos.length === 0 && !uploadingPhoto ? (
           <p className="text-muted-foreground text-xs text-center py-4">No photos yet — add the first one!</p>
         ) : (
           <div className="grid grid-cols-3 gap-1.5">
-            {photos.map((src, i) => (
-              <div key={i} className="aspect-square rounded-lg overflow-hidden">
-                <img src={src} alt="" className="w-full h-full object-cover" />
+            {photos.map((p, i) => (
+              <div key={p.id} className="aspect-square rounded-lg overflow-hidden">
+                <img src={p.photo_url} alt="" className="w-full h-full object-cover" />
               </div>
             ))}
           </div>
@@ -414,16 +440,12 @@ const GuestEventView = () => {
           </button>
         ) : (
           <div className="bg-secondary/95 backdrop-blur-sm rounded-[var(--radius)] p-4 border border-border">
-            <p className="text-muted-foreground text-xs font-semibold text-center mb-3">Are you going?</p>
-            {rsvp ? (
-              <p className="text-primary font-bold text-center text-sm">{rsvpLabel}</p>
-            ) : (
-              <div className="flex gap-2">
-                <button onClick={() => handleRsvp("yes")} className="flex-1 bg-primary text-primary-foreground rounded-full py-2.5 text-sm font-bold">Yes 🙌</button>
-                <button onClick={() => handleRsvp("no")} className="flex-1 bg-muted text-secondary-foreground rounded-full py-2.5 text-sm font-bold border border-border">No 👎</button>
-                <button onClick={() => handleRsvp("maybe")} className="flex-1 bg-muted text-secondary-foreground rounded-full py-2.5 text-sm font-bold border border-border">Maybe 🤷</button>
-              </div>
-            )}
+            <p className="text-muted-foreground text-xs font-semibold text-center mb-3">{rsvp ? rsvpLabel : "Are you going?"}</p>
+            <div className="flex gap-2">
+              <button onClick={() => handleRsvp("yes")} className={`flex-1 rounded-full py-2.5 text-sm font-bold ${rsvp === "yes" ? "bg-primary text-primary-foreground" : "bg-muted text-secondary-foreground border border-border"}`}>Yes 🙌</button>
+              <button onClick={() => handleRsvp("no")} className={`flex-1 rounded-full py-2.5 text-sm font-bold ${rsvp === "no" ? "bg-primary text-primary-foreground" : "bg-muted text-secondary-foreground border border-border"}`}>No 👎</button>
+              <button onClick={() => handleRsvp("maybe")} className={`flex-1 rounded-full py-2.5 text-sm font-bold ${rsvp === "maybe" ? "bg-primary text-primary-foreground" : "bg-muted text-secondary-foreground border border-border"}`}>Maybe 🤷</button>
+            </div>
           </div>
         )}
       </div>
