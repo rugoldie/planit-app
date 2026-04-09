@@ -354,7 +354,7 @@ const HostEvent = () => {
           <DrawerTrigger asChild>
             <button
               className="rounded-[var(--radius)] px-4 py-3.5 mb-6 w-full text-center text-sm font-bold border"
-              style={{ backgroundColor: "#383838", color: "#aaee44", borderColor: "#444" }}
+              style={{ backgroundColor: "#383838", color: "#ffffff", borderColor: "#444" }}
             >
               Make it yours ✦
             </button>
