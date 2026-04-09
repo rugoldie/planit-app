@@ -287,29 +287,29 @@ const GuestEventView = () => {
       {(event.location || event.date_time || event.dress_code || event.extra) && (
         <div className="flex flex-col gap-2">
           {event.location && (
-            <div className="rounded-[var(--radius)] p-4 backdrop-blur-sm flex items-center gap-3 border border-border" style={{ backgroundColor: bubbleBg }}>
-              <span className="text-xl">📍</span>
-              <span className={bubbleTextClass} style={{ color: bubbleText }}>{event.location}</span>
+            <div className="p-4 backdrop-blur-sm flex items-center gap-3" style={{ backgroundColor: "#383838", borderLeft: "3px solid #aaee44", borderRadius: "0 12px 12px 0" }}>
+              <span className="text-xl" style={{ color: "#aaee44" }}>📍</span>
+              <span className={bubbleTextClass} style={{ color: "#f0f0f0" }}>{event.location}</span>
             </div>
           )}
           {event.date_time && (
-            <div className="rounded-[var(--radius)] p-4 backdrop-blur-sm flex items-center gap-3 border border-border" style={{ backgroundColor: bubbleBg }}>
-              <span className="text-xl">📅</span>
-              <span className={bubbleTextClass} style={{ color: bubbleText }}>
+            <div className="p-4 backdrop-blur-sm flex items-center gap-3" style={{ backgroundColor: "#383838", borderLeft: "3px solid #aaee44", borderRadius: "0 12px 12px 0" }}>
+              <span className="text-xl" style={{ color: "#aaee44" }}>📅</span>
+              <span className={bubbleTextClass} style={{ color: "#f0f0f0" }}>
                 {new Date(event.date_time).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}
               </span>
             </div>
           )}
           {event.dress_code && (
-            <div className="rounded-[var(--radius)] p-4 backdrop-blur-sm flex items-center gap-3 border border-border" style={{ backgroundColor: bubbleBg }}>
-              <span className="text-xl">🎭</span>
-              <span className={bubbleTextClass} style={{ color: bubbleText }}>{event.dress_code}</span>
+            <div className="p-4 backdrop-blur-sm flex items-center gap-3" style={{ backgroundColor: "#383838", borderLeft: "3px solid #aaee44", borderRadius: "0 12px 12px 0" }}>
+              <span className="text-xl" style={{ color: "#aaee44" }}>🎭</span>
+              <span className={bubbleTextClass} style={{ color: "#f0f0f0" }}>{event.dress_code}</span>
             </div>
           )}
           {event.extra && (
-            <div className="rounded-[var(--radius)] p-4 backdrop-blur-sm flex items-center gap-3 border border-border" style={{ backgroundColor: bubbleBg }}>
-              <span className="text-xl">➕</span>
-              <span className={bubbleTextClass} style={{ color: bubbleText }}>{event.extra}</span>
+            <div className="p-4 backdrop-blur-sm flex items-center gap-3" style={{ backgroundColor: "#383838", borderLeft: "3px solid #aaee44", borderRadius: "0 12px 12px 0" }}>
+              <span className="text-xl" style={{ color: "#aaee44" }}>➕</span>
+              <span className={bubbleTextClass} style={{ color: "#f0f0f0" }}>{event.extra}</span>
             </div>
           )}
         </div>
