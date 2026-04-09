@@ -116,8 +116,8 @@ const HostEvent = () => {
             setExtra(data.extra || "");
             setBgColor(data.bg_color || PALETTE_COLORS[0].hsl);
             setTextSize((data.text_size as typeof TEXT_SIZES[number]) || "Medium");
-            setBubbleColor(data.bubble_color || BUBBLE_COLORS[1].hsl);
-            setBubbleTextColor(data.bubble_text_color || BUBBLE_COLORS[1].text);
+            setBubbleColor(data.bubble_color || BUBBLE_COLORS[0].hsl);
+            setBubbleTextColor(data.bubble_text_color || BUBBLE_COLORS[0].text);
             setGradientColor(data.gradient_color || GRADIENT_COLORS[0].color);
             setFontStyle(data.font_style || "Bold");
             setEventCode(editCode);
