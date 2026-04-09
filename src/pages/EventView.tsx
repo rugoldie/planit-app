@@ -51,6 +51,20 @@ const EventView = () => {
   const [threadMessages, setThreadMessages] = useState<DM[]>([]);
   const [dmDraft, setDmDraft] = useState("");
 
+  // Gallery
+  const [photos, setPhotos] = useState<string[]>([]);
+  const photoInput = useRef<HTMLInputElement>(null);
+
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      setPhotos(prev => [...prev, reader.result as string]);
+    };
+    reader.readAsDataURL(file);
+  };
+
   // Fetch event
   useEffect(() => {
     if (!code) return;
@@ -454,6 +468,28 @@ const EventView = () => {
             <Send className="w-4 h-4 text-primary-foreground" />
           </button>
         </div>
+      </div>
+
+      {/* Gallery section */}
+      <div className="mt-4 rounded-[var(--radius)] p-4 border border-border" style={{ backgroundColor: "#383838" }}>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-white font-bold text-sm">Gallery</h2>
+          <button onClick={() => photoInput.current?.click()} className="text-xs font-bold bg-primary text-primary-foreground rounded-full px-3 py-1">
+            Add photo
+          </button>
+          <input ref={photoInput} type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} />
+        </div>
+        {photos.length === 0 ? (
+          <p className="text-muted-foreground text-xs text-center py-4">No photos yet — add the first one!</p>
+        ) : (
+          <div className="grid grid-cols-3 gap-1.5">
+            {photos.map((src, i) => (
+              <div key={i} className="aspect-square rounded-lg overflow-hidden">
+                <img src={src} alt="" className="w-full h-full object-cover" />
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* RSVP floating bar */}
