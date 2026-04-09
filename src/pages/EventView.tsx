@@ -310,72 +310,77 @@ const EventView = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen px-5 py-6 pb-28" style={bgStyle}>
-      {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <button onClick={() => navigate(-1)} className="self-start">
-          <ArrowLeft className="w-6 h-6 text-muted-foreground" />
-        </button>
-
-        <div className="flex items-center gap-2">
-          {/* Event code pill */}
-          <button
-            onClick={copyCode}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold"
-            style={{ backgroundColor: "#383838", color: "#aaee44" }}
-          >
-            {codeCopied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-            {event.code}
+    <div className="flex flex-col min-h-screen pb-28" style={{ backgroundColor: "#2b2b2b" }}>
+      {/* Gradient hero section */}
+      <div className="relative" style={{ background: "linear-gradient(to bottom, #aaee44 0%, #2b2b2b 100%)", minHeight: "220px" }}>
+        {/* Navigation overlay */}
+        <div className="flex items-center justify-between px-5 pt-6">
+          <button onClick={() => navigate(-1)} className="self-start">
+            <ArrowLeft className="w-6 h-6 text-[#111]" />
           </button>
 
-          {/* DM icon */}
-          <button
-            onClick={() => setShowDMs(true)}
-            className="flex flex-col items-center gap-0.5"
-          >
-            <div className="w-9 h-9 rounded-full flex items-center justify-center border border-border" style={{ backgroundColor: "#383838" }}>
-              <MessageCircle className="w-4 h-4" style={{ color: "#aaee44" }} />
-            </div>
-            <span className="text-[9px] font-semibold" style={{ color: "#aaee44" }}>Messages</span>
-          </button>
-
-          {/* Three dot menu */}
-          <div className="relative">
+          <div className="flex items-center gap-2">
+            {/* Event code pill */}
             <button
-              onClick={() => setShowMenu(!showMenu)}
-              className="w-9 h-9 rounded-full flex items-center justify-center border border-border"
-              style={{ backgroundColor: "#383838" }}
+              onClick={copyCode}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold"
+              style={{ backgroundColor: "rgba(0,0,0,0.15)", color: "#111" }}
             >
-              <MoreVertical className="w-4 h-4 text-muted-foreground" />
+              {codeCopied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+              {event.code}
             </button>
-            {showMenu && (
-              <>
-                <div className="fixed inset-0 z-40" onClick={() => setShowMenu(false)} />
-                <div className="absolute right-0 top-11 rounded-xl border border-border shadow-lg z-50 overflow-hidden" style={{ backgroundColor: "#383838" }}>
-                  <button
-                    onClick={() => { setShowMenu(false); navigate(`/host?edit=${code}`); }}
-                    className="px-5 py-3 text-sm font-semibold text-white hover:bg-white/10 w-full text-left whitespace-nowrap"
-                  >
-                    Edit event
-                  </button>
-                  <button
-                    onClick={() => { setShowMenu(false); setShowDeleteDialog(true); }}
-                    className="px-5 py-3 text-sm font-semibold text-red-400 hover:bg-red-500/10 w-full text-left whitespace-nowrap"
-                  >
-                    Delete event
-                  </button>
-                </div>
-              </>
-            )}
+
+            {/* DM icon */}
+            <button
+              onClick={() => setShowDMs(true)}
+              className="flex flex-col items-center gap-0.5"
+            >
+              <div className="w-9 h-9 rounded-full flex items-center justify-center border border-[#111]/20" style={{ backgroundColor: "rgba(0,0,0,0.15)" }}>
+                <MessageCircle className="w-4 h-4 text-[#111]" />
+              </div>
+              <span className="text-[9px] font-semibold text-[#111]">Messages</span>
+            </button>
+
+            {/* Three dot menu */}
+            <div className="relative">
+              <button
+                onClick={() => setShowMenu(!showMenu)}
+                className="w-9 h-9 rounded-full flex items-center justify-center border border-[#111]/20"
+                style={{ backgroundColor: "rgba(0,0,0,0.15)" }}
+              >
+                <MoreVertical className="w-4 h-4 text-[#111]" />
+              </button>
+              {showMenu && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setShowMenu(false)} />
+                  <div className="absolute right-0 top-11 rounded-xl border border-border shadow-lg z-50 overflow-hidden" style={{ backgroundColor: "#383838" }}>
+                    <button
+                      onClick={() => { setShowMenu(false); navigate(`/host?edit=${code}`); }}
+                      className="px-5 py-3 text-sm font-semibold text-white hover:bg-white/10 w-full text-left whitespace-nowrap"
+                    >
+                      Edit event
+                    </button>
+                    <button
+                      onClick={() => { setShowMenu(false); setShowDeleteDialog(true); }}
+                      className="px-5 py-3 text-sm font-semibold text-red-400 hover:bg-red-500/10 w-full text-left whitespace-nowrap"
+                    >
+                      Delete event
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
+        </div>
+        {/* Event title at bottom of gradient */}
+        <div className="absolute bottom-0 left-0 right-0 px-6 pb-5">
+          <h1 className={`text-white ${titleClass} drop-shadow-lg`}>{event.title || "Untitled Event"}</h1>
+          {event.vibe && <p className={`text-white/60 mt-1 ${vibeClass}`}>{event.vibe}</p>}
         </div>
       </div>
 
-      {/* Title card */}
-      <div className="bg-card/90 rounded-[var(--radius)] p-6 mb-4 backdrop-blur-sm border border-border">
-        <h1 className={`text-card-foreground ${titleClass}`}>{event.title || "Untitled Event"}</h1>
-        {event.vibe && <p className={`text-muted-foreground mt-2 ${vibeClass}`}>{event.vibe}</p>}
-      </div>
+      {/* Content area */}
+      <div className="px-5 pt-4">
 
       {/* Detail bubbles */}
       {(event.location || event.date_time || event.dress_code || event.extra) && (
@@ -662,6 +667,7 @@ const EventView = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      </div>
     </div>
   );
 };
