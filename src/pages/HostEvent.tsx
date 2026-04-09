@@ -300,7 +300,7 @@ const HostEvent = () => {
             value={location}
             onChange={(e) => setLocation(e.target.value)}
             placeholder="Where"
-            className={`w-full bg-transparent outline-none placeholder:opacity-50 ${bubbleTextClass}`}
+            className={`w-full bg-transparent outline-none placeholder:text-[#aaee44] ${bubbleTextClass}`}
             style={{ color: `hsl(${bubbleTextColor})` }}
           />
         </div>
@@ -329,7 +329,7 @@ const HostEvent = () => {
             value={dressCode}
             onChange={(e) => setDressCode(e.target.value)}
             placeholder="Theme / dress code"
-            className={`w-full bg-transparent outline-none placeholder:opacity-50 ${bubbleTextClass}`}
+            className={`w-full bg-transparent outline-none placeholder:text-[#aaee44] ${bubbleTextClass}`}
             style={{ color: `hsl(${bubbleTextColor})` }}
           />
         </div>
