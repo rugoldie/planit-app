@@ -238,91 +238,106 @@ const HostEvent = () => {
     );
   }
 
+  const titleClass = textSize === "Small" ? "text-2xl font-bold" : textSize === "Large" ? "text-5xl font-extrabold" : "text-4xl font-extrabold";
+  const vibeClass = textSize === "Small" ? "text-xs" : textSize === "Large" ? "text-base" : "text-sm";
+  const bubbleTextClass = textSize === "Small" ? "text-xs font-medium" : textSize === "Large" ? "text-base font-bold" : "text-sm font-medium";
+  const currentFontFamily = FONT_MAP[fontStyle] || FONT_MAP["Bold"];
+
   return (
-    <div className="flex flex-col min-h-screen px-5 py-6 pb-10 transition-all duration-300" style={previewBgStyle}>
-      <button onClick={() => navigate("/home")} className="self-start mb-4">
-        <ArrowLeft className="w-6 h-6 text-muted-foreground" />
-      </button>
-
-      <div className="bg-card rounded-[var(--radius)] px-4 py-3 mb-2 border border-border">
-        <input
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="Event name..."
-          className={`w-full bg-transparent text-card-foreground placeholder:text-muted-foreground outline-none ${textSize === "Small" ? "text-lg font-bold" : textSize === "Large" ? "text-4xl font-extrabold" : "text-2xl font-extrabold"}`}
-        />
-      </div>
-
-      <div className="bg-card rounded-[var(--radius)] px-4 py-3 mb-2 border border-border">
-        <textarea
-          value={vibe}
-          onChange={(e) => setVibe(e.target.value)}
-          placeholder="Set the vibe... e.g. sit down dinner, pub crawl, smart casual night out"
-          rows={2}
-          maxLength={120}
-          className={`w-full bg-transparent text-card-foreground placeholder:text-muted-foreground outline-none resize-none ${textSize === "Small" ? "text-xs" : textSize === "Large" ? "text-base" : "text-sm"}`}
-        />
-      </div>
-
+    <div className="flex flex-col min-h-screen transition-all duration-300" style={previewBgStyle}>
+      {/* Hero gradient header */}
       <div
-        className="px-4 py-3 mb-1.5 flex items-center gap-2.5"
-        style={{ backgroundColor: `hsl(${bubbleColor})`, borderRadius: "12px", color: `hsl(${bubbleTextColor})` }}
+        className="relative"
+        style={{
+          background: `linear-gradient(to bottom, ${gradientColor} 0%, ${bgPreset || bgPhoto ? 'transparent' : `hsl(${bgColor})`} 100%)`,
+          minHeight: "220px",
+        }}
       >
-        <span className="text-lg">📍</span>
-        <input
-          type="text"
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
-          placeholder="Where"
-          className={`w-full bg-transparent outline-none placeholder:opacity-50 ${textSize === "Small" ? "text-xs font-medium" : textSize === "Large" ? "text-base font-bold" : "text-sm font-medium"}`}
-          style={{ color: `hsl(${bubbleTextColor})` }}
-        />
+        <button onClick={() => navigate("/home")} className="absolute top-5 left-5 z-10">
+          <ArrowLeft className="w-6 h-6" style={{ color: "#111" }} />
+        </button>
+
+        <div className="absolute bottom-0 left-0 right-0 px-6 pb-5">
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Event name..."
+            className={`w-full bg-transparent text-white placeholder:text-white/40 outline-none drop-shadow-lg ${titleClass}`}
+            style={{ fontFamily: currentFontFamily }}
+          />
+          <textarea
+            value={vibe}
+            onChange={(e) => setVibe(e.target.value)}
+            placeholder="Set the vibe..."
+            rows={1}
+            maxLength={120}
+            className={`w-full bg-transparent text-white/60 placeholder:text-white/30 outline-none resize-none mt-1 ${vibeClass}`}
+            style={{ fontFamily: currentFontFamily }}
+          />
+        </div>
       </div>
 
-      <div
-        className="px-4 py-3 mb-1.5 flex items-center gap-2.5"
-        style={{ backgroundColor: `hsl(${bubbleColor})`, borderRadius: "12px", color: `hsl(${bubbleTextColor})` }}
-      >
-        <span className="text-lg">📅</span>
-        <input
-          type="datetime-local"
-          value={dateTime}
-          onChange={(e) => setDateTime(e.target.value)}
-          className={`w-full bg-transparent outline-none ${textSize === "Small" ? "text-xs font-medium" : textSize === "Large" ? "text-base font-bold" : "text-sm font-medium"}`}
-          style={{ color: `hsl(${bubbleTextColor})` }}
-        />
-      </div>
+      {/* Detail bubbles */}
+      <div className="px-5 pt-4 pb-10 flex flex-col gap-1.5">
+        <div
+          className="px-4 py-3 flex items-center gap-2.5"
+          style={{ backgroundColor: `hsl(${bubbleColor})`, borderRadius: "12px", color: `hsl(${bubbleTextColor})` }}
+        >
+          <span className="text-lg">📍</span>
+          <input
+            type="text"
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
+            placeholder="Where"
+            className={`w-full bg-transparent outline-none placeholder:opacity-50 ${bubbleTextClass}`}
+            style={{ color: `hsl(${bubbleTextColor})` }}
+          />
+        </div>
 
-      <div
-        className="px-4 py-3 mb-1.5 flex items-center gap-2.5"
-        style={{ backgroundColor: `hsl(${bubbleColor})`, borderRadius: "12px", color: `hsl(${bubbleTextColor})` }}
-      >
-        <span className="text-lg">🎭</span>
-        <input
-          type="text"
-          value={dressCode}
-          onChange={(e) => setDressCode(e.target.value)}
-          placeholder="Theme / dress code"
-          className={`w-full bg-transparent outline-none placeholder:opacity-50 ${textSize === "Small" ? "text-xs font-medium" : textSize === "Large" ? "text-base font-bold" : "text-sm font-medium"}`}
-          style={{ color: `hsl(${bubbleTextColor})` }}
-        />
-      </div>
+        <div
+          className="px-4 py-3 flex items-center gap-2.5"
+          style={{ backgroundColor: `hsl(${bubbleColor})`, borderRadius: "12px", color: `hsl(${bubbleTextColor})` }}
+        >
+          <span className="text-lg">📅</span>
+          <input
+            type="datetime-local"
+            value={dateTime}
+            onChange={(e) => setDateTime(e.target.value)}
+            className={`w-full bg-transparent outline-none ${bubbleTextClass}`}
+            style={{ color: `hsl(${bubbleTextColor})` }}
+          />
+        </div>
 
-      <div
-        className="px-4 py-3 mb-3 flex items-start gap-2.5"
-        style={{ backgroundColor: `hsl(${bubbleColor})`, borderRadius: "12px", color: `hsl(${bubbleTextColor})` }}
-      >
-        <span className="text-lg mt-0.5">➕</span>
-        <textarea
-          value={extra}
-          onChange={(e) => setExtra(e.target.value)}
-          placeholder="Anything else..."
-          rows={2}
-          className={`w-full bg-transparent outline-none resize-none placeholder:opacity-50 ${textSize === "Small" ? "text-xs font-medium" : textSize === "Large" ? "text-base font-bold" : "text-sm font-medium"}`}
-          style={{ color: `hsl(${bubbleTextColor})` }}
-        />
-      </div>
+        <div
+          className="px-4 py-3 flex items-center gap-2.5"
+          style={{ backgroundColor: `hsl(${bubbleColor})`, borderRadius: "12px", color: `hsl(${bubbleTextColor})` }}
+        >
+          <span className="text-lg">🎭</span>
+          <input
+            type="text"
+            value={dressCode}
+            onChange={(e) => setDressCode(e.target.value)}
+            placeholder="Theme / dress code"
+            className={`w-full bg-transparent outline-none placeholder:opacity-50 ${bubbleTextClass}`}
+            style={{ color: `hsl(${bubbleTextColor})` }}
+          />
+        </div>
+
+        <div
+          className="px-4 py-3 flex items-start gap-2.5"
+          style={{ backgroundColor: `hsl(${bubbleColor})`, borderRadius: "12px", color: `hsl(${bubbleTextColor})` }}
+        >
+          <span className="text-lg mt-0.5">➕</span>
+          <textarea
+            value={extra}
+            onChange={(e) => setExtra(e.target.value)}
+            placeholder="Anything else..."
+            rows={2}
+            className={`w-full bg-transparent outline-none resize-none placeholder:opacity-50 ${bubbleTextClass}`}
+            style={{ color: `hsl(${bubbleTextColor})` }}
+          />
+        </div>
 
       <Drawer>
         <DrawerTrigger asChild>
