@@ -447,7 +447,7 @@ const HostEvent = () => {
                     <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileUpload} />
                     {uploadedPhoto && (
                       <button
-                        onClick={() => { setBgPhoto(uploadedPhoto); setBgPreset(null); }}
+                        onClick={() => { setBgPhoto(uploadedPhoto); setBgPreset(null); setBgPresetIsImage(false); }}
                         className="w-11 h-11 rounded-xl overflow-hidden border-2"
                         style={{ borderColor: bgPhoto === uploadedPhoto ? "hsl(82 80% 60%)" : "transparent" }}
                       >
@@ -459,14 +459,16 @@ const HostEvent = () => {
                     {PRESET_BACKGROUNDS.map((p) => (
                       <button
                         key={p.name}
-                        onClick={() => { setBgPreset(p.gradient); setBgPhoto(null); }}
-                        className="h-14 rounded-xl border-2 transition-all"
+                        onClick={() => { setBgPreset(p.gradient); setBgPresetIsImage(!!(p as any).isImage); setBgPhoto(null); }}
+                        className="h-14 rounded-xl border-2 transition-all overflow-hidden"
                         style={{
-                          background: p.gradient,
+                          ...(p as any).isImage
+                            ? { backgroundImage: p.gradient, backgroundSize: "cover", backgroundPosition: "center" }
+                            : { background: p.gradient },
                           borderColor: bgPreset === p.gradient ? "hsl(82 80% 60%)" : "transparent",
                         }}
                       >
-                        <span className="text-[10px] font-bold text-secondary-foreground drop-shadow-sm">{p.name}</span>
+                        <span className="text-[10px] font-bold text-white drop-shadow-sm">{p.name}</span>
                       </button>
                     ))}
                   </div>
