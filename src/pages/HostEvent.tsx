@@ -163,6 +163,12 @@ const HostEvent = () => {
     }
   };
 
+  const isDarkBubble = (() => {
+    const parts = bubbleColor.split(/\s+/);
+    const lightness = parseFloat(parts[parts.length - 1]);
+    return lightness <= 30;
+  })();
+
   const previewBgStyle: React.CSSProperties = bgPhoto
     ? { backgroundImage: `url(${bgPhoto})`, backgroundSize: "cover", backgroundPosition: "center" }
     : bgPreset
