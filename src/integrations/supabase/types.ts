@@ -154,6 +154,8 @@ export type Database = {
           date_time: string | null
           dress_code: string | null
           extra: string | null
+          font_style: string | null
+          gradient_color: string | null
           host_id: string
           id: string
           location: string | null
@@ -172,6 +174,8 @@ export type Database = {
           date_time?: string | null
           dress_code?: string | null
           extra?: string | null
+          font_style?: string | null
+          gradient_color?: string | null
           host_id: string
           id?: string
           location?: string | null
@@ -190,6 +194,8 @@ export type Database = {
           date_time?: string | null
           dress_code?: string | null
           extra?: string | null
+          font_style?: string | null
+          gradient_color?: string | null
           host_id?: string
           id?: string
           location?: string | null
