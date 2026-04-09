@@ -194,6 +194,12 @@ const GuestEventView = () => {
 
   const bubbleBg = event.bubble_color ? `hsl(${event.bubble_color})` : undefined;
   const bubbleText = event.bubble_text_color ? `hsl(${event.bubble_text_color})` : undefined;
+  const isDarkBubble = (() => {
+    const c = event.bubble_color || "82 100% 48%";
+    const parts = c.split(/\s+/);
+    return parseFloat(parts[parts.length - 1]) <= 30;
+  })();
+  const stripeColor = isDarkBubble ? "#aaee44" : "#111";
 
   const handleRsvp = async (response: string) => {
     if (!user || !event) return;
