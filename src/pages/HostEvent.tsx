@@ -307,7 +307,7 @@ const HostEvent = () => {
         </div>
 
         <div
-          className="px-4 py-3 flex items-center gap-2.5"
+          className="host-detail-bubble px-4 py-3 flex items-center gap-2.5"
           style={{ backgroundColor: "#383838", borderRadius: "12px" }}
         >
           <span className="text-lg">📅</span>
@@ -321,7 +321,7 @@ const HostEvent = () => {
         </div>
 
         <div
-          className="px-4 py-3 flex items-center gap-2.5"
+          className="host-detail-bubble px-4 py-3 flex items-center gap-2.5"
           style={{ backgroundColor: "#383838", borderRadius: "12px" }}
         >
           <span className="text-lg">🎭</span>
@@ -330,13 +330,13 @@ const HostEvent = () => {
             value={dressCode}
             onChange={(e) => setDressCode(e.target.value)}
             placeholder="Theme / dress code"
-            className={`w-full bg-transparent outline-none text-white ${bubbleTextClass}`}
+            className={`w-full bg-transparent outline-none ${bubbleTextClass}`}
             style={{ color: "#fff" }}
           />
         </div>
 
         <div
-          className="px-4 py-3 flex items-start gap-2.5"
+          className="host-detail-bubble px-4 py-3 flex items-start gap-2.5"
           style={{ backgroundColor: "#383838", borderRadius: "12px" }}
         >
           <span className="text-lg mt-0.5">➕</span>
@@ -345,14 +345,17 @@ const HostEvent = () => {
             onChange={(e) => setExtra(e.target.value)}
             placeholder="Anything else..."
             rows={2}
-            className={`w-full bg-transparent outline-none resize-none text-white ${bubbleTextClass}`}
+            className={`w-full bg-transparent outline-none resize-none ${bubbleTextClass}`}
             style={{ color: "#fff" }}
           />
         </div>
 
         <Drawer>
           <DrawerTrigger asChild>
-            <button className="bg-secondary rounded-[var(--radius)] px-4 py-3.5 mb-6 w-full text-center text-sm font-bold text-primary border border-border">
+            <button
+              className="rounded-[var(--radius)] px-4 py-3.5 mb-6 w-full text-center text-sm font-bold border"
+              style={{ backgroundColor: "#383838", color: "#aaee44", borderColor: "#444" }}
+            >
               Make it yours ✦
             </button>
           </DrawerTrigger>
