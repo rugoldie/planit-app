@@ -4,38 +4,40 @@ import { ArrowLeft, Upload, Copy, Share2 } from "lucide-react";
 import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import bgNeonCity from "@/assets/bg-neon-city.jpg";
+import bgStarryNight from "@/assets/bg-starry-night.jpg";
+import bgDarkFloral from "@/assets/bg-dark-floral.jpg";
 
 const PALETTE_COLORS = [
   { name: "Dark Grey", hsl: "0 0% 17%" },
-  { name: "Lime Green", hsl: "82 100% 48%" },
-  { name: "Black", hsl: "0 0% 10%" },
-  { name: "White", hsl: "0 0% 100%" },
-  { name: "Navy", hsl: "220 60% 20%" },
-  { name: "Blush Pink", hsl: "340 80% 85%" },
-  { name: "Purple", hsl: "270 60% 50%" },
-  { name: "Burnt Orange", hsl: "25 90% 50%" },
-  { name: "Sky Blue", hsl: "200 80% 65%" },
-  { name: "Cream", hsl: "40 60% 90%" },
-  { name: "Forest Green", hsl: "150 50% 30%" },
+  { name: "Deep Navy", hsl: "213 52% 11%" },
+  { name: "Dark Purple", hsl: "264 67% 11%" },
+  { name: "Dark Green", hsl: "120 52% 8%" },
+  { name: "Deep Red", hsl: "0 55% 6%" },
+  { name: "Charcoal", hsl: "0 0% 11%" },
+  { name: "Black", hsl: "0 0% 0%" },
 ];
 
 const BUBBLE_COLORS = [
-  { name: "White", hsl: "0 0% 100%", text: "0 0% 10%" },
   { name: "Lime Green", hsl: "82 100% 48%", text: "0 0% 10%" },
-  { name: "Dark Grey", hsl: "0 0% 22%", text: "0 0% 100%" },
-  { name: "Black", hsl: "0 0% 5%", text: "0 0% 100%" },
-  { name: "Blush Pink", hsl: "340 80% 85%", text: "0 0% 10%" },
-  { name: "Sky Blue", hsl: "200 80% 65%", text: "0 0% 10%" },
+  { name: "White", hsl: "0 0% 100%", text: "0 0% 10%" },
+  { name: "Hot Pink", hsl: "340 100% 71%", text: "0 0% 10%" },
+  { name: "Sky Blue", hsl: "199 92% 64%", text: "0 0% 10%" },
+  { name: "Purple", hsl: "282 37% 53%", text: "0 0% 100%" },
+  { name: "Orange", hsl: "24 100% 63%", text: "0 0% 10%" },
+  { name: "Yellow", hsl: "47 100% 62%", text: "0 0% 10%" },
+  { name: "Red", hsl: "6 76% 57%", text: "0 0% 100%" },
 ];
 
 const GRADIENT_COLORS = [
   { name: "Lime Green", color: "#aaee44" },
-  { name: "Purple", color: "#9b59b6" },
-  { name: "Blue", color: "#3498db" },
-  { name: "Pink", color: "#e91e8a" },
-  { name: "Orange", color: "#f39c12" },
-  { name: "Red", color: "#e74c3c" },
-  { name: "Teal", color: "#1abc9c" },
+  { name: "Purple", color: "#7b2d8b" },
+  { name: "Blue", color: "#1a6fb5" },
+  { name: "Pink", color: "#c2185b" },
+  { name: "Orange", color: "#e65100" },
+  { name: "Teal", color: "#00695c" },
+  { name: "Red", color: "#b71c1c" },
+  { name: "Silver", color: "#e0e0e0" },
 ];
 
 const FONT_STYLES = [
@@ -52,11 +54,11 @@ const FONT_MAP: Record<string, string> = {
 
 const PRESET_BACKGROUNDS = [
   { name: "Moody Dark", gradient: "linear-gradient(135deg, hsl(240 10% 10%), hsl(260 20% 20%))" },
-  { name: "Confetti", gradient: "linear-gradient(135deg, hsl(340 80% 70%), hsl(50 90% 70%), hsl(200 80% 70%))" },
-  { name: "Floral", gradient: "linear-gradient(135deg, hsl(330 60% 80%), hsl(120 40% 75%))" },
+  { name: "Neon City", gradient: `url(${bgNeonCity})`, isImage: true },
+  { name: "Starry Night", gradient: `url(${bgStarryNight})`, isImage: true },
   { name: "City Night", gradient: "linear-gradient(135deg, hsl(230 30% 15%), hsl(260 40% 30%))" },
+  { name: "Dark Floral", gradient: `url(${bgDarkFloral})`, isImage: true },
   { name: "Marble", gradient: "linear-gradient(135deg, hsl(0 0% 95%), hsl(0 0% 80%), hsl(0 0% 90%))" },
-  { name: "Gradient Sunset", gradient: "linear-gradient(135deg, hsl(20 90% 60%), hsl(340 80% 55%), hsl(270 60% 50%))" },
 ];
 
 const TEXT_SIZES = ["Small", "Medium", "Large"] as const;
