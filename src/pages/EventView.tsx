@@ -52,17 +52,21 @@ const EventView = () => {
   const [dmDraft, setDmDraft] = useState("");
 
   // Gallery
-  const [photos, setPhotos] = useState<string[]>([]);
+  const [photos, setPhotos] = useState<{ id: string; photo_url: string }[]>([]);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const photoInput = useRef<HTMLInputElement>(null);
 
-  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      setPhotos(prev => [...prev, reader.result as string]);
-    };
-    reader.readAsDataURL(file);
+    if (!file || !user || !event) return;
+    setUploadingPhoto(true);
+    const filePath = `${event.id}/${Date.now()}_${file.name}`;
+    const { error: uploadError } = await supabase.storage.from("event-photos").upload(filePath, file);
+    if (uploadError) { setUploadingPhoto(false); return; }
+    const { data: urlData } = supabase.storage.from("event-photos").getPublicUrl(filePath);
+    await supabase.from("event_photos").insert({ event_id: event.id, user_id: user.id, photo_url: urlData.publicUrl });
+    setUploadingPhoto(false);
+    e.target.value = "";
   };
 
   // Fetch event
@@ -159,7 +163,26 @@ const EventView = () => {
     return () => { supabase.removeChannel(channel); };
   }, [event]);
 
-  // Fetch DM threads (host sees all messages for this event)
+  // Fetch photos
+  useEffect(() => {
+    if (!event) return;
+    const fetchPhotos = async () => {
+      const { data } = await supabase
+        .from("event_photos")
+        .select("id, photo_url")
+        .eq("event_id", event.id)
+        .order("created_at", { ascending: true });
+      if (data) setPhotos(data);
+    };
+    fetchPhotos();
+    const channel = supabase
+      .channel(`host-photos-${event.id}`)
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "event_photos", filter: `event_id=eq.${event.id}` }, () => fetchPhotos())
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [event]);
+
+
   useEffect(() => {
     if (!event || !user || event.host_id !== user.id) return;
     const fetchThreads = async () => {
@@ -307,10 +330,12 @@ const EventView = () => {
           {/* DM icon */}
           <button
             onClick={() => setShowDMs(true)}
-            className="w-9 h-9 rounded-full flex items-center justify-center border border-border"
-            style={{ backgroundColor: "#383838" }}
+            className="flex flex-col items-center gap-0.5"
           >
-            <MessageCircle className="w-4 h-4" style={{ color: "#aaee44" }} />
+            <div className="w-9 h-9 rounded-full flex items-center justify-center border border-border" style={{ backgroundColor: "#383838" }}>
+              <MessageCircle className="w-4 h-4" style={{ color: "#aaee44" }} />
+            </div>
+            <span className="text-[9px] font-semibold" style={{ color: "#aaee44" }}>Messages</span>
           </button>
 
           {/* Three dot menu */}
