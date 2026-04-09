@@ -85,6 +85,9 @@ const HostEvent = () => {
   const [eventCode, setEventCode] = useState("");
   const [uploadedPhoto, setUploadedPhoto] = useState<string | null>(null);
   const [eventId, setEventId] = useState<string | null>(null);
+  const [gradientColor, setGradientColor] = useState(GRADIENT_COLORS[0].color);
+  const [fontStyle, setFontStyle] = useState<typeof FONT_STYLES[number]["name"]>("Bold");
+  const [customizeTab, setCustomizeTab] = useState<"colours" | "style">("colours");
 
   // Load event data if editing
   useEffect(() => {
