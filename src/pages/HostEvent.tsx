@@ -238,9 +238,9 @@ const HostEvent = () => {
 
       <div
         className="px-4 py-3 mb-1.5 flex items-center gap-2.5"
-        style={{ backgroundColor: `hsl(${bubbleColor})`, borderLeft: `3px solid ${isDarkBubble ? "#aaee44" : "#111"}`, borderRadius: "0 12px 12px 0", color: `hsl(${bubbleTextColor})` }}
+        style={{ backgroundColor: `hsl(${bubbleColor})`, borderRadius: "12px", color: `hsl(${bubbleTextColor})` }}
       >
-        <span className="text-lg" style={{ color: isDarkBubble ? "#aaee44" : "#111" }}>📍</span>
+        <span className="text-lg">📍</span>
         <input
           type="text"
           value={location}
@@ -253,9 +253,9 @@ const HostEvent = () => {
 
       <div
         className="px-4 py-3 mb-1.5 flex items-center gap-2.5"
-        style={{ backgroundColor: `hsl(${bubbleColor})`, borderLeft: `3px solid ${isDarkBubble ? "#aaee44" : "#111"}`, borderRadius: "0 12px 12px 0", color: `hsl(${bubbleTextColor})` }}
+        style={{ backgroundColor: `hsl(${bubbleColor})`, borderRadius: "12px", color: `hsl(${bubbleTextColor})` }}
       >
-        <span className="text-lg" style={{ color: isDarkBubble ? "#aaee44" : "#111" }}>📅</span>
+        <span className="text-lg">📅</span>
         <input
           type="datetime-local"
           value={dateTime}
@@ -267,9 +267,9 @@ const HostEvent = () => {
 
       <div
         className="px-4 py-3 mb-1.5 flex items-center gap-2.5"
-        style={{ backgroundColor: `hsl(${bubbleColor})`, borderLeft: `3px solid ${isDarkBubble ? "#aaee44" : "#111"}`, borderRadius: "0 12px 12px 0", color: `hsl(${bubbleTextColor})` }}
+        style={{ backgroundColor: `hsl(${bubbleColor})`, borderRadius: "12px", color: `hsl(${bubbleTextColor})` }}
       >
-        <span className="text-lg" style={{ color: isDarkBubble ? "#aaee44" : "#111" }}>🎭</span>
+        <span className="text-lg">🎭</span>
         <input
           type="text"
           value={dressCode}
@@ -282,9 +282,9 @@ const HostEvent = () => {
 
       <div
         className="px-4 py-3 mb-3 flex items-start gap-2.5"
-        style={{ backgroundColor: `hsl(${bubbleColor})`, borderLeft: `3px solid ${isDarkBubble ? "#aaee44" : "#111"}`, borderRadius: "0 12px 12px 0", color: `hsl(${bubbleTextColor})` }}
+        style={{ backgroundColor: `hsl(${bubbleColor})`, borderRadius: "12px", color: `hsl(${bubbleTextColor})` }}
       >
-        <span className="text-lg mt-0.5" style={{ color: isDarkBubble ? "#aaee44" : "#111" }}>➕</span>
+        <span className="text-lg mt-0.5">➕</span>
         <textarea
           value={extra}
           onChange={(e) => setExtra(e.target.value)}

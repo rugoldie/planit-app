@@ -265,7 +265,7 @@ const EventView = () => {
     const parts = c.split(/\s+/);
     return parseFloat(parts[parts.length - 1]) <= 30;
   })();
-  const stripeColor = isDarkBubble ? "#aaee44" : "#111";
+  
 
   const handleRsvp = async (response: string) => {
     if (!user || !event) return;
