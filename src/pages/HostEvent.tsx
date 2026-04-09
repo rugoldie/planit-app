@@ -115,6 +115,8 @@ const HostEvent = () => {
             setTextSize((data.text_size as typeof TEXT_SIZES[number]) || "Medium");
             setBubbleColor(data.bubble_color || BUBBLE_COLORS[1].hsl);
             setBubbleTextColor(data.bubble_text_color || BUBBLE_COLORS[1].text);
+            setGradientColor(data.gradient_color || GRADIENT_COLORS[0].color);
+            setFontStyle(data.font_style || "Bold");
             setEventCode(editCode);
             setEventId(data.id);
             if (data.bg_photo?.startsWith("linear-gradient")) {
@@ -145,6 +147,8 @@ const HostEvent = () => {
       text_size: textSize,
       bubble_color: bubbleColor,
       bubble_text_color: bubbleTextColor,
+      gradient_color: gradientColor,
+      font_style: fontStyle,
     };
 
     if (editCode && eventId) {
@@ -476,12 +480,10 @@ const HostEvent = () => {
                       <span
                         className="text-2xl text-white"
                         style={{
-                          fontWeight: f.weight,
-                          fontStyle: f.italic ? "italic" : "normal",
-                          fontFamily: "'Nunito', sans-serif",
+                          fontFamily: f.family,
                         }}
                       >
-                        Aa
+                        {f.name}
                       </span>
                       <span className="text-[10px] font-semibold" style={{ color: fontStyle === f.name ? "#aaee44" : "#999" }}>
                         {f.name}
