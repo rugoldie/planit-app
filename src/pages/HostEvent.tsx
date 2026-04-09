@@ -289,7 +289,7 @@ const HostEvent = () => {
       </div>
 
       {/* Detail bubbles */}
-      <style>{`.host-detail-bubble input::placeholder, .host-detail-bubble textarea::placeholder { color: #aaee44 !important; opacity: 0.85; }`}</style>
+      <style>{`.host-detail-bubble input::placeholder, .host-detail-bubble textarea::placeholder { color: #ffffff !important; opacity: 0.7; }`}</style>
       <div className="px-5 pt-4 pb-10 flex flex-col gap-1.5">
         <div
           className="host-detail-bubble px-4 py-3 flex items-center gap-2.5"
