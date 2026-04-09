@@ -504,13 +504,14 @@ const EventView = () => {
           </button>
           <input ref={photoInput} type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} />
         </div>
-        {photos.length === 0 ? (
+        {uploadingPhoto && <p className="text-primary text-xs text-center py-2">Uploading...</p>}
+        {photos.length === 0 && !uploadingPhoto ? (
           <p className="text-muted-foreground text-xs text-center py-4">No photos yet — add the first one!</p>
         ) : (
           <div className="grid grid-cols-3 gap-1.5">
-            {photos.map((src, i) => (
-              <div key={i} className="aspect-square rounded-lg overflow-hidden">
-                <img src={src} alt="" className="w-full h-full object-cover" />
+            {photos.map((p) => (
+              <div key={p.id} className="aspect-square rounded-lg overflow-hidden">
+                <img src={p.photo_url} alt="" className="w-full h-full object-cover" />
               </div>
             ))}
           </div>
