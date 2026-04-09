@@ -19,6 +19,7 @@ const PALETTE_COLORS = [
 ];
 
 const BUBBLE_COLORS = [
+  { name: "Dark Grey", hsl: "0 0% 22%", text: "0 0% 100%" },
   { name: "Lime Green", hsl: "82 100% 48%", text: "0 0% 10%" },
   { name: "White", hsl: "0 0% 100%", text: "0 0% 10%" },
   { name: "Hot Pink", hsl: "340 100% 71%", text: "0 0% 10%" },
