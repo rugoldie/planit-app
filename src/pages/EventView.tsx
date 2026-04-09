@@ -530,16 +530,12 @@ const EventView = () => {
           </button>
         ) : (
           <div className="backdrop-blur-sm rounded-[var(--radius)] p-4 border border-border" style={{ backgroundColor: "rgba(56,56,56,0.95)" }}>
-            <p className="text-muted-foreground text-xs font-semibold text-center mb-3">Are you going?</p>
-            {rsvp ? (
-              <p className="font-bold text-center text-sm" style={{ color: "#aaee44" }}>{rsvpLabel}</p>
-            ) : (
-              <div className="flex gap-2">
-                <button onClick={() => handleRsvp("yes")} className="flex-1 bg-primary text-primary-foreground rounded-full py-2.5 text-sm font-bold">Yes 🙌</button>
-                <button onClick={() => handleRsvp("no")} className="flex-1 bg-muted text-secondary-foreground rounded-full py-2.5 text-sm font-bold border border-border">No 👎</button>
-                <button onClick={() => handleRsvp("maybe")} className="flex-1 bg-muted text-secondary-foreground rounded-full py-2.5 text-sm font-bold border border-border">Maybe 🤷</button>
-              </div>
-            )}
+            <p className="text-muted-foreground text-xs font-semibold text-center mb-3">{rsvp ? rsvpLabel : "Are you going?"}</p>
+            <div className="flex gap-2">
+              <button onClick={() => handleRsvp("yes")} className={`flex-1 rounded-full py-2.5 text-sm font-bold ${rsvp === "yes" ? "bg-primary text-primary-foreground" : "bg-muted text-secondary-foreground border border-border"}`}>Yes 🙌</button>
+              <button onClick={() => handleRsvp("no")} className={`flex-1 rounded-full py-2.5 text-sm font-bold ${rsvp === "no" ? "bg-primary text-primary-foreground" : "bg-muted text-secondary-foreground border border-border"}`}>No 👎</button>
+              <button onClick={() => handleRsvp("maybe")} className={`flex-1 rounded-full py-2.5 text-sm font-bold ${rsvp === "maybe" ? "bg-primary text-primary-foreground" : "bg-muted text-secondary-foreground border border-border"}`}>Maybe 🤷</button>
+            </div>
           </div>
         )}
       </div>
