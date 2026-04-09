@@ -13,15 +13,10 @@ const SignUp = () => {
   const [password, setPassword] = useState("");
   const [countryCode, setCountryCode] = useState("+44");
   const [phone, setPhone] = useState("");
-  const [code, setCode] = useState(["", "", "", "", "", ""]);
+  const [otpValue, setOtpValue] = useState("");
   const [name, setName] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const codeRefs = useRef<(HTMLInputElement | null)[]>([]);
-
-  useEffect(() => {
-    codeRefs.current = codeRefs.current.slice(0, 6);
-  }, []);
 
   const handleBack = () => {
     setError("");
@@ -29,22 +24,6 @@ const SignUp = () => {
     else navigate("/");
   };
 
-  const handleCodeChange = (index: number, value: string) => {
-    if (value.length > 1) value = value.slice(-1);
-    if (value && !/^\d$/.test(value)) return;
-    const next = [...code];
-    next[index] = value;
-    setCode(next);
-    if (value && index < 5) {
-      codeRefs.current[index + 1]?.focus();
-    }
-  };
-
-  const handleCodeKeyDown = (index: number, e: React.KeyboardEvent) => {
-    if (e.key === "Backspace" && !code[index] && index > 0) {
-      codeRefs.current[index - 1]?.focus();
-    }
-  };
 
   const handleContinue = async () => {
     setError("");
@@ -86,7 +65,7 @@ const SignUp = () => {
     if (step === 0) return !email;
     if (step === 1) return password.length < 6;
     if (step === 2) return !phone;
-    if (step === 3) return code.some((d) => !d);
+    if (step === 3) return otpValue.length < 6;
     if (step === 4) return !name;
     return false;
   };
@@ -152,23 +131,26 @@ const SignUp = () => {
             <p className="text-sm text-muted-foreground mb-6">
               We sent a 6 digit code to your number
             </p>
-            <div className="flex gap-2 justify-center mb-4">
-              {code.map((digit, i) => (
-                <input
-                  key={i}
-                  ref={(el) => { codeRefs.current[i] = el; }}
-                  type="text"
-                  inputMode="numeric"
-                  maxLength={1}
-                  value={digit}
-                  onChange={(e) => handleCodeChange(i, e.target.value)}
-                  onKeyDown={(e) => handleCodeKeyDown(i, e)}
-                  className="w-10 h-12 bg-muted text-card-foreground text-center text-lg font-bold rounded-[var(--radius)] outline-none border border-border"
-                />
-              ))}
+            <div className="flex justify-center mb-4">
+              <InputOTP
+                maxLength={6}
+                value={otpValue}
+                onChange={setOtpValue}
+                autoFocus
+              >
+                <InputOTPGroup>
+                  {[0, 1, 2, 3, 4, 5].map((index) => (
+                    <InputOTPSlot
+                      key={index}
+                      index={index}
+                      className="w-10 h-12 bg-muted text-card-foreground text-lg font-bold border-border"
+                    />
+                  ))}
+                </InputOTPGroup>
+              </InputOTP>
             </div>
             <button
-              onClick={() => setCode(["", "", "", "", "", ""])}
+              onClick={() => setOtpValue("")}
               className="text-sm text-muted-foreground underline w-full text-center"
             >
               Resend code
