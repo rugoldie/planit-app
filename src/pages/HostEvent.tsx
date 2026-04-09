@@ -39,10 +39,16 @@ const GRADIENT_COLORS = [
 ];
 
 const FONT_STYLES = [
-  { name: "Bold", weight: 800, italic: false },
-  { name: "Clean", weight: 500, italic: false },
-  { name: "Playful", weight: 700, italic: true },
+  { name: "Bold", family: "'Bebas Neue', sans-serif" },
+  { name: "Handwritten", family: "'Caveat', cursive" },
+  { name: "Elegant", family: "'Playfair Display', serif" },
 ] as const;
+
+const FONT_MAP: Record<string, string> = {
+  Bold: "'Bebas Neue', sans-serif",
+  Handwritten: "'Caveat', cursive",
+  Elegant: "'Playfair Display', serif",
+};
 
 const PRESET_BACKGROUNDS = [
   { name: "Moody Dark", gradient: "linear-gradient(135deg, hsl(240 10% 10%), hsl(260 20% 20%))" },
@@ -86,7 +92,7 @@ const HostEvent = () => {
   const [uploadedPhoto, setUploadedPhoto] = useState<string | null>(null);
   const [eventId, setEventId] = useState<string | null>(null);
   const [gradientColor, setGradientColor] = useState(GRADIENT_COLORS[0].color);
-  const [fontStyle, setFontStyle] = useState<typeof FONT_STYLES[number]["name"]>("Bold");
+  const [fontStyle, setFontStyle] = useState<string>("Bold");
   const [customizeTab, setCustomizeTab] = useState<"colours" | "style">("colours");
 
   // Load event data if editing
@@ -109,6 +115,8 @@ const HostEvent = () => {
             setTextSize((data.text_size as typeof TEXT_SIZES[number]) || "Medium");
             setBubbleColor(data.bubble_color || BUBBLE_COLORS[1].hsl);
             setBubbleTextColor(data.bubble_text_color || BUBBLE_COLORS[1].text);
+            setGradientColor(data.gradient_color || GRADIENT_COLORS[0].color);
+            setFontStyle(data.font_style || "Bold");
             setEventCode(editCode);
             setEventId(data.id);
             if (data.bg_photo?.startsWith("linear-gradient")) {
@@ -139,6 +147,8 @@ const HostEvent = () => {
       text_size: textSize,
       bubble_color: bubbleColor,
       bubble_text_color: bubbleTextColor,
+      gradient_color: gradientColor,
+      font_style: fontStyle,
     };
 
     if (editCode && eventId) {
@@ -470,12 +480,10 @@ const HostEvent = () => {
                       <span
                         className="text-2xl text-white"
                         style={{
-                          fontWeight: f.weight,
-                          fontStyle: f.italic ? "italic" : "normal",
-                          fontFamily: "'Nunito', sans-serif",
+                          fontFamily: f.family,
                         }}
                       >
-                        Aa
+                        {f.name}
                       </span>
                       <span className="text-[10px] font-semibold" style={{ color: fontStyle === f.name ? "#aaee44" : "#999" }}>
                         {f.name}

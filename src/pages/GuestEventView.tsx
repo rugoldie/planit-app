@@ -263,10 +263,17 @@ const GuestEventView = () => {
 
   const formatTime = (ts: string) => new Date(ts).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
+  const eventGradient = event.gradient_color || "#aaee44";
+  const eventFontFamily = ({
+    Bold: "'Bebas Neue', sans-serif",
+    Handwritten: "'Caveat', cursive",
+    Elegant: "'Playfair Display', serif",
+  } as Record<string, string>)[event.font_style] || "'Bebas Neue', sans-serif";
+
   return (
     <div className="flex flex-col min-h-screen pb-28" style={{ backgroundColor: "#2b2b2b" }}>
       {/* Gradient hero section */}
-      <div className="relative" style={{ background: "linear-gradient(to bottom, #aaee44 0%, #2b2b2b 100%)", minHeight: "220px" }}>
+      <div className="relative" style={{ background: `linear-gradient(to bottom, ${eventGradient} 0%, #2b2b2b 100%)`, minHeight: "220px" }}>
         {/* Navigation overlay */}
         <div className="flex items-center justify-between px-5 pt-6">
           <button onClick={() => navigate("/home")}>
@@ -281,8 +288,8 @@ const GuestEventView = () => {
         </div>
         {/* Event title at bottom of gradient */}
         <div className="absolute bottom-0 left-0 right-0 px-6 pb-5">
-          <h1 className={`text-white ${titleClass} drop-shadow-lg`}>{event.title || "Untitled Event"}</h1>
-          {event.vibe && <p className={`text-white/60 mt-1 ${vibeClass}`}>{event.vibe}</p>}
+          <h1 className={`text-white ${titleClass} drop-shadow-lg`} style={{ fontFamily: eventFontFamily }}>{event.title || "Untitled Event"}</h1>
+          {event.vibe && <p className={`text-white/60 mt-1 ${vibeClass}`} style={{ fontFamily: eventFontFamily }}>{event.vibe}</p>}
         </div>
       </div>
 
