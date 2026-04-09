@@ -289,9 +289,10 @@ const HostEvent = () => {
       </div>
 
       {/* Detail bubbles */}
+      <style>{`.host-detail-bubble input::placeholder, .host-detail-bubble textarea::placeholder { color: #aaee44 !important; opacity: 0.85; }`}</style>
       <div className="px-5 pt-4 pb-10 flex flex-col gap-1.5">
         <div
-          className="px-4 py-3 flex items-center gap-2.5"
+          className="host-detail-bubble px-4 py-3 flex items-center gap-2.5"
           style={{ backgroundColor: "#383838", borderRadius: "12px" }}
         >
           <span className="text-lg">📍</span>
@@ -300,10 +301,9 @@ const HostEvent = () => {
             value={location}
             onChange={(e) => setLocation(e.target.value)}
             placeholder="Where"
-            className={`w-full bg-transparent outline-none text-white ${bubbleTextClass}`}
+            className={`w-full bg-transparent outline-none ${bubbleTextClass}`}
             style={{ color: "#fff" }}
           />
-          <style>{`.px-4.py-3 input::placeholder, .px-4.py-3 textarea::placeholder { color: #aaee44 !important; opacity: 0.85; }`}</style>
         </div>
 
         <div
