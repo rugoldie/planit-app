@@ -28,6 +28,22 @@ const BUBBLE_COLORS = [
   { name: "Sky Blue", hsl: "200 80% 65%", text: "0 0% 10%" },
 ];
 
+const GRADIENT_COLORS = [
+  { name: "Lime Green", color: "#aaee44" },
+  { name: "Purple", color: "#9b59b6" },
+  { name: "Blue", color: "#3498db" },
+  { name: "Pink", color: "#e91e8a" },
+  { name: "Orange", color: "#f39c12" },
+  { name: "Red", color: "#e74c3c" },
+  { name: "Teal", color: "#1abc9c" },
+];
+
+const FONT_STYLES = [
+  { name: "Bold", weight: 800, italic: false },
+  { name: "Clean", weight: 500, italic: false },
+  { name: "Playful", weight: 700, italic: true },
+] as const;
+
 const PRESET_BACKGROUNDS = [
   { name: "Moody Dark", gradient: "linear-gradient(135deg, hsl(240 10% 10%), hsl(260 20% 20%))" },
   { name: "Confetti", gradient: "linear-gradient(135deg, hsl(340 80% 70%), hsl(50 90% 70%), hsl(200 80% 70%))" },
@@ -69,6 +85,9 @@ const HostEvent = () => {
   const [eventCode, setEventCode] = useState("");
   const [uploadedPhoto, setUploadedPhoto] = useState<string | null>(null);
   const [eventId, setEventId] = useState<string | null>(null);
+  const [gradientColor, setGradientColor] = useState(GRADIENT_COLORS[0].color);
+  const [fontStyle, setFontStyle] = useState<typeof FONT_STYLES[number]["name"]>("Bold");
+  const [customizeTab, setCustomizeTab] = useState<"colours" | "style">("colours");
 
   // Load event data if editing
   useEffect(() => {
@@ -301,97 +320,175 @@ const HostEvent = () => {
             Make it yours ✦
           </button>
         </DrawerTrigger>
-        <DrawerContent className="bg-card px-5 pb-8 pt-2 border-t border-border">
-          <div className="mx-auto w-10 h-1 rounded-full bg-muted-foreground/30 mb-5" />
+        <DrawerContent className="bg-card px-5 pb-8 pt-2 border-t border-border max-h-[75vh]">
+          <div className="mx-auto w-10 h-1 rounded-full bg-muted-foreground/30 mb-4" />
 
-          <p className="text-card-foreground font-bold text-sm mb-2">Bubble colour</p>
-          <div className="flex flex-wrap gap-2.5 mb-5">
-            {BUBBLE_COLORS.map((c) => (
-              <button
-                key={c.name}
-                onClick={() => { setBubbleColor(c.hsl); setBubbleTextColor(c.text); }}
-                className="w-8 h-8 rounded-full border-2 transition-all"
-                style={{
-                  backgroundColor: `hsl(${c.hsl})`,
-                  borderColor: bubbleColor === c.hsl ? "hsl(82 80% 60%)" : "hsl(0 0% 30%)",
-                  transform: bubbleColor === c.hsl ? "scale(1.15)" : "scale(1)",
-                }}
-                title={c.name}
-              />
-            ))}
-          </div>
-
-          <p className="text-card-foreground font-bold text-sm mb-2">Background colour</p>
-          <div className="flex flex-wrap gap-2.5 mb-5">
-            {PALETTE_COLORS.map((c) => (
-              <button
-                key={c.name}
-                onClick={() => { setBgColor(c.hsl); setBgPhoto(null); setBgPreset(null); }}
-                className="w-8 h-8 rounded-full border-2 transition-all"
-                style={{
-                  backgroundColor: `hsl(${c.hsl})`,
-                  borderColor: bgColor === c.hsl && !bgPhoto && !bgPreset ? "hsl(82 80% 60%)" : "hsl(0 0% 30%)",
-                  transform: bgColor === c.hsl && !bgPhoto && !bgPreset ? "scale(1.15)" : "scale(1)",
-                }}
-                title={c.name}
-              />
-            ))}
-          </div>
-
-          <p className="text-card-foreground font-bold text-sm mb-2">Background photo</p>
-          <div className="flex gap-2.5 mb-3">
+          {/* Tabs */}
+          <div className="flex gap-1 mb-5 p-1 rounded-xl" style={{ backgroundColor: "#2b2b2b" }}>
             <button
-              onClick={() => fileInputRef.current?.click()}
-              className="flex-1 bg-muted text-card-foreground rounded-[var(--radius)] py-2.5 text-sm font-bold flex items-center justify-center gap-2 border border-border"
+              onClick={() => setCustomizeTab("colours")}
+              className="flex-1 py-2 rounded-lg text-sm font-bold transition-all"
+              style={{
+                backgroundColor: customizeTab === "colours" ? "#383838" : "transparent",
+                color: customizeTab === "colours" ? "#aaee44" : "#999",
+              }}
             >
-              <Upload className="w-4 h-4" /> Upload photo
+              Colours
             </button>
-            <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileUpload} />
-            {uploadedPhoto && (
-              <button
-                onClick={() => { setBgPhoto(uploadedPhoto); setBgPreset(null); }}
-                className="w-11 h-11 rounded-xl overflow-hidden border-2"
-                style={{ borderColor: bgPhoto === uploadedPhoto ? "hsl(82 80% 60%)" : "transparent" }}
-              >
-                <img src={uploadedPhoto} alt="Uploaded" className="w-full h-full object-cover" />
-              </button>
-            )}
-          </div>
-          <div className="grid grid-cols-3 gap-2.5 mb-5">
-            {PRESET_BACKGROUNDS.map((p) => (
-              <button
-                key={p.name}
-                onClick={() => { setBgPreset(p.gradient); setBgPhoto(null); }}
-                className="h-14 rounded-xl border-2 transition-all"
-                style={{
-                  background: p.gradient,
-                  borderColor: bgPreset === p.gradient ? "hsl(82 80% 60%)" : "transparent",
-                }}
-              >
-                <span className="text-[10px] font-bold text-secondary-foreground drop-shadow-sm">{p.name}</span>
-              </button>
-            ))}
+            <button
+              onClick={() => setCustomizeTab("style")}
+              className="flex-1 py-2 rounded-lg text-sm font-bold transition-all"
+              style={{
+                backgroundColor: customizeTab === "style" ? "#383838" : "transparent",
+                color: customizeTab === "style" ? "#aaee44" : "#999",
+              }}
+            >
+              Style
+            </button>
           </div>
 
-          <p className="text-card-foreground font-bold text-sm mb-2">Text size</p>
-          <div className="flex gap-2 mb-6">
-            {TEXT_SIZES.map((s) => (
-              <button
-                key={s}
-                onClick={() => setTextSize(s)}
-                className={`flex-1 py-2 rounded-[var(--radius)] text-sm font-bold transition-all ${
-                  textSize === s
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-muted-foreground"
-                }`}
-              >
-                {s}
-              </button>
-            ))}
+          <div className="overflow-y-auto flex-1">
+            {customizeTab === "colours" ? (
+              <>
+                <p className="text-card-foreground font-bold text-sm mb-2">Background colour</p>
+                <div className="flex flex-wrap gap-2.5 mb-5">
+                  {PALETTE_COLORS.map((c) => (
+                    <button
+                      key={c.name}
+                      onClick={() => { setBgColor(c.hsl); setBgPhoto(null); setBgPreset(null); }}
+                      className="w-8 h-8 rounded-full border-2 transition-all"
+                      style={{
+                        backgroundColor: `hsl(${c.hsl})`,
+                        borderColor: bgColor === c.hsl && !bgPhoto && !bgPreset ? "hsl(82 80% 60%)" : "hsl(0 0% 30%)",
+                        transform: bgColor === c.hsl && !bgPhoto && !bgPreset ? "scale(1.15)" : "scale(1)",
+                      }}
+                      title={c.name}
+                    />
+                  ))}
+                </div>
+
+                <p className="text-card-foreground font-bold text-sm mb-2">Bubble colour</p>
+                <div className="flex flex-wrap gap-2.5 mb-5">
+                  {BUBBLE_COLORS.map((c) => (
+                    <button
+                      key={c.name}
+                      onClick={() => { setBubbleColor(c.hsl); setBubbleTextColor(c.text); }}
+                      className="w-8 h-8 rounded-full border-2 transition-all"
+                      style={{
+                        backgroundColor: `hsl(${c.hsl})`,
+                        borderColor: bubbleColor === c.hsl ? "hsl(82 80% 60%)" : "hsl(0 0% 30%)",
+                        transform: bubbleColor === c.hsl ? "scale(1.15)" : "scale(1)",
+                      }}
+                      title={c.name}
+                    />
+                  ))}
+                </div>
+
+                <p className="text-card-foreground font-bold text-sm mb-2">Header gradient</p>
+                <div className="flex flex-wrap gap-2.5 mb-5">
+                  {GRADIENT_COLORS.map((c) => (
+                    <button
+                      key={c.name}
+                      onClick={() => setGradientColor(c.color)}
+                      className="w-8 h-8 rounded-full border-2 transition-all"
+                      style={{
+                        backgroundColor: c.color,
+                        borderColor: gradientColor === c.color ? "hsl(82 80% 60%)" : "hsl(0 0% 30%)",
+                        transform: gradientColor === c.color ? "scale(1.15)" : "scale(1)",
+                      }}
+                      title={c.name}
+                    />
+                  ))}
+                </div>
+
+                <p className="text-card-foreground font-bold text-sm mb-2">Background photo</p>
+                <div className="flex gap-2.5 mb-3">
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    className="flex-1 bg-muted text-card-foreground rounded-[var(--radius)] py-2.5 text-sm font-bold flex items-center justify-center gap-2 border border-border"
+                  >
+                    <Upload className="w-4 h-4" /> Upload photo
+                  </button>
+                  <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileUpload} />
+                  {uploadedPhoto && (
+                    <button
+                      onClick={() => { setBgPhoto(uploadedPhoto); setBgPreset(null); }}
+                      className="w-11 h-11 rounded-xl overflow-hidden border-2"
+                      style={{ borderColor: bgPhoto === uploadedPhoto ? "hsl(82 80% 60%)" : "transparent" }}
+                    >
+                      <img src={uploadedPhoto} alt="Uploaded" className="w-full h-full object-cover" />
+                    </button>
+                  )}
+                </div>
+                <div className="grid grid-cols-3 gap-2.5 mb-5">
+                  {PRESET_BACKGROUNDS.map((p) => (
+                    <button
+                      key={p.name}
+                      onClick={() => { setBgPreset(p.gradient); setBgPhoto(null); }}
+                      className="h-14 rounded-xl border-2 transition-all"
+                      style={{
+                        background: p.gradient,
+                        borderColor: bgPreset === p.gradient ? "hsl(82 80% 60%)" : "transparent",
+                      }}
+                    >
+                      <span className="text-[10px] font-bold text-secondary-foreground drop-shadow-sm">{p.name}</span>
+                    </button>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <>
+                <p className="text-card-foreground font-bold text-sm mb-2">Text size</p>
+                <div className="flex gap-2 mb-6">
+                  {TEXT_SIZES.map((s) => (
+                    <button
+                      key={s}
+                      onClick={() => setTextSize(s)}
+                      className={`flex-1 py-2 rounded-[var(--radius)] text-sm font-bold transition-all ${
+                        textSize === s
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted text-muted-foreground"
+                      }`}
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
+
+                <p className="text-card-foreground font-bold text-sm mb-2">Font style</p>
+                <div className="flex gap-2.5 mb-6">
+                  {FONT_STYLES.map((f) => (
+                    <button
+                      key={f.name}
+                      onClick={() => setFontStyle(f.name)}
+                      className="flex-1 flex flex-col items-center gap-1.5 py-3 rounded-xl border-2 transition-all"
+                      style={{
+                        backgroundColor: "#2b2b2b",
+                        borderColor: fontStyle === f.name ? "#aaee44" : "#444",
+                      }}
+                    >
+                      <span
+                        className="text-2xl text-white"
+                        style={{
+                          fontWeight: f.weight,
+                          fontStyle: f.italic ? "italic" : "normal",
+                          fontFamily: "'Nunito', sans-serif",
+                        }}
+                      >
+                        Aa
+                      </span>
+                      <span className="text-[10px] font-semibold" style={{ color: fontStyle === f.name ? "#aaee44" : "#999" }}>
+                        {f.name}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
 
           <DrawerTrigger asChild>
-            <button className="w-full bg-secondary text-secondary-foreground rounded-[var(--radius)] py-4 text-base font-extrabold border border-border">
+            <button className="w-full bg-secondary text-secondary-foreground rounded-[var(--radius)] py-4 text-base font-extrabold border border-border mt-4">
               Done
             </button>
           </DrawerTrigger>
