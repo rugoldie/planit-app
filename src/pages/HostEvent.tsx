@@ -231,61 +231,61 @@ const HostEvent = () => {
       </div>
 
       <div
-        className="rounded-[var(--radius)] px-4 py-3 mb-1.5 flex items-center gap-2.5"
-        style={{ backgroundColor: `hsl(${bubbleColor})`, color: `hsl(${bubbleTextColor})` }}
+        className="px-4 py-3 mb-1.5 flex items-center gap-2.5"
+        style={{ backgroundColor: "#383838", borderLeft: "3px solid #aaee44", borderRadius: "0 12px 12px 0", color: "#f0f0f0" }}
       >
-        <span className="text-lg">📍</span>
+        <span className="text-lg" style={{ color: "#aaee44" }}>📍</span>
         <input
           type="text"
           value={location}
           onChange={(e) => setLocation(e.target.value)}
           placeholder="Where"
           className={`w-full bg-transparent outline-none placeholder:opacity-50 ${textSize === "Small" ? "text-xs font-medium" : textSize === "Large" ? "text-base font-bold" : "text-sm font-medium"}`}
-          style={{ color: `hsl(${bubbleTextColor})` }}
+          style={{ color: "#f0f0f0" }}
         />
       </div>
 
       <div
-        className="rounded-[var(--radius)] px-4 py-3 mb-1.5 flex items-center gap-2.5"
-        style={{ backgroundColor: `hsl(${bubbleColor})`, color: `hsl(${bubbleTextColor})` }}
+        className="px-4 py-3 mb-1.5 flex items-center gap-2.5"
+        style={{ backgroundColor: "#383838", borderLeft: "3px solid #aaee44", borderRadius: "0 12px 12px 0", color: "#f0f0f0" }}
       >
-        <span className="text-lg">📅</span>
+        <span className="text-lg" style={{ color: "#aaee44" }}>📅</span>
         <input
           type="datetime-local"
           value={dateTime}
           onChange={(e) => setDateTime(e.target.value)}
           className={`w-full bg-transparent outline-none ${textSize === "Small" ? "text-xs font-medium" : textSize === "Large" ? "text-base font-bold" : "text-sm font-medium"}`}
-          style={{ color: `hsl(${bubbleTextColor})` }}
+          style={{ color: "#f0f0f0" }}
         />
       </div>
 
       <div
-        className="rounded-[var(--radius)] px-4 py-3 mb-1.5 flex items-center gap-2.5"
-        style={{ backgroundColor: `hsl(${bubbleColor})`, color: `hsl(${bubbleTextColor})` }}
+        className="px-4 py-3 mb-1.5 flex items-center gap-2.5"
+        style={{ backgroundColor: "#383838", borderLeft: "3px solid #aaee44", borderRadius: "0 12px 12px 0", color: "#f0f0f0" }}
       >
-        <span className="text-lg">🎭</span>
+        <span className="text-lg" style={{ color: "#aaee44" }}>🎭</span>
         <input
           type="text"
           value={dressCode}
           onChange={(e) => setDressCode(e.target.value)}
           placeholder="Theme / dress code"
           className={`w-full bg-transparent outline-none placeholder:opacity-50 ${textSize === "Small" ? "text-xs font-medium" : textSize === "Large" ? "text-base font-bold" : "text-sm font-medium"}`}
-          style={{ color: `hsl(${bubbleTextColor})` }}
+          style={{ color: "#f0f0f0" }}
         />
       </div>
 
       <div
-        className="rounded-[var(--radius)] px-4 py-3 mb-3 flex items-start gap-2.5"
-        style={{ backgroundColor: `hsl(${bubbleColor})`, color: `hsl(${bubbleTextColor})` }}
+        className="px-4 py-3 mb-3 flex items-start gap-2.5"
+        style={{ backgroundColor: "#383838", borderLeft: "3px solid #aaee44", borderRadius: "0 12px 12px 0", color: "#f0f0f0" }}
       >
-        <span className="text-lg mt-0.5">➕</span>
+        <span className="text-lg mt-0.5" style={{ color: "#aaee44" }}>➕</span>
         <textarea
           value={extra}
           onChange={(e) => setExtra(e.target.value)}
           placeholder="Anything else..."
           rows={2}
           className={`w-full bg-transparent outline-none resize-none placeholder:opacity-50 ${textSize === "Small" ? "text-xs font-medium" : textSize === "Large" ? "text-base font-bold" : "text-sm font-medium"}`}
-          style={{ color: `hsl(${bubbleTextColor})` }}
+          style={{ color: "#f0f0f0" }}
         />
       </div>
 
