@@ -300,7 +300,7 @@ const HostEvent = () => {
             value={location}
             onChange={(e) => setLocation(e.target.value)}
             placeholder="Where"
-            className={`w-full bg-transparent outline-none placeholder:opacity-50 ${bubbleTextClass}`}
+            className={`w-full bg-transparent outline-none placeholder:text-[#aaee44] ${bubbleTextClass}`}
             style={{ color: `hsl(${bubbleTextColor})` }}
           />
         </div>
@@ -329,7 +329,7 @@ const HostEvent = () => {
             value={dressCode}
             onChange={(e) => setDressCode(e.target.value)}
             placeholder="Theme / dress code"
-            className={`w-full bg-transparent outline-none placeholder:opacity-50 ${bubbleTextClass}`}
+            className={`w-full bg-transparent outline-none placeholder:text-[#aaee44] ${bubbleTextClass}`}
             style={{ color: `hsl(${bubbleTextColor})` }}
           />
         </div>
@@ -344,14 +344,17 @@ const HostEvent = () => {
             onChange={(e) => setExtra(e.target.value)}
             placeholder="Anything else..."
             rows={2}
-            className={`w-full bg-transparent outline-none resize-none placeholder:opacity-50 ${bubbleTextClass}`}
+            className={`w-full bg-transparent outline-none resize-none placeholder:text-[#aaee44] ${bubbleTextClass}`}
             style={{ color: `hsl(${bubbleTextColor})` }}
           />
         </div>
 
         <Drawer>
           <DrawerTrigger asChild>
-            <button className="bg-secondary rounded-[var(--radius)] px-4 py-3.5 mb-6 w-full text-center text-sm font-bold text-primary border border-border">
+            <button
+              style={{ backgroundColor: `hsl(${bubbleColor})`, color: `hsl(${bubbleTextColor})` }}
+              className="rounded-[var(--radius)] px-4 py-3.5 mb-6 w-full text-center text-sm font-bold border border-border"
+            >
               Make it yours ✦
             </button>
           </DrawerTrigger>
