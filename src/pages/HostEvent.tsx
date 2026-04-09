@@ -124,6 +124,10 @@ const HostEvent = () => {
             setEventId(data.id);
             if (data.bg_photo?.startsWith("linear-gradient")) {
               setBgPreset(data.bg_photo);
+              setBgPresetIsImage(false);
+            } else if (data.bg_photo?.startsWith("url(")) {
+              setBgPreset(data.bg_photo);
+              setBgPresetIsImage(true);
             } else if (data.bg_photo) {
               setBgPhoto(data.bg_photo);
               setUploadedPhoto(data.bg_photo);
@@ -180,6 +184,7 @@ const HostEvent = () => {
       setUploadedPhoto(url);
       setBgPhoto(url);
       setBgPreset(null);
+      setBgPresetIsImage(false);
     }
   };
 
@@ -385,7 +390,7 @@ const HostEvent = () => {
                     {PALETTE_COLORS.map((c) => (
                       <button
                         key={c.name}
-                        onClick={() => { setBgColor(c.hsl); setBgPhoto(null); setBgPreset(null); }}
+                        onClick={() => { setBgColor(c.hsl); setBgPhoto(null); setBgPreset(null); setBgPresetIsImage(false); }}
                         className="w-8 h-8 rounded-full border-2 transition-all"
                         style={{
                           backgroundColor: `hsl(${c.hsl})`,
