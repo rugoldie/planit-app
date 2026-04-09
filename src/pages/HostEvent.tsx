@@ -292,7 +292,7 @@ const HostEvent = () => {
       <div className="px-5 pt-4 pb-10 flex flex-col gap-1.5">
         <div
           className="px-4 py-3 flex items-center gap-2.5"
-          style={{ backgroundColor: `hsl(${bubbleColor})`, borderRadius: "12px", color: `hsl(${bubbleTextColor})` }}
+          style={{ backgroundColor: "#383838", borderRadius: "12px" }}
         >
           <span className="text-lg">📍</span>
           <input
@@ -300,14 +300,15 @@ const HostEvent = () => {
             value={location}
             onChange={(e) => setLocation(e.target.value)}
             placeholder="Where"
-            className={`w-full bg-transparent outline-none placeholder:opacity-50 ${bubbleTextClass}`}
-            style={{ color: `hsl(${bubbleTextColor})` }}
+            className={`w-full bg-transparent outline-none text-white ${bubbleTextClass}`}
+            style={{ color: "#fff" }}
           />
+          <style>{`.px-4.py-3 input::placeholder, .px-4.py-3 textarea::placeholder { color: #aaee44 !important; opacity: 0.85; }`}</style>
         </div>
 
         <div
           className="px-4 py-3 flex items-center gap-2.5"
-          style={{ backgroundColor: `hsl(${bubbleColor})`, borderRadius: "12px", color: `hsl(${bubbleTextColor})` }}
+          style={{ backgroundColor: "#383838", borderRadius: "12px" }}
         >
           <span className="text-lg">📅</span>
           <input
@@ -315,13 +316,13 @@ const HostEvent = () => {
             value={dateTime}
             onChange={(e) => setDateTime(e.target.value)}
             className={`w-full bg-transparent outline-none ${bubbleTextClass}`}
-            style={{ color: `hsl(${bubbleTextColor})` }}
+            style={{ color: "#fff" }}
           />
         </div>
 
         <div
           className="px-4 py-3 flex items-center gap-2.5"
-          style={{ backgroundColor: `hsl(${bubbleColor})`, borderRadius: "12px", color: `hsl(${bubbleTextColor})` }}
+          style={{ backgroundColor: "#383838", borderRadius: "12px" }}
         >
           <span className="text-lg">🎭</span>
           <input
@@ -329,14 +330,14 @@ const HostEvent = () => {
             value={dressCode}
             onChange={(e) => setDressCode(e.target.value)}
             placeholder="Theme / dress code"
-            className={`w-full bg-transparent outline-none placeholder:opacity-50 ${bubbleTextClass}`}
-            style={{ color: `hsl(${bubbleTextColor})` }}
+            className={`w-full bg-transparent outline-none text-white ${bubbleTextClass}`}
+            style={{ color: "#fff" }}
           />
         </div>
 
         <div
           className="px-4 py-3 flex items-start gap-2.5"
-          style={{ backgroundColor: `hsl(${bubbleColor})`, borderRadius: "12px", color: `hsl(${bubbleTextColor})` }}
+          style={{ backgroundColor: "#383838", borderRadius: "12px" }}
         >
           <span className="text-lg mt-0.5">➕</span>
           <textarea
@@ -344,8 +345,8 @@ const HostEvent = () => {
             onChange={(e) => setExtra(e.target.value)}
             placeholder="Anything else..."
             rows={2}
-            className={`w-full bg-transparent outline-none resize-none placeholder:opacity-50 ${bubbleTextClass}`}
-            style={{ color: `hsl(${bubbleTextColor})` }}
+            className={`w-full bg-transparent outline-none resize-none text-white ${bubbleTextClass}`}
+            style={{ color: "#fff" }}
           />
         </div>
 
