@@ -4,6 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import PasswordInput from "@/components/PasswordInput";
 import CountryCodeSelector from "@/components/CountryCodeSelector";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 
 const SignUp = () => {
   const navigate = useNavigate();
