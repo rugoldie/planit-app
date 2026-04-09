@@ -238,277 +238,291 @@ const HostEvent = () => {
     );
   }
 
+  const titleClass = textSize === "Small" ? "text-2xl font-bold" : textSize === "Large" ? "text-5xl font-extrabold" : "text-4xl font-extrabold";
+  const vibeClass = textSize === "Small" ? "text-xs" : textSize === "Large" ? "text-base" : "text-sm";
+  const bubbleTextClass = textSize === "Small" ? "text-xs font-medium" : textSize === "Large" ? "text-base font-bold" : "text-sm font-medium";
+  const currentFontFamily = FONT_MAP[fontStyle] || FONT_MAP["Bold"];
+
   return (
-    <div className="flex flex-col min-h-screen px-5 py-6 pb-10 transition-all duration-300" style={previewBgStyle}>
-      <button onClick={() => navigate("/home")} className="self-start mb-4">
-        <ArrowLeft className="w-6 h-6 text-muted-foreground" />
-      </button>
-
-      <div className="bg-card rounded-[var(--radius)] px-4 py-3 mb-2 border border-border">
-        <input
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="Event name..."
-          className={`w-full bg-transparent text-card-foreground placeholder:text-muted-foreground outline-none ${textSize === "Small" ? "text-lg font-bold" : textSize === "Large" ? "text-4xl font-extrabold" : "text-2xl font-extrabold"}`}
-        />
-      </div>
-
-      <div className="bg-card rounded-[var(--radius)] px-4 py-3 mb-2 border border-border">
-        <textarea
-          value={vibe}
-          onChange={(e) => setVibe(e.target.value)}
-          placeholder="Set the vibe... e.g. sit down dinner, pub crawl, smart casual night out"
-          rows={2}
-          maxLength={120}
-          className={`w-full bg-transparent text-card-foreground placeholder:text-muted-foreground outline-none resize-none ${textSize === "Small" ? "text-xs" : textSize === "Large" ? "text-base" : "text-sm"}`}
-        />
-      </div>
-
+    <div className="flex flex-col min-h-screen transition-all duration-300" style={previewBgStyle}>
+      {/* Hero gradient header */}
       <div
-        className="px-4 py-3 mb-1.5 flex items-center gap-2.5"
-        style={{ backgroundColor: `hsl(${bubbleColor})`, borderRadius: "12px", color: `hsl(${bubbleTextColor})` }}
+        className="relative"
+        style={{
+          background: `linear-gradient(to bottom, ${gradientColor} 0%, ${bgPreset || bgPhoto ? 'transparent' : `hsl(${bgColor})`} 100%)`,
+          minHeight: "220px",
+        }}
       >
-        <span className="text-lg">📍</span>
-        <input
-          type="text"
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
-          placeholder="Where"
-          className={`w-full bg-transparent outline-none placeholder:opacity-50 ${textSize === "Small" ? "text-xs font-medium" : textSize === "Large" ? "text-base font-bold" : "text-sm font-medium"}`}
-          style={{ color: `hsl(${bubbleTextColor})` }}
-        />
+        <button onClick={() => navigate("/home")} className="absolute top-5 left-5 z-10">
+          <ArrowLeft className="w-6 h-6" style={{ color: "#111" }} />
+        </button>
+
+        <div className="absolute bottom-0 left-0 right-0 px-6 pb-5">
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Event name..."
+            className={`w-full bg-transparent text-white placeholder:text-white/40 outline-none drop-shadow-lg ${titleClass}`}
+            style={{ fontFamily: currentFontFamily }}
+          />
+          <textarea
+            value={vibe}
+            onChange={(e) => setVibe(e.target.value)}
+            placeholder="Set the vibe..."
+            rows={1}
+            maxLength={120}
+            className={`w-full bg-transparent text-white/60 placeholder:text-white/30 outline-none resize-none mt-1 ${vibeClass}`}
+            style={{ fontFamily: currentFontFamily }}
+          />
+        </div>
       </div>
 
-      <div
-        className="px-4 py-3 mb-1.5 flex items-center gap-2.5"
-        style={{ backgroundColor: `hsl(${bubbleColor})`, borderRadius: "12px", color: `hsl(${bubbleTextColor})` }}
-      >
-        <span className="text-lg">📅</span>
-        <input
-          type="datetime-local"
-          value={dateTime}
-          onChange={(e) => setDateTime(e.target.value)}
-          className={`w-full bg-transparent outline-none ${textSize === "Small" ? "text-xs font-medium" : textSize === "Large" ? "text-base font-bold" : "text-sm font-medium"}`}
-          style={{ color: `hsl(${bubbleTextColor})` }}
-        />
-      </div>
+      {/* Detail bubbles */}
+      <div className="px-5 pt-4 pb-10 flex flex-col gap-1.5">
+        <div
+          className="px-4 py-3 flex items-center gap-2.5"
+          style={{ backgroundColor: `hsl(${bubbleColor})`, borderRadius: "12px", color: `hsl(${bubbleTextColor})` }}
+        >
+          <span className="text-lg">📍</span>
+          <input
+            type="text"
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
+            placeholder="Where"
+            className={`w-full bg-transparent outline-none placeholder:opacity-50 ${bubbleTextClass}`}
+            style={{ color: `hsl(${bubbleTextColor})` }}
+          />
+        </div>
 
-      <div
-        className="px-4 py-3 mb-1.5 flex items-center gap-2.5"
-        style={{ backgroundColor: `hsl(${bubbleColor})`, borderRadius: "12px", color: `hsl(${bubbleTextColor})` }}
-      >
-        <span className="text-lg">🎭</span>
-        <input
-          type="text"
-          value={dressCode}
-          onChange={(e) => setDressCode(e.target.value)}
-          placeholder="Theme / dress code"
-          className={`w-full bg-transparent outline-none placeholder:opacity-50 ${textSize === "Small" ? "text-xs font-medium" : textSize === "Large" ? "text-base font-bold" : "text-sm font-medium"}`}
-          style={{ color: `hsl(${bubbleTextColor})` }}
-        />
-      </div>
+        <div
+          className="px-4 py-3 flex items-center gap-2.5"
+          style={{ backgroundColor: `hsl(${bubbleColor})`, borderRadius: "12px", color: `hsl(${bubbleTextColor})` }}
+        >
+          <span className="text-lg">📅</span>
+          <input
+            type="datetime-local"
+            value={dateTime}
+            onChange={(e) => setDateTime(e.target.value)}
+            className={`w-full bg-transparent outline-none ${bubbleTextClass}`}
+            style={{ color: `hsl(${bubbleTextColor})` }}
+          />
+        </div>
 
-      <div
-        className="px-4 py-3 mb-3 flex items-start gap-2.5"
-        style={{ backgroundColor: `hsl(${bubbleColor})`, borderRadius: "12px", color: `hsl(${bubbleTextColor})` }}
-      >
-        <span className="text-lg mt-0.5">➕</span>
-        <textarea
-          value={extra}
-          onChange={(e) => setExtra(e.target.value)}
-          placeholder="Anything else..."
-          rows={2}
-          className={`w-full bg-transparent outline-none resize-none placeholder:opacity-50 ${textSize === "Small" ? "text-xs font-medium" : textSize === "Large" ? "text-base font-bold" : "text-sm font-medium"}`}
-          style={{ color: `hsl(${bubbleTextColor})` }}
-        />
-      </div>
+        <div
+          className="px-4 py-3 flex items-center gap-2.5"
+          style={{ backgroundColor: `hsl(${bubbleColor})`, borderRadius: "12px", color: `hsl(${bubbleTextColor})` }}
+        >
+          <span className="text-lg">🎭</span>
+          <input
+            type="text"
+            value={dressCode}
+            onChange={(e) => setDressCode(e.target.value)}
+            placeholder="Theme / dress code"
+            className={`w-full bg-transparent outline-none placeholder:opacity-50 ${bubbleTextClass}`}
+            style={{ color: `hsl(${bubbleTextColor})` }}
+          />
+        </div>
 
-      <Drawer>
-        <DrawerTrigger asChild>
-          <button className="bg-secondary rounded-[var(--radius)] px-4 py-3.5 mb-6 w-full text-center text-sm font-bold text-primary border border-border">
-            Make it yours ✦
-          </button>
-        </DrawerTrigger>
-        <DrawerContent className="bg-card px-5 pb-8 pt-2 border-t border-border max-h-[75vh]">
-          <div className="mx-auto w-10 h-1 rounded-full bg-muted-foreground/30 mb-4" />
+        <div
+          className="px-4 py-3 flex items-start gap-2.5"
+          style={{ backgroundColor: `hsl(${bubbleColor})`, borderRadius: "12px", color: `hsl(${bubbleTextColor})` }}
+        >
+          <span className="text-lg mt-0.5">➕</span>
+          <textarea
+            value={extra}
+            onChange={(e) => setExtra(e.target.value)}
+            placeholder="Anything else..."
+            rows={2}
+            className={`w-full bg-transparent outline-none resize-none placeholder:opacity-50 ${bubbleTextClass}`}
+            style={{ color: `hsl(${bubbleTextColor})` }}
+          />
+        </div>
 
-          {/* Tabs */}
-          <div className="flex gap-1 mb-5 p-1 rounded-xl" style={{ backgroundColor: "#2b2b2b" }}>
-            <button
-              onClick={() => setCustomizeTab("colours")}
-              className="flex-1 py-2 rounded-lg text-sm font-bold transition-all"
-              style={{
-                backgroundColor: customizeTab === "colours" ? "#383838" : "transparent",
-                color: customizeTab === "colours" ? "#aaee44" : "#999",
-              }}
-            >
-              Colours
-            </button>
-            <button
-              onClick={() => setCustomizeTab("style")}
-              className="flex-1 py-2 rounded-lg text-sm font-bold transition-all"
-              style={{
-                backgroundColor: customizeTab === "style" ? "#383838" : "transparent",
-                color: customizeTab === "style" ? "#aaee44" : "#999",
-              }}
-            >
-              Style
-            </button>
-          </div>
-
-          <div className="overflow-y-auto flex-1">
-            {customizeTab === "colours" ? (
-              <>
-                <p className="text-card-foreground font-bold text-sm mb-2">Background colour</p>
-                <div className="flex flex-wrap gap-2.5 mb-5">
-                  {PALETTE_COLORS.map((c) => (
-                    <button
-                      key={c.name}
-                      onClick={() => { setBgColor(c.hsl); setBgPhoto(null); setBgPreset(null); }}
-                      className="w-8 h-8 rounded-full border-2 transition-all"
-                      style={{
-                        backgroundColor: `hsl(${c.hsl})`,
-                        borderColor: bgColor === c.hsl && !bgPhoto && !bgPreset ? "hsl(82 80% 60%)" : "hsl(0 0% 30%)",
-                        transform: bgColor === c.hsl && !bgPhoto && !bgPreset ? "scale(1.15)" : "scale(1)",
-                      }}
-                      title={c.name}
-                    />
-                  ))}
-                </div>
-
-                <p className="text-card-foreground font-bold text-sm mb-2">Bubble colour</p>
-                <div className="flex flex-wrap gap-2.5 mb-5">
-                  {BUBBLE_COLORS.map((c) => (
-                    <button
-                      key={c.name}
-                      onClick={() => { setBubbleColor(c.hsl); setBubbleTextColor(c.text); }}
-                      className="w-8 h-8 rounded-full border-2 transition-all"
-                      style={{
-                        backgroundColor: `hsl(${c.hsl})`,
-                        borderColor: bubbleColor === c.hsl ? "hsl(82 80% 60%)" : "hsl(0 0% 30%)",
-                        transform: bubbleColor === c.hsl ? "scale(1.15)" : "scale(1)",
-                      }}
-                      title={c.name}
-                    />
-                  ))}
-                </div>
-
-                <p className="text-card-foreground font-bold text-sm mb-2">Header gradient</p>
-                <div className="flex flex-wrap gap-2.5 mb-5">
-                  {GRADIENT_COLORS.map((c) => (
-                    <button
-                      key={c.name}
-                      onClick={() => setGradientColor(c.color)}
-                      className="w-8 h-8 rounded-full border-2 transition-all"
-                      style={{
-                        backgroundColor: c.color,
-                        borderColor: gradientColor === c.color ? "hsl(82 80% 60%)" : "hsl(0 0% 30%)",
-                        transform: gradientColor === c.color ? "scale(1.15)" : "scale(1)",
-                      }}
-                      title={c.name}
-                    />
-                  ))}
-                </div>
-
-                <p className="text-card-foreground font-bold text-sm mb-2">Background photo</p>
-                <div className="flex gap-2.5 mb-3">
-                  <button
-                    onClick={() => fileInputRef.current?.click()}
-                    className="flex-1 bg-muted text-card-foreground rounded-[var(--radius)] py-2.5 text-sm font-bold flex items-center justify-center gap-2 border border-border"
-                  >
-                    <Upload className="w-4 h-4" /> Upload photo
-                  </button>
-                  <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileUpload} />
-                  {uploadedPhoto && (
-                    <button
-                      onClick={() => { setBgPhoto(uploadedPhoto); setBgPreset(null); }}
-                      className="w-11 h-11 rounded-xl overflow-hidden border-2"
-                      style={{ borderColor: bgPhoto === uploadedPhoto ? "hsl(82 80% 60%)" : "transparent" }}
-                    >
-                      <img src={uploadedPhoto} alt="Uploaded" className="w-full h-full object-cover" />
-                    </button>
-                  )}
-                </div>
-                <div className="grid grid-cols-3 gap-2.5 mb-5">
-                  {PRESET_BACKGROUNDS.map((p) => (
-                    <button
-                      key={p.name}
-                      onClick={() => { setBgPreset(p.gradient); setBgPhoto(null); }}
-                      className="h-14 rounded-xl border-2 transition-all"
-                      style={{
-                        background: p.gradient,
-                        borderColor: bgPreset === p.gradient ? "hsl(82 80% 60%)" : "transparent",
-                      }}
-                    >
-                      <span className="text-[10px] font-bold text-secondary-foreground drop-shadow-sm">{p.name}</span>
-                    </button>
-                  ))}
-                </div>
-              </>
-            ) : (
-              <>
-                <p className="text-card-foreground font-bold text-sm mb-2">Text size</p>
-                <div className="flex gap-2 mb-6">
-                  {TEXT_SIZES.map((s) => (
-                    <button
-                      key={s}
-                      onClick={() => setTextSize(s)}
-                      className={`flex-1 py-2 rounded-[var(--radius)] text-sm font-bold transition-all ${
-                        textSize === s
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-muted text-muted-foreground"
-                      }`}
-                    >
-                      {s}
-                    </button>
-                  ))}
-                </div>
-
-                <p className="text-card-foreground font-bold text-sm mb-2">Font style</p>
-                <div className="flex gap-2.5 mb-6">
-                  {FONT_STYLES.map((f) => (
-                    <button
-                      key={f.name}
-                      onClick={() => setFontStyle(f.name)}
-                      className="flex-1 flex flex-col items-center gap-1.5 py-3 rounded-xl border-2 transition-all"
-                      style={{
-                        backgroundColor: "#2b2b2b",
-                        borderColor: fontStyle === f.name ? "#aaee44" : "#444",
-                      }}
-                    >
-                      <span
-                        className="text-2xl text-white"
-                        style={{
-                          fontFamily: f.family,
-                        }}
-                      >
-                        {f.name}
-                      </span>
-                      <span className="text-[10px] font-semibold" style={{ color: fontStyle === f.name ? "#aaee44" : "#999" }}>
-                        {f.name}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </>
-            )}
-          </div>
-
+        <Drawer>
           <DrawerTrigger asChild>
-            <button className="w-full bg-secondary text-secondary-foreground rounded-[var(--radius)] py-4 text-base font-extrabold border border-border mt-4">
-              Done
+            <button className="bg-secondary rounded-[var(--radius)] px-4 py-3.5 mb-6 w-full text-center text-sm font-bold text-primary border border-border">
+              Make it yours ✦
             </button>
           </DrawerTrigger>
-        </DrawerContent>
-      </Drawer>
+          <DrawerContent className="bg-card px-5 pb-8 pt-2 border-t border-border max-h-[75vh]">
+            <div className="mx-auto w-10 h-1 rounded-full bg-muted-foreground/30 mb-4" />
 
-      <button
-        onClick={handleCreate}
-        className="w-full bg-primary text-primary-foreground rounded-[var(--radius)] py-5 text-xl font-extrabold"
-      >
-        {editCode ? "Update Event" : "Create Event"}
-      </button>
+            {/* Tabs */}
+            <div className="flex gap-1 mb-5 p-1 rounded-xl" style={{ backgroundColor: "#2b2b2b" }}>
+              <button
+                onClick={() => setCustomizeTab("colours")}
+                className="flex-1 py-2 rounded-lg text-sm font-bold transition-all"
+                style={{
+                  backgroundColor: customizeTab === "colours" ? "#383838" : "transparent",
+                  color: customizeTab === "colours" ? "#aaee44" : "#999",
+                }}
+              >
+                Colours
+              </button>
+              <button
+                onClick={() => setCustomizeTab("style")}
+                className="flex-1 py-2 rounded-lg text-sm font-bold transition-all"
+                style={{
+                  backgroundColor: customizeTab === "style" ? "#383838" : "transparent",
+                  color: customizeTab === "style" ? "#aaee44" : "#999",
+                }}
+              >
+                Style
+              </button>
+            </div>
+
+            <div className="overflow-y-auto flex-1">
+              {customizeTab === "colours" ? (
+                <>
+                  <p className="text-card-foreground font-bold text-sm mb-2">Background colour</p>
+                  <div className="flex flex-wrap gap-2.5 mb-5">
+                    {PALETTE_COLORS.map((c) => (
+                      <button
+                        key={c.name}
+                        onClick={() => { setBgColor(c.hsl); setBgPhoto(null); setBgPreset(null); }}
+                        className="w-8 h-8 rounded-full border-2 transition-all"
+                        style={{
+                          backgroundColor: `hsl(${c.hsl})`,
+                          borderColor: bgColor === c.hsl && !bgPhoto && !bgPreset ? "hsl(82 80% 60%)" : "hsl(0 0% 30%)",
+                          transform: bgColor === c.hsl && !bgPhoto && !bgPreset ? "scale(1.15)" : "scale(1)",
+                        }}
+                        title={c.name}
+                      />
+                    ))}
+                  </div>
+
+                  <p className="text-card-foreground font-bold text-sm mb-2">Bubble colour</p>
+                  <div className="flex flex-wrap gap-2.5 mb-5">
+                    {BUBBLE_COLORS.map((c) => (
+                      <button
+                        key={c.name}
+                        onClick={() => { setBubbleColor(c.hsl); setBubbleTextColor(c.text); }}
+                        className="w-8 h-8 rounded-full border-2 transition-all"
+                        style={{
+                          backgroundColor: `hsl(${c.hsl})`,
+                          borderColor: bubbleColor === c.hsl ? "hsl(82 80% 60%)" : "hsl(0 0% 30%)",
+                          transform: bubbleColor === c.hsl ? "scale(1.15)" : "scale(1)",
+                        }}
+                        title={c.name}
+                      />
+                    ))}
+                  </div>
+
+                  <p className="text-card-foreground font-bold text-sm mb-2">Header gradient</p>
+                  <div className="flex flex-wrap gap-2.5 mb-5">
+                    {GRADIENT_COLORS.map((c) => (
+                      <button
+                        key={c.name}
+                        onClick={() => setGradientColor(c.color)}
+                        className="w-8 h-8 rounded-full border-2 transition-all"
+                        style={{
+                          backgroundColor: c.color,
+                          borderColor: gradientColor === c.color ? "hsl(82 80% 60%)" : "hsl(0 0% 30%)",
+                          transform: gradientColor === c.color ? "scale(1.15)" : "scale(1)",
+                        }}
+                        title={c.name}
+                      />
+                    ))}
+                  </div>
+
+                  <p className="text-card-foreground font-bold text-sm mb-2">Background photo</p>
+                  <div className="flex gap-2.5 mb-3">
+                    <button
+                      onClick={() => fileInputRef.current?.click()}
+                      className="flex-1 bg-muted text-card-foreground rounded-[var(--radius)] py-2.5 text-sm font-bold flex items-center justify-center gap-2 border border-border"
+                    >
+                      <Upload className="w-4 h-4" /> Upload photo
+                    </button>
+                    <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileUpload} />
+                    {uploadedPhoto && (
+                      <button
+                        onClick={() => { setBgPhoto(uploadedPhoto); setBgPreset(null); }}
+                        className="w-11 h-11 rounded-xl overflow-hidden border-2"
+                        style={{ borderColor: bgPhoto === uploadedPhoto ? "hsl(82 80% 60%)" : "transparent" }}
+                      >
+                        <img src={uploadedPhoto} alt="Uploaded" className="w-full h-full object-cover" />
+                      </button>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-3 gap-2.5 mb-5">
+                    {PRESET_BACKGROUNDS.map((p) => (
+                      <button
+                        key={p.name}
+                        onClick={() => { setBgPreset(p.gradient); setBgPhoto(null); }}
+                        className="h-14 rounded-xl border-2 transition-all"
+                        style={{
+                          background: p.gradient,
+                          borderColor: bgPreset === p.gradient ? "hsl(82 80% 60%)" : "transparent",
+                        }}
+                      >
+                        <span className="text-[10px] font-bold text-secondary-foreground drop-shadow-sm">{p.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <>
+                  <p className="text-card-foreground font-bold text-sm mb-2">Text size</p>
+                  <div className="flex gap-2 mb-6">
+                    {TEXT_SIZES.map((s) => (
+                      <button
+                        key={s}
+                        onClick={() => setTextSize(s)}
+                        className={`flex-1 py-2 rounded-[var(--radius)] text-sm font-bold transition-all ${
+                          textSize === s
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-muted text-muted-foreground"
+                        }`}
+                      >
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+
+                  <p className="text-card-foreground font-bold text-sm mb-2">Font style</p>
+                  <div className="flex gap-2.5 mb-6">
+                    {FONT_STYLES.map((f) => (
+                      <button
+                        key={f.name}
+                        onClick={() => setFontStyle(f.name)}
+                        className="flex-1 flex flex-col items-center gap-1.5 py-3 rounded-xl border-2 transition-all"
+                        style={{
+                          backgroundColor: "#2b2b2b",
+                          borderColor: fontStyle === f.name ? "#aaee44" : "#444",
+                        }}
+                      >
+                        <span
+                          className="text-2xl text-white"
+                          style={{ fontFamily: f.family }}
+                        >
+                          {f.name}
+                        </span>
+                        <span className="text-[10px] font-semibold" style={{ color: fontStyle === f.name ? "#aaee44" : "#999" }}>
+                          {f.name}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+
+            <DrawerTrigger asChild>
+              <button className="w-full bg-secondary text-secondary-foreground rounded-[var(--radius)] py-4 text-base font-extrabold border border-border mt-4">
+                Done
+              </button>
+            </DrawerTrigger>
+          </DrawerContent>
+        </Drawer>
+
+        <button
+          onClick={handleCreate}
+          className="w-full bg-primary text-primary-foreground rounded-[var(--radius)] py-5 text-xl font-extrabold"
+        >
+          {editCode ? "Update Event" : "Create Event"}
+        </button>
+      </div>
     </div>
   );
 };
