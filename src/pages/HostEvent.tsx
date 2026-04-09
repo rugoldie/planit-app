@@ -28,6 +28,22 @@ const BUBBLE_COLORS = [
   { name: "Sky Blue", hsl: "200 80% 65%", text: "0 0% 10%" },
 ];
 
+const GRADIENT_COLORS = [
+  { name: "Lime Green", color: "#aaee44" },
+  { name: "Purple", color: "#9b59b6" },
+  { name: "Blue", color: "#3498db" },
+  { name: "Pink", color: "#e91e8a" },
+  { name: "Orange", color: "#f39c12" },
+  { name: "Red", color: "#e74c3c" },
+  { name: "Teal", color: "#1abc9c" },
+];
+
+const FONT_STYLES = [
+  { name: "Bold", weight: 800, italic: false },
+  { name: "Clean", weight: 500, italic: false },
+  { name: "Playful", weight: 700, italic: true },
+] as const;
+
 const PRESET_BACKGROUNDS = [
   { name: "Moody Dark", gradient: "linear-gradient(135deg, hsl(240 10% 10%), hsl(260 20% 20%))" },
   { name: "Confetti", gradient: "linear-gradient(135deg, hsl(340 80% 70%), hsl(50 90% 70%), hsl(200 80% 70%))" },
