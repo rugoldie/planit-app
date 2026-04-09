@@ -119,7 +119,26 @@ const GuestEventView = () => {
     return () => { supabase.removeChannel(channel); };
   }, [event]);
 
-  // Fetch DMs with host
+  // Fetch photos
+  useEffect(() => {
+    if (!event) return;
+    const fetchPhotos = async () => {
+      const { data } = await supabase
+        .from("event_photos")
+        .select("id, photo_url")
+        .eq("event_id", event.id)
+        .order("created_at", { ascending: true });
+      if (data) setPhotos(data);
+    };
+    fetchPhotos();
+    const channel = supabase
+      .channel(`photos-${event.id}`)
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "event_photos", filter: `event_id=eq.${event.id}` }, () => fetchPhotos())
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [event]);
+
+
   useEffect(() => {
     if (!event || !user) return;
     const hostId = event.host_id;
