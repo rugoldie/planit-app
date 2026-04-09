@@ -39,10 +39,16 @@ const GRADIENT_COLORS = [
 ];
 
 const FONT_STYLES = [
-  { name: "Bold", weight: 800, italic: false },
-  { name: "Clean", weight: 500, italic: false },
-  { name: "Playful", weight: 700, italic: true },
+  { name: "Bold", family: "'Bebas Neue', sans-serif" },
+  { name: "Handwritten", family: "'Caveat', cursive" },
+  { name: "Elegant", family: "'Playfair Display', serif" },
 ] as const;
+
+const FONT_MAP: Record<string, string> = {
+  Bold: "'Bebas Neue', sans-serif",
+  Handwritten: "'Caveat', cursive",
+  Elegant: "'Playfair Display', serif",
+};
 
 const PRESET_BACKGROUNDS = [
   { name: "Moody Dark", gradient: "linear-gradient(135deg, hsl(240 10% 10%), hsl(260 20% 20%))" },
