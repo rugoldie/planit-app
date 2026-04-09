@@ -205,7 +205,7 @@ const HostEvent = () => {
     ? { backgroundImage: `url(${bgPhoto})`, backgroundSize: "cover", backgroundPosition: "center" }
     : bgPreset
       ? bgPresetIsImage
-        ? { backgroundImage: bgPreset.replace(/^url\(/, '').replace(/\)$/, '').replace(/^['"]|['"]$/g, '') ? bgPreset : bgPreset, backgroundSize: "cover", backgroundPosition: "center" }
+        ? { backgroundImage: bgPreset, backgroundSize: "cover", backgroundPosition: "center" }
         : { background: bgPreset }
       : { backgroundColor: `hsl(${bgColor})` };
 
