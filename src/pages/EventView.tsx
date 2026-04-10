@@ -403,13 +403,17 @@ const EventView = () => {
         <div className="flex flex-col gap-3">
           {/* Location bubble — full width prominent */}
           {event.location && (
-            <div className="p-4 flex items-center gap-4" style={{ backgroundColor: accentColor, borderRadius: "16px" }}>
-              <span style={{ fontSize: "28px" }}>📍</span>
-              <div className="flex-1 min-w-0">
-                <span className="text-[10px] font-bold uppercase tracking-wider block" style={{ color: accentText, opacity: 0.6 }}>Location</span>
-                <span className="text-xl font-bold block truncate" style={{ color: accentText }}>{event.location}</span>
+            <div className="overflow-hidden" style={{ backgroundColor: accentColor, borderRadius: "16px" }}>
+              <div className="px-4 py-1.5" style={{ backgroundColor: "rgba(0,0,0,0.2)" }}>
+                <span className="text-xs font-bold uppercase tracking-wider" style={{ color: accentText }}>Location</span>
               </div>
-              <span className="text-lg font-bold" style={{ color: accentText, opacity: 0.4 }}>›</span>
+              <div className="p-4 flex items-center gap-4">
+                <span style={{ fontSize: "28px" }}>📍</span>
+                <div className="flex-1 min-w-0">
+                  <span className="text-xl font-bold block truncate" style={{ color: accentText }}>{event.location}</span>
+                </div>
+                <span className="text-lg font-bold" style={{ color: accentText, opacity: 0.4 }}>›</span>
+              </div>
             </div>
           )}
 
@@ -429,10 +433,14 @@ const EventView = () => {
                 </div>
               )}
               {event.dress_code && (
-                <div className="flex-1 p-4 flex flex-col" style={{ borderRadius: "16px", backgroundColor: accentColor }}>
-                  <span style={{ fontSize: "28px" }}>🎭</span>
-                  <span className="text-[10px] font-bold uppercase tracking-wider mt-2" style={{ color: accentText, opacity: 0.6 }}>Dress Code</span>
-                  <span className="text-lg font-bold mt-1 leading-tight" style={{ color: accentText }}>{event.dress_code}</span>
+                <div className="flex-1 overflow-hidden" style={{ borderRadius: "16px", backgroundColor: accentColor }}>
+                  <div className="px-3 py-1.5 flex items-center gap-2" style={{ backgroundColor: "rgba(0,0,0,0.2)" }}>
+                    <span style={{ fontSize: "18px" }}>🎭</span>
+                    <span className="text-xs font-bold uppercase tracking-wider" style={{ color: accentText }}>Dress Code</span>
+                  </div>
+                  <div className="flex flex-col py-3 px-3">
+                    <span className="text-lg font-bold leading-tight" style={{ color: accentText }}>{event.dress_code}</span>
+                  </div>
                 </div>
               )}
             </div>
