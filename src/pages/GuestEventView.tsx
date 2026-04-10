@@ -486,11 +486,6 @@ const GuestEventView = () => {
             ))}
           </div>
         )}
-                <img src={p.photo_url} alt="" className="w-full h-full object-cover" />
-              </div>
-            ))}
-          </div>
-        )}
       </div>
 
       {/* RSVP floating bar */}
