@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { User, MapPin, Calendar, Users } from "lucide-react";
+import { User, Users } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
