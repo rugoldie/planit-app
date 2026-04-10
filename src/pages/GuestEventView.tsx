@@ -406,7 +406,7 @@ const GuestEventView = () => {
 
             {rsvp === "yes" && (
               <div className="mt-3 flex justify-center">
-                <div className="rounded-full px-4 py-1.5 text-xs font-bold" style={{ backgroundColor: `${accentColor}22`, color: accentColor }}>
+                <div className="rounded-full px-4 py-1.5 text-xs font-bold" style={{ backgroundColor: bubbleBg ? bubbleBg.replace("hsl(", "hsla(").replace(")", ", 0.15)") : "rgba(170,238,68,0.15)", color: accentColor }}>
                   🎉 You're going!
                 </div>
               </div>
