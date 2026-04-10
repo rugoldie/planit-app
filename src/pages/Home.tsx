@@ -257,8 +257,8 @@ const Home = () => {
           <div
             className="rounded-2xl p-5 cursor-pointer overflow-hidden"
             style={{
-              background: `linear-gradient(135deg, ${nextEvent.gradient_color || "#aaee44"}33 0%, #1e1e1e 50%)`,
-              border: `1px solid ${nextEvent.gradient_color || "#aaee44"}30`,
+              background: `linear-gradient(135deg, ${nextEvent.gradient_color || "#aaee44"}99 0%, #1e1e1e 60%)`,
+              border: `1px solid ${nextEvent.gradient_color || "#aaee44"}40`,
             }}
             onClick={() => {
               const path = nextEvent.role === "host" ? `/event/${nextEvent.code}` : `/guest/${nextEvent.code}`;
@@ -279,32 +279,16 @@ const Home = () => {
               </h3>
               <RoleBadge role={nextEvent.role} />
             </div>
-            <div className="space-y-1.5 text-sm mb-4">
+            <div className="space-y-1.5 text-sm text-muted-foreground mb-4">
               <div className="flex items-center gap-2">
-                <span
-                  className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium"
-                  style={{
-                    backgroundColor: hslToColor(nextEvent.bubble_color, "#383838"),
-                    color: textForBubble(nextEvent.bubble_color),
-                  }}
-                >
-                  <Calendar className="w-3 h-3" />
-                  {formatDate(nextEvent.date_time)}
-                </span>
+                <Calendar className="w-3.5 h-3.5" />
+                <span>{formatDate(nextEvent.date_time)}</span>
               </div>
               <div className="flex items-center gap-2">
-                <span
-                  className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium"
-                  style={{
-                    backgroundColor: hslToColor(nextEvent.bubble_color, "#383838"),
-                    color: textForBubble(nextEvent.bubble_color),
-                  }}
-                >
-                  <MapPin className="w-3 h-3" />
-                  {nextEvent.location || "Location TBD"}
-                </span>
+                <MapPin className="w-3.5 h-3.5" />
+                <span>{nextEvent.location || "Location TBD"}</span>
               </div>
-              <div className="flex items-center gap-2 text-muted-foreground">
+              <div className="flex items-center gap-2">
                 <Users className="w-3.5 h-3.5" />
                 <span>{nextEvent.guest_count} going</span>
               </div>
@@ -338,8 +322,8 @@ const Home = () => {
                 key={event.id}
                 className="rounded-xl p-4 cursor-pointer overflow-hidden"
                 style={{
-                  background: `linear-gradient(135deg, ${gradientHex}33 0%, #2b2b2b 50%)`,
-                  border: `1px solid ${gradientHex}30`,
+                  background: `linear-gradient(135deg, ${gradientHex}99 0%, #2b2b2b 60%)`,
+                  border: `1px solid ${gradientHex}40`,
                 }}
                 onClick={() => {
                   const path = event.role === "host" ? `/event/${event.code}` : `/guest/${event.code}`;
@@ -359,21 +343,15 @@ const Home = () => {
                   </h3>
                   <RoleBadge role={event.role} />
                 </div>
-                <div className="flex flex-wrap gap-1.5 mt-2">
-                  <span
-                    className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium"
-                    style={{ backgroundColor: bubbleBg, color: textForBubble(event.bubble_color) }}
-                  >
-                    <Calendar className="w-3 h-3" />
-                    {formatDate(event.date_time)}
-                  </span>
-                  <span
-                    className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium"
-                    style={{ backgroundColor: bubbleBg, color: textForBubble(event.bubble_color) }}
-                  >
-                    <MapPin className="w-3 h-3" />
-                    {event.location || "Location TBD"}
-                  </span>
+                <div className="flex flex-col gap-1 mt-2 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="w-3.5 h-3.5" />
+                    <span>{formatDate(event.date_time)}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <MapPin className="w-3.5 h-3.5" />
+                    <span>{event.location || "Location TBD"}</span>
+                  </div>
                 </div>
               </div>
             );
