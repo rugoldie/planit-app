@@ -270,10 +270,23 @@ const GuestEventView = () => {
     Elegant: "'Playfair Display', serif",
   } as Record<string, string>)[event.font_style] || "'Bebas Neue', sans-serif";
 
+  const accentColor = bubbleBg || "#aaee44";
+  const accentText = bubbleText || "#111";
+
+  // Parse date parts
+  const eventDate = event.date_time ? new Date(event.date_time) : null;
+  const monthName = eventDate ? eventDate.toLocaleString(undefined, { month: "short" }).toUpperCase() : "";
+  const dayNum = eventDate ? eventDate.getDate() : "";
+  const timeStr = eventDate ? eventDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "";
+  const dayOfWeek = eventDate ? eventDate.toLocaleString(undefined, { weekday: "long" }) : "";
+
+  // Lighter shade of accent for date bubble
+  const lighterAccent = bubbleBg ? bubbleBg.replace(/\)$/, " / 0.7)").replace("hsl(", "hsla(") : "rgba(170,238,68,0.7)";
+
   return (
-    <div className="flex flex-col min-h-screen pb-28" style={{ backgroundColor: "#2b2b2b" }}>
+    <div className="flex flex-col min-h-screen pb-28" style={{ backgroundColor: "#1a1a1a" }}>
       {/* Gradient hero section */}
-      <div className="relative" style={{ background: `linear-gradient(to bottom, ${eventGradient} 0%, #2b2b2b 100%)`, minHeight: "220px" }}>
+      <div className="relative" style={{ background: `linear-gradient(to bottom, ${eventGradient} 0%, #1a1a1a 100%)`, minHeight: "220px" }}>
         {/* Navigation overlay */}
         <div className="flex items-center justify-between px-5 pt-6">
           <button onClick={() => navigate("/home")}>
@@ -298,58 +311,83 @@ const GuestEventView = () => {
 
       {/* Detail bubbles */}
       {(event.location || event.date_time || event.dress_code || event.extra) && (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-3">
+          {/* Location bubble — full width prominent */}
           {event.location && (
-            <div className="p-4 backdrop-blur-sm flex items-center gap-3" style={{ backgroundColor: bubbleBg, borderRadius: "12px" }}>
-              <span className="text-xl">📍</span>
-              <span className={bubbleTextClass} style={{ color: bubbleText }}>{event.location}</span>
+            <div className="p-4 flex items-center gap-4" style={{ backgroundColor: accentColor, borderRadius: "16px" }}>
+              <span style={{ fontSize: "28px" }}>📍</span>
+              <div className="flex-1 min-w-0">
+                <span className="text-[10px] font-bold uppercase tracking-wider block" style={{ color: accentText, opacity: 0.6 }}>Location</span>
+                <span className="text-xl font-bold block truncate" style={{ color: accentText }}>{event.location}</span>
+              </div>
+              <span className="text-lg font-bold" style={{ color: accentText, opacity: 0.4 }}>›</span>
             </div>
           )}
-          {event.date_time && (
-            <div className="p-4 backdrop-blur-sm flex items-center gap-3" style={{ backgroundColor: bubbleBg, borderRadius: "12px" }}>
-              <span className="text-xl">📅</span>
-              <span className={bubbleTextClass} style={{ color: bubbleText }}>
-                {new Date(event.date_time).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}
-              </span>
+
+          {/* Date + Dress code row */}
+          {(eventDate || event.dress_code) && (
+            <div className="flex gap-3">
+              {eventDate && (
+                <div className="flex-1 overflow-hidden" style={{ borderRadius: "16px", backgroundColor: accentColor }}>
+                  <div className="px-3 py-1.5 text-center" style={{ backgroundColor: "rgba(0,0,0,0.2)" }}>
+                    <span className="text-xs font-bold uppercase tracking-wider" style={{ color: accentText }}>{monthName}</span>
+                  </div>
+                  <div className="flex flex-col items-center py-3 px-3">
+                    <span className="text-4xl font-extrabold leading-none" style={{ color: accentText }}>{dayNum}</span>
+                    <span className="text-xs font-semibold mt-1" style={{ color: accentText, opacity: 0.7 }}>{timeStr}</span>
+                    <span className="text-[10px] font-medium mt-0.5" style={{ color: accentText, opacity: 0.5 }}>{dayOfWeek}</span>
+                  </div>
+                </div>
+              )}
+              {event.dress_code && (
+                <div className="flex-1 p-4 flex flex-col" style={{ borderRadius: "16px", backgroundColor: accentColor }}>
+                  <span style={{ fontSize: "28px" }}>🎭</span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider mt-2" style={{ color: accentText, opacity: 0.6 }}>Dress Code</span>
+                  <span className="text-lg font-bold mt-1 leading-tight" style={{ color: accentText }}>{event.dress_code}</span>
+                </div>
+              )}
             </div>
           )}
-          {event.dress_code && (
-            <div className="p-4 backdrop-blur-sm flex items-center gap-3" style={{ backgroundColor: bubbleBg, borderRadius: "12px" }}>
-              <span className="text-xl">🎭</span>
-              <span className={bubbleTextClass} style={{ color: bubbleText }}>{event.dress_code}</span>
-            </div>
-          )}
+
+          {/* Notes bubble — full width, softer */}
           {event.extra && (
-            <div className="p-4 backdrop-blur-sm flex items-center gap-3" style={{ backgroundColor: bubbleBg, borderRadius: "12px" }}>
-              <span className="text-xl">➕</span>
-              <span className={bubbleTextClass} style={{ color: bubbleText }}>{event.extra}</span>
+            <div className="p-4 flex items-start gap-3" style={{ 
+              borderRadius: "16px", 
+              backgroundColor: bubbleBg ? bubbleBg.replace("hsl(", "hsla(").replace(")", ", 0.15)") : "rgba(170,238,68,0.15)",
+              border: `1px solid ${bubbleBg ? bubbleBg.replace("hsl(", "hsla(").replace(")", ", 0.3)") : "rgba(170,238,68,0.3)"}`,
+            }}>
+              <span className="text-lg mt-0.5">✦</span>
+              <div className="flex-1">
+                <span className="text-[10px] font-bold uppercase tracking-wider block" style={{ color: accentColor }}>Notes from host</span>
+                <span className="text-sm text-white/80 mt-1 block">{event.extra}</span>
+              </div>
             </div>
           )}
         </div>
       )}
 
       {/* Who's going section */}
-      <div className="mt-4 rounded-[var(--radius)] p-4 border border-border" style={{ backgroundColor: "#383838" }}>
+      <div className="mt-4 rounded-2xl p-4" style={{ backgroundColor: "#1e1e1e" }}>
         <button onClick={() => setGuestListExpanded(!guestListExpanded)} className="flex items-center justify-between w-full mb-3">
           <h2 className="text-white font-bold text-sm">Who's going</h2>
-          {guestListExpanded ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+          <div className="flex items-center gap-2">
+            {goingList.length > 0 && <span className="font-bold text-xs" style={{ color: accentColor }}>{goingList.length} going</span>}
+            {guestListExpanded ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+          </div>
         </button>
 
         {!guestListExpanded ? (
           <>
-            <div className="flex items-center gap-3 mb-2">
-              <div className="flex items-center gap-2 overflow-x-auto flex-1">
-                {goingList.length === 0 && <p className="text-muted-foreground text-xs">No one yet</p>}
-                {goingList.map((r, i) => (
-                  <div key={i} className="flex flex-col items-center shrink-0">
-                    <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center overflow-hidden border-2 border-primary">
-                      {r.avatar_url ? <img src={r.avatar_url} alt="" className="w-full h-full object-cover" /> : <span className="text-xs font-bold text-muted-foreground">{getInitials(r.name)}</span>}
-                    </div>
-                    <span className="text-[10px] text-muted-foreground mt-1 max-w-[40px] truncate">{r.name.split(" ")[0]}</span>
+            <div className="flex items-center gap-2 overflow-x-auto mb-2">
+              {goingList.length === 0 && <p className="text-muted-foreground text-xs">No one yet</p>}
+              {goingList.map((r, i) => (
+                <div key={i} className="flex flex-col items-center shrink-0">
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center overflow-hidden" style={{ border: `2px solid ${accentColor}`, backgroundColor: "#2a2a2a" }}>
+                    {r.avatar_url ? <img src={r.avatar_url} alt="" className="w-full h-full object-cover" /> : <span className="text-xs font-bold" style={{ color: accentColor }}>{getInitials(r.name)}</span>}
                   </div>
-                ))}
-              </div>
-              {goingList.length > 0 && <span className="text-primary font-bold text-xs shrink-0">{goingList.length} going</span>}
+                  <span className="text-[10px] text-muted-foreground mt-1 max-w-[40px] truncate">{r.name.split(" ")[0]}</span>
+                </div>
+              ))}
             </div>
 
             {maybeList.length > 0 && (
@@ -365,14 +403,22 @@ const GuestEventView = () => {
                 <span className="text-muted-foreground text-[10px] font-semibold shrink-0">{maybeList.length} maybe</span>
               </div>
             )}
+
+            {rsvp === "yes" && (
+              <div className="mt-3 flex justify-center">
+                <div className="rounded-full px-4 py-1.5 text-xs font-bold" style={{ backgroundColor: bubbleBg ? bubbleBg.replace("hsl(", "hsla(").replace(")", ", 0.15)") : "rgba(170,238,68,0.15)", color: accentColor }}>
+                  🎉 You're going!
+                </div>
+              </div>
+            )}
           </>
         ) : (
           <div className="space-y-2 max-h-64 overflow-y-auto">
             {rsvpList.length === 0 && <p className="text-muted-foreground text-xs text-center py-3">No RSVPs yet</p>}
             {rsvpList.map((r, i) => (
-              <div key={i} className="flex items-center gap-3 rounded-xl px-3 py-2" style={{ backgroundColor: "#2b2b2b" }}>
-                <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center overflow-hidden shrink-0">
-                  {r.avatar_url ? <img src={r.avatar_url} alt="" className="w-full h-full object-cover" /> : <span className="text-[10px] font-bold text-muted-foreground">{getInitials(r.name)}</span>}
+              <div key={i} className="flex items-center gap-3 rounded-xl px-3 py-2" style={{ backgroundColor: "#2a2a2a" }}>
+                <div className="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden shrink-0" style={{ border: `2px solid ${accentColor}`, backgroundColor: "#1a1a1a" }}>
+                  {r.avatar_url ? <img src={r.avatar_url} alt="" className="w-full h-full object-cover" /> : <span className="text-[10px] font-bold" style={{ color: accentColor }}>{getInitials(r.name)}</span>}
                 </div>
                 <span className="text-white text-sm font-semibold flex-1">{r.name}</span>
                 {statusBadge(r.status)}
@@ -383,11 +429,11 @@ const GuestEventView = () => {
       </div>
 
       {/* Comments section */}
-      <div className="mt-4 rounded-[var(--radius)] p-4 border border-border" style={{ backgroundColor: "#383838" }}>
+      <div className="mt-4 rounded-2xl p-4" style={{ backgroundColor: "#1e1e1e" }}>
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-white font-bold text-sm">Comments</h2>
           <button onClick={() => setShowFullComments(true)}>
-            <Maximize2 className="w-4 h-4 text-primary" />
+            <Maximize2 className="w-4 h-4" style={{ color: accentColor }} />
           </button>
         </div>
         <div className="space-y-2 max-h-48 overflow-y-auto mb-3">
@@ -395,9 +441,9 @@ const GuestEventView = () => {
             <p className="text-muted-foreground text-xs text-center py-3">No comments yet — be the first!</p>
           )}
           {comments.map((c, i) => (
-            <div key={i} className="rounded-xl px-3 py-2" style={{ backgroundColor: "#2b2b2b" }}>
+            <div key={i} className="rounded-xl px-3 py-2" style={{ backgroundColor: "#2a2a2a" }}>
               <div className="flex items-center gap-2">
-                <span className="text-primary text-xs font-bold">{c.user_name}</span>
+                <span className="text-xs font-bold" style={{ color: accentColor }}>{c.user_name}</span>
                 <span className="text-muted-foreground text-[10px]">{formatTime(c.created_at)}</span>
               </div>
               <p className="text-white text-sm mt-0.5">{c.text}</p>
@@ -410,31 +456,31 @@ const GuestEventView = () => {
             onChange={(e) => setCommentDraft(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && sendComment()}
             placeholder="Write a comment..."
-            className="flex-1 rounded-full px-4 py-2 text-sm text-white placeholder:text-muted-foreground outline-none border border-border"
-            style={{ backgroundColor: "#2b2b2b" }}
+            className="flex-1 rounded-full px-4 py-2 text-sm text-white placeholder:text-muted-foreground outline-none"
+            style={{ backgroundColor: "#2a2a2a" }}
           />
-          <button onClick={sendComment} className="w-9 h-9 rounded-full bg-primary flex items-center justify-center shrink-0">
-            <Send className="w-4 h-4 text-primary-foreground" />
+          <button onClick={sendComment} className="w-9 h-9 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: "#b8f55a" }}>
+            <Send className="w-4 h-4" style={{ color: "#111" }} />
           </button>
         </div>
       </div>
 
       {/* Gallery section */}
-      <div className="mt-4 rounded-[var(--radius)] p-4 border border-border" style={{ backgroundColor: "#383838" }}>
+      <div className="mt-4 rounded-2xl p-4" style={{ backgroundColor: "#1e1e1e" }}>
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-white font-bold text-sm">Gallery</h2>
-          <button onClick={() => photoInput.current?.click()} className="text-xs font-bold bg-primary text-primary-foreground rounded-full px-3 py-1">
+          <button onClick={() => photoInput.current?.click()} className="text-xs font-bold rounded-full px-3 py-1" style={{ backgroundColor: "#b8f55a", color: "#111" }}>
             Add photo
           </button>
           <input ref={photoInput} type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} />
         </div>
-        {uploadingPhoto && <p className="text-primary text-xs text-center py-2">Uploading...</p>}
+        {uploadingPhoto && <p className="text-xs text-center py-2" style={{ color: accentColor }}>Uploading...</p>}
         {photos.length === 0 && !uploadingPhoto ? (
           <p className="text-muted-foreground text-xs text-center py-4">No photos yet — add the first one!</p>
         ) : (
           <div className="grid grid-cols-3 gap-1.5">
-            {photos.map((p, i) => (
-              <div key={p.id} className="aspect-square rounded-lg overflow-hidden">
+            {photos.map((p) => (
+              <div key={p.id} className="aspect-square rounded-xl overflow-hidden">
                 <img src={p.photo_url} alt="" className="w-full h-full object-cover" />
               </div>
             ))}
