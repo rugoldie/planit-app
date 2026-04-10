@@ -144,6 +144,17 @@ const RoleBadge = ({ role }: { role: "host" | "going" | "maybe" }) => {
   );
 };
 
+/** Check if a hex color is light (for text contrast) */
+const isLightColor = (hex: string): boolean => {
+  const c = hex.replace("#", "");
+  if (c.length < 6) return false;
+  const r = parseInt(c.substring(0, 2), 16);
+  const g = parseInt(c.substring(2, 4), 16);
+  const b = parseInt(c.substring(4, 6), 16);
+  // Relative luminance
+  return (r * 299 + g * 587 + b * 114) / 1000 > 150;
+};
+
 /** Resolve bubble_color HSL string to a hex-ish CSS color */
 const hslToColor = (hsl: string | null, fallback: string) => {
   if (!hsl) return fallback;
@@ -208,7 +219,7 @@ const Home = () => {
       <div className="flex items-start justify-between mb-6">
         <div>
           <p className="text-muted-foreground text-sm">{getGreeting()}</p>
-          <h1 className="text-2xl font-extrabold text-foreground mt-0.5">{firstName}</h1>
+          <h1 className="text-2xl font-extrabold mt-0.5" style={{ color: "#ffffff" }}>{firstName}</h1>
         </div>
         <button
           onClick={() => navigate("/profile")}
