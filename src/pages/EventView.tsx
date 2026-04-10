@@ -316,8 +316,17 @@ const EventView = () => {
     Elegant: "'Playfair Display', serif",
   } as Record<string, string>)[event.font_style] || "'Bebas Neue', sans-serif";
 
+  const accentColor = bubbleBg || "#aaee44";
+  const accentText = bubbleText || "#111";
+
+  const eventDate = event.date_time ? new Date(event.date_time) : null;
+  const monthName = eventDate ? eventDate.toLocaleString(undefined, { month: "short" }).toUpperCase() : "";
+  const dayNum = eventDate ? eventDate.getDate() : "";
+  const timeStr = eventDate ? eventDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "";
+  const dayOfWeek = eventDate ? eventDate.toLocaleString(undefined, { weekday: "long" }) : "";
+
   return (
-    <div className="flex flex-col min-h-screen pb-28" style={{ backgroundColor: "#2b2b2b" }}>
+    <div className="flex flex-col min-h-screen pb-28" style={{ backgroundColor: "#1a1a1a" }}>
       {/* Gradient hero section */}
       <div className="relative" style={{ background: `linear-gradient(to bottom, ${eventGradient} 0%, #2b2b2b 100%)`, minHeight: "220px" }}>
         {/* Navigation overlay */}
