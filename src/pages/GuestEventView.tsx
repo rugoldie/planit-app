@@ -353,8 +353,8 @@ const GuestEventView = () => {
           {event.extra && (
             <div className="p-4 flex items-start gap-3" style={{ 
               borderRadius: "16px", 
-              backgroundColor: `${accentColor}22`,
-              border: `1px solid ${accentColor}44`,
+              backgroundColor: bubbleBg ? bubbleBg.replace("hsl(", "hsla(").replace(")", ", 0.15)") : "rgba(170,238,68,0.15)",
+              border: `1px solid ${bubbleBg ? bubbleBg.replace("hsl(", "hsla(").replace(")", ", 0.3)") : "rgba(170,238,68,0.3)"}`,
             }}>
               <span className="text-lg mt-0.5">✦</span>
               <div className="flex-1">
