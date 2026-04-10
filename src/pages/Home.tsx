@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { User, MapPin, Calendar, Users } from "lucide-react";
+import { User, Users } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
@@ -279,19 +279,16 @@ const Home = () => {
               </h3>
               <RoleBadge role={nextEvent.role} />
             </div>
-            <div className="space-y-1.5 text-sm mb-4" style={{ color: "#aaaaaa" }}>
-              <div className="flex items-center gap-2">
-                <Calendar className="w-3.5 h-3.5" />
-                <span>{formatDate(nextEvent.date_time)}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <MapPin className="w-3.5 h-3.5" />
-                <span>{nextEvent.location || "Location TBD"}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Users className="w-3.5 h-3.5" />
-                <span>{nextEvent.guest_count} going</span>
-              </div>
+            <div className="flex flex-wrap gap-2 text-sm mb-4">
+              <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-medium" style={{ backgroundColor: hslToColor(nextEvent.bubble_color, "#383838"), color: textForBubble(nextEvent.bubble_color) }}>
+                🗓️ {formatDate(nextEvent.date_time)}
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-medium" style={{ backgroundColor: hslToColor(nextEvent.bubble_color, "#383838"), color: textForBubble(nextEvent.bubble_color) }}>
+                📍 {nextEvent.location || "Location TBD"}
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-medium" style={{ backgroundColor: hslToColor(nextEvent.bubble_color, "#383838"), color: textForBubble(nextEvent.bubble_color) }}>
+                <Users className="w-3.5 h-3.5" /> {nextEvent.guest_count} going
+              </span>
             </div>
             <button
               className="w-full rounded-xl py-2.5 text-sm font-bold"
@@ -343,15 +340,13 @@ const Home = () => {
                   </h3>
                   <RoleBadge role={event.role} />
                 </div>
-                <div className="flex flex-col gap-1 mt-2 text-sm" style={{ color: "#aaaaaa" }}>
-                  <div className="flex items-center gap-2">
-                    <Calendar className="w-3.5 h-3.5" />
-                    <span>{formatDate(event.date_time)}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <MapPin className="w-3.5 h-3.5" />
-                    <span>{event.location || "Location TBD"}</span>
-                  </div>
+                <div className="flex flex-wrap gap-2 mt-2 text-sm">
+                  <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-medium" style={{ backgroundColor: hslToColor(event.bubble_color, "#383838"), color: textForBubble(event.bubble_color) }}>
+                    🗓️ {formatDate(event.date_time)}
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-medium" style={{ backgroundColor: hslToColor(event.bubble_color, "#383838"), color: textForBubble(event.bubble_color) }}>
+                    📍 {event.location || "Location TBD"}
+                  </span>
                 </div>
               </div>
             );
