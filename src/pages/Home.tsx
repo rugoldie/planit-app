@@ -279,7 +279,7 @@ const Home = () => {
               </h3>
               <RoleBadge role={nextEvent.role} />
             </div>
-            <div className="space-y-1.5 text-sm text-muted-foreground mb-4">
+            <div className="space-y-1.5 text-sm mb-4" style={{ color: "#aaaaaa" }}>
               <div className="flex items-center gap-2">
                 <Calendar className="w-3.5 h-3.5" />
                 <span>{formatDate(nextEvent.date_time)}</span>
@@ -343,7 +343,7 @@ const Home = () => {
                   </h3>
                   <RoleBadge role={event.role} />
                 </div>
-                <div className="flex flex-col gap-1 mt-2 text-sm text-muted-foreground">
+                <div className="flex flex-col gap-1 mt-2 text-sm" style={{ color: "#aaaaaa" }}>
                   <div className="flex items-center gap-2">
                     <Calendar className="w-3.5 h-3.5" />
                     <span>{formatDate(event.date_time)}</span>
