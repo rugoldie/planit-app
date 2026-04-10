@@ -286,7 +286,7 @@ const GuestEventView = () => {
   return (
     <div className="flex flex-col min-h-screen pb-28" style={{ backgroundColor: "#1a1a1a" }}>
       {/* Gradient hero section */}
-      <div className="relative" style={{ background: `linear-gradient(to bottom, ${eventGradient} 0%, #2b2b2b 100%)`, minHeight: "220px" }}>
+      <div className="relative" style={{ background: `linear-gradient(to bottom, ${eventGradient} 0%, #1a1a1a 100%)`, minHeight: "220px" }}>
         {/* Navigation overlay */}
         <div className="flex items-center justify-between px-5 pt-6">
           <button onClick={() => navigate("/home")}>
