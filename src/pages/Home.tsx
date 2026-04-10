@@ -145,14 +145,34 @@ const RoleBadge = ({ role }: { role: "host" | "going" | "maybe" }) => {
 };
 
 /** Check if a hex color is light (for text contrast) */
-const isLightColor = (hex: string): boolean => {
+const isLightHex = (hex: string): boolean => {
   const c = hex.replace("#", "");
   if (c.length < 6) return false;
   const r = parseInt(c.substring(0, 2), 16);
   const g = parseInt(c.substring(2, 4), 16);
   const b = parseInt(c.substring(4, 6), 16);
-  // Relative luminance
   return (r * 299 + g * 587 + b * 114) / 1000 > 150;
+};
+
+/** Check if an HSL string like "82 100% 48%" is light */
+const isLightHsl = (hsl: string | null): boolean => {
+  if (!hsl) return false;
+  // Parse lightness from HSL string
+  const parts = hsl.split(/[\s,]+/);
+  const l = parseFloat(parts[2]);
+  const s = parseFloat(parts[1]);
+  // High lightness or high saturation + mid lightness = light
+  return l > 55 || (s > 60 && l > 40);
+};
+
+/** Contrast text color for a given hex gradient */
+const textForGradient = (hex: string | null): string => {
+  return hex && isLightHex(hex) ? "#111111" : "#ffffff";
+};
+
+/** Contrast text color for bubble HSL bg */
+const textForBubble = (hsl: string | null): string => {
+  return isLightHsl(hsl) ? "#111111" : "#ffffff";
 };
 
 /** Resolve bubble_color HSL string to a hex-ish CSS color */
@@ -265,7 +285,7 @@ const Home = () => {
                   className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium"
                   style={{
                     backgroundColor: hslToColor(nextEvent.bubble_color, "#383838"),
-                    color: "#fff",
+                    color: textForBubble(nextEvent.bubble_color),
                   }}
                 >
                   <Calendar className="w-3 h-3" />
@@ -277,7 +297,7 @@ const Home = () => {
                   className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium"
                   style={{
                     backgroundColor: hslToColor(nextEvent.bubble_color, "#383838"),
-                    color: "#fff",
+                    color: textForBubble(nextEvent.bubble_color),
                   }}
                 >
                   <MapPin className="w-3 h-3" />
@@ -342,14 +362,14 @@ const Home = () => {
                 <div className="flex flex-wrap gap-1.5 mt-2">
                   <span
                     className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium"
-                    style={{ backgroundColor: bubbleBg, color: "#fff" }}
+                    style={{ backgroundColor: bubbleBg, color: textForBubble(event.bubble_color) }}
                   >
                     <Calendar className="w-3 h-3" />
                     {formatDate(event.date_time)}
                   </span>
                   <span
                     className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium"
-                    style={{ backgroundColor: bubbleBg, color: "#fff" }}
+                    style={{ backgroundColor: bubbleBg, color: textForBubble(event.bubble_color) }}
                   >
                     <MapPin className="w-3 h-3" />
                     {event.location || "Location TBD"}
