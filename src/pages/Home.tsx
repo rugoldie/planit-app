@@ -4,7 +4,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { format, isPast, parseISO } from "date-fns";
-import { Badge } from "@/components/ui/badge";
 
 type EventWithRole = {
   id: string;
@@ -14,22 +13,30 @@ type EventWithRole = {
   location: string | null;
   role: "host" | "going" | "maybe";
   guest_count: number;
+  gradient_color: string | null;
+  bubble_color: string | null;
+  font_style: string | null;
+};
+
+const FONT_MAP: Record<string, string> = {
+  Bold: "'Bebas Neue', sans-serif",
+  Handwritten: "'Caveat', cursive",
+  Elegant: "'Playfair Display', serif",
 };
 
 const useUserEvents = (userId: string | undefined) => {
   return useQuery({
     queryKey: ["user-events", userId],
     enabled: !!userId,
+    refetchInterval: 5000,
     queryFn: async (): Promise<EventWithRole[]> => {
       if (!userId) return [];
 
-      // Fetch hosted events
       const { data: hosted } = await supabase
         .from("events")
-        .select("id, code, title, date_time, location")
+        .select("id, code, title, date_time, location, gradient_color, bubble_color, font_style")
         .eq("host_id", userId);
 
-      // Fetch RSVPd events
       const { data: rsvps } = await supabase
         .from("event_guests")
         .select("event_id, rsvp_status")
@@ -39,7 +46,6 @@ const useUserEvents = (userId: string | undefined) => {
         (rsvps || []).map((r) => [r.event_id, r.rsvp_status])
       );
 
-      // Fetch event details for RSVPd events (exclude already hosted)
       const hostedIds = new Set((hosted || []).map((e) => e.id));
       const guestEventIds = (rsvps || [])
         .map((r) => r.event_id)
@@ -49,12 +55,11 @@ const useUserEvents = (userId: string | undefined) => {
       if (guestEventIds.length > 0) {
         const { data } = await supabase
           .from("events")
-          .select("id, code, title, date_time, location")
+          .select("id, code, title, date_time, location, gradient_color, bubble_color, font_style")
           .in("id", guestEventIds);
         guestEvents = data || [];
       }
 
-      // Get guest counts for all events
       const allEventIds = [
         ...(hosted || []).map((e) => e.id),
         ...guestEventIds,
@@ -92,7 +97,6 @@ const useUserEvents = (userId: string | undefined) => {
         });
       });
 
-      // Filter to upcoming only and sort by date
       return events
         .filter((e) => !e.date_time || !isPast(parseISO(e.date_time)))
         .sort((a, b) => {
@@ -138,6 +142,12 @@ const RoleBadge = ({ role }: { role: "host" | "going" | "maybe" }) => {
       Maybe
     </span>
   );
+};
+
+/** Resolve bubble_color HSL string to a hex-ish CSS color */
+const hslToColor = (hsl: string | null, fallback: string) => {
+  if (!hsl) return fallback;
+  return `hsl(${hsl})`;
 };
 
 const Home = () => {
@@ -214,27 +224,56 @@ const Home = () => {
         <div className="mb-6">
           <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Next up</h2>
           <div
-            className="rounded-2xl p-5 cursor-pointer"
-            style={{ backgroundColor: "#1e1e1e" }}
+            className="rounded-2xl p-5 cursor-pointer overflow-hidden"
+            style={{
+              background: `linear-gradient(135deg, ${nextEvent.gradient_color || "#aaee44"}33 0%, #1e1e1e 50%)`,
+              border: `1px solid ${nextEvent.gradient_color || "#aaee44"}30`,
+            }}
             onClick={() => {
               const path = nextEvent.role === "host" ? `/event/${nextEvent.code}` : `/guest/${nextEvent.code}`;
               navigate(path);
             }}
           >
             <div className="flex items-start justify-between mb-3">
-              <h3 className="text-lg font-bold text-foreground flex-1 mr-3">{nextEvent.title || "Untitled Event"}</h3>
+              <h3
+                className="text-lg flex-1 mr-3"
+                style={{
+                  color: "#ffffff",
+                  fontFamily: FONT_MAP[nextEvent.font_style || "Bold"] || FONT_MAP.Bold,
+                  fontWeight: nextEvent.font_style === "Bold" || !nextEvent.font_style ? 700 : 400,
+                  fontSize: nextEvent.font_style === "Bold" ? "1.25rem" : "1.125rem",
+                }}
+              >
+                {nextEvent.title || "Untitled Event"}
+              </h3>
               <RoleBadge role={nextEvent.role} />
             </div>
-            <div className="space-y-1.5 text-sm text-muted-foreground mb-4">
+            <div className="space-y-1.5 text-sm mb-4">
               <div className="flex items-center gap-2">
-                <Calendar className="w-3.5 h-3.5" />
-                <span>{formatDate(nextEvent.date_time)}</span>
+                <span
+                  className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium"
+                  style={{
+                    backgroundColor: hslToColor(nextEvent.bubble_color, "#383838"),
+                    color: "#fff",
+                  }}
+                >
+                  <Calendar className="w-3 h-3" />
+                  {formatDate(nextEvent.date_time)}
+                </span>
               </div>
               <div className="flex items-center gap-2">
-                <MapPin className="w-3.5 h-3.5" />
-                <span>{nextEvent.location || "Location TBD"}</span>
+                <span
+                  className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium"
+                  style={{
+                    backgroundColor: hslToColor(nextEvent.bubble_color, "#383838"),
+                    color: "#fff",
+                  }}
+                >
+                  <MapPin className="w-3 h-3" />
+                  {nextEvent.location || "Location TBD"}
+                </span>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 text-muted-foreground">
                 <Users className="w-3.5 h-3.5" />
                 <span>{nextEvent.guest_count} going</span>
               </div>
@@ -258,32 +297,56 @@ const Home = () => {
       <div className="flex-1 overflow-y-auto mb-4">
         <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Upcoming</h2>
         <div className="space-y-3">
-          {events.map((event) => (
-            <div
-              key={event.id}
-              className="rounded-xl p-4 cursor-pointer"
-              style={{ backgroundColor: "#383838" }}
-              onClick={() => {
-                const path = event.role === "host" ? `/event/${event.code}` : `/guest/${event.code}`;
-                navigate(path);
-              }}
-            >
-              <div className="flex items-start justify-between mb-1.5">
-                <h3 className="text-base font-bold text-foreground flex-1 mr-3">{event.title || "Untitled Event"}</h3>
-                <RoleBadge role={event.role} />
-              </div>
-              <div className="space-y-1 text-sm text-muted-foreground">
-                <div className="flex items-center gap-2">
-                  <Calendar className="w-3.5 h-3.5" />
-                  <span>{formatDate(event.date_time)}</span>
+          {events.map((event) => {
+            const gradientHex = event.gradient_color || "#aaee44";
+            const bubbleBg = hslToColor(event.bubble_color, "#383838");
+            const fontFamily = FONT_MAP[event.font_style || "Bold"] || FONT_MAP.Bold;
+
+            return (
+              <div
+                key={event.id}
+                className="rounded-xl p-4 cursor-pointer overflow-hidden"
+                style={{
+                  background: `linear-gradient(135deg, ${gradientHex}33 0%, #2b2b2b 50%)`,
+                  border: `1px solid ${gradientHex}30`,
+                }}
+                onClick={() => {
+                  const path = event.role === "host" ? `/event/${event.code}` : `/guest/${event.code}`;
+                  navigate(path);
+                }}
+              >
+                <div className="flex items-start justify-between mb-1.5">
+                  <h3
+                    className="text-base flex-1 mr-3"
+                    style={{
+                      color: "#ffffff",
+                      fontFamily,
+                      fontWeight: event.font_style === "Bold" || !event.font_style ? 700 : 400,
+                    }}
+                  >
+                    {event.title || "Untitled Event"}
+                  </h3>
+                  <RoleBadge role={event.role} />
                 </div>
-                <div className="flex items-center gap-2">
-                  <MapPin className="w-3.5 h-3.5" />
-                  <span>{event.location || "Location TBD"}</span>
+                <div className="flex flex-wrap gap-1.5 mt-2">
+                  <span
+                    className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium"
+                    style={{ backgroundColor: bubbleBg, color: "#fff" }}
+                  >
+                    <Calendar className="w-3 h-3" />
+                    {formatDate(event.date_time)}
+                  </span>
+                  <span
+                    className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium"
+                    style={{ backgroundColor: bubbleBg, color: "#fff" }}
+                  >
+                    <MapPin className="w-3 h-3" />
+                    {event.location || "Location TBD"}
+                  </span>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
