@@ -98,10 +98,12 @@ const HostEvent = () => {
   const [gradientColor, setGradientColor] = useState(GRADIENT_COLORS[0].color);
   const [fontStyle, setFontStyle] = useState<string>("Bold");
   const [customizeTab, setCustomizeTab] = useState<"colours" | "style">("colours");
+  const [editLoading, setEditLoading] = useState(!!editCode);
 
   // Load event data if editing
   useEffect(() => {
     if (editCode) {
+      setEditLoading(true);
       supabase
         .from("events")
         .select("*")
@@ -134,6 +136,7 @@ const HostEvent = () => {
               setUploadedPhoto(data.bg_photo);
             }
           }
+          setEditLoading(false);
         });
     }
   }, [editCode]);
@@ -165,7 +168,6 @@ const HostEvent = () => {
     } else {
       const { error } = await supabase.from("events").insert(eventData);
       if (error) {
-        // Code collision — try again
         if (error.code === "23505") {
           const newCode = generateCode();
           await supabase.from("events").insert({ ...eventData, code: newCode });
@@ -207,13 +209,14 @@ const HostEvent = () => {
     return lightness <= 30;
   })();
 
-  const previewBgStyle: React.CSSProperties = bgPhoto
-    ? { backgroundImage: `url(${bgPhoto})`, backgroundSize: "cover", backgroundPosition: "center" }
-    : bgPreset
-      ? bgPresetIsImage
-        ? { backgroundImage: bgPreset, backgroundSize: "cover", backgroundPosition: "center" }
-        : { background: bgPreset }
-      : { backgroundColor: `hsl(${bgColor})` };
+  // Loading screen for edit mode — prevents flash
+  if (editLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen" style={{ backgroundColor: "#1a1a1a" }}>
+        <p className="text-white/50 text-sm">Loading event...</p>
+      </div>
+    );
+  }
 
   if (showCode) {
     return (
@@ -251,20 +254,28 @@ const HostEvent = () => {
 
   const titleClass = textSize === "Small" ? "text-2xl font-bold" : textSize === "Large" ? "text-5xl font-extrabold" : "text-4xl font-extrabold";
   const vibeClass = textSize === "Small" ? "text-xs" : textSize === "Large" ? "text-base" : "text-sm";
-  const bubbleTextClass = textSize === "Small" ? "text-xs font-medium" : textSize === "Large" ? "text-base font-bold" : "text-sm font-medium";
   const currentFontFamily = FONT_MAP[fontStyle] || FONT_MAP["Bold"];
+  const accentColor = `hsl(${bubbleColor})`;
+  const accentText = `hsl(${bubbleTextColor})`;
+
+  // Parsed date for calendar bubble preview
+  const eventDate = dateTime ? new Date(dateTime) : null;
+  const monthName = eventDate ? eventDate.toLocaleString(undefined, { month: "short" }).toUpperCase() : "";
+  const dayNum = eventDate ? eventDate.getDate() : "";
+  const timeStr = eventDate ? eventDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "";
+  const dayOfWeek = eventDate ? eventDate.toLocaleString(undefined, { weekday: "long" }) : "";
 
   return (
-    <div className="flex flex-col min-h-screen transition-all duration-300" style={previewBgStyle}>
+    <div className="flex flex-col min-h-screen transition-all duration-300" style={{ backgroundColor: "#1a1a1a" }}>
       {/* Hero gradient header */}
       <div
         className="relative"
         style={{
-          background: `linear-gradient(to bottom, ${gradientColor} 0%, ${bgPreset || bgPhoto ? 'transparent' : `hsl(${bgColor})`} 100%)`,
+          background: `linear-gradient(to bottom, ${gradientColor} 0%, #1a1a1a 100%)`,
           minHeight: "220px",
         }}
       >
-        <button onClick={() => navigate("/home")} className="absolute top-5 left-5 z-10">
+        <button onClick={() => navigate(editCode ? `/event/${editCode}` : "/home")} className="absolute top-5 left-5 z-10">
           <ArrowLeft className="w-6 h-6" style={{ color: "#111" }} />
         </button>
 
@@ -289,73 +300,100 @@ const HostEvent = () => {
         </div>
       </div>
 
-      {/* Detail bubbles */}
-      <style>{`.host-detail-bubble input::placeholder, .host-detail-bubble textarea::placeholder { color: ${isDarkBubble ? '#ffffff' : '#ffffff'} !important; opacity: 0.7; }`}</style>
-      <div className="px-5 pt-4 pb-10 flex flex-col gap-1.5">
-        <div
-          className="host-detail-bubble px-4 py-3 flex items-center gap-2.5"
-          style={{ backgroundColor: `hsl(${bubbleColor})`, borderRadius: "12px" }}
-        >
-          <span className="text-lg">📍</span>
-          <input
-            type="text"
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
-            placeholder="Where"
-            className={`w-full bg-transparent outline-none ${bubbleTextClass}`}
-            style={{ color: `hsl(${bubbleTextColor})` }}
-          />
+      {/* Detail bubbles — matching event detail page layout */}
+      <div className="px-5 pt-4 pb-10 flex flex-col gap-3">
+
+        {/* Location bubble — full width with header band */}
+        <div className="overflow-hidden" style={{ backgroundColor: accentColor, borderRadius: "16px" }}>
+          <div className="px-4 py-1.5" style={{ backgroundColor: "rgba(0,0,0,0.2)" }}>
+            <span className="text-xs font-bold uppercase tracking-wider" style={{ color: accentText }}>Location</span>
+          </div>
+          <div className="p-4 flex items-center gap-4">
+            <span style={{ fontSize: "28px" }}>📍</span>
+            <input
+              type="text"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              placeholder="Where's the event?"
+              className="flex-1 min-w-0 bg-transparent outline-none text-xl font-bold placeholder:opacity-50"
+              style={{ color: accentText }}
+            />
+          </div>
         </div>
 
-        <div
-          className="host-detail-bubble px-4 py-3 flex items-center gap-2.5"
-          style={{ backgroundColor: `hsl(${bubbleColor})`, borderRadius: "12px" }}
-        >
-          <span className="text-lg">📅</span>
-          <input
-            type="datetime-local"
-            value={dateTime}
-            onChange={(e) => setDateTime(e.target.value)}
-            className={`w-full bg-transparent outline-none ${bubbleTextClass}`}
-            style={{ color: `hsl(${bubbleTextColor})` }}
-          />
+        {/* Date + Dress code row */}
+        <div className="flex gap-3">
+          {/* Date bubble — calendar style */}
+          <div className="flex-1 overflow-hidden" style={{ borderRadius: "16px", backgroundColor: accentColor }}>
+            <div className="px-3 py-1.5 text-center" style={{ backgroundColor: "rgba(0,0,0,0.2)" }}>
+              <span className="text-xs font-bold uppercase tracking-wider" style={{ color: accentText }}>
+                {monthName || "DATE"}
+              </span>
+            </div>
+            <div className="flex flex-col items-center py-3 px-3">
+              {eventDate ? (
+                <>
+                  <span className="text-4xl font-extrabold leading-none" style={{ color: accentText }}>{dayNum}</span>
+                  <span className="text-xs font-semibold mt-1" style={{ color: accentText, opacity: 0.7 }}>{timeStr}</span>
+                  <span className="text-[10px] font-medium mt-0.5" style={{ color: accentText, opacity: 0.5 }}>{dayOfWeek}</span>
+                </>
+              ) : (
+                <span className="text-3xl font-extrabold leading-none" style={{ color: accentText, opacity: 0.4 }}>?</span>
+              )}
+              <input
+                type="datetime-local"
+                value={dateTime}
+                onChange={(e) => setDateTime(e.target.value)}
+                className="w-full bg-transparent outline-none text-[10px] mt-2 text-center opacity-60"
+                style={{ color: accentText }}
+              />
+            </div>
+          </div>
+
+          {/* Dress code bubble — with header band */}
+          <div className="flex-1 overflow-hidden" style={{ borderRadius: "16px", backgroundColor: accentColor }}>
+            <div className="px-3 py-1.5 flex items-center gap-2" style={{ backgroundColor: "rgba(0,0,0,0.2)" }}>
+              <span style={{ fontSize: "18px" }}>🎭</span>
+              <span className="text-xs font-bold uppercase tracking-wider" style={{ color: accentText }}>Dress Code</span>
+            </div>
+            <div className="flex flex-col py-3 px-3">
+              <input
+                type="text"
+                value={dressCode}
+                onChange={(e) => setDressCode(e.target.value)}
+                placeholder="Theme..."
+                className="bg-transparent outline-none text-lg font-bold placeholder:opacity-50"
+                style={{ color: accentText }}
+              />
+            </div>
+          </div>
         </div>
 
-        <div
-          className="host-detail-bubble px-4 py-3 flex items-center gap-2.5"
-          style={{ backgroundColor: `hsl(${bubbleColor})`, borderRadius: "12px" }}
-        >
-          <span className="text-lg">🎭</span>
-          <input
-            type="text"
-            value={dressCode}
-            onChange={(e) => setDressCode(e.target.value)}
-            placeholder="Theme / dress code"
-            className={`w-full bg-transparent outline-none ${bubbleTextClass}`}
-            style={{ color: `hsl(${bubbleTextColor})` }}
-          />
+        {/* Notes bubble — full width, softer */}
+        <div className="p-4 flex items-start gap-3" style={{
+          borderRadius: "16px",
+          backgroundColor: accentColor.replace("hsl(", "hsla(").replace(")", ", 0.15)"),
+          border: `1px solid ${accentColor.replace("hsl(", "hsla(").replace(")", ", 0.3)")}`,
+        }}>
+          <span className="text-lg mt-0.5">✦</span>
+          <div className="flex-1">
+            <span className="text-[10px] font-bold uppercase tracking-wider block" style={{ color: accentColor }}>Notes from host</span>
+            <textarea
+              value={extra}
+              onChange={(e) => setExtra(e.target.value)}
+              placeholder="Anything else your guests should know..."
+              rows={2}
+              className="w-full bg-transparent outline-none resize-none text-sm text-white/80 mt-1 placeholder:text-white/30"
+            />
+          </div>
         </div>
 
-        <div
-          className="host-detail-bubble px-4 py-3 flex items-start gap-2.5"
-          style={{ backgroundColor: `hsl(${bubbleColor})`, borderRadius: "12px" }}
-        >
-          <span className="text-lg mt-0.5">➕</span>
-          <textarea
-            value={extra}
-            onChange={(e) => setExtra(e.target.value)}
-            placeholder="Anything else..."
-            rows={2}
-            className={`w-full bg-transparent outline-none resize-none ${bubbleTextClass}`}
-            style={{ color: `hsl(${bubbleTextColor})` }}
-          />
-        </div>
-
+        {/* Make it yours + action buttons */}
         <Drawer>
           <DrawerTrigger asChild>
             <button
-              className="rounded-[var(--radius)] px-4 py-3.5 mb-6 w-full text-center text-sm font-bold border"
-              style={{ backgroundColor: `hsl(${bubbleColor})`, color: `hsl(${bubbleTextColor})`, borderColor: "#444" }}
+              className="rounded-2xl px-4 py-3.5 mb-4 w-full text-center text-sm font-bold border mt-2"
+              style={{ backgroundColor: accentColor, color: accentText, borderColor: "rgba(0,0,0,0.1)" }}
             >
               Make it yours ✦
             </button>
@@ -535,7 +573,8 @@ const HostEvent = () => {
 
         <button
           onClick={handleCreate}
-          className="w-full bg-primary text-primary-foreground rounded-[var(--radius)] py-5 text-xl font-extrabold"
+          className="w-full rounded-[var(--radius)] py-5 text-xl font-extrabold"
+          style={{ backgroundColor: "#aaee44", color: "#111" }}
         >
           {editCode ? "Update Event" : "Create Event"}
         </button>
