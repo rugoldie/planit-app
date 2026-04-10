@@ -292,7 +292,7 @@ const Home = () => {
             </div>
             <button
               className="w-full rounded-xl py-2.5 text-sm font-bold"
-              style={{ backgroundColor: "#aaee44", color: "#111" }}
+              style={{ backgroundColor: hslToColor(nextEvent.bubble_color, "#aaee44"), color: textForBubble(nextEvent.bubble_color) }}
               onClick={(e) => {
                 e.stopPropagation();
                 const path = nextEvent.role === "host" ? `/event/${nextEvent.code}` : `/guest/${nextEvent.code}`;
