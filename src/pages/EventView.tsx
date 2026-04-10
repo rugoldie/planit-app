@@ -331,7 +331,7 @@ const EventView = () => {
       <div className="relative" style={{ background: `linear-gradient(to bottom, ${eventGradient} 0%, #1a1a1a 100%)`, minHeight: "220px" }}>
         {/* Navigation overlay */}
         <div className="flex items-center justify-between px-5 pt-6">
-          <button onClick={() => navigate(-1)} className="self-start">
+          <button onClick={() => navigate("/home")} className="self-start">
             <ArrowLeft className="w-6 h-6 text-[#111]" />
           </button>
 
