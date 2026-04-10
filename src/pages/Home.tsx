@@ -1,8 +1,9 @@
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import { User, Users } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format, isPast, parseISO } from "date-fns";
 
 type EventWithRole = {
@@ -184,7 +185,26 @@ const hslToColor = (hsl: string | null, fallback: string) => {
 const Home = () => {
   const navigate = useNavigate();
   const { user, profile } = useAuth();
+  const queryClient = useQueryClient();
   const { data: events, isLoading } = useUserEvents(user?.id);
+
+  // Realtime subscription for instant updates when events change
+  React.useEffect(() => {
+    const channel = supabase
+      .channel('home-events-realtime')
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'events' },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ["user-events", user?.id] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id, queryClient]);
 
   const hasEvents = events && events.length > 0;
   const nextEvent = hasEvents ? events[0] : null;
