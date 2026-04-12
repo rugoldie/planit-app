@@ -152,6 +152,7 @@ const HostEvent = () => {
       navigate("/login");
       return;
     }
+    const code = editCode || generateCode();
     const eventData = {
       host_id: user.id,
       code,
