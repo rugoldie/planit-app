@@ -99,6 +99,7 @@ const HostEvent = () => {
   const [fontStyle, setFontStyle] = useState<string>("Bold");
   const [customizeTab, setCustomizeTab] = useState<"colours" | "style">("colours");
   const [editLoading, setEditLoading] = useState(!!editCode);
+  const [titleError, setTitleError] = useState("");
 
   // Load event data if editing
   useEffect(() => {
