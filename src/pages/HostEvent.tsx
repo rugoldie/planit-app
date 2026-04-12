@@ -99,6 +99,7 @@ const HostEvent = () => {
   const [fontStyle, setFontStyle] = useState<string>("Bold");
   const [customizeTab, setCustomizeTab] = useState<"colours" | "style">("colours");
   const [editLoading, setEditLoading] = useState(!!editCode);
+  const [titleError, setTitleError] = useState("");
 
   // Load event data if editing
   useEffect(() => {
@@ -142,7 +143,15 @@ const HostEvent = () => {
   }, [editCode]);
 
   const handleCreate = async () => {
-    if (!user) return;
+    if (!title.trim()) {
+      setTitleError("Please add an event name");
+      return;
+    }
+    setTitleError("");
+    if (!user) {
+      navigate("/login");
+      return;
+    }
     const code = editCode || generateCode();
     const eventData = {
       host_id: user.id,
@@ -283,11 +292,12 @@ const HostEvent = () => {
           <input
             type="text"
             value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            onChange={(e) => { setTitle(e.target.value); setTitleError(""); }}
             placeholder="Event name..."
             className={`w-full bg-transparent text-white placeholder:text-white/40 outline-none drop-shadow-lg ${titleClass}`}
             style={{ fontFamily: currentFontFamily }}
           />
+          {titleError && <p className="text-red-500 text-xs mt-1">{titleError}</p>}
           <textarea
             value={vibe}
             onChange={(e) => setVibe(e.target.value)}
