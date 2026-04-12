@@ -143,8 +143,15 @@ const HostEvent = () => {
   }, [editCode]);
 
   const handleCreate = async () => {
-    if (!user) return;
-    const code = editCode || generateCode();
+    if (!title.trim()) {
+      setTitleError("Please add an event name");
+      return;
+    }
+    setTitleError("");
+    if (!user) {
+      navigate("/login");
+      return;
+    }
     const eventData = {
       host_id: user.id,
       code,
