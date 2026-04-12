@@ -292,11 +292,12 @@ const HostEvent = () => {
           <input
             type="text"
             value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            onChange={(e) => { setTitle(e.target.value); setTitleError(""); }}
             placeholder="Event name..."
             className={`w-full bg-transparent text-white placeholder:text-white/40 outline-none drop-shadow-lg ${titleClass}`}
             style={{ fontFamily: currentFontFamily }}
           />
+          {titleError && <p className="text-red-500 text-xs mt-1">{titleError}</p>}
           <textarea
             value={vibe}
             onChange={(e) => setVibe(e.target.value)}
