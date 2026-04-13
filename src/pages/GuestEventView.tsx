@@ -56,7 +56,7 @@ const GuestEventView = () => {
         setLoading(false);
         // Fetch host name
         if (data?.host_id) {
-          supabase.from("profiles_public" as any).select("name").eq("user_id", data.host_id).single().then(({ data: p }) => {
+          supabase.from("profiles_public" as any).select("name").eq("user_id", data.host_id).single().then(({ data: p }: any) => {
             if (p?.name) setHostName(p.name);
           });
         }
