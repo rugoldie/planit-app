@@ -550,6 +550,7 @@ const HostEvent = () => {
                 />
               </div>
             </div>
+          </div>
         </>
       )}
 
