@@ -451,7 +451,7 @@ const HostEvent = () => {
               minHeight: "220px",
             }}
           >
-            <button onClick={() => { console.log("BACK ARROW CLICKED (default), editCode:", editCode); navigate(editCode ? `/event/${editCode}` : "/home"); }} className="absolute top-5 left-5 z-20" style={{ pointerEvents: "auto" }}>
+            <button onClick={() => navigate(editCode ? `/event/${editCode}` : "/home")} className="absolute top-5 left-5 z-20" style={{ pointerEvents: "auto" }}>
               <ArrowLeft className="w-6 h-6" style={{ color: "#111" }} />
             </button>
 
