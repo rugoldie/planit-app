@@ -340,7 +340,10 @@ const HostEvent = () => {
 
   if (showCode) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-background px-6">
+      <div className="relative flex flex-col items-center justify-center min-h-screen bg-background px-6">
+        <button onClick={() => navigate("/home")} className="absolute top-5 left-5 z-10">
+          <ArrowLeft className="w-6 h-6 text-muted-foreground" />
+        </button>
         <div className="bg-card rounded-[var(--radius)] p-8 w-full max-w-sm text-center border border-border">
           <p className="text-muted-foreground text-sm font-semibold mb-2">Your event code</p>
           <p className="text-5xl font-extrabold text-primary tracking-widest mb-4">{eventCode}</p>
