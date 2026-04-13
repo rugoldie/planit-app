@@ -18,13 +18,18 @@ import {
 } from "@/components/layouts/PlanitNoirLayout";
 
 const PALETTE_COLORS = [
+  { name: "White", hsl: "0 0% 100%" },
+  { name: "Cream", hsl: "36 33% 93%" },
+  { name: "Light Grey", hsl: "0 0% 88%" },
+  { name: "Mid Grey", hsl: "0 0% 53%" },
   { name: "Dark Grey", hsl: "0 0% 17%" },
-  { name: "Deep Navy", hsl: "213 52% 11%" },
-  { name: "Dark Purple", hsl: "264 67% 11%" },
-  { name: "Dark Green", hsl: "120 52% 8%" },
-  { name: "Deep Red", hsl: "0 55% 6%" },
   { name: "Charcoal", hsl: "0 0% 11%" },
+  { name: "Near Black", hsl: "0 0% 5%" },
   { name: "Black", hsl: "0 0% 0%" },
+  { name: "Deep Navy", hsl: "213 52% 11%" },
+  { name: "Deep Purple", hsl: "264 67% 11%" },
+  { name: "Deep Green", hsl: "120 52% 8%" },
+  { name: "Deep Red", hsl: "0 55% 6%" },
 ];
 
 const BUBBLE_COLORS = [
@@ -391,7 +396,7 @@ const HostEvent = () => {
         <>
           {/* Concentric circle bg pattern */}
           <div className="relative" style={{ minHeight: "260px" }}>
-            <ConcentricCircles />
+            <ConcentricCircles accentColor={accentColor} />
             <button onClick={() => navigate(editCode ? `/event/${editCode}` : "/home")} className="absolute top-5 left-5 z-10">
               <ArrowLeft className="w-6 h-6 text-white/40" />
             </button>
@@ -400,7 +405,7 @@ const HostEvent = () => {
                 you're invited to
               </p>
               <div className="mt-2">
-                <StyledTitle isInput value={title} onChange={(v) => { setTitle(v); setTitleError(""); }} placeholder="Event name..." />
+                <StyledTitle isInput value={title} onChange={(v) => { setTitle(v); setTitleError(""); }} placeholder="Event name..." accentColor={accentColor} />
               </div>
               {titleError && <p className="text-red-500 text-xs mt-1">{titleError}</p>}
               <textarea
@@ -419,15 +424,15 @@ const HostEvent = () => {
           <div className="px-5 pt-2 pb-10 flex flex-col gap-3">
             {/* Date + Dress code side by side */}
             <div className="flex gap-3">
-              <NoirDateCard monthName={monthName} dayNum={String(dayNum)} timeStr={timeStr} isInput dateTime={dateTime} onDateChange={setDateTime} />
+              <NoirDateCard monthName={monthName} dayNum={String(dayNum)} timeStr={timeStr} isInput dateTime={dateTime} onDateChange={setDateTime} accentColor={accentColor} />
               <NoirDressCard dressCode={dressCode} isInput onChange={setDressCode} />
             </div>
 
             {/* Location */}
-            <NoirLocationCard location={location} isInput onChange={setLocation} />
+            <NoirLocationCard location={location} isInput onChange={setLocation} accentColor={accentColor} />
 
             {/* Notes */}
-            <NoirNotesCard notes={extra} isInput onChange={setExtra} />
+            <NoirNotesCard notes={extra} isInput onChange={setExtra} accentColor={accentColor} />
           </div>
         </>
       ) : (
@@ -651,14 +656,16 @@ const HostEvent = () => {
                       <span className="text-white/40 text-lg">›</span>
                     </div>
                   </button>
-                  {/* Header gradient */}
-                  <button onClick={() => setCustomisePanel("gradient")} className="flex items-center justify-between py-3.5 px-1">
-                    <span className="text-sm font-semibold text-white">Header gradient</span>
-                    <div className="flex items-center gap-2">
-                      <div className="w-5 h-5 rounded-full border border-white/20" style={{ background: `linear-gradient(135deg, ${gradientColor}, #1a1a1a)` }} />
-                      <span className="text-white/40 text-lg">›</span>
-                    </div>
-                  </button>
+                  {/* Header gradient — hidden for Noir */}
+                  {!isNoir && (
+                    <button onClick={() => setCustomisePanel("gradient")} className="flex items-center justify-between py-3.5 px-1">
+                      <span className="text-sm font-semibold text-white">Header gradient</span>
+                      <div className="flex items-center gap-2">
+                        <div className="w-5 h-5 rounded-full border border-white/20" style={{ background: `linear-gradient(135deg, ${gradientColor}, #1a1a1a)` }} />
+                        <span className="text-white/40 text-lg">›</span>
+                      </div>
+                    </button>
+                  )}
                   {/* Font style */}
                   <button onClick={() => setCustomisePanel("font")} className="flex items-center justify-between py-3.5 px-1">
                     <span className="text-sm font-semibold text-white">Font style</span>
@@ -685,12 +692,12 @@ const HostEvent = () => {
                   {customisePanel === "bg" && (
                     <>
                       <p className="text-card-foreground font-bold text-sm mb-2">Background colour</p>
-                      <div className="flex flex-wrap gap-2.5 mb-5">
+                      <div className="flex gap-2.5 mb-5 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
                         {PALETTE_COLORS.map((c) => (
                           <button
                             key={c.name}
                             onClick={() => { setBgColor(c.hsl); setBgPhoto(null); setBgPreset(null); setBgPresetIsImage(false); }}
-                            className="w-8 h-8 rounded-full border-2 transition-all"
+                            className="w-8 h-8 rounded-full border-2 transition-all shrink-0"
                             style={{
                               backgroundColor: `hsl(${c.hsl})`,
                               borderColor: bgColor === c.hsl && !bgPhoto && !bgPreset ? "#aaee44" : "hsl(0 0% 30%)",
