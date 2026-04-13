@@ -553,6 +553,7 @@ const HostEvent = () => {
                         setBubbleTextColor(t.bubbleTextColor);
                         setGradientColor(t.gradientColor);
                         setFontStyle(t.fontStyle);
+                        setTemplateName(t.templateName);
                         setBgPhoto(null);
                         setBgPreset(null);
                         setBgPresetIsImage(false);
