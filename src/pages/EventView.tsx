@@ -344,7 +344,7 @@ const EventView = () => {
         /* ═══ PLANIT NOIR LAYOUT ═══ */
         <>
           <div className="relative" style={{ minHeight: "280px" }}>
-            <ConcentricCircles />
+            <ConcentricCircles accentColor={accentColor} />
             {/* Navigation overlay */}
             <div className="flex items-center justify-between px-5 pt-6 relative z-10">
               <button onClick={() => navigate("/home")} className="self-start">
@@ -381,7 +381,7 @@ const EventView = () => {
             <div className="relative z-10 px-6 pt-4 pb-4">
               <p style={{ fontFamily: "'Playfair Display', serif", fontSize: "13px", fontStyle: "italic", color: "rgba(255,255,255,0.4)" }}>you're invited to</p>
               <div className="mt-2">
-                <StyledTitle title={event.title || "Untitled Event"} />
+                <StyledTitle title={event.title || "Untitled Event"} accentColor={accentColor} />
               </div>
               {event.vibe && <p className="mt-2" style={{ fontFamily: "'Playfair Display', serif", fontSize: "13px", fontStyle: "italic", color: "rgba(255,255,255,0.4)" }}>{event.vibe}</p>}
               <HostDivider hostName={profile?.name || "Host"} />
@@ -392,13 +392,13 @@ const EventView = () => {
             <div className="flex flex-col gap-3">
               {(eventDate || event.dress_code) && (
                 <div className="flex gap-3">
-                  {eventDate && <NoirDateCard monthName={monthName} dayNum={String(dayNum)} timeStr={timeStr} />}
-                  {event.dress_code && <NoirDressCard dressCode={event.dress_code} />}
-                </div>
-              )}
-              {event.location && <NoirLocationCard location={event.location} />}
-              {event.extra && <NoirNotesCard notes={event.extra} />}
-              <NoirAttendeeStrip goingList={goingList} accentColor="#aaee44" getInitials={getInitials} />
+                   {eventDate && <NoirDateCard monthName={monthName} dayNum={String(dayNum)} timeStr={timeStr} accentColor={accentColor} />}
+                   {event.dress_code && <NoirDressCard dressCode={event.dress_code} />}
+                 </div>
+               )}
+               {event.location && <NoirLocationCard location={event.location} accentColor={accentColor} />}
+               {event.extra && <NoirNotesCard notes={event.extra} accentColor={accentColor} />}
+               <NoirAttendeeStrip goingList={goingList} accentColor={accentColor} getInitials={getInitials} />
             </div>
           </div>
         </>
