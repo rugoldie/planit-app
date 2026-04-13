@@ -2,6 +2,16 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, MessageCircle, X, Send, Maximize2, ChevronDown, ChevronUp } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  ConcentricCircles,
+  StyledTitle,
+  HostDivider,
+  NoirDateCard,
+  NoirDressCard,
+  NoirLocationCard,
+  NoirNotesCard,
+  NoirAttendeeStrip,
+} from "@/components/layouts/PlanitNoirLayout";
 import { useAuth } from "@/contexts/AuthContext";
 
 type Comment = { id: string; user_name: string; text: string; created_at: string; avatar_url?: string };
