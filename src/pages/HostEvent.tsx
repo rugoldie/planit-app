@@ -227,7 +227,8 @@ const HostEvent = () => {
             setBubbleColor(data.bubble_color || BUBBLE_COLORS[0].hsl);
             setBubbleTextColor(data.bubble_text_color || BUBBLE_COLORS[0].text);
             setGradientColor(data.gradient_color || GRADIENT_COLORS[0].color);
-            setFontStyle(data.font_style || "Bold");
+            setFontStyle(data.font_style || "Elegant");
+            setTemplateName((data as any).template_name || "planit-noir");
             setEventCode(editCode);
             setEventId(data.id);
             if (data.bg_photo?.startsWith("linear-gradient")) {
@@ -273,7 +274,8 @@ const HostEvent = () => {
       bubble_text_color: bubbleTextColor,
       gradient_color: gradientColor,
       font_style: fontStyle,
-    };
+      template_name: templateName,
+    } as any;
 
     if (editCode && eventId) {
       await supabase.from("events").update(eventData).eq("id", eventId);
