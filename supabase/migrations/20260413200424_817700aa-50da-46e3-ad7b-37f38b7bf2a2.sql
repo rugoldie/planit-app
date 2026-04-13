@@ -1,0 +1,1 @@
+ALTER TABLE public.events ADD COLUMN template_name text DEFAULT 'planit-noir';
