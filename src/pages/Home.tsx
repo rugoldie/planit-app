@@ -208,91 +208,205 @@ const NoirCardTitle = ({ title, accentColor, fontSize = "1.25rem" }: { title: st
   );
 };
 
-/** Noir Next Up card */
+/** Noir Next Up card — rebuilt from scratch */
 const NoirNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate: ReturnType<typeof useNavigate> }) => {
   const accent = hslToColor(event.bubble_color, "#aaee44");
-  const btnTextColor = textForBubble(event.bubble_color) || "#111";
-
-  const parsedDate = event.date_time ? parseISO(event.date_time) : null;
-  const dayNum = parsedDate ? format(parsedDate, "d") : "?";
-  const monthName = parsedDate ? format(parsedDate, "MMM").toUpperCase() : "TBD";
+  const btnText = textForBubble(event.bubble_color) || "#111";
+  const parsed = event.date_time ? parseISO(event.date_time) : null;
+  const dayNum = parsed ? format(parsed, "d") : "?";
+  const monthName = parsed ? format(parsed, "MMM").toUpperCase() : "TBD";
+  const timeStr = parsed ? format(parsed, "h:mm a") : "";
+  const navPath = event.role === "host" ? `/event/${event.code}` : `/guest/${event.code}`;
 
   return (
     <div
-      className="rounded-2xl p-5 cursor-pointer overflow-hidden relative"
+      className="rounded-2xl overflow-hidden relative cursor-pointer"
       style={{ backgroundColor: "#0a0a0a", border: "1px solid rgba(255,255,255,0.06)" }}
-      onClick={() => {
-        const path = event.role === "host" ? `/event/${event.code}` : `/guest/${event.code}`;
-        navigate(path);
-      }}
+      onClick={() => navigate(navPath)}
     >
-      {/* Concentric circles bg */}
+      {/* Background pattern */}
       <ConcentricCircles accentColor={accent} />
 
-      <div className="relative z-10">
-        {/* "you're invited to" */}
-        <p style={{ fontFamily: "'Playfair Display', serif", fontSize: "11px", fontStyle: "italic", color: "rgba(255,255,255,0.4)", marginBottom: "6px" }}>
+      <div className="relative z-10 p-5">
+        {/* Invite text */}
+        <p
+          style={{
+            fontFamily: "'Playfair Display', serif",
+            fontSize: "11px",
+            fontStyle: "italic",
+            color: "rgba(255,255,255,0.35)",
+            marginBottom: "8px",
+          }}
+        >
           you're invited to
         </p>
 
-        {/* Title with accent word */}
-        <div className="mb-1">
-          <NoirCardTitle title={event.title} accentColor={accent} fontSize="1.35rem" />
-        </div>
+        {/* Event title with accent word */}
+        <NoirCardTitle title={event.title} accentColor={accent} fontSize="1.5rem" />
 
         {/* BY HOST divider */}
-        <div className="flex items-center gap-3 mt-3 mb-4">
-          <div className="flex-1 h-px" style={{ backgroundColor: "rgba(255,255,255,0.12)" }} />
-          <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "9px", fontWeight: 600, letterSpacing: "0.2em", color: "rgba(255,255,255,0.4)", textTransform: "uppercase" }}>
+        <div className="flex items-center gap-3 mt-4 mb-5">
+          <div className="flex-1 h-px" style={{ backgroundColor: "rgba(255,255,255,0.1)" }} />
+          <span
+            style={{
+              fontFamily: "'Playfair Display', serif",
+              fontSize: "9px",
+              fontWeight: 600,
+              letterSpacing: "0.22em",
+              color: "rgba(255,255,255,0.35)",
+              textTransform: "uppercase" as const,
+            }}
+          >
             by {event.role === "host" ? "You" : "Host"}
           </span>
-          <div className="flex-1 h-px" style={{ backgroundColor: "rgba(255,255,255,0.12)" }} />
+          <div className="flex-1 h-px" style={{ backgroundColor: "rgba(255,255,255,0.1)" }} />
         </div>
 
-        {/* Two mini cards: date + location */}
-        <div className="flex gap-2 mb-4">
-          {/* Date card */}
-          <div className="flex-1 flex flex-col items-center py-3 px-2 rounded-xl" style={{ backgroundColor: accent }}>
-            <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "22px", fontWeight: 900, color: "#0a0a0a", lineHeight: 1 }}>
+        {/* Two mini cards side by side */}
+        <div className="flex gap-2.5 mb-5">
+          {/* Date card — accent bg */}
+          <div
+            className="flex-1 flex flex-col items-center justify-center rounded-xl py-3.5 px-2"
+            style={{ backgroundColor: accent }}
+          >
+            <span
+              style={{
+                fontFamily: "'Playfair Display', serif",
+                fontSize: "28px",
+                fontWeight: 900,
+                color: "#0a0a0a",
+                lineHeight: 1,
+              }}
+            >
               {dayNum}
             </span>
-            <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "10px", fontWeight: 700, color: "#0a0a0a", opacity: 0.7, textTransform: "uppercase", letterSpacing: "0.1em", marginTop: "2px" }}>
+            <span
+              style={{
+                fontFamily: "'Playfair Display', serif",
+                fontSize: "10px",
+                fontWeight: 700,
+                color: "#0a0a0a",
+                opacity: 0.65,
+                textTransform: "uppercase" as const,
+                letterSpacing: "0.12em",
+                marginTop: "3px",
+              }}
+            >
               {monthName}
             </span>
+            {timeStr && (
+              <span
+                style={{
+                  fontFamily: "'Playfair Display', serif",
+                  fontSize: "9px",
+                  color: "#0a0a0a",
+                  opacity: 0.45,
+                  marginTop: "2px",
+                }}
+              >
+                {timeStr}
+              </span>
+            )}
           </div>
-          {/* Location card */}
-          <div className="flex-1 flex flex-col justify-center py-3 px-3 rounded-xl" style={{ backgroundColor: "#111" }}>
-            <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "9px", fontWeight: 600, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: "0.15em" }}>
+
+          {/* Location card — dark bg */}
+          <div
+            className="flex-1 flex flex-col justify-center rounded-xl py-3.5 px-3"
+            style={{ backgroundColor: "#111111" }}
+          >
+            <span
+              style={{
+                fontFamily: "'Playfair Display', serif",
+                fontSize: "9px",
+                fontWeight: 600,
+                color: "rgba(255,255,255,0.35)",
+                textTransform: "uppercase" as const,
+                letterSpacing: "0.15em",
+              }}
+            >
               Location
             </span>
-            <span className="truncate mt-0.5" style={{ fontFamily: "'Playfair Display', serif", fontSize: "14px", fontWeight: 700, color: "white" }}>
+            <span
+              className="truncate mt-1"
+              style={{
+                fontFamily: "'Playfair Display', serif",
+                fontSize: "15px",
+                fontWeight: 700,
+                color: "white",
+              }}
+            >
               {event.location || "TBD"}
             </span>
           </div>
         </div>
 
-        {/* Going count + avatars */}
-        <div className="flex items-center justify-between mb-4">
-          <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "9px", fontWeight: 600, color: "rgba(255,255,255,0.35)", textTransform: "uppercase", letterSpacing: "0.15em" }}>
+        {/* Going count + overlapping avatars */}
+        <div className="flex items-center justify-between mb-5">
+          <span
+            style={{
+              fontFamily: "'Playfair Display', serif",
+              fontSize: "9px",
+              fontWeight: 600,
+              color: "rgba(255,255,255,0.3)",
+              textTransform: "uppercase" as const,
+              letterSpacing: "0.18em",
+            }}
+          >
             {event.guest_count > 0 ? `${event.guest_count} going` : "No one yet"}
           </span>
           <div className="flex items-center">
-            {[0, 1, 2].map((i) => (
-              <div key={i} className="flex items-center justify-center" style={{ width: "24px", height: "24px", borderRadius: "50%", border: "2px solid #0a0a0a", backgroundColor: "#1a1a1a", marginLeft: i > 0 ? "-6px" : 0, position: "relative", zIndex: 3 - i }}>
-                <span style={{ fontSize: "8px", fontWeight: 700, color: accent }}>?</span>
+            {Array.from({ length: Math.min(event.guest_count, 4) }, (_, i) => (
+              <div
+                key={i}
+                className="flex items-center justify-center"
+                style={{
+                  width: "26px",
+                  height: "26px",
+                  borderRadius: "50%",
+                  border: `2px solid #0a0a0a`,
+                  backgroundColor: "#1a1a1a",
+                  marginLeft: i > 0 ? "-7px" : 0,
+                  position: "relative",
+                  zIndex: 4 - i,
+                }}
+              >
+                <span style={{ fontSize: "8px", fontWeight: 700, color: accent }}>●</span>
               </div>
             ))}
+            {event.guest_count > 4 && (
+              <div
+                className="flex items-center justify-center"
+                style={{
+                  width: "26px",
+                  height: "26px",
+                  borderRadius: "50%",
+                  border: "2px solid #0a0a0a",
+                  backgroundColor: "#1a1a1a",
+                  marginLeft: "-7px",
+                  position: "relative",
+                  zIndex: 0,
+                }}
+              >
+                <span style={{ fontSize: "7px", fontWeight: 700, color: "rgba(255,255,255,0.4)" }}>
+                  +{event.guest_count - 4}
+                </span>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* View event button */}
+        {/* Full width View event button */}
         <button
-          className="w-full rounded-xl py-2.5 text-sm font-bold"
-          style={{ backgroundColor: accent, color: btnTextColor, fontFamily: "'Playfair Display', serif" }}
+          className="w-full rounded-xl py-3 text-sm font-bold tracking-wide"
+          style={{
+            backgroundColor: accent,
+            color: btnText,
+            fontFamily: "'Playfair Display', serif",
+            letterSpacing: "0.03em",
+          }}
           onClick={(e) => {
             e.stopPropagation();
-            const path = event.role === "host" ? `/event/${event.code}` : `/guest/${event.code}`;
-            navigate(path);
+            navigate(navPath);
           }}
         >
           View event →
