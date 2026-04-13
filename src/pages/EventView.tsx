@@ -373,15 +373,6 @@ const EventView = () => {
                     <button onClick={() => setShowMenu(!showMenu)} className="w-9 h-9 rounded-full flex items-center justify-center" style={{ backgroundColor: "rgba(255,255,255,0.08)" }}>
                       <MoreVertical className="w-4 h-4 text-white/40" />
                     </button>
-                    {showMenu && (
-                      <>
-                        <div className="fixed inset-0 z-40" onClick={() => setShowMenu(false)} />
-                        <div className="absolute right-0 top-11 rounded-xl border border-border shadow-lg z-50 overflow-hidden" style={{ backgroundColor: "#383838" }}>
-                          <button onClick={() => { setShowMenu(false); navigate(`/host?edit=${event.code}`); }} className="px-5 py-3 text-sm font-semibold text-white hover:bg-white/10 w-full text-left whitespace-nowrap">Edit event</button>
-                          <button onClick={() => { setShowMenu(false); setShowDeleteDialog(true); }} className="px-5 py-3 text-sm font-semibold text-red-400 hover:bg-red-500/10 w-full text-left whitespace-nowrap">Delete event</button>
-                        </div>
-                      </>
-                    )}
                   </div>
                 )}
               </div>
@@ -435,15 +426,6 @@ const EventView = () => {
                     <button onClick={() => setShowMenu(!showMenu)} className="w-9 h-9 rounded-full flex items-center justify-center border border-[#111]/20" style={{ backgroundColor: "rgba(0,0,0,0.15)" }}>
                       <MoreVertical className="w-4 h-4 text-[#111]" />
                     </button>
-                    {showMenu && (
-                      <>
-                        <div className="fixed inset-0 z-40" onClick={() => setShowMenu(false)} />
-                        <div className="absolute right-0 top-11 rounded-xl border border-border shadow-lg z-50 overflow-hidden" style={{ backgroundColor: "#383838" }}>
-                          <button onClick={() => { setShowMenu(false); navigate(`/host?edit=${event.code}`); }} className="px-5 py-3 text-sm font-semibold text-white hover:bg-white/10 w-full text-left whitespace-nowrap">Edit event</button>
-                          <button onClick={() => { setShowMenu(false); setShowDeleteDialog(true); }} className="px-5 py-3 text-sm font-semibold text-red-400 hover:bg-red-500/10 w-full text-left whitespace-nowrap">Delete event</button>
-                        </div>
-                      </>
-                    )}
                   </div>
                 )}
               </div>
