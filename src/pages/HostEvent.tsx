@@ -90,6 +90,7 @@ const TEMPLATES = [
     gradientColor: "#8b7355",
     fontStyle: "Elegant",
     previewBg: "#ede8df",
+    templateName: "vintage",
   },
   {
     name: "Galaxy",
@@ -99,6 +100,7 @@ const TEMPLATES = [
     gradientColor: "#7b2d8b",
     fontStyle: "Bold",
     previewBg: "#1a0a2e",
+    templateName: "galaxy",
   },
   {
     name: "Sunny",
@@ -108,6 +110,7 @@ const TEMPLATES = [
     gradientColor: "#e65100",
     fontStyle: "Handwritten",
     previewBg: "#3d1e00",
+    templateName: "sunny",
   },
   {
     name: "Midnight",
@@ -117,6 +120,7 @@ const TEMPLATES = [
     gradientColor: "#222222",
     fontStyle: "Bold",
     previewBg: "#ffffff",
+    templateName: "midnight",
   },
   {
     name: "Ocean",
@@ -126,6 +130,7 @@ const TEMPLATES = [
     gradientColor: "#1a6fb5",
     fontStyle: "Bold",
     previewBg: "#0c1929",
+    templateName: "ocean",
   },
   {
     name: "Blush",
@@ -135,6 +140,7 @@ const TEMPLATES = [
     gradientColor: "#c2185b",
     fontStyle: "Bold",
     previewBg: "#2a0f1a",
+    templateName: "blush",
   },
   {
     name: "Forest",
@@ -144,6 +150,7 @@ const TEMPLATES = [
     gradientColor: "#00695c",
     fontStyle: "Elegant",
     previewBg: "#0a1f0a",
+    templateName: "forest",
   },
   {
     name: "Planit Classic",
@@ -153,6 +160,7 @@ const TEMPLATES = [
     gradientColor: "#aaee44",
     fontStyle: "Bold",
     previewBg: "#2b2b2b",
+    templateName: "planit-classic",
   },
 ];
 
