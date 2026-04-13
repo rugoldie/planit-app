@@ -737,6 +737,17 @@ const EventView = () => {
         </div>
       )}
 
+      {/* Host menu dropdown - rendered outside nav stacking context */}
+      {showMenu && isHost && (
+        <>
+          <div className="fixed inset-0 z-[60]" onClick={() => setShowMenu(false)} />
+          <div className="fixed top-16 right-5 rounded-xl border border-border shadow-lg z-[70] overflow-hidden" style={{ backgroundColor: "#383838" }}>
+            <button onClick={() => { console.log("[Planit] Edit event tapped, code:", event.code); setShowMenu(false); navigate(`/host?edit=${event.code}`); }} className="px-5 py-3 text-sm font-semibold text-white hover:bg-white/10 w-full text-left whitespace-nowrap">Edit event</button>
+            <button onClick={() => { console.log("[Planit] Delete event tapped, id:", event.id); setShowMenu(false); setShowDeleteDialog(true); }} className="px-5 py-3 text-sm font-semibold text-red-400 hover:bg-red-500/10 w-full text-left whitespace-nowrap">Delete event</button>
+          </div>
+        </>
+      )}
+
       {/* Delete confirmation */}
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent style={{ backgroundColor: "#2b2b2b", border: "1px solid #444" }}>
