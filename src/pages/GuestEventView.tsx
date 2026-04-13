@@ -41,6 +41,7 @@ const GuestEventView = () => {
 
   const [rsvpList, setRsvpList] = useState<RsvpEntry[]>([]);
   const [guestListExpanded, setGuestListExpanded] = useState(false);
+  const [hostName, setHostName] = useState<string>("Host");
 
   // Fetch event
   useEffect(() => {
@@ -53,6 +54,12 @@ const GuestEventView = () => {
       .then(({ data }) => {
         setEvent(data);
         setLoading(false);
+        // Fetch host name
+        if (data?.host_id) {
+          supabase.from("profiles_public" as any).select("name").eq("user_id", data.host_id).single().then(({ data: p }) => {
+            if (p?.name) setHostName(p.name);
+          });
+        }
       });
   }, [code]);
 
