@@ -377,6 +377,7 @@ const HostEvent = () => {
   const currentFontFamily = FONT_MAP[fontStyle] || FONT_MAP["Bold"];
   const accentColor = `hsl(${bubbleColor})`;
   const accentText = `hsl(${bubbleTextColor})`;
+  const noirFontSize = textSize === "Small" ? "28px" : textSize === "Large" ? "44px" : "36px";
 
   // Parsed date for calendar bubble preview
   const eventDate = dateTime ? new Date(dateTime) : null;
@@ -387,9 +388,10 @@ const HostEvent = () => {
 
   const isNoir = templateName === "planit-noir";
   const hostName = profile?.name || "Host";
+  const containerBg = `hsl(${bgColor})`;
 
   return (
-    <div className="flex flex-col min-h-screen transition-all duration-300" style={{ backgroundColor: isNoir ? "#0a0a0a" : "#1a1a1a" }}>
+    <div className="flex flex-col min-h-screen transition-all duration-300" style={{ backgroundColor: containerBg }}>
 
       {isNoir ? (
         /* ═══ PLANIT NOIR LAYOUT ═══ */
@@ -405,7 +407,7 @@ const HostEvent = () => {
                 you're invited to
               </p>
               <div className="mt-2">
-                <StyledTitle isInput value={title} onChange={(v) => { setTitle(v); setTitleError(""); }} placeholder="Event name..." accentColor={accentColor} />
+                <StyledTitle isInput value={title} onChange={(v) => { setTitle(v); setTitleError(""); }} placeholder="Event name..." accentColor={accentColor} fontFamily={currentFontFamily} fontSize={noirFontSize} />
               </div>
               {titleError && <p className="text-red-500 text-xs mt-1">{titleError}</p>}
               <textarea
@@ -442,7 +444,7 @@ const HostEvent = () => {
           <div
             className="relative"
             style={{
-              background: `linear-gradient(to bottom, ${gradientColor} 0%, #1a1a1a 100%)`,
+              background: `linear-gradient(to bottom, ${gradientColor} 0%, ${containerBg} 100%)`,
               minHeight: "220px",
             }}
           >

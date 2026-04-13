@@ -336,9 +336,11 @@ const EventView = () => {
   const dayOfWeek = eventDate ? eventDate.toLocaleString(undefined, { weekday: "long" }) : "";
 
   const isNoir = (event as any).template_name === "planit-noir";
+  const containerBg = event.bg_color ? `hsl(${event.bg_color})` : (isNoir ? "#0a0a0a" : "#1a1a1a");
+  const noirFontSize = event.text_size === "Small" ? "28px" : event.text_size === "Large" ? "44px" : "36px";
 
   return (
-    <div className="flex flex-col min-h-screen pb-28" style={{ backgroundColor: isNoir ? "#0a0a0a" : "#1a1a1a" }}>
+    <div className="flex flex-col min-h-screen pb-28" style={{ backgroundColor: containerBg }}>
 
       {isNoir ? (
         /* ═══ PLANIT NOIR LAYOUT ═══ */
@@ -381,7 +383,7 @@ const EventView = () => {
             <div className="relative z-10 px-6 pt-4 pb-4">
               <p style={{ fontFamily: "'Playfair Display', serif", fontSize: "13px", fontStyle: "italic", color: "rgba(255,255,255,0.4)" }}>you're invited to</p>
               <div className="mt-2">
-                <StyledTitle title={event.title || "Untitled Event"} accentColor={accentColor} />
+                <StyledTitle title={event.title || "Untitled Event"} accentColor={accentColor} fontFamily={eventFontFamily} fontSize={noirFontSize} />
               </div>
               {event.vibe && <p className="mt-2" style={{ fontFamily: "'Playfair Display', serif", fontSize: "13px", fontStyle: "italic", color: "rgba(255,255,255,0.4)" }}>{event.vibe}</p>}
               <HostDivider hostName={profile?.name || "Host"} />
@@ -405,7 +407,7 @@ const EventView = () => {
       ) : (
         /* ═══ DEFAULT LAYOUT ═══ */
         <>
-          <div className="relative" style={{ background: `linear-gradient(to bottom, ${eventGradient} 0%, #1a1a1a 100%)`, minHeight: "220px" }}>
+          <div className="relative" style={{ background: `linear-gradient(to bottom, ${eventGradient} 0%, ${containerBg} 100%)`, minHeight: "220px" }}>
             <div className="flex items-center justify-between px-5 pt-6">
               <button onClick={() => navigate("/home")} className="self-start">
                 <ArrowLeft className="w-6 h-6 text-[#111]" />
