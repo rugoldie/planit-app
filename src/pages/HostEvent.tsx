@@ -168,13 +168,13 @@ const HostEvent = () => {
   const [dateTime, setDateTime] = useState("");
   const [dressCode, setDressCode] = useState("");
   const [extra, setExtra] = useState("");
-  const [bgColor, setBgColor] = useState("0 0% 17%");
+  const [bgColor, setBgColor] = useState("0 0% 0%");
   const [bgPhoto, setBgPhoto] = useState<string | null>(null);
   const [bgPreset, setBgPreset] = useState<string | null>(null);
   const [bgPresetIsImage, setBgPresetIsImage] = useState(false);
   const [textSize, setTextSize] = useState<typeof TEXT_SIZES[number]>("Medium");
-  const [bubbleColor, setBubbleColor] = useState(BUBBLE_COLORS[0].hsl);
-  const [bubbleTextColor, setBubbleTextColor] = useState(BUBBLE_COLORS[0].text);
+  const [bubbleColor, setBubbleColor] = useState("82 100% 48%");
+  const [bubbleTextColor, setBubbleTextColor] = useState("0 0% 10%");
   const [showCode, setShowCode] = useState(false);
   const [eventCode, setEventCode] = useState("");
   const [uploadedPhoto, setUploadedPhoto] = useState<string | null>(null);
