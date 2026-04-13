@@ -70,6 +70,23 @@ const useUserEvents = (userId: string | undefined) => {
         ...guestEventIds,
       ];
 
+      // Fetch host profiles for all events to get host names
+      const allHostIds = [...new Set([
+        ...(hosted || []).map((e) => e.host_id),
+        ...(guestEvents || []).map((e) => e.host_id),
+      ])];
+      
+      let hostNames: Record<string, string> = {};
+      if (allHostIds.length > 0) {
+        const { data: profiles } = await supabase
+          .from("profiles")
+          .select("user_id, name")
+          .in("user_id", allHostIds);
+        (profiles || []).forEach((p) => {
+          hostNames[p.user_id] = p.name || "Host";
+        });
+      }
+
       let guestCounts: Record<string, number> = {};
       if (allEventIds.length > 0) {
         const { data: counts } = await supabase
@@ -90,6 +107,7 @@ const useUserEvents = (userId: string | undefined) => {
           ...e,
           role: "host",
           guest_count: guestCounts[e.id] || 0,
+          host_name: "You",
         });
       });
 
@@ -99,6 +117,7 @@ const useUserEvents = (userId: string | undefined) => {
           ...e,
           role: status === "maybe" ? "maybe" : "going",
           guest_count: guestCounts[e.id] || 0,
+          host_name: hostNames[e.host_id] || "Host",
         });
       });
 
