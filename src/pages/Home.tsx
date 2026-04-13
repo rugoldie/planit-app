@@ -178,8 +178,11 @@ const hslToColor = (hsl: string | null, fallback: string) => {
   return `hsl(${hsl})`;
 };
 
-const isNoir = (templateName: string | null) =>
-  templateName === "Planit Noir" || templateName === "noir";
+const isNoir = (templateName: string | null) => {
+  if (!templateName) return false;
+  const t = templateName.toLowerCase().trim();
+  return t === "planit-noir" || t === "planit noir" || t === "noir" || t.includes("noir");
+};
 
 /** Noir-styled title: second word in accent color + italic */
 const NoirCardTitle = ({ title, accentColor, fontSize = "1.25rem" }: { title: string; accentColor: string; fontSize?: string }) => {
