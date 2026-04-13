@@ -402,7 +402,7 @@ const HostEvent = () => {
           {/* Concentric circle bg pattern */}
           <div className="relative" style={{ minHeight: "260px" }}>
             <ConcentricCircles accentColor={accentColor} />
-            <button onClick={() => { console.log("BACK ARROW CLICKED, editCode:", editCode); navigate(editCode ? `/event/${editCode}` : "/home"); }} className="absolute top-5 left-5 z-20" style={{ pointerEvents: "auto" }}>
+            <button onClick={() => navigate(editCode ? `/event/${editCode}` : "/home")} className="absolute top-5 left-5 z-20" style={{ pointerEvents: "auto" }}>
               <ArrowLeft className="w-6 h-6 text-white/40" />
             </button>
             <div className="relative z-10 px-6 pt-16 pb-4">
