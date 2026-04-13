@@ -304,10 +304,14 @@ const EventView = () => {
   };
 
   const deleteEvent = async () => {
-    if (!event) return;
-    await supabase.from("events").delete().eq("id", event.id);
+    if (!event || !isHost) return;
+    const { error } = await supabase.from("events").delete().eq("id", event.id).eq("host_id", user!.id);
+    if (error) {
+      toast.error("Could not delete event");
+      return;
+    }
     toast.success("Event deleted");
-    navigate("/home");
+    navigate("/home", { replace: true });
   };
 
   const rsvpLabel = rsvp === "yes" ? "You're going! 🎉" : rsvp === "no" ? "You're not going 👎" : "You're a maybe 🤷";
@@ -336,6 +340,7 @@ const EventView = () => {
   const dayOfWeek = eventDate ? eventDate.toLocaleString(undefined, { weekday: "long" }) : "";
 
   const isNoir = (event as any).template_name === "planit-noir";
+  const isHost = !!user && !!event && user.id === event.host_id;
   const containerBg = event.bg_color ? `hsl(${event.bg_color})` : (isNoir ? "#0a0a0a" : "#1a1a1a");
   const noirFontSize = event.text_size === "Small" ? "28px" : event.text_size === "Large" ? "44px" : "36px";
 
@@ -363,20 +368,22 @@ const EventView = () => {
                   </div>
                   <span className="text-[9px] font-semibold text-white/40">Messages</span>
                 </button>
-                <div className="relative">
-                  <button onClick={() => setShowMenu(!showMenu)} className="w-9 h-9 rounded-full flex items-center justify-center" style={{ backgroundColor: "rgba(255,255,255,0.08)" }}>
-                    <MoreVertical className="w-4 h-4 text-white/40" />
-                  </button>
-                  {showMenu && (
-                    <>
-                      <div className="fixed inset-0 z-40" onClick={() => setShowMenu(false)} />
-                      <div className="absolute right-0 top-11 rounded-xl border border-border shadow-lg z-50 overflow-hidden" style={{ backgroundColor: "#383838" }}>
-                        <button onClick={() => { setShowMenu(false); navigate(`/host?edit=${code}`); }} className="px-5 py-3 text-sm font-semibold text-white hover:bg-white/10 w-full text-left whitespace-nowrap">Edit event</button>
-                        <button onClick={() => { setShowMenu(false); setShowDeleteDialog(true); }} className="px-5 py-3 text-sm font-semibold text-red-400 hover:bg-red-500/10 w-full text-left whitespace-nowrap">Delete event</button>
-                      </div>
-                    </>
-                  )}
-                </div>
+                {isHost && (
+                  <div className="relative">
+                    <button onClick={() => setShowMenu(!showMenu)} className="w-9 h-9 rounded-full flex items-center justify-center" style={{ backgroundColor: "rgba(255,255,255,0.08)" }}>
+                      <MoreVertical className="w-4 h-4 text-white/40" />
+                    </button>
+                    {showMenu && (
+                      <>
+                        <div className="fixed inset-0 z-40" onClick={() => setShowMenu(false)} />
+                        <div className="absolute right-0 top-11 rounded-xl border border-border shadow-lg z-50 overflow-hidden" style={{ backgroundColor: "#383838" }}>
+                          <button onClick={() => { setShowMenu(false); navigate(`/host?edit=${event.code}`); }} className="px-5 py-3 text-sm font-semibold text-white hover:bg-white/10 w-full text-left whitespace-nowrap">Edit event</button>
+                          <button onClick={() => { setShowMenu(false); setShowDeleteDialog(true); }} className="px-5 py-3 text-sm font-semibold text-red-400 hover:bg-red-500/10 w-full text-left whitespace-nowrap">Delete event</button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
             {/* Title area */}
@@ -423,20 +430,22 @@ const EventView = () => {
                   </div>
                   <span className="text-[9px] font-semibold text-[#111]">Messages</span>
                 </button>
-                <div className="relative">
-                  <button onClick={() => setShowMenu(!showMenu)} className="w-9 h-9 rounded-full flex items-center justify-center border border-[#111]/20" style={{ backgroundColor: "rgba(0,0,0,0.15)" }}>
-                    <MoreVertical className="w-4 h-4 text-[#111]" />
-                  </button>
-                  {showMenu && (
-                    <>
-                      <div className="fixed inset-0 z-40" onClick={() => setShowMenu(false)} />
-                      <div className="absolute right-0 top-11 rounded-xl border border-border shadow-lg z-50 overflow-hidden" style={{ backgroundColor: "#383838" }}>
-                        <button onClick={() => { setShowMenu(false); navigate(`/host?edit=${code}`); }} className="px-5 py-3 text-sm font-semibold text-white hover:bg-white/10 w-full text-left whitespace-nowrap">Edit event</button>
-                        <button onClick={() => { setShowMenu(false); setShowDeleteDialog(true); }} className="px-5 py-3 text-sm font-semibold text-red-400 hover:bg-red-500/10 w-full text-left whitespace-nowrap">Delete event</button>
-                      </div>
-                    </>
-                  )}
-                </div>
+                {isHost && (
+                  <div className="relative">
+                    <button onClick={() => setShowMenu(!showMenu)} className="w-9 h-9 rounded-full flex items-center justify-center border border-[#111]/20" style={{ backgroundColor: "rgba(0,0,0,0.15)" }}>
+                      <MoreVertical className="w-4 h-4 text-[#111]" />
+                    </button>
+                    {showMenu && (
+                      <>
+                        <div className="fixed inset-0 z-40" onClick={() => setShowMenu(false)} />
+                        <div className="absolute right-0 top-11 rounded-xl border border-border shadow-lg z-50 overflow-hidden" style={{ backgroundColor: "#383838" }}>
+                          <button onClick={() => { setShowMenu(false); navigate(`/host?edit=${event.code}`); }} className="px-5 py-3 text-sm font-semibold text-white hover:bg-white/10 w-full text-left whitespace-nowrap">Edit event</button>
+                          <button onClick={() => { setShowMenu(false); setShowDeleteDialog(true); }} className="px-5 py-3 text-sm font-semibold text-red-400 hover:bg-red-500/10 w-full text-left whitespace-nowrap">Delete event</button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
             <div className="absolute bottom-0 left-0 right-0 px-6 pb-5">
