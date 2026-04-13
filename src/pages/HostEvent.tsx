@@ -175,7 +175,7 @@ const generateCode = () => {
 
 const HostEvent = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const [searchParams] = useSearchParams();
   const editCode = searchParams.get("edit");
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -186,7 +186,7 @@ const HostEvent = () => {
   const [dateTime, setDateTime] = useState("");
   const [dressCode, setDressCode] = useState("");
   const [extra, setExtra] = useState("");
-  const [bgColor, setBgColor] = useState("0 0% 0%");
+  const [bgColor, setBgColor] = useState("0 0% 4%");
   const [bgPhoto, setBgPhoto] = useState<string | null>(null);
   const [bgPreset, setBgPreset] = useState<string | null>(null);
   const [bgPresetIsImage, setBgPresetIsImage] = useState(false);
@@ -198,7 +198,8 @@ const HostEvent = () => {
   const [uploadedPhoto, setUploadedPhoto] = useState<string | null>(null);
   const [eventId, setEventId] = useState<string | null>(null);
   const [gradientColor, setGradientColor] = useState(GRADIENT_COLORS[0].color);
-  const [fontStyle, setFontStyle] = useState<string>("Bold");
+  const [fontStyle, setFontStyle] = useState<string>("Elegant");
+  const [templateName, setTemplateName] = useState<string>("planit-noir");
   const [customizeTab, setCustomizeTab] = useState<"templates" | "customise">("templates");
   const [customisePanel, setCustomisePanel] = useState<string | null>(null);
   const [editLoading, setEditLoading] = useState(!!editCode);
