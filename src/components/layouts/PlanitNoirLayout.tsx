@@ -3,7 +3,7 @@ import React from "react";
 /**
  * Concentric circle SVG background pattern for Planit Noir
  */
-export const ConcentricCircles = () => (
+export const ConcentricCircles = ({ accentColor = "#aaee44" }: { accentColor?: string }) => (
   <svg
     className="absolute inset-0 w-full h-full pointer-events-none"
     style={{ opacity: 0.04 }}
@@ -11,7 +11,7 @@ export const ConcentricCircles = () => (
     preserveAspectRatio="xMidYMid slice"
   >
     {[80, 130, 180, 230, 280, 330].map((r) => (
-      <circle key={r} cx="200" cy="300" r={r} fill="none" stroke="#aaee44" strokeWidth="0.8" />
+      <circle key={r} cx="200" cy="300" r={r} fill="none" stroke={accentColor} strokeWidth="0.8" />
     ))}
   </svg>
 );
@@ -25,12 +25,14 @@ export const StyledTitle = ({
   value,
   onChange,
   placeholder,
+  accentColor = "#aaee44",
 }: {
   title?: string;
   isInput?: boolean;
   value?: string;
   onChange?: (v: string) => void;
   placeholder?: string;
+  accentColor?: string;
 }) => {
   if (isInput) {
     return (
@@ -68,7 +70,6 @@ export const StyledTitle = ({
     );
   }
 
-  // Make the second word italic + green
   const greenIndex = words.length <= 2 ? 1 : Math.floor(words.length / 2);
   return (
     <h1
@@ -83,11 +84,10 @@ export const StyledTitle = ({
         <React.Fragment key={i}>
           {i > 0 && " "}
           {i === greenIndex ? (
-            <span style={{ color: "#aaee44", fontStyle: "italic" }}>{word}</span>
+            <span style={{ color: accentColor, fontStyle: "italic" }}>{word}</span>
           ) : (
             <span style={{ color: "white" }}>{word}</span>
           )}
-          {/* Line break after the green word for multi-word titles */}
           {i === greenIndex && i < words.length - 1 && <br />}
         </React.Fragment>
       ))}
@@ -117,7 +117,7 @@ export const HostDivider = ({ hostName }: { hostName?: string }) => (
   </div>
 );
 
-/** Planit Noir date card (left, lime green) */
+/** Planit Noir date card (left, accent colored) */
 export const NoirDateCard = ({
   monthName,
   dayNum,
@@ -125,6 +125,7 @@ export const NoirDateCard = ({
   isInput,
   dateTime,
   onDateChange,
+  accentColor = "#aaee44",
 }: {
   monthName: string;
   dayNum: string | number;
@@ -132,10 +133,11 @@ export const NoirDateCard = ({
   isInput?: boolean;
   dateTime?: string;
   onDateChange?: (v: string) => void;
+  accentColor?: string;
 }) => (
   <div
     className="flex-1 flex flex-col overflow-hidden"
-    style={{ backgroundColor: "#aaee44", borderRadius: "14px" }}
+    style={{ backgroundColor: accentColor, borderRadius: "14px" }}
   >
     <div className="flex flex-col items-center py-3 px-3">
       <span
@@ -245,23 +247,24 @@ export const NoirLocationCard = ({
   location,
   isInput,
   onChange,
+  accentColor = "#aaee44",
 }: {
   location: string;
   isInput?: boolean;
   onChange?: (v: string) => void;
+  accentColor?: string;
 }) => (
   <div
     className="flex items-center gap-3"
     style={{ backgroundColor: "#111", borderRadius: "14px", padding: "14px 16px" }}
   >
-    {/* Lime green icon square */}
     <div
       className="flex items-center justify-center shrink-0"
       style={{
         width: "36px",
         height: "36px",
         borderRadius: "8px",
-        backgroundColor: "#aaee44",
+        backgroundColor: accentColor,
       }}
     >
       <span style={{ fontSize: "18px" }}>📍</span>
@@ -312,10 +315,12 @@ export const NoirNotesCard = ({
   notes,
   isInput,
   onChange,
+  accentColor = "#aaee44",
 }: {
   notes: string;
   isInput?: boolean;
   onChange?: (v: string) => void;
+  accentColor?: string;
 }) => (
   <div
     className="flex items-start gap-3"
@@ -326,7 +331,7 @@ export const NoirNotesCard = ({
       border: "1px solid rgba(255,255,255,0.06)",
     }}
   >
-    <span style={{ color: "rgba(255,255,255,0.3)", fontSize: "14px", marginTop: "1px" }}>✦</span>
+    <span style={{ color: accentColor, fontSize: "14px", marginTop: "1px" }}>✦</span>
     <div className="flex-1">
       <span
         style={{
