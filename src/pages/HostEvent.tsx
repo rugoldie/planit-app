@@ -97,7 +97,8 @@ const HostEvent = () => {
   const [eventId, setEventId] = useState<string | null>(null);
   const [gradientColor, setGradientColor] = useState(GRADIENT_COLORS[0].color);
   const [fontStyle, setFontStyle] = useState<string>("Bold");
-  const [customizeTab, setCustomizeTab] = useState<"colours" | "style">("colours");
+  const [customizeTab, setCustomizeTab] = useState<"templates" | "customise">("templates");
+  const [customisePanel, setCustomisePanel] = useState<string | null>(null);
   const [editLoading, setEditLoading] = useState(!!editCode);
   const [titleError, setTitleError] = useState("");
 
