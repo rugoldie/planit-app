@@ -19,6 +19,8 @@ type EventWithRole = {
   bubble_color: string | null;
   font_style: string | null;
   template_name: string | null;
+  host_id: string;
+  host_name?: string;
 };
 
 const FONT_MAP: Record<string, string> = {
@@ -37,7 +39,7 @@ const useUserEvents = (userId: string | undefined) => {
 
       const { data: hosted } = await supabase
         .from("events")
-        .select("id, code, title, date_time, location, gradient_color, bubble_color, font_style, template_name")
+        .select("id, code, title, date_time, location, gradient_color, bubble_color, font_style, template_name, host_id")
         .eq("host_id", userId);
 
       const { data: rsvps } = await supabase
@@ -58,7 +60,7 @@ const useUserEvents = (userId: string | undefined) => {
       if (guestEventIds.length > 0) {
         const { data } = await supabase
           .from("events")
-          .select("id, code, title, date_time, location, gradient_color, bubble_color, font_style, template_name")
+          .select("id, code, title, date_time, location, gradient_color, bubble_color, font_style, template_name, host_id")
           .in("id", guestEventIds);
         guestEvents = data || [];
       }
