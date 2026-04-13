@@ -62,6 +62,90 @@ const PRESET_BACKGROUNDS = [
   { name: "Marble", gradient: "linear-gradient(135deg, hsl(0 0% 95%), hsl(0 0% 80%), hsl(0 0% 90%))" },
 ];
 
+const TEMPLATES = [
+  {
+    name: "Planit Noir",
+    bgColor: "0 0% 0%",
+    bubbleColor: "82 100% 48%",
+    bubbleTextColor: "0 0% 10%",
+    gradientColor: "#aaee44",
+    fontStyle: "Bold",
+    previewBg: "#000",
+  },
+  {
+    name: "Vintage",
+    bgColor: "40 30% 92%",
+    bubbleColor: "0 0% 15%",
+    bubbleTextColor: "0 0% 100%",
+    gradientColor: "#8b7355",
+    fontStyle: "Elegant",
+    previewBg: "#ede8df",
+  },
+  {
+    name: "Galaxy",
+    bgColor: "264 67% 11%",
+    bubbleColor: "282 37% 53%",
+    bubbleTextColor: "0 0% 100%",
+    gradientColor: "#7b2d8b",
+    fontStyle: "Bold",
+    previewBg: "#1a0a2e",
+  },
+  {
+    name: "Sunny",
+    bgColor: "24 100% 20%",
+    bubbleColor: "24 100% 63%",
+    bubbleTextColor: "0 0% 10%",
+    gradientColor: "#e65100",
+    fontStyle: "Handwritten",
+    previewBg: "#3d1e00",
+  },
+  {
+    name: "Midnight",
+    bgColor: "0 0% 100%",
+    bubbleColor: "0 0% 10%",
+    bubbleTextColor: "0 0% 100%",
+    gradientColor: "#222222",
+    fontStyle: "Bold",
+    previewBg: "#ffffff",
+  },
+  {
+    name: "Ocean",
+    bgColor: "213 52% 11%",
+    bubbleColor: "199 92% 64%",
+    bubbleTextColor: "0 0% 10%",
+    gradientColor: "#1a6fb5",
+    fontStyle: "Bold",
+    previewBg: "#0c1929",
+  },
+  {
+    name: "Blush",
+    bgColor: "340 30% 10%",
+    bubbleColor: "340 100% 71%",
+    bubbleTextColor: "0 0% 10%",
+    gradientColor: "#c2185b",
+    fontStyle: "Bold",
+    previewBg: "#2a0f1a",
+  },
+  {
+    name: "Forest",
+    bgColor: "120 52% 8%",
+    bubbleColor: "120 40% 40%",
+    bubbleTextColor: "0 0% 100%",
+    gradientColor: "#00695c",
+    fontStyle: "Elegant",
+    previewBg: "#0a1f0a",
+  },
+  {
+    name: "Planit Classic",
+    bgColor: "0 0% 17%",
+    bubbleColor: "82 100% 48%",
+    bubbleTextColor: "0 0% 10%",
+    gradientColor: "#aaee44",
+    fontStyle: "Bold",
+    previewBg: "#2b2b2b",
+  },
+];
+
 const TEXT_SIZES = ["Small", "Medium", "Large"] as const;
 
 const generateCode = () => {
