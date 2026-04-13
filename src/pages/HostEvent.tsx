@@ -554,6 +554,7 @@ const HostEvent = () => {
         </>
       )}
 
+      <div className="px-5 pb-10 flex flex-col gap-3">
         {/* Make it yours + action buttons */}
         <Drawer>
           <DrawerTrigger asChild>
