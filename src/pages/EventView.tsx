@@ -353,7 +353,7 @@ const EventView = () => {
           <div className="relative" style={{ minHeight: "280px" }}>
             <ConcentricCircles accentColor={accentColor} />
             {/* Navigation overlay */}
-            <div className="flex items-center justify-between px-5 pt-6 relative z-10">
+            <div className="flex items-center justify-between px-5 pt-6 relative z-20">
               <button onClick={() => navigate("/home")} className="self-start">
                 <ArrowLeft className="w-6 h-6 text-white/40" />
               </button>

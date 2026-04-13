@@ -340,7 +340,10 @@ const HostEvent = () => {
 
   if (showCode) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-background px-6">
+      <div className="relative flex flex-col items-center justify-center min-h-screen bg-background px-6">
+        <button onClick={() => navigate("/home")} className="absolute top-5 left-5 z-10">
+          <ArrowLeft className="w-6 h-6 text-muted-foreground" />
+        </button>
         <div className="bg-card rounded-[var(--radius)] p-8 w-full max-w-sm text-center border border-border">
           <p className="text-muted-foreground text-sm font-semibold mb-2">Your event code</p>
           <p className="text-5xl font-extrabold text-primary tracking-widest mb-4">{eventCode}</p>
@@ -399,7 +402,7 @@ const HostEvent = () => {
           {/* Concentric circle bg pattern */}
           <div className="relative" style={{ minHeight: "260px" }}>
             <ConcentricCircles accentColor={accentColor} />
-            <button onClick={() => navigate(editCode ? `/event/${editCode}` : "/home")} className="absolute top-5 left-5 z-10">
+            <button onClick={() => navigate(editCode ? `/event/${editCode}` : "/home")} className="absolute top-5 left-5 z-20" style={{ pointerEvents: "auto" }}>
               <ArrowLeft className="w-6 h-6 text-white/40" />
             </button>
             <div className="relative z-10 px-6 pt-16 pb-4">
@@ -448,7 +451,7 @@ const HostEvent = () => {
               minHeight: "220px",
             }}
           >
-            <button onClick={() => navigate(editCode ? `/event/${editCode}` : "/home")} className="absolute top-5 left-5 z-10">
+            <button onClick={() => navigate(editCode ? `/event/${editCode}` : "/home")} className="absolute top-5 left-5 z-20" style={{ pointerEvents: "auto" }}>
               <ArrowLeft className="w-6 h-6" style={{ color: "#111" }} />
             </button>
 
