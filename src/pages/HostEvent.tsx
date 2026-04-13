@@ -428,6 +428,7 @@ const HostEvent = () => {
 
             {/* Notes */}
             <NoirNotesCard notes={extra} isInput onChange={setExtra} />
+          </div>
         </>
       ) : (
         /* ═══ DEFAULT LAYOUT ═══ */
