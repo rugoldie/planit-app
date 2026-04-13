@@ -7,6 +7,15 @@ import { useAuth } from "@/contexts/AuthContext";
 import bgNeonCity from "@/assets/bg-neon-city.jpg";
 import bgStarryNight from "@/assets/bg-starry-night.jpg";
 import bgDarkFloral from "@/assets/bg-dark-floral.jpg";
+import {
+  ConcentricCircles,
+  StyledTitle,
+  HostDivider,
+  NoirDateCard,
+  NoirDressCard,
+  NoirLocationCard,
+  NoirNotesCard,
+} from "@/components/layouts/PlanitNoirLayout";
 
 const PALETTE_COLORS = [
   { name: "Dark Grey", hsl: "0 0% 17%" },
@@ -65,12 +74,13 @@ const PRESET_BACKGROUNDS = [
 const TEMPLATES = [
   {
     name: "Planit Noir",
-    bgColor: "0 0% 0%",
+    bgColor: "0 0% 4%",
     bubbleColor: "82 100% 48%",
     bubbleTextColor: "0 0% 10%",
     gradientColor: "#aaee44",
-    fontStyle: "Bold",
-    previewBg: "#000",
+    fontStyle: "Elegant",
+    previewBg: "#0a0a0a",
+    templateName: "planit-noir",
   },
   {
     name: "Vintage",
