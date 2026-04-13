@@ -32,7 +32,7 @@ type DM = { id: string; sender_id: string; text: string; created_at: string; sen
 const EventView = () => {
   const { code } = useParams();
   const navigate = useNavigate();
-  const { user, profile } = useAuth();
+  const { user, profile, loading: authLoading } = useAuth();
 
   const [event, setEvent] = useState<any>(null);
   const [loading, setLoading] = useState(true);
