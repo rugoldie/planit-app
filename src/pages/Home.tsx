@@ -265,16 +265,16 @@ const NoirNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate: R
         <div className="flex items-center gap-3 mt-3 mb-4">
           <div className="flex-1 h-px" style={{ backgroundColor: "rgba(255,255,255,0.12)" }} />
           <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "9px", fontWeight: 600, letterSpacing: "0.2em", color: "rgba(255,255,255,0.4)", textTransform: "uppercase" }}>
-            by {event.role === "host" ? "You" : "Host"}
+            by {event.host_name || "Host"}
           </span>
           <div className="flex-1 h-px" style={{ backgroundColor: "rgba(255,255,255,0.12)" }} />
         </div>
 
         {/* Two mini cards: date + location */}
         <div className="flex gap-2 mb-4">
-          {/* Date card */}
-          <div className="flex-1 flex flex-col items-center py-3 px-2 rounded-xl" style={{ backgroundColor: accent }}>
-            <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "22px", fontWeight: 900, color: "#0a0a0a", lineHeight: 1 }}>
+          {/* Date card - solid square */}
+          <div className="flex-1 flex flex-col items-center py-3 px-2" style={{ backgroundColor: accent, borderRadius: "4px" }}>
+            <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "28px", fontWeight: 900, color: "#0a0a0a", lineHeight: 1 }}>
               {dayNum}
             </span>
             <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "10px", fontWeight: 700, color: "#0a0a0a", opacity: 0.7, textTransform: "uppercase", letterSpacing: "0.1em", marginTop: "2px" }}>
