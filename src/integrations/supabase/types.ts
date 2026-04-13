@@ -159,6 +159,7 @@ export type Database = {
           host_id: string
           id: string
           location: string | null
+          template_name: string | null
           text_size: string | null
           title: string
           updated_at: string
@@ -179,6 +180,7 @@ export type Database = {
           host_id: string
           id?: string
           location?: string | null
+          template_name?: string | null
           text_size?: string | null
           title?: string
           updated_at?: string
@@ -199,6 +201,7 @@ export type Database = {
           host_id?: string
           id?: string
           location?: string | null
+          template_name?: string | null
           text_size?: string | null
           title?: string
           updated_at?: string

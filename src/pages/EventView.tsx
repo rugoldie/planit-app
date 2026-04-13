@@ -2,6 +2,16 @@ import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, MoreVertical, X, Send, Maximize2, ChevronDown, ChevronUp, MessageCircle, Copy, Check } from "lucide-react";
 import { useEffect, useState, useRef, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  ConcentricCircles,
+  StyledTitle,
+  HostDivider,
+  NoirDateCard,
+  NoirDressCard,
+  NoirLocationCard,
+  NoirNotesCard,
+  NoirAttendeeStrip,
+} from "@/components/layouts/PlanitNoirLayout";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   AlertDialog,
@@ -325,144 +335,179 @@ const EventView = () => {
   const timeStr = eventDate ? eventDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "";
   const dayOfWeek = eventDate ? eventDate.toLocaleString(undefined, { weekday: "long" }) : "";
 
+  const isNoir = (event as any).template_name === "planit-noir";
+
   return (
-    <div className="flex flex-col min-h-screen pb-28" style={{ backgroundColor: "#1a1a1a" }}>
-      {/* Gradient hero section */}
-      <div className="relative" style={{ background: `linear-gradient(to bottom, ${eventGradient} 0%, #1a1a1a 100%)`, minHeight: "220px" }}>
-        {/* Navigation overlay */}
-        <div className="flex items-center justify-between px-5 pt-6">
-          <button onClick={() => navigate("/home")} className="self-start">
-            <ArrowLeft className="w-6 h-6 text-[#111]" />
-          </button>
+    <div className="flex flex-col min-h-screen pb-28" style={{ backgroundColor: isNoir ? "#0a0a0a" : "#1a1a1a" }}>
 
-          <div className="flex items-center gap-2">
-            {/* Event code pill */}
-            <button
-              onClick={copyCode}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold"
-              style={{ backgroundColor: "rgba(0,0,0,0.15)", color: "#111" }}
-            >
-              {codeCopied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-              {event.code}
-            </button>
-
-            {/* DM icon */}
-            <button
-              onClick={() => setShowDMs(true)}
-              className="flex flex-col items-center gap-0.5"
-            >
-              <div className="w-9 h-9 rounded-full flex items-center justify-center border border-[#111]/20" style={{ backgroundColor: "rgba(0,0,0,0.15)" }}>
-                <MessageCircle className="w-4 h-4 text-[#111]" />
-              </div>
-              <span className="text-[9px] font-semibold text-[#111]">Messages</span>
-            </button>
-
-            {/* Three dot menu */}
-            <div className="relative">
-              <button
-                onClick={() => setShowMenu(!showMenu)}
-                className="w-9 h-9 rounded-full flex items-center justify-center border border-[#111]/20"
-                style={{ backgroundColor: "rgba(0,0,0,0.15)" }}
-              >
-                <MoreVertical className="w-4 h-4 text-[#111]" />
+      {isNoir ? (
+        /* ═══ PLANIT NOIR LAYOUT ═══ */
+        <>
+          <div className="relative" style={{ minHeight: "280px" }}>
+            <ConcentricCircles />
+            {/* Navigation overlay */}
+            <div className="flex items-center justify-between px-5 pt-6 relative z-10">
+              <button onClick={() => navigate("/home")} className="self-start">
+                <ArrowLeft className="w-6 h-6 text-white/40" />
               </button>
-              {showMenu && (
-                <>
-                  <div className="fixed inset-0 z-40" onClick={() => setShowMenu(false)} />
-                  <div className="absolute right-0 top-11 rounded-xl border border-border shadow-lg z-50 overflow-hidden" style={{ backgroundColor: "#383838" }}>
-                    <button
-                      onClick={() => { setShowMenu(false); navigate(`/host?edit=${code}`); }}
-                      className="px-5 py-3 text-sm font-semibold text-white hover:bg-white/10 w-full text-left whitespace-nowrap"
-                    >
-                      Edit event
-                    </button>
-                    <button
-                      onClick={() => { setShowMenu(false); setShowDeleteDialog(true); }}
-                      className="px-5 py-3 text-sm font-semibold text-red-400 hover:bg-red-500/10 w-full text-left whitespace-nowrap"
-                    >
-                      Delete event
-                    </button>
+              <div className="flex items-center gap-2">
+                <button onClick={copyCode} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold" style={{ backgroundColor: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.5)" }}>
+                  {codeCopied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                  {event.code}
+                </button>
+                <button onClick={() => setShowDMs(true)} className="flex flex-col items-center gap-0.5">
+                  <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ backgroundColor: "rgba(255,255,255,0.08)" }}>
+                    <MessageCircle className="w-4 h-4 text-white/40" />
                   </div>
-                </>
-              )}
+                  <span className="text-[9px] font-semibold text-white/40">Messages</span>
+                </button>
+                <div className="relative">
+                  <button onClick={() => setShowMenu(!showMenu)} className="w-9 h-9 rounded-full flex items-center justify-center" style={{ backgroundColor: "rgba(255,255,255,0.08)" }}>
+                    <MoreVertical className="w-4 h-4 text-white/40" />
+                  </button>
+                  {showMenu && (
+                    <>
+                      <div className="fixed inset-0 z-40" onClick={() => setShowMenu(false)} />
+                      <div className="absolute right-0 top-11 rounded-xl border border-border shadow-lg z-50 overflow-hidden" style={{ backgroundColor: "#383838" }}>
+                        <button onClick={() => { setShowMenu(false); navigate(`/host?edit=${code}`); }} className="px-5 py-3 text-sm font-semibold text-white hover:bg-white/10 w-full text-left whitespace-nowrap">Edit event</button>
+                        <button onClick={() => { setShowMenu(false); setShowDeleteDialog(true); }} className="px-5 py-3 text-sm font-semibold text-red-400 hover:bg-red-500/10 w-full text-left whitespace-nowrap">Delete event</button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+            {/* Title area */}
+            <div className="relative z-10 px-6 pt-4 pb-4">
+              <p style={{ fontFamily: "'Playfair Display', serif", fontSize: "13px", fontStyle: "italic", color: "rgba(255,255,255,0.4)" }}>you're invited to</p>
+              <div className="mt-2">
+                <StyledTitle title={event.title || "Untitled Event"} />
+              </div>
+              {event.vibe && <p className="mt-2" style={{ fontFamily: "'Playfair Display', serif", fontSize: "13px", fontStyle: "italic", color: "rgba(255,255,255,0.4)" }}>{event.vibe}</p>}
+              <HostDivider hostName={profile?.name || "Host"} />
             </div>
           </div>
-        </div>
-        {/* Event title at bottom of gradient */}
-        <div className="absolute bottom-0 left-0 right-0 px-6 pb-5">
-          <h1 className={`text-white ${titleClass} drop-shadow-lg`} style={{ fontFamily: eventFontFamily }}>{event.title || "Untitled Event"}</h1>
-          {event.vibe && <p className={`text-white/60 mt-1 ${vibeClass}`} style={{ fontFamily: eventFontFamily }}>{event.vibe}</p>}
-        </div>
-      </div>
 
-      {/* Content area */}
-      <div className="px-5 pt-4">
-
-      {/* Detail bubbles */}
-      {(event.location || event.date_time || event.dress_code || event.extra) && (
-        <div className="flex flex-col gap-3">
-          {/* Location bubble — full width prominent */}
-          {event.location && (
-            <div className="overflow-hidden" style={{ backgroundColor: accentColor, borderRadius: "16px" }}>
-              <div className="px-4 py-1.5" style={{ backgroundColor: "rgba(0,0,0,0.2)" }}>
-                <span className="text-xs font-bold uppercase tracking-wider" style={{ color: accentText }}>Location</span>
-              </div>
-              <div className="p-4 flex items-center gap-4">
-                <span style={{ fontSize: "28px" }}>📍</span>
-                <div className="flex-1 min-w-0">
-                  <span className="text-xl font-bold block truncate" style={{ color: accentText }}>{event.location}</span>
-                </div>
-                <span className="text-lg font-bold" style={{ color: accentText, opacity: 0.4 }}>›</span>
-              </div>
-            </div>
-          )}
-
-          {/* Date + Dress code row */}
-          {(eventDate || event.dress_code) && (
-            <div className="flex gap-3">
-              {eventDate && (
-                <div className="flex-1 overflow-hidden" style={{ borderRadius: "16px", backgroundColor: accentColor }}>
-                  <div className="px-3 py-1.5 text-center" style={{ backgroundColor: "rgba(0,0,0,0.2)" }}>
-                    <span className="text-xs font-bold uppercase tracking-wider" style={{ color: accentText }}>{monthName}</span>
-                  </div>
-                  <div className="flex flex-col items-center py-3 px-3">
-                    <span className="text-4xl font-extrabold leading-none" style={{ color: accentText }}>{dayNum}</span>
-                    <span className="text-xs font-semibold mt-1" style={{ color: accentText, opacity: 0.7 }}>{timeStr}</span>
-                    <span className="text-[10px] font-medium mt-0.5" style={{ color: accentText, opacity: 0.5 }}>{dayOfWeek}</span>
-                  </div>
+          <div className="px-5 pt-2">
+            <div className="flex flex-col gap-3">
+              {(eventDate || event.dress_code) && (
+                <div className="flex gap-3">
+                  {eventDate && <NoirDateCard monthName={monthName} dayNum={String(dayNum)} timeStr={timeStr} />}
+                  {event.dress_code && <NoirDressCard dressCode={event.dress_code} />}
                 </div>
               )}
-              {event.dress_code && (
-                <div className="flex-1 overflow-hidden" style={{ borderRadius: "16px", backgroundColor: accentColor }}>
-                  <div className="px-3 py-1.5 flex items-center gap-2" style={{ backgroundColor: "rgba(0,0,0,0.2)" }}>
-                    <span style={{ fontSize: "18px" }}>🎭</span>
-                    <span className="text-xs font-bold uppercase tracking-wider" style={{ color: accentText }}>Dress Code</span>
-                  </div>
-                  <div className="flex flex-col py-3 px-3">
-                    <span className="text-lg font-bold leading-tight" style={{ color: accentText }}>{event.dress_code}</span>
-                  </div>
-                </div>
-              )}
+              {event.location && <NoirLocationCard location={event.location} />}
+              {event.extra && <NoirNotesCard notes={event.extra} />}
+              <NoirAttendeeStrip goingList={goingList} accentColor="#aaee44" getInitials={getInitials} />
             </div>
-          )}
-
-          {/* Notes bubble — full width, softer */}
-          {event.extra && (
-            <div className="p-4 flex items-start gap-3" style={{ 
-              borderRadius: "16px", 
-              backgroundColor: bubbleBg ? bubbleBg.replace("hsl(", "hsla(").replace(")", ", 0.15)") : "rgba(170,238,68,0.15)",
-              border: `1px solid ${bubbleBg ? bubbleBg.replace("hsl(", "hsla(").replace(")", ", 0.3)") : "rgba(170,238,68,0.3)"}`,
-            }}>
-              <span className="text-lg mt-0.5">✦</span>
-              <div className="flex-1">
-                <span className="text-[10px] font-bold uppercase tracking-wider block" style={{ color: accentColor }}>Notes from host</span>
-                <span className="text-sm text-white/80 mt-1 block">{event.extra}</span>
+          </div>
+        </>
+      ) : (
+        /* ═══ DEFAULT LAYOUT ═══ */
+        <>
+          <div className="relative" style={{ background: `linear-gradient(to bottom, ${eventGradient} 0%, #1a1a1a 100%)`, minHeight: "220px" }}>
+            <div className="flex items-center justify-between px-5 pt-6">
+              <button onClick={() => navigate("/home")} className="self-start">
+                <ArrowLeft className="w-6 h-6 text-[#111]" />
+              </button>
+              <div className="flex items-center gap-2">
+                <button onClick={copyCode} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold" style={{ backgroundColor: "rgba(0,0,0,0.15)", color: "#111" }}>
+                  {codeCopied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                  {event.code}
+                </button>
+                <button onClick={() => setShowDMs(true)} className="flex flex-col items-center gap-0.5">
+                  <div className="w-9 h-9 rounded-full flex items-center justify-center border border-[#111]/20" style={{ backgroundColor: "rgba(0,0,0,0.15)" }}>
+                    <MessageCircle className="w-4 h-4 text-[#111]" />
+                  </div>
+                  <span className="text-[9px] font-semibold text-[#111]">Messages</span>
+                </button>
+                <div className="relative">
+                  <button onClick={() => setShowMenu(!showMenu)} className="w-9 h-9 rounded-full flex items-center justify-center border border-[#111]/20" style={{ backgroundColor: "rgba(0,0,0,0.15)" }}>
+                    <MoreVertical className="w-4 h-4 text-[#111]" />
+                  </button>
+                  {showMenu && (
+                    <>
+                      <div className="fixed inset-0 z-40" onClick={() => setShowMenu(false)} />
+                      <div className="absolute right-0 top-11 rounded-xl border border-border shadow-lg z-50 overflow-hidden" style={{ backgroundColor: "#383838" }}>
+                        <button onClick={() => { setShowMenu(false); navigate(`/host?edit=${code}`); }} className="px-5 py-3 text-sm font-semibold text-white hover:bg-white/10 w-full text-left whitespace-nowrap">Edit event</button>
+                        <button onClick={() => { setShowMenu(false); setShowDeleteDialog(true); }} className="px-5 py-3 text-sm font-semibold text-red-400 hover:bg-red-500/10 w-full text-left whitespace-nowrap">Delete event</button>
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
-          )}
-        </div>
+            <div className="absolute bottom-0 left-0 right-0 px-6 pb-5">
+              <h1 className={`text-white ${titleClass} drop-shadow-lg`} style={{ fontFamily: eventFontFamily }}>{event.title || "Untitled Event"}</h1>
+              {event.vibe && <p className={`text-white/60 mt-1 ${vibeClass}`} style={{ fontFamily: eventFontFamily }}>{event.vibe}</p>}
+            </div>
+          </div>
+
+          <div className="px-5 pt-4">
+            {(event.location || event.date_time || event.dress_code || event.extra) && (
+              <div className="flex flex-col gap-3">
+                {event.location && (
+                  <div className="overflow-hidden" style={{ backgroundColor: accentColor, borderRadius: "16px" }}>
+                    <div className="px-4 py-1.5" style={{ backgroundColor: "rgba(0,0,0,0.2)" }}>
+                      <span className="text-xs font-bold uppercase tracking-wider" style={{ color: accentText }}>Location</span>
+                    </div>
+                    <div className="p-4 flex items-center gap-4">
+                      <span style={{ fontSize: "28px" }}>📍</span>
+                      <div className="flex-1 min-w-0">
+                        <span className="text-xl font-bold block truncate" style={{ color: accentText }}>{event.location}</span>
+                      </div>
+                      <span className="text-lg font-bold" style={{ color: accentText, opacity: 0.4 }}>›</span>
+                    </div>
+                  </div>
+                )}
+                {(eventDate || event.dress_code) && (
+                  <div className="flex gap-3">
+                    {eventDate && (
+                      <div className="flex-1 overflow-hidden" style={{ borderRadius: "16px", backgroundColor: accentColor }}>
+                        <div className="px-3 py-1.5 text-center" style={{ backgroundColor: "rgba(0,0,0,0.2)" }}>
+                          <span className="text-xs font-bold uppercase tracking-wider" style={{ color: accentText }}>{monthName}</span>
+                        </div>
+                        <div className="flex flex-col items-center py-3 px-3">
+                          <span className="text-4xl font-extrabold leading-none" style={{ color: accentText }}>{dayNum}</span>
+                          <span className="text-xs font-semibold mt-1" style={{ color: accentText, opacity: 0.7 }}>{timeStr}</span>
+                          <span className="text-[10px] font-medium mt-0.5" style={{ color: accentText, opacity: 0.5 }}>{dayOfWeek}</span>
+                        </div>
+                      </div>
+                    )}
+                    {event.dress_code && (
+                      <div className="flex-1 overflow-hidden" style={{ borderRadius: "16px", backgroundColor: accentColor }}>
+                        <div className="px-3 py-1.5 flex items-center gap-2" style={{ backgroundColor: "rgba(0,0,0,0.2)" }}>
+                          <span style={{ fontSize: "18px" }}>🎭</span>
+                          <span className="text-xs font-bold uppercase tracking-wider" style={{ color: accentText }}>Dress Code</span>
+                        </div>
+                        <div className="flex flex-col py-3 px-3">
+                          <span className="text-lg font-bold leading-tight" style={{ color: accentText }}>{event.dress_code}</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+                {event.extra && (
+                  <div className="p-4 flex items-start gap-3" style={{
+                    borderRadius: "16px",
+                    backgroundColor: bubbleBg ? bubbleBg.replace("hsl(", "hsla(").replace(")", ", 0.15)") : "rgba(170,238,68,0.15)",
+                    border: `1px solid ${bubbleBg ? bubbleBg.replace("hsl(", "hsla(").replace(")", ", 0.3)") : "rgba(170,238,68,0.3)"}`,
+                  }}>
+                    <span className="text-lg mt-0.5">✦</span>
+                    <div className="flex-1">
+                      <span className="text-[10px] font-bold uppercase tracking-wider block" style={{ color: accentColor }}>Notes from host</span>
+                      <span className="text-sm text-white/80 mt-1 block">{event.extra}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </>
       )}
 
+      {/* Shared content area */}
+      <div className="px-5 pt-4">
       {/* Who's going section */}
       <div className="mt-4 rounded-2xl p-4" style={{ backgroundColor: "#1e1e1e" }}>
         <button onClick={() => setGuestListExpanded(!guestListExpanded)} className="flex items-center justify-between w-full mb-3">
