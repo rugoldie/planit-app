@@ -380,129 +380,177 @@ const HostEvent = () => {
   const timeStr = eventDate ? eventDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "";
   const dayOfWeek = eventDate ? eventDate.toLocaleString(undefined, { weekday: "long" }) : "";
 
+  const isNoir = templateName === "planit-noir";
+  const hostName = profile?.name || "Host";
+
   return (
-    <div className="flex flex-col min-h-screen transition-all duration-300" style={{ backgroundColor: "#1a1a1a" }}>
-      {/* Hero gradient header */}
-      <div
-        className="relative"
-        style={{
-          background: `linear-gradient(to bottom, ${gradientColor} 0%, #1a1a1a 100%)`,
-          minHeight: "220px",
-        }}
-      >
-        <button onClick={() => navigate(editCode ? `/event/${editCode}` : "/home")} className="absolute top-5 left-5 z-10">
-          <ArrowLeft className="w-6 h-6" style={{ color: "#111" }} />
-        </button>
+    <div className="flex flex-col min-h-screen transition-all duration-300" style={{ backgroundColor: isNoir ? "#0a0a0a" : "#1a1a1a" }}>
 
-        <div className="absolute bottom-0 left-0 right-0 px-6 pb-5">
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => { setTitle(e.target.value); setTitleError(""); }}
-            placeholder="Event name..."
-            className={`w-full bg-transparent text-white placeholder:text-white/40 outline-none drop-shadow-lg ${titleClass}`}
-            style={{ fontFamily: currentFontFamily }}
-          />
-          {titleError && <p className="text-red-500 text-xs mt-1">{titleError}</p>}
-          <textarea
-            value={vibe}
-            onChange={(e) => setVibe(e.target.value)}
-            placeholder="Set the vibe..."
-            rows={1}
-            maxLength={120}
-            className={`w-full bg-transparent text-white/60 placeholder:text-white/30 outline-none resize-none mt-1 ${vibeClass}`}
-            style={{ fontFamily: currentFontFamily }}
-          />
-        </div>
-      </div>
-
-      {/* Detail bubbles — matching event detail page layout */}
-      <div className="px-5 pt-4 pb-10 flex flex-col gap-3">
-
-        {/* Location bubble — full width with header band */}
-        <div className="overflow-hidden" style={{ backgroundColor: accentColor, borderRadius: "16px" }}>
-          <div className="px-4 py-1.5" style={{ backgroundColor: "rgba(0,0,0,0.2)" }}>
-            <span className="text-xs font-bold uppercase tracking-wider" style={{ color: accentText }}>Location</span>
-          </div>
-          <div className="p-4 flex items-center gap-4">
-            <span style={{ fontSize: "28px" }}>📍</span>
-            <input
-              type="text"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              placeholder="Where's the event?"
-              className="flex-1 min-w-0 bg-transparent outline-none text-xl font-bold placeholder:opacity-50"
-              style={{ color: accentText }}
-            />
-          </div>
-        </div>
-
-        {/* Date + Dress code row */}
-        <div className="flex gap-3">
-          {/* Date bubble — calendar style */}
-          <div className="flex-1 overflow-hidden" style={{ borderRadius: "16px", backgroundColor: accentColor }}>
-            <div className="px-3 py-1.5 text-center" style={{ backgroundColor: "rgba(0,0,0,0.2)" }}>
-              <span className="text-xs font-bold uppercase tracking-wider" style={{ color: accentText }}>
-                {monthName || "DATE"}
-              </span>
-            </div>
-            <div className="flex flex-col items-center py-3 px-3">
-              {eventDate ? (
-                <>
-                  <span className="text-4xl font-extrabold leading-none" style={{ color: accentText }}>{dayNum}</span>
-                  <span className="text-xs font-semibold mt-1" style={{ color: accentText, opacity: 0.7 }}>{timeStr}</span>
-                  <span className="text-[10px] font-medium mt-0.5" style={{ color: accentText, opacity: 0.5 }}>{dayOfWeek}</span>
-                </>
-              ) : (
-                <span className="text-3xl font-extrabold leading-none" style={{ color: accentText, opacity: 0.4 }}>?</span>
-              )}
-              <input
-                type="datetime-local"
-                value={dateTime}
-                onChange={(e) => setDateTime(e.target.value)}
-                className="w-full bg-transparent outline-none text-[10px] mt-2 text-center opacity-60"
-                style={{ color: accentText }}
+      {isNoir ? (
+        /* ═══ PLANIT NOIR LAYOUT ═══ */
+        <>
+          {/* Concentric circle bg pattern */}
+          <div className="relative" style={{ minHeight: "260px" }}>
+            <ConcentricCircles />
+            <button onClick={() => navigate(editCode ? `/event/${editCode}` : "/home")} className="absolute top-5 left-5 z-10">
+              <ArrowLeft className="w-6 h-6 text-white/40" />
+            </button>
+            <div className="relative z-10 px-6 pt-16 pb-4">
+              <p style={{ fontFamily: "'Playfair Display', serif", fontSize: "13px", fontStyle: "italic", color: "rgba(255,255,255,0.4)" }}>
+                you're invited to
+              </p>
+              <div className="mt-2">
+                <StyledTitle isInput value={title} onChange={(v) => { setTitle(v); setTitleError(""); }} placeholder="Event name..." />
+              </div>
+              {titleError && <p className="text-red-500 text-xs mt-1">{titleError}</p>}
+              <textarea
+                value={vibe}
+                onChange={(e) => setVibe(e.target.value)}
+                placeholder="Set the vibe..."
+                rows={1}
+                maxLength={120}
+                className="w-full bg-transparent outline-none resize-none mt-1 placeholder:text-white/15"
+                style={{ fontFamily: "'Playfair Display', serif", fontSize: "13px", fontStyle: "italic", color: "rgba(255,255,255,0.4)" }}
               />
+              <HostDivider hostName={hostName} />
             </div>
           </div>
 
-          {/* Dress code bubble — with header band */}
-          <div className="flex-1 overflow-hidden" style={{ borderRadius: "16px", backgroundColor: accentColor }}>
-            <div className="px-3 py-1.5 flex items-center gap-2" style={{ backgroundColor: "rgba(0,0,0,0.2)" }}>
-              <span style={{ fontSize: "18px" }}>🎭</span>
-              <span className="text-xs font-bold uppercase tracking-wider" style={{ color: accentText }}>Dress Code</span>
+          <div className="px-5 pt-2 pb-10 flex flex-col gap-3">
+            {/* Date + Dress code side by side */}
+            <div className="flex gap-3">
+              <NoirDateCard monthName={monthName} dayNum={String(dayNum)} timeStr={timeStr} isInput dateTime={dateTime} onDateChange={setDateTime} />
+              <NoirDressCard dressCode={dressCode} isInput onChange={setDressCode} />
             </div>
-            <div className="flex flex-col py-3 px-3">
+
+            {/* Location */}
+            <NoirLocationCard location={location} isInput onChange={setLocation} />
+
+            {/* Notes */}
+            <NoirNotesCard notes={extra} isInput onChange={setExtra} />
+        </>
+      ) : (
+        /* ═══ DEFAULT LAYOUT ═══ */
+        <>
+          {/* Hero gradient header */}
+          <div
+            className="relative"
+            style={{
+              background: `linear-gradient(to bottom, ${gradientColor} 0%, #1a1a1a 100%)`,
+              minHeight: "220px",
+            }}
+          >
+            <button onClick={() => navigate(editCode ? `/event/${editCode}` : "/home")} className="absolute top-5 left-5 z-10">
+              <ArrowLeft className="w-6 h-6" style={{ color: "#111" }} />
+            </button>
+
+            <div className="absolute bottom-0 left-0 right-0 px-6 pb-5">
               <input
                 type="text"
-                value={dressCode}
-                onChange={(e) => setDressCode(e.target.value)}
-                placeholder="Theme..."
-                className="bg-transparent outline-none text-lg font-bold placeholder:opacity-50"
-                style={{ color: accentText }}
+                value={title}
+                onChange={(e) => { setTitle(e.target.value); setTitleError(""); }}
+                placeholder="Event name..."
+                className={`w-full bg-transparent text-white placeholder:text-white/40 outline-none drop-shadow-lg ${titleClass}`}
+                style={{ fontFamily: currentFontFamily }}
+              />
+              {titleError && <p className="text-red-500 text-xs mt-1">{titleError}</p>}
+              <textarea
+                value={vibe}
+                onChange={(e) => setVibe(e.target.value)}
+                placeholder="Set the vibe..."
+                rows={1}
+                maxLength={120}
+                className={`w-full bg-transparent text-white/60 placeholder:text-white/30 outline-none resize-none mt-1 ${vibeClass}`}
+                style={{ fontFamily: currentFontFamily }}
               />
             </div>
           </div>
-        </div>
 
-        {/* Notes bubble — full width, softer */}
-        <div className="p-4 flex items-start gap-3" style={{
-          borderRadius: "16px",
-          backgroundColor: accentColor.replace("hsl(", "hsla(").replace(")", ", 0.15)"),
-          border: `1px solid ${accentColor.replace("hsl(", "hsla(").replace(")", ", 0.3)")}`,
-        }}>
-          <span className="text-lg mt-0.5">✦</span>
-          <div className="flex-1">
-            <span className="text-[10px] font-bold uppercase tracking-wider block" style={{ color: accentColor }}>Notes from host</span>
-            <textarea
-              value={extra}
-              onChange={(e) => setExtra(e.target.value)}
-              placeholder="Anything else your guests should know..."
-              rows={2}
-              className="w-full bg-transparent outline-none resize-none text-sm text-white/80 mt-1 placeholder:text-white/30"
-            />
-          </div>
-        </div>
+          <div className="px-5 pt-4 pb-10 flex flex-col gap-3">
+            {/* Location bubble — full width with header band */}
+            <div className="overflow-hidden" style={{ backgroundColor: accentColor, borderRadius: "16px" }}>
+              <div className="px-4 py-1.5" style={{ backgroundColor: "rgba(0,0,0,0.2)" }}>
+                <span className="text-xs font-bold uppercase tracking-wider" style={{ color: accentText }}>Location</span>
+              </div>
+              <div className="p-4 flex items-center gap-4">
+                <span style={{ fontSize: "28px" }}>📍</span>
+                <input
+                  type="text"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                  placeholder="Where's the event?"
+                  className="flex-1 min-w-0 bg-transparent outline-none text-xl font-bold placeholder:opacity-50"
+                  style={{ color: accentText }}
+                />
+              </div>
+            </div>
+
+            {/* Date + Dress code row */}
+            <div className="flex gap-3">
+              <div className="flex-1 overflow-hidden" style={{ borderRadius: "16px", backgroundColor: accentColor }}>
+                <div className="px-3 py-1.5 text-center" style={{ backgroundColor: "rgba(0,0,0,0.2)" }}>
+                  <span className="text-xs font-bold uppercase tracking-wider" style={{ color: accentText }}>
+                    {monthName || "DATE"}
+                  </span>
+                </div>
+                <div className="flex flex-col items-center py-3 px-3">
+                  {eventDate ? (
+                    <>
+                      <span className="text-4xl font-extrabold leading-none" style={{ color: accentText }}>{dayNum}</span>
+                      <span className="text-xs font-semibold mt-1" style={{ color: accentText, opacity: 0.7 }}>{timeStr}</span>
+                      <span className="text-[10px] font-medium mt-0.5" style={{ color: accentText, opacity: 0.5 }}>{dayOfWeek}</span>
+                    </>
+                  ) : (
+                    <span className="text-3xl font-extrabold leading-none" style={{ color: accentText, opacity: 0.4 }}>?</span>
+                  )}
+                  <input
+                    type="datetime-local"
+                    value={dateTime}
+                    onChange={(e) => setDateTime(e.target.value)}
+                    className="w-full bg-transparent outline-none text-[10px] mt-2 text-center opacity-60"
+                    style={{ color: accentText }}
+                  />
+                </div>
+              </div>
+
+              <div className="flex-1 overflow-hidden" style={{ borderRadius: "16px", backgroundColor: accentColor }}>
+                <div className="px-3 py-1.5 flex items-center gap-2" style={{ backgroundColor: "rgba(0,0,0,0.2)" }}>
+                  <span style={{ fontSize: "18px" }}>🎭</span>
+                  <span className="text-xs font-bold uppercase tracking-wider" style={{ color: accentText }}>Dress Code</span>
+                </div>
+                <div className="flex flex-col py-3 px-3">
+                  <input
+                    type="text"
+                    value={dressCode}
+                    onChange={(e) => setDressCode(e.target.value)}
+                    placeholder="Theme..."
+                    className="bg-transparent outline-none text-lg font-bold placeholder:opacity-50"
+                    style={{ color: accentText }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Notes bubble */}
+            <div className="p-4 flex items-start gap-3" style={{
+              borderRadius: "16px",
+              backgroundColor: accentColor.replace("hsl(", "hsla(").replace(")", ", 0.15)"),
+              border: `1px solid ${accentColor.replace("hsl(", "hsla(").replace(")", ", 0.3)")}`,
+            }}>
+              <span className="text-lg mt-0.5">✦</span>
+              <div className="flex-1">
+                <span className="text-[10px] font-bold uppercase tracking-wider block" style={{ color: accentColor }}>Notes from host</span>
+                <textarea
+                  value={extra}
+                  onChange={(e) => setExtra(e.target.value)}
+                  placeholder="Anything else your guests should know..."
+                  rows={2}
+                  className="w-full bg-transparent outline-none resize-none text-sm text-white/80 mt-1 placeholder:text-white/30"
+                />
+              </div>
+            </div>
+        </>
+      )}
 
         {/* Make it yours + action buttons */}
         <Drawer>
