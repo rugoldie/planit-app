@@ -26,6 +26,8 @@ export const StyledTitle = ({
   onChange,
   placeholder,
   accentColor = "#aaee44",
+  fontFamily,
+  fontSize,
 }: {
   title?: string;
   isInput?: boolean;
@@ -33,7 +35,12 @@ export const StyledTitle = ({
   onChange?: (v: string) => void;
   placeholder?: string;
   accentColor?: string;
+  fontFamily?: string;
+  fontSize?: string;
 }) => {
+  const ff = fontFamily || "'Playfair Display', serif";
+  const fs = fontSize || "36px";
+
   if (isInput) {
     return (
       <input
@@ -43,8 +50,8 @@ export const StyledTitle = ({
         placeholder={placeholder || "Event name..."}
         className="w-full bg-transparent outline-none text-white placeholder:text-white/20"
         style={{
-          fontFamily: "'Playfair Display', serif",
-          fontSize: "36px",
+          fontFamily: ff,
+          fontSize: fs,
           fontWeight: 900,
           lineHeight: 1.1,
         }}
@@ -58,8 +65,8 @@ export const StyledTitle = ({
     return (
       <h1
         style={{
-          fontFamily: "'Playfair Display', serif",
-          fontSize: "36px",
+          fontFamily: ff,
+          fontSize: fs,
           fontWeight: 900,
           lineHeight: 1.1,
           color: "white",
@@ -74,8 +81,8 @@ export const StyledTitle = ({
   return (
     <h1
       style={{
-        fontFamily: "'Playfair Display', serif",
-        fontSize: "36px",
+        fontFamily: ff,
+        fontSize: fs,
         fontWeight: 900,
         lineHeight: 1.1,
       }}
