@@ -415,162 +415,256 @@ const HostEvent = () => {
             {/* Tabs */}
             <div className="flex gap-1 mb-5 p-1 rounded-xl" style={{ backgroundColor: "#2b2b2b" }}>
               <button
-                onClick={() => setCustomizeTab("colours")}
+                onClick={() => { setCustomizeTab("templates"); setCustomisePanel(null); }}
                 className="flex-1 py-2 rounded-lg text-sm font-bold transition-all"
                 style={{
-                  backgroundColor: customizeTab === "colours" ? "#383838" : "transparent",
-                  color: customizeTab === "colours" ? "#aaee44" : "#999",
+                  backgroundColor: customizeTab === "templates" ? "#383838" : "transparent",
+                  color: customizeTab === "templates" ? "#aaee44" : "#999",
                 }}
               >
-                Colours
+                Templates
               </button>
               <button
-                onClick={() => setCustomizeTab("style")}
+                onClick={() => { setCustomizeTab("customise"); setCustomisePanel(null); }}
                 className="flex-1 py-2 rounded-lg text-sm font-bold transition-all"
                 style={{
-                  backgroundColor: customizeTab === "style" ? "#383838" : "transparent",
-                  color: customizeTab === "style" ? "#aaee44" : "#999",
+                  backgroundColor: customizeTab === "customise" ? "#383838" : "transparent",
+                  color: customizeTab === "customise" ? "#aaee44" : "#999",
                 }}
               >
-                Style
+                Customise
               </button>
             </div>
 
             <div className="overflow-y-auto flex-1">
-              {customizeTab === "colours" ? (
-                <>
-                  <p className="text-card-foreground font-bold text-sm mb-2">Background colour</p>
-                  <div className="flex flex-wrap gap-2.5 mb-5">
-                    {PALETTE_COLORS.map((c) => (
-                      <button
-                        key={c.name}
-                        onClick={() => { setBgColor(c.hsl); setBgPhoto(null); setBgPreset(null); setBgPresetIsImage(false); }}
-                        className="w-8 h-8 rounded-full border-2 transition-all"
-                        style={{
-                          backgroundColor: `hsl(${c.hsl})`,
-                          borderColor: bgColor === c.hsl && !bgPhoto && !bgPreset ? "hsl(82 80% 60%)" : "hsl(0 0% 30%)",
-                          transform: bgColor === c.hsl && !bgPhoto && !bgPreset ? "scale(1.15)" : "scale(1)",
-                        }}
-                        title={c.name}
-                      />
-                    ))}
-                  </div>
-
-                  <p className="text-card-foreground font-bold text-sm mb-2">Bubble colour</p>
-                  <div className="flex flex-wrap gap-2.5 mb-5">
-                    {BUBBLE_COLORS.map((c) => (
-                      <button
-                        key={c.name}
-                        onClick={() => { setBubbleColor(c.hsl); setBubbleTextColor(c.text); }}
-                        className="w-8 h-8 rounded-full border-2 transition-all"
-                        style={{
-                          backgroundColor: `hsl(${c.hsl})`,
-                          borderColor: bubbleColor === c.hsl ? "hsl(82 80% 60%)" : "hsl(0 0% 30%)",
-                          transform: bubbleColor === c.hsl ? "scale(1.15)" : "scale(1)",
-                        }}
-                        title={c.name}
-                      />
-                    ))}
-                  </div>
-
-                  <p className="text-card-foreground font-bold text-sm mb-2">Header gradient</p>
-                  <div className="flex flex-wrap gap-2.5 mb-5">
-                    {GRADIENT_COLORS.map((c) => (
-                      <button
-                        key={c.name}
-                        onClick={() => setGradientColor(c.color)}
-                        className="w-8 h-8 rounded-full border-2 transition-all"
-                        style={{
-                          backgroundColor: c.color,
-                          borderColor: gradientColor === c.color ? "hsl(82 80% 60%)" : "hsl(0 0% 30%)",
-                          transform: gradientColor === c.color ? "scale(1.15)" : "scale(1)",
-                        }}
-                        title={c.name}
-                      />
-                    ))}
-                  </div>
-
-                  <p className="text-card-foreground font-bold text-sm mb-2">Background photo</p>
-                  <div className="flex gap-2.5 mb-3">
+              {customizeTab === "templates" ? (
+                <div className="grid grid-cols-3 gap-2.5">
+                  {TEMPLATES.map((t) => (
                     <button
-                      onClick={() => fileInputRef.current?.click()}
-                      className="flex-1 bg-muted text-card-foreground rounded-[var(--radius)] py-2.5 text-sm font-bold flex items-center justify-center gap-2 border border-border"
+                      key={t.name}
+                      onClick={() => {
+                        setBgColor(t.bgColor);
+                        setBubbleColor(t.bubbleColor);
+                        setBubbleTextColor(t.bubbleTextColor);
+                        setGradientColor(t.gradientColor);
+                        setFontStyle(t.fontStyle);
+                        setBgPhoto(null);
+                        setBgPreset(null);
+                        setBgPresetIsImage(false);
+                      }}
+                      className="flex flex-col rounded-xl overflow-hidden border-2 transition-all"
+                      style={{
+                        borderColor:
+                          bgColor === t.bgColor && bubbleColor === t.bubbleColor && gradientColor === t.gradientColor && fontStyle === t.fontStyle
+                            ? "#aaee44"
+                            : "#333",
+                      }}
                     >
-                      <Upload className="w-4 h-4" /> Upload photo
+                      {/* Mini preview */}
+                      <div
+                        className="w-full aspect-[3/4] flex flex-col items-center justify-between p-2"
+                        style={{ background: `linear-gradient(to bottom, ${t.gradientColor} 0%, ${t.previewBg} 60%)` }}
+                      >
+                        <div className="w-full flex gap-0.5 mt-auto">
+                          <div className="flex-1 h-2 rounded-sm" style={{ backgroundColor: `hsl(${t.bubbleColor})` }} />
+                          <div className="flex-1 h-2 rounded-sm" style={{ backgroundColor: `hsl(${t.bubbleColor})`, opacity: 0.6 }} />
+                        </div>
+                      </div>
+                      <div className="py-1.5 px-1 text-center" style={{ backgroundColor: "#1e1e1e" }}>
+                        <span className="text-[10px] font-bold text-white/80 leading-tight">{t.name}</span>
+                      </div>
                     </button>
-                    <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileUpload} />
-                    {uploadedPhoto && (
-                      <button
-                        onClick={() => { setBgPhoto(uploadedPhoto); setBgPreset(null); setBgPresetIsImage(false); }}
-                        className="w-11 h-11 rounded-xl overflow-hidden border-2"
-                        style={{ borderColor: bgPhoto === uploadedPhoto ? "hsl(82 80% 60%)" : "transparent" }}
-                      >
-                        <img src={uploadedPhoto} alt="Uploaded" className="w-full h-full object-cover" />
-                      </button>
-                    )}
-                  </div>
-                  <div className="grid grid-cols-3 gap-2.5 mb-5">
-                    {PRESET_BACKGROUNDS.map((p) => (
-                      <button
-                        key={p.name}
-                        onClick={() => { setBgPreset(p.gradient); setBgPresetIsImage(!!(p as any).isImage); setBgPhoto(null); }}
-                        className="h-14 rounded-xl border-2 transition-all overflow-hidden"
-                        style={{
-                          ...(p as any).isImage
-                            ? { backgroundImage: p.gradient, backgroundSize: "cover", backgroundPosition: "center" }
-                            : { background: p.gradient },
-                          borderColor: bgPreset === p.gradient ? "hsl(82 80% 60%)" : "transparent",
-                        }}
-                      >
-                        <span className="text-[10px] font-bold text-white drop-shadow-sm">{p.name}</span>
-                      </button>
-                    ))}
-                  </div>
-                </>
+                  ))}
+                </div>
+              ) : customisePanel === null ? (
+                <div className="flex flex-col gap-1">
+                  {/* Background colour */}
+                  <button onClick={() => setCustomisePanel("bg")} className="flex items-center justify-between py-3.5 px-1">
+                    <span className="text-sm font-semibold text-white">Background colour</span>
+                    <div className="flex items-center gap-2">
+                      <div className="w-5 h-5 rounded-full border border-white/20" style={{ backgroundColor: `hsl(${bgColor})` }} />
+                      <span className="text-white/40 text-lg">›</span>
+                    </div>
+                  </button>
+                  {/* Bubble colour */}
+                  <button onClick={() => setCustomisePanel("bubble")} className="flex items-center justify-between py-3.5 px-1">
+                    <span className="text-sm font-semibold text-white">Bubble colour</span>
+                    <div className="flex items-center gap-2">
+                      <div className="w-5 h-5 rounded-full border border-white/20" style={{ backgroundColor: accentColor }} />
+                      <span className="text-white/40 text-lg">›</span>
+                    </div>
+                  </button>
+                  {/* Header gradient */}
+                  <button onClick={() => setCustomisePanel("gradient")} className="flex items-center justify-between py-3.5 px-1">
+                    <span className="text-sm font-semibold text-white">Header gradient</span>
+                    <div className="flex items-center gap-2">
+                      <div className="w-5 h-5 rounded-full border border-white/20" style={{ background: `linear-gradient(135deg, ${gradientColor}, #1a1a1a)` }} />
+                      <span className="text-white/40 text-lg">›</span>
+                    </div>
+                  </button>
+                  {/* Font style */}
+                  <button onClick={() => setCustomisePanel("font")} className="flex items-center justify-between py-3.5 px-1">
+                    <span className="text-sm font-semibold text-white">Font style</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-white/60">{fontStyle}</span>
+                      <span className="text-white/40 text-lg">›</span>
+                    </div>
+                  </button>
+                  {/* Text size */}
+                  <button onClick={() => setCustomisePanel("size")} className="flex items-center justify-between py-3.5 px-1">
+                    <span className="text-sm font-semibold text-white">Text size</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-white/60">{textSize}</span>
+                      <span className="text-white/40 text-lg">›</span>
+                    </div>
+                  </button>
+                </div>
               ) : (
-                <>
-                  <p className="text-card-foreground font-bold text-sm mb-2">Text size</p>
-                  <div className="flex gap-2 mb-6">
-                    {TEXT_SIZES.map((s) => (
-                      <button
-                        key={s}
-                        onClick={() => setTextSize(s)}
-                        className={`flex-1 py-2 rounded-[var(--radius)] text-sm font-bold transition-all ${
-                          textSize === s
-                            ? "bg-primary text-primary-foreground"
-                            : "bg-muted text-muted-foreground"
-                        }`}
-                      >
-                        {s}
-                      </button>
-                    ))}
-                  </div>
+                <div>
+                  <button onClick={() => setCustomisePanel(null)} className="flex items-center gap-1 text-sm text-white/60 mb-4">
+                    <ArrowLeft className="w-4 h-4" /> Back
+                  </button>
 
-                  <p className="text-card-foreground font-bold text-sm mb-2">Font style</p>
-                  <div className="flex gap-2.5 mb-6">
-                    {FONT_STYLES.map((f) => (
-                      <button
-                        key={f.name}
-                        onClick={() => setFontStyle(f.name)}
-                        className="flex-1 flex flex-col items-center gap-1.5 py-3 rounded-xl border-2 transition-all"
-                        style={{
-                          backgroundColor: "#2b2b2b",
-                          borderColor: fontStyle === f.name ? "#aaee44" : "#444",
-                        }}
-                      >
-                        <span
-                          className="text-2xl text-white"
-                          style={{ fontFamily: f.family }}
+                  {customisePanel === "bg" && (
+                    <>
+                      <p className="text-card-foreground font-bold text-sm mb-2">Background colour</p>
+                      <div className="flex flex-wrap gap-2.5 mb-5">
+                        {PALETTE_COLORS.map((c) => (
+                          <button
+                            key={c.name}
+                            onClick={() => { setBgColor(c.hsl); setBgPhoto(null); setBgPreset(null); setBgPresetIsImage(false); }}
+                            className="w-8 h-8 rounded-full border-2 transition-all"
+                            style={{
+                              backgroundColor: `hsl(${c.hsl})`,
+                              borderColor: bgColor === c.hsl && !bgPhoto && !bgPreset ? "#aaee44" : "hsl(0 0% 30%)",
+                              transform: bgColor === c.hsl && !bgPhoto && !bgPreset ? "scale(1.15)" : "scale(1)",
+                            }}
+                            title={c.name}
+                          />
+                        ))}
+                      </div>
+                      <p className="text-card-foreground font-bold text-sm mb-2">Background photo</p>
+                      <div className="flex gap-2.5 mb-3">
+                        <button
+                          onClick={() => fileInputRef.current?.click()}
+                          className="flex-1 bg-muted text-card-foreground rounded-[var(--radius)] py-2.5 text-sm font-bold flex items-center justify-center gap-2 border border-border"
                         >
-                          {f.name}
-                        </span>
-                        <span className="text-[10px] font-semibold" style={{ color: fontStyle === f.name ? "#aaee44" : "#999" }}>
-                          {f.name}
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                </>
+                          <Upload className="w-4 h-4" /> Upload photo
+                        </button>
+                        <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileUpload} />
+                        {uploadedPhoto && (
+                          <button
+                            onClick={() => { setBgPhoto(uploadedPhoto); setBgPreset(null); setBgPresetIsImage(false); }}
+                            className="w-11 h-11 rounded-xl overflow-hidden border-2"
+                            style={{ borderColor: bgPhoto === uploadedPhoto ? "#aaee44" : "transparent" }}
+                          >
+                            <img src={uploadedPhoto} alt="Uploaded" className="w-full h-full object-cover" />
+                          </button>
+                        )}
+                      </div>
+                      <div className="grid grid-cols-3 gap-2.5">
+                        {PRESET_BACKGROUNDS.map((p) => (
+                          <button
+                            key={p.name}
+                            onClick={() => { setBgPreset(p.gradient); setBgPresetIsImage(!!(p as any).isImage); setBgPhoto(null); }}
+                            className="h-14 rounded-xl border-2 transition-all overflow-hidden"
+                            style={{
+                              ...(p as any).isImage
+                                ? { backgroundImage: p.gradient, backgroundSize: "cover", backgroundPosition: "center" }
+                                : { background: p.gradient },
+                              borderColor: bgPreset === p.gradient ? "#aaee44" : "transparent",
+                            }}
+                          >
+                            <span className="text-[10px] font-bold text-white drop-shadow-sm">{p.name}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </>
+                  )}
+
+                  {customisePanel === "bubble" && (
+                    <>
+                      <p className="text-card-foreground font-bold text-sm mb-2">Bubble colour</p>
+                      <div className="flex flex-wrap gap-2.5">
+                        {BUBBLE_COLORS.map((c) => (
+                          <button
+                            key={c.name}
+                            onClick={() => { setBubbleColor(c.hsl); setBubbleTextColor(c.text); }}
+                            className="w-8 h-8 rounded-full border-2 transition-all"
+                            style={{
+                              backgroundColor: `hsl(${c.hsl})`,
+                              borderColor: bubbleColor === c.hsl ? "#aaee44" : "hsl(0 0% 30%)",
+                              transform: bubbleColor === c.hsl ? "scale(1.15)" : "scale(1)",
+                            }}
+                            title={c.name}
+                          />
+                        ))}
+                      </div>
+                    </>
+                  )}
+
+                  {customisePanel === "gradient" && (
+                    <>
+                      <p className="text-card-foreground font-bold text-sm mb-2">Header gradient</p>
+                      <div className="flex flex-wrap gap-2.5">
+                        {GRADIENT_COLORS.map((c) => (
+                          <button
+                            key={c.name}
+                            onClick={() => setGradientColor(c.color)}
+                            className="w-8 h-8 rounded-full border-2 transition-all"
+                            style={{
+                              backgroundColor: c.color,
+                              borderColor: gradientColor === c.color ? "#aaee44" : "hsl(0 0% 30%)",
+                              transform: gradientColor === c.color ? "scale(1.15)" : "scale(1)",
+                            }}
+                            title={c.name}
+                          />
+                        ))}
+                      </div>
+                    </>
+                  )}
+
+                  {customisePanel === "font" && (
+                    <>
+                      <p className="text-card-foreground font-bold text-sm mb-2">Font style</p>
+                      <div className="flex gap-2.5">
+                        {FONT_STYLES.map((f) => (
+                          <button
+                            key={f.name}
+                            onClick={() => setFontStyle(f.name)}
+                            className="flex-1 flex flex-col items-center gap-1.5 py-3 rounded-xl border-2 transition-all"
+                            style={{
+                              backgroundColor: "#2b2b2b",
+                              borderColor: fontStyle === f.name ? "#aaee44" : "#444",
+                            }}
+                          >
+                            <span className="text-2xl text-white" style={{ fontFamily: f.family }}>{f.name}</span>
+                            <span className="text-[10px] font-semibold" style={{ color: fontStyle === f.name ? "#aaee44" : "#999" }}>{f.name}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </>
+                  )}
+
+                  {customisePanel === "size" && (
+                    <>
+                      <p className="text-card-foreground font-bold text-sm mb-2">Text size</p>
+                      <div className="flex gap-2">
+                        {TEXT_SIZES.map((s) => (
+                          <button
+                            key={s}
+                            onClick={() => setTextSize(s)}
+                            className={`flex-1 py-2 rounded-[var(--radius)] text-sm font-bold transition-all ${
+                              textSize === s ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                            }`}
+                          >
+                            {s}
+                          </button>
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </div>
               )}
             </div>
 
