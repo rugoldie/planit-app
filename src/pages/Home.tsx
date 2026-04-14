@@ -434,11 +434,12 @@ const NoirNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate: R
 /** Noir Upcoming card — compact row */
 const NoirUpcomingCard = ({ event, navigate }: { event: EventWithRole; navigate: ReturnType<typeof useNavigate> }) => {
   const accent = hslToColor(event.bubble_color, "#aaee44");
+  const cardBg = event.bg_color ? `hsl(${event.bg_color})` : "#0a0a0a";
 
   return (
     <div
       className="rounded-xl px-3.5 py-3 cursor-pointer overflow-hidden relative"
-      style={{ backgroundColor: "#0a0a0a", border: "1px solid rgba(255,255,255,0.08)" }}
+      style={{ backgroundColor: cardBg, border: "1px solid rgba(255,255,255,0.08)" }}
       onClick={() => {
         const path = event.role === "host" ? `/event/${event.code}` : `/guest/${event.code}`;
         navigate(path);
