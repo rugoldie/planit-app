@@ -457,6 +457,121 @@ const HostEvent = () => {
             <NoirNotesCard notes={extra} isInput onChange={setExtra} accentColor={accentColor} />
           </div>
         </>
+      ) : isVintage ? (
+        /* ═══ VINTAGE LAYOUT ═══ */
+        <>
+          <div className="relative" style={{ minHeight: "260px" }}>
+            <VintageCircles />
+            <button onClick={() => navigate(editCode ? `/event/${editCode}` : "/home")} className="absolute top-5 left-5 z-20">
+              <ArrowLeft className="w-6 h-6" style={{ color: "#8b7355" }} />
+            </button>
+            <div className="relative z-10 px-6 pt-16 pb-4 text-center">
+              <p style={{ fontFamily: "'Playfair Display', serif", fontSize: "11px", fontWeight: 600, letterSpacing: "0.2em", color: "#8b7355", textTransform: "uppercase" }}>
+                you're invited to
+              </p>
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => { setTitle(e.target.value); setTitleError(""); }}
+                placeholder="Event name..."
+                className="w-full bg-transparent outline-none text-center mt-2 placeholder:opacity-30"
+                style={{ fontFamily: "'Playfair Display', serif", fontSize: noirFontSize, fontWeight: 900, color: "#2c1810" }}
+              />
+              {titleError && <p className="text-red-500 text-xs mt-1">{titleError}</p>}
+              <textarea
+                value={vibe}
+                onChange={(e) => setVibe(e.target.value)}
+                placeholder="Set the vibe..."
+                rows={1}
+                maxLength={120}
+                className="w-full bg-transparent outline-none resize-none mt-1 text-center placeholder:opacity-30"
+                style={{ fontFamily: "'Playfair Display', serif", fontSize: "14px", fontStyle: "italic", color: "#8b7355" }}
+              />
+              <VintageHostDivider hostName={hostName} />
+            </div>
+          </div>
+
+          <div className="px-5 pt-2 pb-10 flex flex-col gap-3">
+            {/* Location */}
+            <div className="overflow-hidden" style={{ backgroundColor: "#8b7355", borderRadius: "16px" }}>
+              <div className="px-4 py-1.5" style={{ backgroundColor: "rgba(0,0,0,0.2)" }}>
+                <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "10px", fontWeight: 700, letterSpacing: "0.18em", color: "#f5f0e8", textTransform: "uppercase" }}>Location</span>
+              </div>
+              <div className="p-4">
+                <input
+                  type="text"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                  placeholder="Where's the event?"
+                  className="w-full bg-transparent outline-none placeholder:opacity-40"
+                  style={{ fontFamily: "'Playfair Display', serif", fontSize: "20px", fontWeight: 900, color: "#2c1810" }}
+                />
+              </div>
+            </div>
+
+            {/* Date + Dress code row */}
+            <div className="flex gap-3">
+              {/* Date */}
+              <div className="flex-1 overflow-hidden" style={{ borderRadius: "16px", backgroundColor: "#2c1810" }}>
+                <div className="px-3 py-1.5 text-center" style={{ backgroundColor: "rgba(0,0,0,0.2)" }}>
+                  <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "10px", fontWeight: 700, letterSpacing: "0.15em", color: "#8b7355", textTransform: "uppercase" }}>{monthName || "DATE"}</span>
+                </div>
+                <div className="flex flex-col items-center py-3 px-3">
+                  {eventDate ? (
+                    <>
+                      <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "36px", fontWeight: 900, color: "#f5f0e8", lineHeight: 1 }}>{dayNum}</span>
+                      <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "11px", fontWeight: 600, color: "#8b7355", opacity: 0.8, marginTop: "4px" }}>{timeStr}</span>
+                      <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "10px", color: "#8b7355", opacity: 0.5, marginTop: "2px" }}>{dayOfWeek}</span>
+                    </>
+                  ) : (
+                    <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "36px", fontWeight: 900, color: "#f5f0e8", opacity: 0.4, lineHeight: 1 }}>?</span>
+                  )}
+                  <input
+                    type="datetime-local"
+                    value={dateTime}
+                    onChange={(e) => setDateTime(e.target.value)}
+                    className="w-full bg-transparent outline-none text-[10px] mt-2 text-center"
+                    style={{ color: "#8b7355", opacity: 0.6 }}
+                  />
+                </div>
+              </div>
+
+              {/* Dress code */}
+              <div className="flex-1 overflow-hidden" style={{ borderRadius: "16px", backgroundColor: "#8b7355" }}>
+                <div className="px-3 py-1.5 flex items-center gap-2" style={{ backgroundColor: "rgba(0,0,0,0.15)" }}>
+                  <span style={{ fontSize: "16px" }}>🎭</span>
+                  <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "10px", fontWeight: 700, letterSpacing: "0.15em", color: "#f5f0e8", textTransform: "uppercase" }}>Dress Code</span>
+                </div>
+                <div className="flex flex-col py-3 px-3">
+                  <input
+                    type="text"
+                    value={dressCode}
+                    onChange={(e) => setDressCode(e.target.value)}
+                    placeholder="Theme..."
+                    className="bg-transparent outline-none placeholder:opacity-40"
+                    style={{ fontFamily: "'Playfair Display', serif", fontSize: "18px", fontWeight: 900, color: "#f5f0e8" }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Notes */}
+            <div className="flex items-start gap-3" style={{ backgroundColor: "#2c1810", borderRadius: "14px", padding: "14px 16px", border: "1px solid rgba(139,115,85,0.2)" }}>
+              <span style={{ color: "#8b7355", fontSize: "14px", marginTop: "1px" }}>✦</span>
+              <div className="flex-1">
+                <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "9px", fontWeight: 600, color: "#8b7355", textTransform: "uppercase", letterSpacing: "0.15em", display: "block" }}>Notes from host</span>
+                <textarea
+                  value={extra}
+                  onChange={(e) => setExtra(e.target.value)}
+                  placeholder="Anything else your guests should know..."
+                  rows={2}
+                  className="w-full bg-transparent outline-none resize-none mt-1 placeholder:opacity-30"
+                  style={{ fontFamily: "'Playfair Display', serif", fontSize: "14px", fontStyle: "italic", color: "#f5f0e8", opacity: 0.8 }}
+                />
+              </div>
+            </div>
+          </div>
+        </>
       ) : (
         /* ═══ DEFAULT LAYOUT ═══ */
         <>
