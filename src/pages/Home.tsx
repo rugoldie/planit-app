@@ -608,7 +608,7 @@ const Home = () => {
             <NoirNextUpCard event={nextEvent} navigate={navigate} />
           ) : (
             <div
-              className="rounded-2xl p-5 cursor-pointer overflow-hidden"
+              className="rounded-2xl p-3.5 cursor-pointer overflow-hidden"
               style={{
                 background: `linear-gradient(135deg, ${nextEvent.gradient_color || "#aaee44"}99 0%, #1e1e1e 60%)`,
                 border: `1px solid ${nextEvent.gradient_color || "#aaee44"}40`,
@@ -618,33 +618,25 @@ const Home = () => {
                 navigate(path);
               }}
             >
-              <div className="flex items-start justify-between mb-3">
+              <div className="flex items-start justify-between mb-1.5">
                 <h3
-                  className="text-lg flex-1 mr-3"
+                  className="flex-1 mr-3"
                   style={{
                     color: "#ffffff",
                     fontFamily: FONT_MAP[nextEvent.font_style || "Bold"] || FONT_MAP.Bold,
                     fontWeight: nextEvent.font_style === "Bold" || !nextEvent.font_style ? 700 : 400,
-                    fontSize: nextEvent.font_style === "Bold" ? "1.25rem" : "1.125rem",
+                    fontSize: "1rem",
                   }}
                 >
                   {nextEvent.title || "Untitled Event"}
                 </h3>
                 <RoleBadge role={nextEvent.role} />
               </div>
-              <div className="flex flex-wrap gap-2 text-sm mb-4">
-                <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-medium" style={{ backgroundColor: hslToColor(nextEvent.bubble_color, "#383838"), color: textForBubble(nextEvent.bubble_color) }}>
-                  🗓️ {formatDate(nextEvent.date_time)}
-                </span>
-                <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-medium" style={{ backgroundColor: hslToColor(nextEvent.bubble_color, "#383838"), color: textForBubble(nextEvent.bubble_color) }}>
-                  📍 {nextEvent.location || "Location TBD"}
-                </span>
-                <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-medium" style={{ backgroundColor: hslToColor(nextEvent.bubble_color, "#383838"), color: textForBubble(nextEvent.bubble_color) }}>
-                  <Users className="w-3.5 h-3.5" /> {nextEvent.guest_count} going
-                </span>
-              </div>
+              <p className="mb-2.5" style={{ fontSize: "11px", color: "rgba(255,255,255,0.5)" }}>
+                🗓️ {formatDate(nextEvent.date_time)} · 📍 {nextEvent.location || "TBD"} · {nextEvent.guest_count} going
+              </p>
               <button
-                className="w-full rounded-xl py-2.5 text-sm font-bold"
+                className="w-full rounded-lg py-1.5 text-xs font-bold"
                 style={{ backgroundColor: hslToColor(nextEvent.bubble_color, "#aaee44"), color: textForBubble(nextEvent.bubble_color) }}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -666,14 +658,14 @@ const Home = () => {
       <div className="flex gap-3 mb-4">
         <button
           onClick={() => navigate("/host")}
-          className="flex-1 rounded-xl py-4 text-lg font-extrabold"
+          className="flex-1 rounded-full py-5 text-lg font-extrabold"
           style={{ backgroundColor: "#aaee44", color: "#111" }}
         >
           Host
         </button>
         <button
           onClick={() => navigate("/join")}
-          className="flex-1 rounded-xl py-4 text-lg font-extrabold"
+          className="flex-1 rounded-full py-5 text-lg font-extrabold"
           style={{ backgroundColor: "#383838", color: "#fff" }}
         >
           Join
