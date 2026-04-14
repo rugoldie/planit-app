@@ -231,30 +231,30 @@ const NoirNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate: R
       {/* Background pattern */}
       <ConcentricCircles accentColor={accent} />
 
-      <div className="relative z-10 p-5">
+      <div className="relative z-10 p-3.5">
         {/* Invite text */}
         <p
           style={{
             fontFamily: "'Playfair Display', serif",
-            fontSize: "11px",
+            fontSize: "10px",
             fontStyle: "italic",
             color: "rgba(255,255,255,0.35)",
-            marginBottom: "8px",
+            marginBottom: "4px",
           }}
         >
           you're invited to
         </p>
 
         {/* Event title with accent word */}
-        <NoirCardTitle title={event.title} accentColor={accent} fontSize="1.5rem" />
+        <NoirCardTitle title={event.title} accentColor={accent} fontSize="1.15rem" />
 
         {/* BY HOST divider */}
-        <div className="flex items-center gap-3 mt-4 mb-5">
+        <div className="flex items-center gap-3 mt-2.5 mb-3">
           <div className="flex-1 h-px" style={{ backgroundColor: "rgba(255,255,255,0.1)" }} />
           <span
             style={{
               fontFamily: "'Playfair Display', serif",
-              fontSize: "9px",
+              fontSize: "8px",
               fontWeight: 600,
               letterSpacing: "0.22em",
               color: "rgba(255,255,255,0.35)",
@@ -267,16 +267,16 @@ const NoirNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate: R
         </div>
 
         {/* Two mini cards side by side */}
-        <div className="flex gap-2.5 mb-5">
+        <div className="flex gap-2 mb-3">
           {/* Date card — accent bg */}
           <div
-            className="flex-1 flex flex-col items-center justify-center rounded-xl py-3.5 px-2"
+            className="flex-1 flex flex-col items-center justify-center rounded-lg py-2 px-2"
             style={{ backgroundColor: accent }}
           >
             <span
               style={{
                 fontFamily: "'Playfair Display', serif",
-                fontSize: "28px",
+                fontSize: "22px",
                 fontWeight: 900,
                 color: "#0a0a0a",
                 lineHeight: 1,
@@ -287,13 +287,13 @@ const NoirNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate: R
             <span
               style={{
                 fontFamily: "'Playfair Display', serif",
-                fontSize: "10px",
+                fontSize: "8px",
                 fontWeight: 700,
                 color: "#0a0a0a",
                 opacity: 0.65,
                 textTransform: "uppercase" as const,
                 letterSpacing: "0.12em",
-                marginTop: "3px",
+                marginTop: "2px",
               }}
             >
               {monthName}
@@ -302,10 +302,10 @@ const NoirNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate: R
               <span
                 style={{
                   fontFamily: "'Playfair Display', serif",
-                  fontSize: "9px",
+                  fontSize: "8px",
                   color: "#0a0a0a",
                   opacity: 0.45,
-                  marginTop: "2px",
+                  marginTop: "1px",
                 }}
               >
                 {timeStr}
@@ -315,13 +315,13 @@ const NoirNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate: R
 
           {/* Location card — dark bg */}
           <div
-            className="flex-1 flex flex-col justify-center rounded-xl py-3.5 px-3"
+            className="flex-1 flex flex-col justify-center rounded-lg py-2 px-2.5"
             style={{ backgroundColor: "#111111" }}
           >
             <span
               style={{
                 fontFamily: "'Playfair Display', serif",
-                fontSize: "9px",
+                fontSize: "8px",
                 fontWeight: 600,
                 color: "rgba(255,255,255,0.35)",
                 textTransform: "uppercase" as const,
@@ -331,10 +331,10 @@ const NoirNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate: R
               Location
             </span>
             <span
-              className="truncate mt-1"
+              className="truncate mt-0.5"
               style={{
                 fontFamily: "'Playfair Display', serif",
-                fontSize: "15px",
+                fontSize: "13px",
                 fontWeight: 700,
                 color: "white",
               }}
@@ -345,11 +345,11 @@ const NoirNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate: R
         </div>
 
         {/* Going count + overlapping avatars */}
-        <div className="flex items-center justify-between mb-5">
+        <div className="flex items-center justify-between mb-3">
           <span
             style={{
               fontFamily: "'Playfair Display', serif",
-              fontSize: "9px",
+              fontSize: "8px",
               fontWeight: 600,
               color: "rgba(255,255,255,0.3)",
               textTransform: "uppercase" as const,
@@ -364,34 +364,34 @@ const NoirNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate: R
                 key={i}
                 className="flex items-center justify-center"
                 style={{
-                  width: "26px",
-                  height: "26px",
+                  width: "22px",
+                  height: "22px",
                   borderRadius: "50%",
                   border: `2px solid #0a0a0a`,
                   backgroundColor: "#1a1a1a",
-                  marginLeft: i > 0 ? "-7px" : 0,
+                  marginLeft: i > 0 ? "-6px" : 0,
                   position: "relative",
                   zIndex: 4 - i,
                 }}
               >
-                <span style={{ fontSize: "8px", fontWeight: 700, color: accent }}>●</span>
+                <span style={{ fontSize: "7px", fontWeight: 700, color: accent }}>●</span>
               </div>
             ))}
             {event.guest_count > 4 && (
               <div
                 className="flex items-center justify-center"
                 style={{
-                  width: "26px",
-                  height: "26px",
+                  width: "22px",
+                  height: "22px",
                   borderRadius: "50%",
                   border: "2px solid #0a0a0a",
                   backgroundColor: "#1a1a1a",
-                  marginLeft: "-7px",
+                  marginLeft: "-6px",
                   position: "relative",
                   zIndex: 0,
                 }}
               >
-                <span style={{ fontSize: "7px", fontWeight: 700, color: "rgba(255,255,255,0.4)" }}>
+                <span style={{ fontSize: "6px", fontWeight: 700, color: "rgba(255,255,255,0.4)" }}>
                   +{event.guest_count - 4}
                 </span>
               </div>
@@ -401,7 +401,7 @@ const NoirNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate: R
 
         {/* Full width View event button */}
         <button
-          className="w-full rounded-xl py-3 text-sm font-bold tracking-wide"
+          className="w-full rounded-lg py-2 text-xs font-bold tracking-wide"
           style={{
             backgroundColor: accent,
             color: btnText,
@@ -420,38 +420,29 @@ const NoirNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate: R
   );
 };
 
-/** Noir Upcoming card */
+/** Noir Upcoming card — compact row */
 const NoirUpcomingCard = ({ event, navigate }: { event: EventWithRole; navigate: ReturnType<typeof useNavigate> }) => {
   const accent = hslToColor(event.bubble_color, "#aaee44");
 
   return (
     <div
-      className="rounded-xl p-4 cursor-pointer overflow-hidden relative"
-      style={{ backgroundColor: "#0a0a0a", border: "1px solid rgba(255,255,255,0.06)" }}
+      className="rounded-xl px-3.5 py-3 cursor-pointer overflow-hidden relative"
+      style={{ backgroundColor: "#0a0a0a", border: "1px solid rgba(255,255,255,0.08)" }}
       onClick={() => {
         const path = event.role === "host" ? `/event/${event.code}` : `/guest/${event.code}`;
         navigate(path);
       }}
     >
-      <ConcentricCircles accentColor={accent} />
-      <div className="relative z-10">
-        <p style={{ fontFamily: "'Playfair Display', serif", fontSize: "10px", fontStyle: "italic", color: "rgba(255,255,255,0.4)", marginBottom: "4px" }}>
-          you're invited to
-        </p>
-        <div className="flex items-start justify-between mb-1.5">
-          <div className="flex-1 mr-3">
-            <NoirCardTitle title={event.title} accentColor={accent} fontSize="1rem" />
-          </div>
-          <RoleBadge role={event.role} accentColor={accent} />
+      <div className="relative z-10 flex items-center justify-between">
+        <div className="flex-1 mr-3 min-w-0">
+          <h3 className="truncate" style={{ fontFamily: "'Playfair Display', serif", fontSize: "14px", fontWeight: 700, color: "white" }}>
+            {event.title || "Untitled Event"}
+          </h3>
+          <p className="truncate mt-0.5" style={{ fontSize: "11px", color: "rgba(255,255,255,0.4)" }}>
+            {formatDate(event.date_time)} · {event.location || "Location TBD"}
+          </p>
         </div>
-        <div className="flex flex-wrap gap-2 mt-2 text-sm">
-          <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "12px", color: "rgba(255,255,255,0.4)" }}>
-            🗓️ {formatDate(event.date_time)}
-          </span>
-          <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "12px", color: "rgba(255,255,255,0.4)" }}>
-            📍 {event.location || "Location TBD"}
-          </span>
-        </div>
+        <RoleBadge role={event.role} accentColor={accent} />
       </div>
     </div>
   );
@@ -480,7 +471,7 @@ const UpcomingSection = ({ events, navigate }: { events: EventWithRole[]; naviga
     return (
       <div
         key={event.id}
-        className="rounded-xl p-4 cursor-pointer overflow-hidden"
+        className="rounded-xl px-3.5 py-3 cursor-pointer overflow-hidden"
         style={{
           background: `linear-gradient(135deg, ${gradientHex}99 0%, #2b2b2b 60%)`,
           border: `1px solid ${gradientHex}40`,
@@ -492,26 +483,24 @@ const UpcomingSection = ({ events, navigate }: { events: EventWithRole[]; naviga
           navigate(path);
         }}
       >
-        <div className="flex items-start justify-between mb-1.5">
-          <h3
-            className="text-base flex-1 mr-3"
-            style={{
-              color: "#ffffff",
-              fontFamily,
-              fontWeight: event.font_style === "Bold" || !event.font_style ? 700 : 400,
-            }}
-          >
-            {event.title || "Untitled Event"}
-          </h3>
+        <div className="flex items-center justify-between">
+          <div className="flex-1 mr-3 min-w-0">
+            <h3
+              className="truncate"
+              style={{
+                color: "#ffffff",
+                fontFamily,
+                fontSize: "14px",
+                fontWeight: event.font_style === "Bold" || !event.font_style ? 700 : 400,
+              }}
+            >
+              {event.title || "Untitled Event"}
+            </h3>
+            <p className="truncate mt-0.5" style={{ fontSize: "11px", color: "rgba(255,255,255,0.5)" }}>
+              {formatDate(event.date_time)} · {event.location || "Location TBD"}
+            </p>
+          </div>
           <RoleBadge role={event.role} />
-        </div>
-        <div className="flex flex-wrap gap-2 mt-2 text-sm">
-          <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-medium" style={{ backgroundColor: hslToColor(event.bubble_color, "#383838"), color: textForBubble(event.bubble_color) }}>
-            🗓️ {formatDate(event.date_time)}
-          </span>
-          <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-medium" style={{ backgroundColor: hslToColor(event.bubble_color, "#383838"), color: textForBubble(event.bubble_color) }}>
-            📍 {event.location || "Location TBD"}
-          </span>
         </div>
       </div>
     );
@@ -619,7 +608,7 @@ const Home = () => {
             <NoirNextUpCard event={nextEvent} navigate={navigate} />
           ) : (
             <div
-              className="rounded-2xl p-5 cursor-pointer overflow-hidden"
+              className="rounded-2xl p-3.5 cursor-pointer overflow-hidden"
               style={{
                 background: `linear-gradient(135deg, ${nextEvent.gradient_color || "#aaee44"}99 0%, #1e1e1e 60%)`,
                 border: `1px solid ${nextEvent.gradient_color || "#aaee44"}40`,
@@ -629,33 +618,25 @@ const Home = () => {
                 navigate(path);
               }}
             >
-              <div className="flex items-start justify-between mb-3">
+              <div className="flex items-start justify-between mb-1.5">
                 <h3
-                  className="text-lg flex-1 mr-3"
+                  className="flex-1 mr-3"
                   style={{
                     color: "#ffffff",
                     fontFamily: FONT_MAP[nextEvent.font_style || "Bold"] || FONT_MAP.Bold,
                     fontWeight: nextEvent.font_style === "Bold" || !nextEvent.font_style ? 700 : 400,
-                    fontSize: nextEvent.font_style === "Bold" ? "1.25rem" : "1.125rem",
+                    fontSize: "1rem",
                   }}
                 >
                   {nextEvent.title || "Untitled Event"}
                 </h3>
                 <RoleBadge role={nextEvent.role} />
               </div>
-              <div className="flex flex-wrap gap-2 text-sm mb-4">
-                <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-medium" style={{ backgroundColor: hslToColor(nextEvent.bubble_color, "#383838"), color: textForBubble(nextEvent.bubble_color) }}>
-                  🗓️ {formatDate(nextEvent.date_time)}
-                </span>
-                <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-medium" style={{ backgroundColor: hslToColor(nextEvent.bubble_color, "#383838"), color: textForBubble(nextEvent.bubble_color) }}>
-                  📍 {nextEvent.location || "Location TBD"}
-                </span>
-                <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-medium" style={{ backgroundColor: hslToColor(nextEvent.bubble_color, "#383838"), color: textForBubble(nextEvent.bubble_color) }}>
-                  <Users className="w-3.5 h-3.5" /> {nextEvent.guest_count} going
-                </span>
-              </div>
+              <p className="mb-2.5" style={{ fontSize: "11px", color: "rgba(255,255,255,0.5)" }}>
+                🗓️ {formatDate(nextEvent.date_time)} · 📍 {nextEvent.location || "TBD"} · {nextEvent.guest_count} going
+              </p>
               <button
-                className="w-full rounded-xl py-2.5 text-sm font-bold"
+                className="w-full rounded-lg py-1.5 text-xs font-bold"
                 style={{ backgroundColor: hslToColor(nextEvent.bubble_color, "#aaee44"), color: textForBubble(nextEvent.bubble_color) }}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -677,14 +658,14 @@ const Home = () => {
       <div className="flex gap-3 mb-4">
         <button
           onClick={() => navigate("/host")}
-          className="flex-1 rounded-xl py-4 text-lg font-extrabold"
+          className="flex-1 rounded-full py-5 text-lg font-extrabold"
           style={{ backgroundColor: "#aaee44", color: "#111" }}
         >
           Host
         </button>
         <button
           onClick={() => navigate("/join")}
-          className="flex-1 rounded-xl py-4 text-lg font-extrabold"
+          className="flex-1 rounded-full py-5 text-lg font-extrabold"
           style={{ backgroundColor: "#383838", color: "#fff" }}
         >
           Join
