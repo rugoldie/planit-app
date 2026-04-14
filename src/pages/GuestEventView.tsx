@@ -12,6 +12,18 @@ import {
   NoirNotesCard,
   NoirAttendeeStrip,
 } from "@/components/layouts/PlanitNoirLayout";
+import {
+  VintageCircles,
+  VintageDivider,
+  VintageHostDivider,
+  VintageLocationCard,
+  VintageDateCard,
+  VintageDressCard,
+  VintageNotesCard,
+  VintageAttendeeStrip,
+  VintageSharedSections,
+  VintageRsvpBar,
+} from "@/components/layouts/VintageLayout";
 import { useAuth } from "@/contexts/AuthContext";
 
 type Comment = { id: string; user_name: string; text: string; created_at: string; avatar_url?: string };
@@ -298,13 +310,82 @@ const GuestEventView = () => {
   const dayOfWeek = eventDate ? eventDate.toLocaleString(undefined, { weekday: "long" }) : "";
 
   const isNoir = (event as any).template_name === "planit-noir";
-  const containerBg = event.bg_color ? `hsl(${event.bg_color})` : (isNoir ? "#0a0a0a" : "#1a1a1a");
+  const isVintage = (event as any).template_name === "vintage";
+  const containerBg = isVintage ? "#f5f0e8" : (event.bg_color ? `hsl(${event.bg_color})` : (isNoir ? "#0a0a0a" : "#1a1a1a"));
   const noirFontSize = event.text_size === "Small" ? "28px" : event.text_size === "Large" ? "44px" : "36px";
 
   return (
     <div className="flex flex-col min-h-screen pb-28" style={{ backgroundColor: containerBg }}>
 
-      {isNoir ? (
+      {isVintage ? (
+        /* ═══ VINTAGE LAYOUT ═══ */
+        <>
+          <div className="relative" style={{ minHeight: "260px" }}>
+            <div className="flex items-center justify-between px-5 pt-6 relative z-10">
+              <button onClick={() => navigate("/home")}>
+                <ArrowLeft className="w-6 h-6" style={{ color: "#8b7355" }} />
+              </button>
+              <button onClick={() => setShowChat(true)} className="flex flex-col items-center gap-0.5">
+                <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ backgroundColor: "rgba(139,115,85,0.12)" }}>
+                  <MessageCircle className="w-4 h-4" style={{ color: "#8b7355" }} />
+                </div>
+                <span style={{ fontSize: "9px", fontWeight: 600, color: "#8b7355" }}>Message host</span>
+              </button>
+            </div>
+            <div className="relative z-10 px-6 pt-6 pb-2 text-center">
+              <p style={{ fontFamily: "'Playfair Display', serif", fontSize: "11px", fontWeight: 600, letterSpacing: "0.2em", color: "#8b7355", textTransform: "uppercase" }}>
+                You are invited to
+              </p>
+              <h1 className="mt-3" style={{ fontFamily: "'Playfair Display', serif", fontSize: noirFontSize, fontWeight: 900, color: "#2c1810", lineHeight: 1.1 }}>
+                {event.title || "Untitled Event"}
+              </h1>
+              {event.vibe && <p className="mt-2" style={{ fontFamily: "'Playfair Display', serif", fontSize: "13px", fontStyle: "italic", color: "#8b7355" }}>{event.vibe}</p>}
+              <VintageHostDivider hostName={hostName} />
+              <VintageDivider />
+            </div>
+          </div>
+
+          <div className="px-5 pt-0">
+            <div className="flex flex-col gap-3">
+              {event.location && <VintageLocationCard location={event.location} />}
+              {(eventDate || event.dress_code) && (
+                <div className="flex gap-3">
+                  {eventDate && <VintageDateCard monthName={monthName} dayNum={String(dayNum)} timeStr={timeStr} dayOfWeek={dayOfWeek} />}
+                  {event.dress_code && <VintageDressCard dressCode={event.dress_code} />}
+                </div>
+              )}
+              {event.extra && <VintageNotesCard notes={event.extra} />}
+              <VintageAttendeeStrip goingList={goingList} getInitials={getInitials} />
+            </div>
+          </div>
+
+          <div className="px-5">
+            <VintageSharedSections
+              goingList={goingList}
+              maybeList={maybeList}
+              rsvpList={rsvpList}
+              rsvp={rsvp}
+              guestListExpanded={guestListExpanded}
+              setGuestListExpanded={setGuestListExpanded}
+              comments={comments}
+              commentDraft={commentDraft}
+              setCommentDraft={setCommentDraft}
+              sendComment={sendComment}
+              showFullComments={showFullComments}
+              setShowFullComments={setShowFullComments}
+              photos={photos}
+              uploadingPhoto={uploadingPhoto}
+              photoInput={photoInput}
+              handlePhotoUpload={handlePhotoUpload}
+              getInitials={getInitials}
+              formatTime={formatTime}
+              statusBadge={statusBadge}
+            />
+          </div>
+
+          <VintageRsvpBar rsvp={rsvp} barMinimised={barMinimised} setBarMinimised={setBarMinimised} handleRsvp={handleRsvp} rsvpLabel={rsvpLabel} />
+        </>
+      ) : isNoir ? (
         /* ═══ PLANIT NOIR LAYOUT ═══ */
         <>
           <div className="relative" style={{ minHeight: "280px" }}>
