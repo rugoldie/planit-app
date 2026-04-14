@@ -471,7 +471,7 @@ const UpcomingSection = ({ events, navigate }: { events: EventWithRole[]; naviga
     return (
       <div
         key={event.id}
-        className="rounded-xl p-4 cursor-pointer overflow-hidden"
+        className="rounded-xl px-3.5 py-3 cursor-pointer overflow-hidden"
         style={{
           background: `linear-gradient(135deg, ${gradientHex}99 0%, #2b2b2b 60%)`,
           border: `1px solid ${gradientHex}40`,
@@ -483,26 +483,24 @@ const UpcomingSection = ({ events, navigate }: { events: EventWithRole[]; naviga
           navigate(path);
         }}
       >
-        <div className="flex items-start justify-between mb-1.5">
-          <h3
-            className="text-base flex-1 mr-3"
-            style={{
-              color: "#ffffff",
-              fontFamily,
-              fontWeight: event.font_style === "Bold" || !event.font_style ? 700 : 400,
-            }}
-          >
-            {event.title || "Untitled Event"}
-          </h3>
+        <div className="flex items-center justify-between">
+          <div className="flex-1 mr-3 min-w-0">
+            <h3
+              className="truncate"
+              style={{
+                color: "#ffffff",
+                fontFamily,
+                fontSize: "14px",
+                fontWeight: event.font_style === "Bold" || !event.font_style ? 700 : 400,
+              }}
+            >
+              {event.title || "Untitled Event"}
+            </h3>
+            <p className="truncate mt-0.5" style={{ fontSize: "11px", color: "rgba(255,255,255,0.5)" }}>
+              {formatDate(event.date_time)} · {event.location || "Location TBD"}
+            </p>
+          </div>
           <RoleBadge role={event.role} />
-        </div>
-        <div className="flex flex-wrap gap-2 mt-2 text-sm">
-          <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-medium" style={{ backgroundColor: hslToColor(event.bubble_color, "#383838"), color: textForBubble(event.bubble_color) }}>
-            🗓️ {formatDate(event.date_time)}
-          </span>
-          <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-medium" style={{ backgroundColor: hslToColor(event.bubble_color, "#383838"), color: textForBubble(event.bubble_color) }}>
-            📍 {event.location || "Location TBD"}
-          </span>
         </div>
       </div>
     );
