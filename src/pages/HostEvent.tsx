@@ -952,7 +952,27 @@ const HostEvent = () => {
                     </>
                   )}
 
-                  {customisePanel === "font" && (
+                  {customisePanel === "accent" && (
+                    <>
+                      <p className="text-card-foreground font-bold text-sm mb-2">Accent colour</p>
+                      <div className="flex flex-wrap gap-2.5">
+                        {VINTAGE_ACCENT_COLORS.map((c) => (
+                          <button
+                            key={c.name}
+                            onClick={() => setGradientColor(c.color)}
+                            className="w-8 h-8 rounded-full border-2 transition-all"
+                            style={{
+                              backgroundColor: c.color,
+                              borderColor: gradientColor === c.color ? "#aaee44" : "hsl(0 0% 30%)",
+                              transform: gradientColor === c.color ? "scale(1.15)" : "scale(1)",
+                            }}
+                            title={c.name}
+                          />
+                        ))}
+                      </div>
+                    </>
+                  )}
+
                     <>
                       <p className="text-card-foreground font-bold text-sm mb-2">Font style</p>
                       <div className="flex gap-2.5">
