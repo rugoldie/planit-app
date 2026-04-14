@@ -231,30 +231,30 @@ const NoirNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate: R
       {/* Background pattern */}
       <ConcentricCircles accentColor={accent} />
 
-      <div className="relative z-10 p-5">
+      <div className="relative z-10 p-3.5">
         {/* Invite text */}
         <p
           style={{
             fontFamily: "'Playfair Display', serif",
-            fontSize: "11px",
+            fontSize: "10px",
             fontStyle: "italic",
             color: "rgba(255,255,255,0.35)",
-            marginBottom: "8px",
+            marginBottom: "4px",
           }}
         >
           you're invited to
         </p>
 
         {/* Event title with accent word */}
-        <NoirCardTitle title={event.title} accentColor={accent} fontSize="1.5rem" />
+        <NoirCardTitle title={event.title} accentColor={accent} fontSize="1.15rem" />
 
         {/* BY HOST divider */}
-        <div className="flex items-center gap-3 mt-4 mb-5">
+        <div className="flex items-center gap-3 mt-2.5 mb-3">
           <div className="flex-1 h-px" style={{ backgroundColor: "rgba(255,255,255,0.1)" }} />
           <span
             style={{
               fontFamily: "'Playfair Display', serif",
-              fontSize: "9px",
+              fontSize: "8px",
               fontWeight: 600,
               letterSpacing: "0.22em",
               color: "rgba(255,255,255,0.35)",
@@ -267,16 +267,16 @@ const NoirNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate: R
         </div>
 
         {/* Two mini cards side by side */}
-        <div className="flex gap-2.5 mb-5">
+        <div className="flex gap-2 mb-3">
           {/* Date card — accent bg */}
           <div
-            className="flex-1 flex flex-col items-center justify-center rounded-xl py-3.5 px-2"
+            className="flex-1 flex flex-col items-center justify-center rounded-lg py-2 px-2"
             style={{ backgroundColor: accent }}
           >
             <span
               style={{
                 fontFamily: "'Playfair Display', serif",
-                fontSize: "28px",
+                fontSize: "22px",
                 fontWeight: 900,
                 color: "#0a0a0a",
                 lineHeight: 1,
@@ -287,13 +287,13 @@ const NoirNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate: R
             <span
               style={{
                 fontFamily: "'Playfair Display', serif",
-                fontSize: "10px",
+                fontSize: "8px",
                 fontWeight: 700,
                 color: "#0a0a0a",
                 opacity: 0.65,
                 textTransform: "uppercase" as const,
                 letterSpacing: "0.12em",
-                marginTop: "3px",
+                marginTop: "2px",
               }}
             >
               {monthName}
@@ -302,10 +302,10 @@ const NoirNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate: R
               <span
                 style={{
                   fontFamily: "'Playfair Display', serif",
-                  fontSize: "9px",
+                  fontSize: "8px",
                   color: "#0a0a0a",
                   opacity: 0.45,
-                  marginTop: "2px",
+                  marginTop: "1px",
                 }}
               >
                 {timeStr}
@@ -315,13 +315,13 @@ const NoirNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate: R
 
           {/* Location card — dark bg */}
           <div
-            className="flex-1 flex flex-col justify-center rounded-xl py-3.5 px-3"
+            className="flex-1 flex flex-col justify-center rounded-lg py-2 px-2.5"
             style={{ backgroundColor: "#111111" }}
           >
             <span
               style={{
                 fontFamily: "'Playfair Display', serif",
-                fontSize: "9px",
+                fontSize: "8px",
                 fontWeight: 600,
                 color: "rgba(255,255,255,0.35)",
                 textTransform: "uppercase" as const,
@@ -331,10 +331,10 @@ const NoirNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate: R
               Location
             </span>
             <span
-              className="truncate mt-1"
+              className="truncate mt-0.5"
               style={{
                 fontFamily: "'Playfair Display', serif",
-                fontSize: "15px",
+                fontSize: "13px",
                 fontWeight: 700,
                 color: "white",
               }}
@@ -345,11 +345,11 @@ const NoirNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate: R
         </div>
 
         {/* Going count + overlapping avatars */}
-        <div className="flex items-center justify-between mb-5">
+        <div className="flex items-center justify-between mb-3">
           <span
             style={{
               fontFamily: "'Playfair Display', serif",
-              fontSize: "9px",
+              fontSize: "8px",
               fontWeight: 600,
               color: "rgba(255,255,255,0.3)",
               textTransform: "uppercase" as const,
@@ -364,34 +364,34 @@ const NoirNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate: R
                 key={i}
                 className="flex items-center justify-center"
                 style={{
-                  width: "26px",
-                  height: "26px",
+                  width: "22px",
+                  height: "22px",
                   borderRadius: "50%",
                   border: `2px solid #0a0a0a`,
                   backgroundColor: "#1a1a1a",
-                  marginLeft: i > 0 ? "-7px" : 0,
+                  marginLeft: i > 0 ? "-6px" : 0,
                   position: "relative",
                   zIndex: 4 - i,
                 }}
               >
-                <span style={{ fontSize: "8px", fontWeight: 700, color: accent }}>●</span>
+                <span style={{ fontSize: "7px", fontWeight: 700, color: accent }}>●</span>
               </div>
             ))}
             {event.guest_count > 4 && (
               <div
                 className="flex items-center justify-center"
                 style={{
-                  width: "26px",
-                  height: "26px",
+                  width: "22px",
+                  height: "22px",
                   borderRadius: "50%",
                   border: "2px solid #0a0a0a",
                   backgroundColor: "#1a1a1a",
-                  marginLeft: "-7px",
+                  marginLeft: "-6px",
                   position: "relative",
                   zIndex: 0,
                 }}
               >
-                <span style={{ fontSize: "7px", fontWeight: 700, color: "rgba(255,255,255,0.4)" }}>
+                <span style={{ fontSize: "6px", fontWeight: 700, color: "rgba(255,255,255,0.4)" }}>
                   +{event.guest_count - 4}
                 </span>
               </div>
@@ -401,7 +401,7 @@ const NoirNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate: R
 
         {/* Full width View event button */}
         <button
-          className="w-full rounded-xl py-3 text-sm font-bold tracking-wide"
+          className="w-full rounded-lg py-2 text-xs font-bold tracking-wide"
           style={{
             backgroundColor: accent,
             color: btnText,
