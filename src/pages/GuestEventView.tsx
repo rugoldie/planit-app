@@ -357,24 +357,24 @@ const GuestEventView = () => {
           <div style={{ backgroundColor: "#f5f0e8" }}>
             <div className="flex items-center justify-between px-5 pt-6">
               <button onClick={() => navigate("/home")}>
-                <ArrowLeft className="w-6 h-6" style={{ color: "#8b7355" }} />
+                <ArrowLeft className="w-6 h-6" style={{ color: vintageAccent }} />
               </button>
               <button onClick={() => setShowChat(true)} className="flex flex-col items-center gap-0.5">
-                <div className="w-9 h-9 rounded-full flex items-center justify-center border" style={{ borderColor: "#8b7355", backgroundColor: "rgba(139,115,85,0.1)" }}>
-                  <MessageCircle className="w-4 h-4" style={{ color: "#8b7355" }} />
+                <div className="w-9 h-9 rounded-full flex items-center justify-center border" style={{ borderColor: vintageAccent, backgroundColor: `${vintageAccent}1a` }}>
+                  <MessageCircle className="w-4 h-4" style={{ color: vintageAccent }} />
                 </div>
-                <span className="text-[9px] font-semibold" style={{ color: "#8b7355" }}>Message host</span>
+                <span className="text-[9px] font-semibold" style={{ color: vintageAccent }}>Message host</span>
               </button>
             </div>
             <div className="text-center px-6 pt-6 pb-4">
-              <p style={{ fontFamily: "'Playfair Display', serif", fontSize: "11px", letterSpacing: "0.15em", color: "#8b7355", textTransform: "uppercase" as const, marginBottom: "8px" }}>You are invited to</p>
+              <p style={{ fontFamily: "'Playfair Display', serif", fontSize: "11px", letterSpacing: "0.15em", color: vintageAccent, textTransform: "uppercase" as const, marginBottom: "8px" }}>You are invited to</p>
               <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "36px", fontWeight: 900, color: "#2c1810", lineHeight: 1.1, marginBottom: "6px" }}>{event.title || "Untitled Event"}</h1>
-              {event.vibe && <p style={{ fontFamily: "'Playfair Display', serif", fontSize: "14px", fontStyle: "italic", color: "#8b7355", marginBottom: "8px" }}>{event.vibe}</p>}
-              <p style={{ fontFamily: "'Playfair Display', serif", fontSize: "12px", fontStyle: "italic", color: "#8b7355", marginBottom: "12px" }}>hosted by {hostName}</p>
+              {event.vibe && <p style={{ fontFamily: "'Playfair Display', serif", fontSize: "14px", fontStyle: "italic", color: vintageAccent, marginBottom: "8px" }}>{event.vibe}</p>}
+              <p style={{ fontFamily: "'Playfair Display', serif", fontSize: "12px", fontStyle: "italic", color: vintageAccent, marginBottom: "12px" }}>hosted by {hostName}</p>
               <div className="flex items-center gap-3 px-4">
-                <div className="flex-1 h-px" style={{ backgroundColor: "#8b7355" }} />
-                <span style={{ color: "#8b7355", fontSize: "16px" }}>✦</span>
-                <div className="flex-1 h-px" style={{ backgroundColor: "#8b7355" }} />
+                <div className="flex-1 h-px" style={{ backgroundColor: vintageAccent }} />
+                <span style={{ color: vintageAccent, fontSize: "16px" }}>✦</span>
+                <div className="flex-1 h-px" style={{ backgroundColor: vintageAccent }} />
               </div>
             </div>
             <div className="px-5 flex flex-col gap-3 pb-8">
@@ -383,7 +383,7 @@ const GuestEventView = () => {
                   <div className="px-4 py-1.5" style={{ backgroundColor: "#5c3d1e" }}>
                     <span style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase" as const, color: "#c9a87c", fontFamily: "sans-serif" }}>📍 Location</span>
                   </div>
-                  <div className="p-4 flex items-center justify-between" style={{ backgroundColor: "#8b7355" }}>
+                  <div className="p-4 flex items-center justify-between" style={{ backgroundColor: vintageAccent }}>
                     <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "20px", fontWeight: 700, color: "#f5f0e8" }}>{event.location}</span>
                     <span style={{ color: "#f5f0e8", opacity: 0.5, fontSize: "18px" }}>›</span>
                   </div>
@@ -397,7 +397,7 @@ const GuestEventView = () => {
                     </div>
                     <div className="flex flex-col items-center py-4" style={{ backgroundColor: "#2c1810" }}>
                       <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "40px", fontWeight: 900, color: "#f5f0e8", lineHeight: 1 }}>{dayNum}</span>
-                      <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "14px", color: "#8b7355", marginTop: "4px" }}>{monthName}</span>
+                      <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "14px", color: vintageAccent, marginTop: "4px" }}>{monthName}</span>
                     </div>
                   </div>
                   <div className="flex-1 overflow-hidden" style={{ borderRadius: "16px" }}>
@@ -406,7 +406,7 @@ const GuestEventView = () => {
                     </div>
                     <div className="flex flex-col items-center py-4" style={{ backgroundColor: "#2c1810" }}>
                       <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "28px", fontWeight: 900, color: "#f5f0e8", lineHeight: 1 }}>{timeStr}</span>
-                      <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "13px", color: "#8b7355", marginTop: "4px" }}>{dayOfWeek}</span>
+                      <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "13px", color: vintageAccent, marginTop: "4px" }}>{dayOfWeek}</span>
                     </div>
                   </div>
                 </div>
@@ -423,10 +423,10 @@ const GuestEventView = () => {
                 </div>
               )}
               {event.extra && (
-                <div className="p-4 flex items-start gap-3" style={{ borderRadius: "16px", backgroundColor: "#2c1810", border: "1px solid #8b7355" }}>
-                  <span style={{ color: "#8b7355", fontSize: "16px", marginTop: "2px" }}>✦</span>
+                <div className="p-4 flex items-start gap-3" style={{ borderRadius: "16px", backgroundColor: "#2c1810", border: `1px solid ${vintageAccent}` }}>
+                  <span style={{ color: vintageAccent, fontSize: "16px", marginTop: "2px" }}>✦</span>
                   <div className="flex-1">
-                    <span style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase" as const, color: "#8b7355", display: "block", marginBottom: "4px", fontFamily: "sans-serif" }}>Notes from host</span>
+                    <span style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase" as const, color: vintageAccent, display: "block", marginBottom: "4px", fontFamily: "sans-serif" }}>Notes from host</span>
                     <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "14px", fontStyle: "italic", color: "#c9a87c", lineHeight: 1.5 }}>{event.extra}</span>
                   </div>
                 </div>
