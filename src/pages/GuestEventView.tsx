@@ -661,7 +661,7 @@ const GuestEventView = () => {
           </div>
         </div>
       )}
-      </div>
+      </div>}
     </div>
   );
 };
