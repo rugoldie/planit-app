@@ -455,6 +455,92 @@ const NoirUpcomingCard = ({ event, navigate }: { event: EventWithRole; navigate:
   );
 };
 
+/** Vintage Next Up card */
+const VintageNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate: ReturnType<typeof useNavigate> }) => {
+  const parsed = event.date_time ? parseISO(event.date_time) : null;
+  const dayNum = parsed ? format(parsed, "d") : "?";
+  const monthName = parsed ? format(parsed, "MMM").toUpperCase() : "TBD";
+  const timeStr = parsed ? format(parsed, "h:mm a") : "";
+  const navPath = event.role === "host" ? `/event/${event.code}` : `/guest/${event.code}`;
+
+  return (
+    <div
+      className="rounded-2xl overflow-hidden relative cursor-pointer"
+      style={{ backgroundColor: "#f5f0e8", border: "1px solid rgba(139,115,85,0.15)" }}
+      onClick={() => navigate(navPath)}
+    >
+      <VintageCircles />
+      <div className="relative z-10 p-3.5">
+        <p style={{ fontFamily: "'Playfair Display', serif", fontSize: "10px", fontStyle: "italic", color: "#8b7355", marginBottom: "4px" }}>
+          you're invited to
+        </p>
+        <span style={{ fontFamily: "'Playfair Display', serif", fontWeight: 900, fontSize: "1.15rem", color: "#2c1810", lineHeight: 1.2 }}>
+          {event.title || "Untitled Event"}
+        </span>
+
+        {/* ✦ divider */}
+        <div className="flex items-center gap-3 mt-2.5 mb-3">
+          <div className="flex-1 h-px" style={{ backgroundColor: "rgba(139,115,85,0.3)" }} />
+          <span style={{ color: "#8b7355", fontSize: "10px" }}>✦</span>
+          <div className="flex-1 h-px" style={{ backgroundColor: "rgba(139,115,85,0.3)" }} />
+        </div>
+
+        {/* Mini cards */}
+        <div className="flex gap-2 mb-3">
+          <div className="flex-1 flex flex-col items-center justify-center rounded-lg py-2 px-2" style={{ backgroundColor: "#2c1810" }}>
+            <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "22px", fontWeight: 900, color: "#f5f0e8", lineHeight: 1 }}>{dayNum}</span>
+            <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "8px", fontWeight: 700, color: "#8b7355", textTransform: "uppercase", letterSpacing: "0.12em", marginTop: "2px" }}>{monthName}</span>
+            {timeStr && <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "8px", color: "#8b7355", opacity: 0.6, marginTop: "1px" }}>{timeStr}</span>}
+          </div>
+          <div className="flex-1 flex flex-col justify-center rounded-lg py-2 px-2.5" style={{ backgroundColor: "#8b7355" }}>
+            <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "8px", fontWeight: 600, color: "#f5f0e8", textTransform: "uppercase", letterSpacing: "0.15em", opacity: 0.7 }}>Location</span>
+            <span className="truncate mt-0.5" style={{ fontFamily: "'Playfair Display', serif", fontSize: "13px", fontWeight: 700, color: "#f5f0e8" }}>{event.location || "TBD"}</span>
+          </div>
+        </div>
+
+        {/* Going count */}
+        <div className="flex items-center justify-between mb-3">
+          <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "8px", fontWeight: 600, color: "#8b7355", textTransform: "uppercase", letterSpacing: "0.18em" }}>
+            {event.guest_count > 0 ? `${event.guest_count} going` : "No one yet"}
+          </span>
+        </div>
+
+        <button
+          className="w-full rounded-lg py-2 text-xs font-bold tracking-wide"
+          style={{ backgroundColor: "#2c1810", color: "#f5f0e8", fontFamily: "'Playfair Display', serif", letterSpacing: "0.03em" }}
+          onClick={(e) => { e.stopPropagation(); navigate(navPath); }}
+        >
+          View event →
+        </button>
+      </div>
+    </div>
+  );
+};
+
+/** Vintage Upcoming card — compact row */
+const VintageUpcomingCard = ({ event, navigate }: { event: EventWithRole; navigate: ReturnType<typeof useNavigate> }) => (
+  <div
+    className="rounded-xl px-3.5 py-3 cursor-pointer overflow-hidden relative"
+    style={{ backgroundColor: "#f5f0e8", border: "1px solid rgba(139,115,85,0.15)" }}
+    onClick={() => {
+      const path = event.role === "host" ? `/event/${event.code}` : `/guest/${event.code}`;
+      navigate(path);
+    }}
+  >
+    <div className="relative z-10 flex items-center justify-between">
+      <div className="flex-1 mr-3 min-w-0">
+        <h3 className="truncate" style={{ fontFamily: "'Playfair Display', serif", fontSize: "14px", fontWeight: 700, color: "#2c1810" }}>
+          {event.title || "Untitled Event"}
+        </h3>
+        <p className="truncate mt-0.5" style={{ fontFamily: "'Playfair Display', serif", fontSize: "11px", color: "#8b7355" }}>
+          {formatDate(event.date_time)} · {event.location || "Location TBD"}
+        </p>
+      </div>
+      <RoleBadge role={event.role} accentColor="#8b7355" />
+    </div>
+  </div>
+);
+
 /** Upcoming section with max 3 visible, fade on 3rd, and "See all" toggle */
 const UpcomingSection = ({ events, navigate }: { events: EventWithRole[]; navigate: ReturnType<typeof useNavigate> }) => {
   const [showAll, setShowAll] = React.useState(false);
