@@ -8,7 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 const DAYS = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 
-type EventEntry = { name: string; date: string; code: string; role: "Host" | "Guest" };
+type EventEntry = { name: string; date: string; code: string; role: "Host" | "Going" | "Maybe" | "Not going" };
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -38,7 +38,7 @@ const Profile = () => {
       // Events joined as guest
       const { data: guestEntries } = await supabase
         .from("event_guests")
-        .select("event_id, events(title, date_time, code)")
+        .select("event_id, rsvp_status, events(title, date_time, code)")
         .eq("user_id", user.id);
 
       const events: EventEntry[] = [];
@@ -48,7 +48,9 @@ const Profile = () => {
       (guestEntries || []).forEach((g: any) => {
         const ev = g.events;
         if (ev && !events.find(e => e.code === ev.code)) {
-          events.push({ name: ev.title || "Untitled", date: ev.date_time || "", code: ev.code, role: "Guest" });
+          const rsvp = g.rsvp_status;
+          const role: EventEntry["role"] = rsvp === "yes" ? "Going" : rsvp === "maybe" ? "Maybe" : "Not going";
+          events.push({ name: ev.title || "Untitled", date: ev.date_time || "", code: ev.code, role });
         }
       });
       setAllEvents(events);
@@ -57,7 +59,7 @@ const Profile = () => {
   }, [user]);
 
   const hostedCount = allEvents.filter(e => e.role === "Host").length;
-  const joinedCount = allEvents.filter(e => e.role === "Guest").length;
+  const joinedCount = allEvents.filter(e => e.role !== "Host").length;
 
   const now = new Date();
   const upcoming = allEvents.filter(e => !e.date || new Date(e.date) >= now);
@@ -69,7 +71,7 @@ const Profile = () => {
 
   const eventDatesInMonth = useMemo(() => {
     const map: Record<number, string[]> = {};
-    allEvents.forEach(ev => {
+    allEvents.filter(ev => ev.role !== "Not going").forEach(ev => {
       if (!ev.date) return;
       const d = new Date(ev.date);
       if (d.getMonth() === calMonth && d.getFullYear() === calYear) {
@@ -230,8 +232,18 @@ const Profile = () => {
             <Badge className={`text-xs ${
               ev.role === "Host"
                 ? "bg-primary text-primary-foreground border-transparent"
-                : "bg-card text-muted-foreground border border-border"
-            }`}>
+                : ev.role === "Going"
+                ? "bg-primary text-primary-foreground border-transparent"
+                : ev.role === "Maybe"
+                ? "border-transparent text-white"
+                : "border-transparent text-white"
+            }`}
+              style={
+                ev.role === "Maybe" ? { backgroundColor: "hsl(30 100% 50%)" }
+                : ev.role === "Not going" ? { backgroundColor: "hsl(0 70% 50%)" }
+                : undefined
+              }
+            >
               {ev.role}
             </Badge>
           </button>
