@@ -493,7 +493,6 @@ const GuestEventView = () => {
           </div>
         )}
       </div>
-      )}
 
       {/* Comments section */}
       <div className="mt-4 rounded-2xl p-4" style={{ backgroundColor: "#1e1e1e" }}>
@@ -554,6 +553,8 @@ const GuestEventView = () => {
           </div>
         )}
       </div>
+        </div>
+      )}
 
       {/* RSVP floating bar */}
       <div className="fixed bottom-4 left-4 right-4 z-50">
