@@ -430,7 +430,7 @@ const GuestEventView = () => {
         </>
       ) : null}
 
-      <div className="px-5">
+      {!isVintage && <div className="px-5">
       {/* Who's going section */}
       <div className="mt-4 rounded-2xl p-4" style={{ backgroundColor: "#1e1e1e" }}>
         <button onClick={() => setGuestListExpanded(!guestListExpanded)} className="flex items-center justify-between w-full mb-3">
