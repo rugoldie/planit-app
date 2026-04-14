@@ -589,60 +589,11 @@ const Home = () => {
         </div>
       )}
 
-      {/* Upcoming section */}
-      <div className="flex-1 overflow-y-auto mb-4">
-        <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Upcoming</h2>
-        <div className="space-y-3">
-          {events.map((event) => {
-            if (isNoir(event.template_name)) {
-              return <NoirUpcomingCard key={event.id} event={event} navigate={navigate} />;
-            }
+      {/* Divider */}
+      <div className="mb-4" style={{ height: "1px", backgroundColor: "#333" }} />
 
-            const gradientHex = event.gradient_color || "#aaee44";
-            const fontFamily = FONT_MAP[event.font_style || "Bold"] || FONT_MAP.Bold;
-
-            return (
-              <div
-                key={event.id}
-                className="rounded-xl p-4 cursor-pointer overflow-hidden"
-                style={{
-                  background: `linear-gradient(135deg, ${gradientHex}99 0%, #2b2b2b 60%)`,
-                  border: `1px solid ${gradientHex}40`,
-                }}
-                onClick={() => {
-                  const path = event.role === "host" ? `/event/${event.code}` : `/guest/${event.code}`;
-                  navigate(path);
-                }}
-              >
-                <div className="flex items-start justify-between mb-1.5">
-                  <h3
-                    className="text-base flex-1 mr-3"
-                    style={{
-                      color: "#ffffff",
-                      fontFamily,
-                      fontWeight: event.font_style === "Bold" || !event.font_style ? 700 : 400,
-                    }}
-                  >
-                    {event.title || "Untitled Event"}
-                  </h3>
-                  <RoleBadge role={event.role} />
-                </div>
-                <div className="flex flex-wrap gap-2 mt-2 text-sm">
-                  <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-medium" style={{ backgroundColor: hslToColor(event.bubble_color, "#383838"), color: textForBubble(event.bubble_color) }}>
-                    🗓️ {formatDate(event.date_time)}
-                  </span>
-                  <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-medium" style={{ backgroundColor: hslToColor(event.bubble_color, "#383838"), color: textForBubble(event.bubble_color) }}>
-                    📍 {event.location || "Location TBD"}
-                  </span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Bottom buttons */}
-      <div className="flex gap-3 pt-2">
+      {/* Host & Join buttons */}
+      <div className="flex gap-3 mb-4">
         <button
           onClick={() => navigate("/host")}
           className="flex-1 rounded-xl py-4 text-lg font-extrabold"
@@ -658,6 +609,12 @@ const Home = () => {
           Join
         </button>
       </div>
+
+      {/* Divider */}
+      <div className="mb-4" style={{ height: "1px", backgroundColor: "#333" }} />
+
+      {/* Upcoming section */}
+      <UpcomingSection events={events} navigate={navigate} />
     </div>
   );
 };
