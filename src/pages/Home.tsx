@@ -420,38 +420,29 @@ const NoirNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate: R
   );
 };
 
-/** Noir Upcoming card */
+/** Noir Upcoming card — compact row */
 const NoirUpcomingCard = ({ event, navigate }: { event: EventWithRole; navigate: ReturnType<typeof useNavigate> }) => {
   const accent = hslToColor(event.bubble_color, "#aaee44");
 
   return (
     <div
-      className="rounded-xl p-4 cursor-pointer overflow-hidden relative"
-      style={{ backgroundColor: "#0a0a0a", border: "1px solid rgba(255,255,255,0.06)" }}
+      className="rounded-xl px-3.5 py-3 cursor-pointer overflow-hidden relative"
+      style={{ backgroundColor: "#0a0a0a", border: "1px solid rgba(255,255,255,0.08)" }}
       onClick={() => {
         const path = event.role === "host" ? `/event/${event.code}` : `/guest/${event.code}`;
         navigate(path);
       }}
     >
-      <ConcentricCircles accentColor={accent} />
-      <div className="relative z-10">
-        <p style={{ fontFamily: "'Playfair Display', serif", fontSize: "10px", fontStyle: "italic", color: "rgba(255,255,255,0.4)", marginBottom: "4px" }}>
-          you're invited to
-        </p>
-        <div className="flex items-start justify-between mb-1.5">
-          <div className="flex-1 mr-3">
-            <NoirCardTitle title={event.title} accentColor={accent} fontSize="1rem" />
-          </div>
-          <RoleBadge role={event.role} accentColor={accent} />
+      <div className="relative z-10 flex items-center justify-between">
+        <div className="flex-1 mr-3 min-w-0">
+          <h3 className="truncate" style={{ fontFamily: "'Playfair Display', serif", fontSize: "14px", fontWeight: 700, color: "white" }}>
+            {event.title || "Untitled Event"}
+          </h3>
+          <p className="truncate mt-0.5" style={{ fontSize: "11px", color: "rgba(255,255,255,0.4)" }}>
+            {formatDate(event.date_time)} · {event.location || "Location TBD"}
+          </p>
         </div>
-        <div className="flex flex-wrap gap-2 mt-2 text-sm">
-          <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "12px", color: "rgba(255,255,255,0.4)" }}>
-            🗓️ {formatDate(event.date_time)}
-          </span>
-          <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "12px", color: "rgba(255,255,255,0.4)" }}>
-            📍 {event.location || "Location TBD"}
-          </span>
-        </div>
+        <RoleBadge role={event.role} accentColor={accent} />
       </div>
     </div>
   );
