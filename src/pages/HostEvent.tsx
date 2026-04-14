@@ -474,10 +474,10 @@ const HostEvent = () => {
           <div className="relative" style={{ minHeight: "260px" }}>
             <VintageCircles />
             <button onClick={() => navigate(editCode ? `/event/${editCode}` : "/home")} className="absolute top-5 left-5 z-20">
-              <ArrowLeft className="w-6 h-6" style={{ color: "#8b7355" }} />
+              <ArrowLeft className="w-6 h-6" style={{ color: gradientColor }} />
             </button>
             <div className="relative z-10 px-6 pt-16 pb-4 text-center">
-              <p style={{ fontFamily: "'Playfair Display', serif", fontSize: "11px", fontWeight: 600, letterSpacing: "0.2em", color: "#8b7355", textTransform: "uppercase" }}>
+              <p style={{ fontFamily: "'Playfair Display', serif", fontSize: "11px", fontWeight: 600, letterSpacing: "0.2em", color: gradientColor, textTransform: "uppercase" }}>
                 you're invited to
               </p>
               <input
@@ -496,15 +496,15 @@ const HostEvent = () => {
                 rows={1}
                 maxLength={120}
                 className="w-full bg-transparent outline-none resize-none mt-1 text-center placeholder:opacity-30"
-                style={{ fontFamily: "'Playfair Display', serif", fontSize: "14px", fontStyle: "italic", color: "#8b7355" }}
+                style={{ fontFamily: "'Playfair Display', serif", fontSize: "14px", fontStyle: "italic", color: gradientColor }}
               />
-              <VintageHostDivider hostName={hostName} />
+              <VintageHostDivider hostName={hostName} accentColor={gradientColor} />
             </div>
           </div>
 
           <div className="px-5 pt-2 pb-10 flex flex-col gap-3">
             {/* Location */}
-            <div className="overflow-hidden" style={{ backgroundColor: "#8b7355", borderRadius: "16px" }}>
+            <div className="overflow-hidden" style={{ backgroundColor: gradientColor, borderRadius: "16px" }}>
               <div className="px-4 py-1.5" style={{ backgroundColor: "rgba(0,0,0,0.2)" }}>
                 <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "10px", fontWeight: 700, letterSpacing: "0.18em", color: "#f5f0e8", textTransform: "uppercase" }}>Location</span>
               </div>
@@ -525,14 +525,14 @@ const HostEvent = () => {
               {/* Date */}
               <div className="flex-1 overflow-hidden" style={{ borderRadius: "16px", backgroundColor: "#2c1810" }}>
                 <div className="px-3 py-1.5 text-center" style={{ backgroundColor: "rgba(0,0,0,0.2)" }}>
-                  <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "10px", fontWeight: 700, letterSpacing: "0.15em", color: "#8b7355", textTransform: "uppercase" }}>{monthName || "DATE"}</span>
+                  <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "10px", fontWeight: 700, letterSpacing: "0.15em", color: gradientColor, textTransform: "uppercase" }}>{monthName || "DATE"}</span>
                 </div>
                 <div className="flex flex-col items-center py-3 px-3">
                   {eventDate ? (
                     <>
                       <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "36px", fontWeight: 900, color: "#f5f0e8", lineHeight: 1 }}>{dayNum}</span>
-                      <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "11px", fontWeight: 600, color: "#8b7355", opacity: 0.8, marginTop: "4px" }}>{timeStr}</span>
-                      <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "10px", color: "#8b7355", opacity: 0.5, marginTop: "2px" }}>{dayOfWeek}</span>
+                      <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "11px", fontWeight: 600, color: gradientColor, opacity: 0.8, marginTop: "4px" }}>{timeStr}</span>
+                      <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "10px", color: gradientColor, opacity: 0.5, marginTop: "2px" }}>{dayOfWeek}</span>
                     </>
                   ) : (
                     <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "36px", fontWeight: 900, color: "#f5f0e8", opacity: 0.4, lineHeight: 1 }}>?</span>
@@ -542,13 +542,13 @@ const HostEvent = () => {
                     value={dateTime}
                     onChange={(e) => setDateTime(e.target.value)}
                     className="w-full bg-transparent outline-none text-[10px] mt-2 text-center"
-                    style={{ color: "#8b7355", opacity: 0.6 }}
+                    style={{ color: gradientColor, opacity: 0.6 }}
                   />
                 </div>
               </div>
 
               {/* Dress code */}
-              <div className="flex-1 overflow-hidden" style={{ borderRadius: "16px", backgroundColor: "#8b7355" }}>
+              <div className="flex-1 overflow-hidden" style={{ borderRadius: "16px", backgroundColor: gradientColor }}>
                 <div className="px-3 py-1.5 flex items-center gap-2" style={{ backgroundColor: "rgba(0,0,0,0.15)" }}>
                   <span style={{ fontSize: "16px" }}>🎭</span>
                   <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "10px", fontWeight: 700, letterSpacing: "0.15em", color: "#f5f0e8", textTransform: "uppercase" }}>Dress Code</span>
@@ -567,10 +567,10 @@ const HostEvent = () => {
             </div>
 
             {/* Notes */}
-            <div className="flex items-start gap-3" style={{ backgroundColor: "#2c1810", borderRadius: "14px", padding: "14px 16px", border: "1px solid rgba(139,115,85,0.2)" }}>
-              <span style={{ color: "#8b7355", fontSize: "14px", marginTop: "1px" }}>✦</span>
+            <div className="flex items-start gap-3" style={{ backgroundColor: "#2c1810", borderRadius: "14px", padding: "14px 16px", border: `1px solid ${gradientColor}33` }}>
+              <span style={{ color: gradientColor, fontSize: "14px", marginTop: "1px" }}>✦</span>
               <div className="flex-1">
-                <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "9px", fontWeight: 600, color: "#8b7355", textTransform: "uppercase", letterSpacing: "0.15em", display: "block" }}>Notes from host</span>
+                <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "9px", fontWeight: 600, color: gradientColor, textTransform: "uppercase", letterSpacing: "0.15em", display: "block" }}>Notes from host</span>
                 <textarea
                   value={extra}
                   onChange={(e) => setExtra(e.target.value)}

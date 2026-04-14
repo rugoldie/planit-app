@@ -354,6 +354,7 @@ const EventView = () => {
   const isNoir = (event as any).template_name === "planit-noir";
   const isVintage = (event as any).template_name === "vintage";
   const isHost = !authLoading && !!user && !!event && user.id === event.host_id;
+  const vintageAccent = (event as any).gradient_color || "#8b7355";
   const containerBg = isVintage ? "#f5f0e8" : (event.bg_color ? `hsl(${event.bg_color})` : (isNoir ? "#0a0a0a" : "#1a1a1a"));
   const noirFontSize = event.text_size === "Small" ? "28px" : event.text_size === "Large" ? "44px" : "36px";
 
@@ -367,23 +368,23 @@ const EventView = () => {
             {/* Navigation */}
             <div className="flex items-center justify-between px-5 pt-6 relative z-20">
               <button onClick={() => navigate("/home")} className="self-start">
-                <ArrowLeft className="w-6 h-6" style={{ color: "#8b7355" }} />
+                <ArrowLeft className="w-6 h-6" style={{ color: vintageAccent }} />
               </button>
               <div className="flex items-center gap-2">
-                <button onClick={copyCode} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold" style={{ backgroundColor: "rgba(139,115,85,0.12)", color: "#8b7355" }}>
+                <button onClick={copyCode} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold" style={{ backgroundColor: `${vintageAccent}1f`, color: vintageAccent }}>
                   {codeCopied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
                   {event.code}
                 </button>
                 <button onClick={() => setShowDMs(true)} className="flex flex-col items-center gap-0.5">
-                  <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ backgroundColor: "rgba(139,115,85,0.12)" }}>
-                    <MessageCircle className="w-4 h-4" style={{ color: "#8b7355" }} />
+                  <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ backgroundColor: `${vintageAccent}1f` }}>
+                    <MessageCircle className="w-4 h-4" style={{ color: vintageAccent }} />
                   </div>
-                  <span style={{ fontSize: "9px", fontWeight: 600, color: "#8b7355" }}>Messages</span>
+                  <span style={{ fontSize: "9px", fontWeight: 600, color: vintageAccent }}>Messages</span>
                 </button>
                 {isHost && (
                   <div className="relative">
-                    <button onClick={() => setShowMenu(!showMenu)} className="w-9 h-9 rounded-full flex items-center justify-center" style={{ backgroundColor: "rgba(139,115,85,0.12)" }}>
-                      <MoreVertical className="w-4 h-4" style={{ color: "#8b7355" }} />
+                    <button onClick={() => setShowMenu(!showMenu)} className="w-9 h-9 rounded-full flex items-center justify-center" style={{ backgroundColor: `${vintageAccent}1f` }}>
+                      <MoreVertical className="w-4 h-4" style={{ color: vintageAccent }} />
                     </button>
                   </div>
                 )}
@@ -391,28 +392,28 @@ const EventView = () => {
             </div>
             {/* Title area */}
             <div className="relative z-10 px-6 pt-6 pb-2 text-center">
-              <p style={{ fontFamily: "'Playfair Display', serif", fontSize: "11px", fontWeight: 600, letterSpacing: "0.2em", color: "#8b7355", textTransform: "uppercase" }}>
+              <p style={{ fontFamily: "'Playfair Display', serif", fontSize: "11px", fontWeight: 600, letterSpacing: "0.2em", color: vintageAccent, textTransform: "uppercase" }}>
                 You are invited to
               </p>
               <h1 className="mt-3" style={{ fontFamily: "'Playfair Display', serif", fontSize: noirFontSize, fontWeight: 900, color: "#2c1810", lineHeight: 1.1 }}>
                 {event.title || "Untitled Event"}
               </h1>
-              <VintageHostDivider hostName={profile?.name || "Host"} />
-              <VintageDivider />
+              <VintageHostDivider hostName={profile?.name || "Host"} accentColor={vintageAccent} />
+              <VintageDivider accentColor={vintageAccent} />
             </div>
           </div>
 
           <div className="px-5 pt-0">
             <div className="flex flex-col gap-3">
-              {event.location && <VintageLocationCard location={event.location} />}
+              {event.location && <VintageLocationCard location={event.location} accentColor={vintageAccent} />}
               {(eventDate || event.dress_code) && (
                 <div className="flex gap-3">
-                  {eventDate && <VintageDateCard monthName={monthName} dayNum={String(dayNum)} timeStr={timeStr} dayOfWeek={dayOfWeek} />}
-                  {event.dress_code && <VintageDressCard dressCode={event.dress_code} />}
+                  {eventDate && <VintageDateCard monthName={monthName} dayNum={String(dayNum)} timeStr={timeStr} dayOfWeek={dayOfWeek} accentColor={vintageAccent} />}
+                  {event.dress_code && <VintageDressCard dressCode={event.dress_code} accentColor={vintageAccent} />}
                 </div>
               )}
-              {event.extra && <VintageNotesCard notes={event.extra} />}
-              <VintageAttendeeStrip goingList={goingList} getInitials={getInitials} />
+              {event.extra && <VintageNotesCard notes={event.extra} accentColor={vintageAccent} />}
+              <VintageAttendeeStrip goingList={goingList} getInitials={getInitials} accentColor={vintageAccent} />
             </div>
           </div>
 
@@ -438,11 +439,12 @@ const EventView = () => {
               getInitials={getInitials}
               formatTime={formatTime}
               statusBadge={statusBadge}
+              accentColor={vintageAccent}
             />
           </div>
 
           {/* Vintage RSVP bar */}
-          <VintageRsvpBar rsvp={rsvp} barMinimised={barMinimised} setBarMinimised={setBarMinimised} handleRsvp={handleRsvp} rsvpLabel={rsvpLabel} />
+          <VintageRsvpBar rsvp={rsvp} barMinimised={barMinimised} setBarMinimised={setBarMinimised} handleRsvp={handleRsvp} rsvpLabel={rsvpLabel} accentColor={vintageAccent} />
 
           {/* Delete dialog, DM overlays, etc. reuse existing below */}
         </>
