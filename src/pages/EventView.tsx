@@ -354,6 +354,7 @@ const EventView = () => {
   const isNoir = (event as any).template_name === "planit-noir";
   const isVintage = (event as any).template_name === "vintage";
   const isHost = !authLoading && !!user && !!event && user.id === event.host_id;
+  const vintageAccent = (event as any).gradient_color || "#8b7355";
   const containerBg = isVintage ? "#f5f0e8" : (event.bg_color ? `hsl(${event.bg_color})` : (isNoir ? "#0a0a0a" : "#1a1a1a"));
   const noirFontSize = event.text_size === "Small" ? "28px" : event.text_size === "Large" ? "44px" : "36px";
 
