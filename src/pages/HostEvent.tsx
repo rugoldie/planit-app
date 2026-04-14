@@ -16,6 +16,11 @@ import {
   NoirLocationCard,
   NoirNotesCard,
 } from "@/components/layouts/PlanitNoirLayout";
+import {
+  VintageCircles,
+  VintageDivider,
+  VintageHostDivider,
+} from "@/components/layouts/VintageLayout";
 
 const PALETTE_COLORS = [
   { name: "White", hsl: "0 0% 100%" },
