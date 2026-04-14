@@ -303,9 +303,13 @@ const GuestEventView = () => {
   const containerBg = isSunny ? "transparent" : event.bg_color ? `hsl(${event.bg_color})` : (isNoir ? "#0a0a0a" : "#1a1a1a");
   const noirFontSize = event.text_size === "Small" ? "28px" : event.text_size === "Large" ? "44px" : "36px";
 
-  return (
-    <div className="flex flex-col min-h-screen pb-28" style={{ backgroundColor: containerBg }}>
+  const SUNNY_ORANGE = "#ff6b35";
+  const SUNNY_AMBER = "#ff8c00";
+  const SUNNY_DARK = "#1a0a00";
+  const SUNNY_FF = "'Caveat', cursive";
 
+  return (
+    <div className="flex flex-col min-h-screen pb-28" style={isSunny ? { background: `linear-gradient(180deg, ${SUNNY_ORANGE} 0%, ${SUNNY_AMBER} 30%, ${SUNNY_DARK} 70%)` } : { backgroundColor: containerBg }}>
       {isNoir ? (
         /* ═══ PLANIT NOIR LAYOUT ═══ */
         <>
