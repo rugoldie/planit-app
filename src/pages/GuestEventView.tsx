@@ -12,18 +12,6 @@ import {
   NoirNotesCard,
   NoirAttendeeStrip,
 } from "@/components/layouts/PlanitNoirLayout";
-import {
-  VintageCircles,
-  VintageDivider,
-  VintageHostDivider,
-  VintageLocationCard,
-  VintageDateCard,
-  VintageDressCard,
-  VintageNotesCard,
-  VintageAttendeeStrip,
-  VintageSharedSections,
-  VintageRsvpBar,
-} from "@/components/layouts/VintageLayout";
 import { useAuth } from "@/contexts/AuthContext";
 
 type Comment = { id: string; user_name: string; text: string; created_at: string; avatar_url?: string };
@@ -311,81 +299,13 @@ const GuestEventView = () => {
 
   const isNoir = (event as any).template_name === "planit-noir";
   const isVintage = (event as any).template_name === "vintage";
-  const containerBg = isVintage ? "#f5f0e8" : (event.bg_color ? `hsl(${event.bg_color})` : (isNoir ? "#0a0a0a" : "#1a1a1a"));
+  const containerBg = event.bg_color ? `hsl(${event.bg_color})` : (isNoir ? "#0a0a0a" : "#1a1a1a");
   const noirFontSize = event.text_size === "Small" ? "28px" : event.text_size === "Large" ? "44px" : "36px";
 
   return (
     <div className="flex flex-col min-h-screen pb-28" style={{ backgroundColor: containerBg }}>
 
-      {isVintage ? (
-        /* ═══ VINTAGE LAYOUT ═══ */
-        <>
-          <div className="relative" style={{ minHeight: "260px" }}>
-            <div className="flex items-center justify-between px-5 pt-6 relative z-10">
-              <button onClick={() => navigate("/home")}>
-                <ArrowLeft className="w-6 h-6" style={{ color: "#8b7355" }} />
-              </button>
-              <button onClick={() => setShowChat(true)} className="flex flex-col items-center gap-0.5">
-                <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ backgroundColor: "rgba(139,115,85,0.12)" }}>
-                  <MessageCircle className="w-4 h-4" style={{ color: "#8b7355" }} />
-                </div>
-                <span style={{ fontSize: "9px", fontWeight: 600, color: "#8b7355" }}>Message host</span>
-              </button>
-            </div>
-            <div className="relative z-10 px-6 pt-6 pb-2 text-center">
-              <p style={{ fontFamily: "'Playfair Display', serif", fontSize: "11px", fontWeight: 600, letterSpacing: "0.2em", color: "#8b7355", textTransform: "uppercase" }}>
-                You are invited to
-              </p>
-              <h1 className="mt-3" style={{ fontFamily: "'Playfair Display', serif", fontSize: noirFontSize, fontWeight: 900, color: "#2c1810", lineHeight: 1.1 }}>
-                {event.title || "Untitled Event"}
-              </h1>
-              {event.vibe && <p className="mt-2" style={{ fontFamily: "'Playfair Display', serif", fontSize: "13px", fontStyle: "italic", color: "#8b7355" }}>{event.vibe}</p>}
-              <VintageHostDivider hostName={hostName} />
-              <VintageDivider />
-            </div>
-          </div>
-
-          <div className="px-5 pt-0">
-            <div className="flex flex-col gap-3">
-              {event.location && <VintageLocationCard location={event.location} />}
-              {(eventDate || event.dress_code) && (
-                <div className="flex gap-3">
-                  {eventDate && <VintageDateCard monthName={monthName} dayNum={String(dayNum)} timeStr={timeStr} dayOfWeek={dayOfWeek} />}
-                  {event.dress_code && <VintageDressCard dressCode={event.dress_code} />}
-                </div>
-              )}
-              {event.extra && <VintageNotesCard notes={event.extra} />}
-              <VintageAttendeeStrip goingList={goingList} getInitials={getInitials} />
-            </div>
-          </div>
-
-          <div className="px-5">
-            <VintageSharedSections
-              goingList={goingList}
-              maybeList={maybeList}
-              rsvpList={rsvpList}
-              rsvp={rsvp}
-              guestListExpanded={guestListExpanded}
-              setGuestListExpanded={setGuestListExpanded}
-              comments={comments}
-              commentDraft={commentDraft}
-              setCommentDraft={setCommentDraft}
-              sendComment={sendComment}
-              showFullComments={showFullComments}
-              setShowFullComments={setShowFullComments}
-              photos={photos}
-              uploadingPhoto={uploadingPhoto}
-              photoInput={photoInput}
-              handlePhotoUpload={handlePhotoUpload}
-              getInitials={getInitials}
-              formatTime={formatTime}
-              statusBadge={statusBadge}
-            />
-          </div>
-
-          <VintageRsvpBar rsvp={rsvp} barMinimised={barMinimised} setBarMinimised={setBarMinimised} handleRsvp={handleRsvp} rsvpLabel={rsvpLabel} />
-        </>
-      ) : isNoir ? (
+      {isNoir ? (
         /* ═══ PLANIT NOIR LAYOUT ═══ */
         <>
           <div className="relative" style={{ minHeight: "280px" }}>
@@ -425,88 +345,91 @@ const GuestEventView = () => {
             </div>
           </div>
         </>
-      ) : (
-        /* ═══ DEFAULT LAYOUT ═══ */
+     ) : isVintage ? (
+        /* ═══ VINTAGE LAYOUT ═══ */
         <>
-          <div className="relative" style={{ background: `linear-gradient(to bottom, ${eventGradient} 0%, ${containerBg} 100%)`, minHeight: "220px" }}>
+          <div style={{ backgroundColor: "#f5f0e8" }}>
             <div className="flex items-center justify-between px-5 pt-6">
               <button onClick={() => navigate("/home")}>
-                <ArrowLeft className="w-6 h-6 text-[#111]" />
+                <ArrowLeft className="w-6 h-6" style={{ color: "#8b7355" }} />
               </button>
               <button onClick={() => setShowChat(true)} className="flex flex-col items-center gap-0.5">
-                <div className="w-9 h-9 rounded-full flex items-center justify-center border border-[#111]/20" style={{ backgroundColor: "rgba(0,0,0,0.15)" }}>
-                  <MessageCircle className="w-4 h-4 text-[#111]" />
+                <div className="w-9 h-9 rounded-full flex items-center justify-center border" style={{ borderColor: "#8b7355", backgroundColor: "rgba(139,115,85,0.1)" }}>
+                  <MessageCircle className="w-4 h-4" style={{ color: "#8b7355" }} />
                 </div>
-                <span className="text-[9px] font-semibold text-[#111]">Message host</span>
+                <span className="text-[9px] font-semibold" style={{ color: "#8b7355" }}>Message host</span>
               </button>
             </div>
-            <div className="absolute bottom-0 left-0 right-0 px-6 pb-5">
-              <h1 className={`text-white ${titleClass} drop-shadow-lg`} style={{ fontFamily: eventFontFamily }}>{event.title || "Untitled Event"}</h1>
-              {event.vibe && <p className={`text-white/60 mt-1 ${vibeClass}`} style={{ fontFamily: eventFontFamily }}>{event.vibe}</p>}
+            <div className="text-center px-6 pt-6 pb-4">
+              <p style={{ fontFamily: "'Playfair Display', serif", fontSize: "11px", letterSpacing: "0.15em", color: "#8b7355", textTransform: "uppercase" as const, marginBottom: "8px" }}>You are invited to</p>
+              <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "36px", fontWeight: 900, color: "#2c1810", lineHeight: 1.1, marginBottom: "6px" }}>{event.title || "Untitled Event"}</h1>
+              {event.vibe && <p style={{ fontFamily: "'Playfair Display', serif", fontSize: "14px", fontStyle: "italic", color: "#8b7355", marginBottom: "8px" }}>{event.vibe}</p>}
+              <p style={{ fontFamily: "'Playfair Display', serif", fontSize: "12px", fontStyle: "italic", color: "#8b7355", marginBottom: "12px" }}>hosted by {hostName}</p>
+              <div className="flex items-center gap-3 px-4">
+                <div className="flex-1 h-px" style={{ backgroundColor: "#8b7355" }} />
+                <span style={{ color: "#8b7355", fontSize: "16px" }}>✦</span>
+                <div className="flex-1 h-px" style={{ backgroundColor: "#8b7355" }} />
+              </div>
+            </div>
+            <div className="px-5 flex flex-col gap-3 pb-8">
+              {event.location && (
+                <div className="overflow-hidden" style={{ borderRadius: "16px" }}>
+                  <div className="px-4 py-1.5" style={{ backgroundColor: "#5c3d1e" }}>
+                    <span style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase" as const, color: "#c9a87c", fontFamily: "sans-serif" }}>📍 Location</span>
+                  </div>
+                  <div className="p-4 flex items-center justify-between" style={{ backgroundColor: "#8b7355" }}>
+                    <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "20px", fontWeight: 700, color: "#f5f0e8" }}>{event.location}</span>
+                    <span style={{ color: "#f5f0e8", opacity: 0.5, fontSize: "18px" }}>›</span>
+                  </div>
+                </div>
+              )}
+              {eventDate && (
+                <div className="flex gap-3">
+                  <div className="flex-1 overflow-hidden" style={{ borderRadius: "16px" }}>
+                    <div className="px-3 py-1.5 text-center" style={{ backgroundColor: "#5c3d1e" }}>
+                      <span style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase" as const, color: "#c9a87c", fontFamily: "sans-serif" }}>Date</span>
+                    </div>
+                    <div className="flex flex-col items-center py-4" style={{ backgroundColor: "#2c1810" }}>
+                      <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "40px", fontWeight: 900, color: "#f5f0e8", lineHeight: 1 }}>{dayNum}</span>
+                      <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "14px", color: "#8b7355", marginTop: "4px" }}>{monthName}</span>
+                    </div>
+                  </div>
+                  <div className="flex-1 overflow-hidden" style={{ borderRadius: "16px" }}>
+                    <div className="px-3 py-1.5 text-center" style={{ backgroundColor: "#5c3d1e" }}>
+                      <span style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase" as const, color: "#c9a87c", fontFamily: "sans-serif" }}>Time</span>
+                    </div>
+                    <div className="flex flex-col items-center py-4" style={{ backgroundColor: "#2c1810" }}>
+                      <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "28px", fontWeight: 900, color: "#f5f0e8", lineHeight: 1 }}>{timeStr}</span>
+                      <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "13px", color: "#8b7355", marginTop: "4px" }}>{dayOfWeek}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+              {event.dress_code && (
+                <div className="overflow-hidden" style={{ borderRadius: "16px" }}>
+                  <div className="px-4 py-1.5 flex items-center gap-2" style={{ backgroundColor: "#5c3d1e" }}>
+                    <span style={{ fontSize: "16px" }}>🎭</span>
+                    <span style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase" as const, color: "#c9a87c", fontFamily: "sans-serif" }}>Dress Code</span>
+                  </div>
+                  <div className="p-4" style={{ backgroundColor: "#2c1810" }}>
+                    <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "20px", fontWeight: 700, color: "#f5f0e8" }}>{event.dress_code}</span>
+                  </div>
+                </div>
+              )}
+              {event.extra && (
+                <div className="p-4 flex items-start gap-3" style={{ borderRadius: "16px", backgroundColor: "#2c1810", border: "1px solid #8b7355" }}>
+                  <span style={{ color: "#8b7355", fontSize: "16px", marginTop: "2px" }}>✦</span>
+                  <div className="flex-1">
+                    <span style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase" as const, color: "#8b7355", display: "block", marginBottom: "4px", fontFamily: "sans-serif" }}>Notes from host</span>
+                    <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "14px", fontStyle: "italic", color: "#c9a87c", lineHeight: 1.5 }}>{event.extra}</span>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
-
-          <div className="px-5 pt-4">
-            {(event.location || event.date_time || event.dress_code || event.extra) && (
-              <div className="flex flex-col gap-3">
-                {event.location && (
-                  <div className="overflow-hidden" style={{ backgroundColor: accentColor, borderRadius: "16px" }}>
-                    <div className="px-4 py-1.5" style={{ backgroundColor: "rgba(0,0,0,0.2)" }}>
-                      <span className="text-xs font-bold uppercase tracking-wider" style={{ color: accentText }}>Location</span>
-                    </div>
-                    <div className="p-4 flex items-center gap-4">
-                      <span style={{ fontSize: "28px" }}>📍</span>
-                      <div className="flex-1 min-w-0">
-                        <span className="text-xl font-bold block truncate" style={{ color: accentText }}>{event.location}</span>
-                      </div>
-                      <span className="text-lg font-bold" style={{ color: accentText, opacity: 0.4 }}>›</span>
-                    </div>
-                  </div>
-                )}
-                {(eventDate || event.dress_code) && (
-                  <div className="flex gap-3">
-                    {eventDate && (
-                      <div className="flex-1 overflow-hidden" style={{ borderRadius: "16px", backgroundColor: accentColor }}>
-                        <div className="px-3 py-1.5 text-center" style={{ backgroundColor: "rgba(0,0,0,0.2)" }}>
-                          <span className="text-xs font-bold uppercase tracking-wider" style={{ color: accentText }}>{monthName}</span>
-                        </div>
-                        <div className="flex flex-col items-center py-3 px-3">
-                          <span className="text-4xl font-extrabold leading-none" style={{ color: accentText }}>{dayNum}</span>
-                          <span className="text-xs font-semibold mt-1" style={{ color: accentText, opacity: 0.7 }}>{timeStr}</span>
-                          <span className="text-[10px] font-medium mt-0.5" style={{ color: accentText, opacity: 0.5 }}>{dayOfWeek}</span>
-                        </div>
-                      </div>
-                    )}
-                    {event.dress_code && (
-                      <div className="flex-1 overflow-hidden" style={{ borderRadius: "16px", backgroundColor: accentColor }}>
-                        <div className="px-3 py-1.5 flex items-center gap-2" style={{ backgroundColor: "rgba(0,0,0,0.2)" }}>
-                          <span style={{ fontSize: "18px" }}>🎭</span>
-                          <span className="text-xs font-bold uppercase tracking-wider" style={{ color: accentText }}>Dress Code</span>
-                        </div>
-                        <div className="flex flex-col py-3 px-3">
-                          <span className="text-lg font-bold leading-tight" style={{ color: accentText }}>{event.dress_code}</span>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-                {event.extra && (
-                  <div className="p-4 flex items-start gap-3" style={{
-                    borderRadius: "16px",
-                    backgroundColor: bubbleBg ? bubbleBg.replace("hsl(", "hsla(").replace(")", ", 0.15)") : "rgba(170,238,68,0.15)",
-                    border: `1px solid ${bubbleBg ? bubbleBg.replace("hsl(", "hsla(").replace(")", ", 0.3)") : "rgba(170,238,68,0.3)"}`,
-                  }}>
-                    <span className="text-lg mt-0.5">✦</span>
-                    <div className="flex-1">
-                      <span className="text-[10px] font-bold uppercase tracking-wider block" style={{ color: accentColor }}>Notes from host</span>
-                      <span className="text-sm text-white/80 mt-1 block">{event.extra}</span>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
         </>
+      ) : (
+        /* ═══ DEFAULT LAYOUT ═══ */
       )}
 
       <div className="px-5">
