@@ -457,6 +457,87 @@ const NoirUpcomingCard = ({ event, navigate }: { event: EventWithRole; navigate:
   );
 };
 
+/** Upcoming section with max 3 visible, fade on 3rd, and "See all" toggle */
+const UpcomingSection = ({ events, navigate }: { events: EventWithRole[]; navigate: ReturnType<typeof useNavigate> }) => {
+  const [showAll, setShowAll] = React.useState(false);
+  const displayEvents = showAll ? events : events.slice(0, 3);
+  const hasMore = events.length > 3;
+
+  const renderCard = (event: EventWithRole, index: number) => {
+    const isFaded = !showAll && index === 2 && hasMore;
+
+    if (isNoir(event.template_name)) {
+      return (
+        <div key={event.id} style={{ opacity: isFaded ? 0.45 : 1, transition: "opacity 0.3s" }}>
+          <NoirUpcomingCard event={event} navigate={navigate} />
+        </div>
+      );
+    }
+
+    const gradientHex = event.gradient_color || "#aaee44";
+    const fontFamily = FONT_MAP[event.font_style || "Bold"] || FONT_MAP.Bold;
+
+    return (
+      <div
+        key={event.id}
+        className="rounded-xl p-4 cursor-pointer overflow-hidden"
+        style={{
+          background: `linear-gradient(135deg, ${gradientHex}99 0%, #2b2b2b 60%)`,
+          border: `1px solid ${gradientHex}40`,
+          opacity: isFaded ? 0.45 : 1,
+          transition: "opacity 0.3s",
+        }}
+        onClick={() => {
+          const path = event.role === "host" ? `/event/${event.code}` : `/guest/${event.code}`;
+          navigate(path);
+        }}
+      >
+        <div className="flex items-start justify-between mb-1.5">
+          <h3
+            className="text-base flex-1 mr-3"
+            style={{
+              color: "#ffffff",
+              fontFamily,
+              fontWeight: event.font_style === "Bold" || !event.font_style ? 700 : 400,
+            }}
+          >
+            {event.title || "Untitled Event"}
+          </h3>
+          <RoleBadge role={event.role} />
+        </div>
+        <div className="flex flex-wrap gap-2 mt-2 text-sm">
+          <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-medium" style={{ backgroundColor: hslToColor(event.bubble_color, "#383838"), color: textForBubble(event.bubble_color) }}>
+            🗓️ {formatDate(event.date_time)}
+          </span>
+          <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-medium" style={{ backgroundColor: hslToColor(event.bubble_color, "#383838"), color: textForBubble(event.bubble_color) }}>
+            📍 {event.location || "Location TBD"}
+          </span>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="flex-1 overflow-y-auto pb-4">
+      <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Upcoming</h2>
+      <div className="space-y-3">
+        {displayEvents.map((event, i) => renderCard(event, i))}
+      </div>
+      {hasMore && !showAll && (
+        <div className="flex justify-center mt-3">
+          <button
+            onClick={() => setShowAll(true)}
+            className="rounded-full px-4 py-1.5 text-xs font-semibold"
+            style={{ backgroundColor: "#383838", color: "#aaee44" }}
+          >
+            See all events →
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const Home = () => {
   const navigate = useNavigate();
   const { user, profile } = useAuth();
