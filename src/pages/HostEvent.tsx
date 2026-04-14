@@ -32,6 +32,17 @@ const PALETTE_COLORS = [
   { name: "Deep Red", hsl: "0 55% 6%" },
 ];
 
+const NOIR_PALETTE_COLORS = [
+  { name: "Charcoal", hsl: "0 0% 11%" },
+  { name: "Near Black", hsl: "0 0% 5%" },
+  { name: "Pure Black", hsl: "0 0% 0%" },
+  { name: "Deep Navy", hsl: "213 52% 11%" },
+  { name: "Deep Purple", hsl: "264 67% 11%" },
+  { name: "Dark Grey", hsl: "0 0% 17%" },
+  { name: "Deep Green", hsl: "120 52% 8%" },
+  { name: "Deep Red", hsl: "0 55% 6%" },
+];
+
 const BUBBLE_COLORS = [
   { name: "Dark Grey", hsl: "0 0% 22%", text: "0 0% 100%" },
   { name: "Lime Green", hsl: "82 100% 48%", text: "0 0% 10%" },
@@ -698,7 +709,7 @@ const HostEvent = () => {
                     <>
                       <p className="text-card-foreground font-bold text-sm mb-2">Background colour</p>
                       <div className="flex gap-2.5 mb-5 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
-                        {PALETTE_COLORS.map((c) => (
+                        {(isNoir ? NOIR_PALETTE_COLORS : PALETTE_COLORS).map((c) => (
                           <button
                             key={c.name}
                             onClick={() => { setBgColor(c.hsl); setBgPhoto(null); setBgPreset(null); setBgPresetIsImage(false); }}
