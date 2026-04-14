@@ -299,7 +299,8 @@ const GuestEventView = () => {
 
   const isNoir = (event as any).template_name === "planit-noir";
   const isVintage = ((event as any).template_name || "").toLowerCase() === "vintage";
-  const containerBg = event.bg_color ? `hsl(${event.bg_color})` : (isNoir ? "#0a0a0a" : "#1a1a1a");
+  const isSunny = ((event as any).template_name || "").toLowerCase() === "sunny";
+  const containerBg = isSunny ? "transparent" : event.bg_color ? `hsl(${event.bg_color})` : (isNoir ? "#0a0a0a" : "#1a1a1a");
   const noirFontSize = event.text_size === "Small" ? "28px" : event.text_size === "Large" ? "44px" : "36px";
 
   return (
