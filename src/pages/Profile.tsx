@@ -38,7 +38,7 @@ const Profile = () => {
       // Events joined as guest
       const { data: guestEntries } = await supabase
         .from("event_guests")
-        .select("event_id, events(title, date_time, code)")
+        .select("event_id, rsvp_status, events(title, date_time, code)")
         .eq("user_id", user.id);
 
       const events: EventEntry[] = [];
@@ -48,7 +48,9 @@ const Profile = () => {
       (guestEntries || []).forEach((g: any) => {
         const ev = g.events;
         if (ev && !events.find(e => e.code === ev.code)) {
-          events.push({ name: ev.title || "Untitled", date: ev.date_time || "", code: ev.code, role: "Guest" });
+          const rsvp = g.rsvp_status;
+          const role: EventEntry["role"] = rsvp === "yes" ? "Going" : rsvp === "maybe" ? "Maybe" : "Not going";
+          events.push({ name: ev.title || "Untitled", date: ev.date_time || "", code: ev.code, role });
         }
       });
       setAllEvents(events);
