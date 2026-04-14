@@ -59,7 +59,7 @@ const Profile = () => {
   }, [user]);
 
   const hostedCount = allEvents.filter(e => e.role === "Host").length;
-  const joinedCount = allEvents.filter(e => e.role === "Guest").length;
+  const joinedCount = allEvents.filter(e => e.role !== "Host").length;
 
   const now = new Date();
   const upcoming = allEvents.filter(e => !e.date || new Date(e.date) >= now);
