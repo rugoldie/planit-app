@@ -525,7 +525,7 @@ const HostEvent = () => {
               {/* Date */}
               <div className="flex-1 overflow-hidden" style={{ borderRadius: "16px", backgroundColor: "#2c1810" }}>
                 <div className="px-3 py-1.5 text-center" style={{ backgroundColor: "rgba(0,0,0,0.2)" }}>
-                  <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "10px", fontWeight: 700, letterSpacing: "0.15em", color: "#8b7355", textTransform: "uppercase" }}>{monthName || "DATE"}</span>
+                  <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "10px", fontWeight: 700, letterSpacing: "0.15em", color: gradientColor, textTransform: "uppercase" }}>{monthName || "DATE"}</span>
                 </div>
                 <div className="flex flex-col items-center py-3 px-3">
                   {eventDate ? (
@@ -542,13 +542,13 @@ const HostEvent = () => {
                     value={dateTime}
                     onChange={(e) => setDateTime(e.target.value)}
                     className="w-full bg-transparent outline-none text-[10px] mt-2 text-center"
-                    style={{ color: "#8b7355", opacity: 0.6 }}
+                    style={{ color: gradientColor, opacity: 0.6 }}
                   />
                 </div>
               </div>
 
               {/* Dress code */}
-              <div className="flex-1 overflow-hidden" style={{ borderRadius: "16px", backgroundColor: "#8b7355" }}>
+              <div className="flex-1 overflow-hidden" style={{ borderRadius: "16px", backgroundColor: gradientColor }}>
                 <div className="px-3 py-1.5 flex items-center gap-2" style={{ backgroundColor: "rgba(0,0,0,0.15)" }}>
                   <span style={{ fontSize: "16px" }}>🎭</span>
                   <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "10px", fontWeight: 700, letterSpacing: "0.15em", color: "#f5f0e8", textTransform: "uppercase" }}>Dress Code</span>
