@@ -18,6 +18,7 @@ type EventWithRole = {
   guest_count: number;
   gradient_color: string | null;
   bubble_color: string | null;
+  bg_color: string | null;
   font_style: string | null;
   template_name: string | null;
 };
@@ -38,7 +39,7 @@ const useUserEvents = (userId: string | undefined) => {
 
       const { data: hosted } = await supabase
         .from("events")
-        .select("id, code, title, date_time, location, gradient_color, bubble_color, font_style, template_name")
+        .select("id, code, title, date_time, location, gradient_color, bubble_color, bg_color, font_style, template_name")
         .eq("host_id", userId);
 
       const { data: rsvps } = await supabase
@@ -60,7 +61,7 @@ const useUserEvents = (userId: string | undefined) => {
       if (guestEventIds.length > 0) {
         const { data } = await supabase
           .from("events")
-          .select("id, code, title, date_time, location, gradient_color, bubble_color, font_style, template_name")
+          .select("id, code, title, date_time, location, gradient_color, bubble_color, bg_color, font_style, template_name")
           .in("id", guestEventIds);
         guestEvents = data || [];
       }
@@ -223,16 +224,14 @@ const NoirCardTitle = ({ title, accentColor, fontSize = "1.25rem" }: { title: st
 const NoirNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate: ReturnType<typeof useNavigate> }) => {
   const accent = hslToColor(event.bubble_color, "#aaee44");
   const btnText = textForBubble(event.bubble_color) || "#111";
-  const parsed = event.date_time ? parseISO(event.date_time) : null;
-  const dayNum = parsed ? format(parsed, "d") : "?";
-  const monthName = parsed ? format(parsed, "MMM").toUpperCase() : "TBD";
-  const timeStr = parsed ? format(parsed, "h:mm a") : "";
+  const cardBg = event.bg_color ? `hsl(${event.bg_color})` : "#0a0a0a";
+
   const navPath = event.role === "host" ? `/event/${event.code}` : `/guest/${event.code}`;
 
   return (
     <div
       className="rounded-2xl overflow-hidden relative cursor-pointer"
-      style={{ backgroundColor: "#0a0a0a", border: "1px solid rgba(255,255,255,0.06)" }}
+      style={{ backgroundColor: cardBg, border: "1px solid rgba(255,255,255,0.06)" }}
       onClick={() => navigate(navPath)}
     >
       {/* Background pattern */}
