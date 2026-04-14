@@ -428,9 +428,7 @@ const GuestEventView = () => {
             </div>
           </div>
         </>
-      ) : (
-        /* ═══ DEFAULT LAYOUT ═══ */
-      )}
+      ) : null}
 
       <div className="px-5">
       {/* Who's going section */}
