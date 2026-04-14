@@ -226,6 +226,11 @@ const NoirNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate: R
   const btnText = textForBubble(event.bubble_color) || "#111";
   const cardBg = event.bg_color ? `hsl(${event.bg_color})` : "#0a0a0a";
 
+  const eventDate = event.date_time ? parseISO(event.date_time) : null;
+  const dayNum = eventDate ? eventDate.getDate() : "";
+  const monthName = eventDate ? format(eventDate, "MMM").toUpperCase() : "";
+  const timeStr = eventDate ? format(eventDate, "h:mm a") : "";
+
   const navPath = event.role === "host" ? `/event/${event.code}` : `/guest/${event.code}`;
 
   return (
