@@ -406,8 +406,9 @@ const HostEvent = () => {
   const dayOfWeek = eventDate ? eventDate.toLocaleString(undefined, { weekday: "long" }) : "";
 
   const isNoir = templateName === "planit-noir";
+  const isVintage = templateName === "vintage";
   const hostName = profile?.name || "Host";
-  const containerBg = `hsl(${bgColor})`;
+  const containerBg = isVintage ? "#f5f0e8" : `hsl(${bgColor})`;
 
   return (
     <div className="flex flex-col min-h-screen transition-all duration-300" style={{ backgroundColor: containerBg }}>
