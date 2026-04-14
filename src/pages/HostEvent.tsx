@@ -973,6 +973,7 @@ const HostEvent = () => {
                     </>
                   )}
 
+                  {customisePanel === "font" && (
                     <>
                       <p className="text-card-foreground font-bold text-sm mb-2">Font style</p>
                       <div className="flex gap-2.5">
