@@ -48,6 +48,17 @@ const NOIR_PALETTE_COLORS = [
   { name: "Deep Red", hsl: "0 55% 6%" },
 ];
 
+const VINTAGE_ACCENT_COLORS = [
+  { name: "Gold", color: "#8b7355" },
+  { name: "Dusty Rose", color: "#c4917a" },
+  { name: "Sage Green", color: "#7a9e7e" },
+  { name: "Burgundy", color: "#722f37" },
+  { name: "Navy", color: "#1e3a5f" },
+  { name: "Forest Green", color: "#2d4a3e" },
+  { name: "Slate", color: "#5c6b73" },
+  { name: "Plum", color: "#6b3d5e" },
+];
+
 const BUBBLE_COLORS = [
   { name: "Dark Grey", hsl: "0 0% 22%", text: "0 0% 100%" },
   { name: "Lime Green", hsl: "82 100% 48%", text: "0 0% 10%" },
@@ -777,24 +788,38 @@ const HostEvent = () => {
                 </div>
               ) : customisePanel === null ? (
                 <div className="flex flex-col gap-1">
-                  {/* Background colour */}
-                  <button onClick={() => setCustomisePanel("bg")} className="flex items-center justify-between py-3.5 px-1">
-                    <span className="text-sm font-semibold text-white">Background colour</span>
-                    <div className="flex items-center gap-2">
-                      <div className="w-5 h-5 rounded-full border border-white/20" style={{ backgroundColor: `hsl(${bgColor})` }} />
-                      <span className="text-white/40 text-lg">›</span>
-                    </div>
-                  </button>
-                  {/* Bubble colour */}
-                  <button onClick={() => setCustomisePanel("bubble")} className="flex items-center justify-between py-3.5 px-1">
-                    <span className="text-sm font-semibold text-white">Bubble colour</span>
-                    <div className="flex items-center gap-2">
-                      <div className="w-5 h-5 rounded-full border border-white/20" style={{ backgroundColor: accentColor }} />
-                      <span className="text-white/40 text-lg">›</span>
-                    </div>
-                  </button>
-                  {/* Header gradient — hidden for Noir */}
-                  {!isNoir && (
+                  {/* Background colour — hidden for Vintage */}
+                  {!isVintage && (
+                    <button onClick={() => setCustomisePanel("bg")} className="flex items-center justify-between py-3.5 px-1">
+                      <span className="text-sm font-semibold text-white">Background colour</span>
+                      <div className="flex items-center gap-2">
+                        <div className="w-5 h-5 rounded-full border border-white/20" style={{ backgroundColor: `hsl(${bgColor})` }} />
+                        <span className="text-white/40 text-lg">›</span>
+                      </div>
+                    </button>
+                  )}
+                  {/* Accent colour — Vintage only */}
+                  {isVintage && (
+                    <button onClick={() => setCustomisePanel("accent")} className="flex items-center justify-between py-3.5 px-1">
+                      <span className="text-sm font-semibold text-white">Accent colour</span>
+                      <div className="flex items-center gap-2">
+                        <div className="w-5 h-5 rounded-full border border-white/20" style={{ backgroundColor: gradientColor }} />
+                        <span className="text-white/40 text-lg">›</span>
+                      </div>
+                    </button>
+                  )}
+                  {/* Bubble colour — hidden for Vintage */}
+                  {!isVintage && (
+                    <button onClick={() => setCustomisePanel("bubble")} className="flex items-center justify-between py-3.5 px-1">
+                      <span className="text-sm font-semibold text-white">Bubble colour</span>
+                      <div className="flex items-center gap-2">
+                        <div className="w-5 h-5 rounded-full border border-white/20" style={{ backgroundColor: accentColor }} />
+                        <span className="text-white/40 text-lg">›</span>
+                      </div>
+                    </button>
+                  )}
+                  {/* Header gradient — hidden for Noir & Vintage */}
+                  {!isNoir && !isVintage && (
                     <button onClick={() => setCustomisePanel("gradient")} className="flex items-center justify-between py-3.5 px-1">
                       <span className="text-sm font-semibold text-white">Header gradient</span>
                       <div className="flex items-center gap-2">
@@ -803,14 +828,16 @@ const HostEvent = () => {
                       </div>
                     </button>
                   )}
-                  {/* Font style */}
-                  <button onClick={() => setCustomisePanel("font")} className="flex items-center justify-between py-3.5 px-1">
-                    <span className="text-sm font-semibold text-white">Font style</span>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-white/60">{fontStyle}</span>
-                      <span className="text-white/40 text-lg">›</span>
-                    </div>
-                  </button>
+                  {/* Font style — hidden for Vintage */}
+                  {!isVintage && (
+                    <button onClick={() => setCustomisePanel("font")} className="flex items-center justify-between py-3.5 px-1">
+                      <span className="text-sm font-semibold text-white">Font style</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-white/60">{fontStyle}</span>
+                        <span className="text-white/40 text-lg">›</span>
+                      </div>
+                    </button>
+                  )}
                   {/* Text size */}
                   <button onClick={() => setCustomisePanel("size")} className="flex items-center justify-between py-3.5 px-1">
                     <span className="text-sm font-semibold text-white">Text size</span>
@@ -925,7 +952,27 @@ const HostEvent = () => {
                     </>
                   )}
 
-                  {customisePanel === "font" && (
+                  {customisePanel === "accent" && (
+                    <>
+                      <p className="text-card-foreground font-bold text-sm mb-2">Accent colour</p>
+                      <div className="flex flex-wrap gap-2.5">
+                        {VINTAGE_ACCENT_COLORS.map((c) => (
+                          <button
+                            key={c.name}
+                            onClick={() => setGradientColor(c.color)}
+                            className="w-8 h-8 rounded-full border-2 transition-all"
+                            style={{
+                              backgroundColor: c.color,
+                              borderColor: gradientColor === c.color ? "#aaee44" : "hsl(0 0% 30%)",
+                              transform: gradientColor === c.color ? "scale(1.15)" : "scale(1)",
+                            }}
+                            title={c.name}
+                          />
+                        ))}
+                      </div>
+                    </>
+                  )}
+
                     <>
                       <p className="text-card-foreground font-bold text-sm mb-2">Font style</p>
                       <div className="flex gap-2.5">
