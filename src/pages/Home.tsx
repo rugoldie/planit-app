@@ -550,6 +550,14 @@ const UpcomingSection = ({ events, navigate }: { events: EventWithRole[]; naviga
   const renderCard = (event: EventWithRole, index: number) => {
     const isFaded = !showAll && index === 2 && hasMore;
 
+    if (isVintage(event.template_name)) {
+      return (
+        <div key={event.id} style={{ opacity: isFaded ? 0.45 : 1, transition: "opacity 0.3s" }}>
+          <VintageUpcomingCard event={event} navigate={navigate} />
+        </div>
+      );
+    }
+
     if (isNoir(event.template_name)) {
       return (
         <div key={event.id} style={{ opacity: isFaded ? 0.45 : 1, transition: "opacity 0.3s" }}>
@@ -697,7 +705,9 @@ const Home = () => {
       {nextEvent && (
         <div className="mb-6">
           <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Next up</h2>
-          {isNoir(nextEvent.template_name) ? (
+          {isVintage(nextEvent.template_name) ? (
+            <VintageNextUpCard event={nextEvent} navigate={navigate} />
+          ) : isNoir(nextEvent.template_name) ? (
             <NoirNextUpCard event={nextEvent} navigate={navigate} />
           ) : (
             <div
