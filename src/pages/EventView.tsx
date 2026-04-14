@@ -439,11 +439,12 @@ const EventView = () => {
               getInitials={getInitials}
               formatTime={formatTime}
               statusBadge={statusBadge}
+              accentColor={vintageAccent}
             />
           </div>
 
           {/* Vintage RSVP bar */}
-          <VintageRsvpBar rsvp={rsvp} barMinimised={barMinimised} setBarMinimised={setBarMinimised} handleRsvp={handleRsvp} rsvpLabel={rsvpLabel} />
+          <VintageRsvpBar rsvp={rsvp} barMinimised={barMinimised} setBarMinimised={setBarMinimised} handleRsvp={handleRsvp} rsvpLabel={rsvpLabel} accentColor={vintageAccent} />
 
           {/* Delete dialog, DM overlays, etc. reuse existing below */}
         </>
