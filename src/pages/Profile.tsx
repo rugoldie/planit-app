@@ -71,7 +71,7 @@ const Profile = () => {
 
   const eventDatesInMonth = useMemo(() => {
     const map: Record<number, string[]> = {};
-    allEvents.forEach(ev => {
+    allEvents.filter(ev => ev.role !== "Not going").forEach(ev => {
       if (!ev.date) return;
       const d = new Date(ev.date);
       if (d.getMonth() === calMonth && d.getFullYear() === calYear) {
@@ -232,8 +232,18 @@ const Profile = () => {
             <Badge className={`text-xs ${
               ev.role === "Host"
                 ? "bg-primary text-primary-foreground border-transparent"
-                : "bg-card text-muted-foreground border border-border"
-            }`}>
+                : ev.role === "Going"
+                ? "bg-primary text-primary-foreground border-transparent"
+                : ev.role === "Maybe"
+                ? "border-transparent text-white"
+                : "border-transparent text-white"
+            }`}
+              style={
+                ev.role === "Maybe" ? { backgroundColor: "hsl(30 100% 50%)" }
+                : ev.role === "Not going" ? { backgroundColor: "hsl(0 70% 50%)" }
+                : undefined
+              }
+            >
               {ev.role}
             </Badge>
           </button>
