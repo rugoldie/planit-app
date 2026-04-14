@@ -51,6 +51,7 @@ const useUserEvents = (userId: string | undefined) => {
 
       const hostedIds = new Set((hosted || []).map((e) => e.id));
       const guestEventIds = (rsvps || [])
+        .filter((r) => r.rsvp_status === "yes" || r.rsvp_status === "maybe")
         .map((r) => r.event_id)
         .filter((id) => !hostedIds.has(id));
 
