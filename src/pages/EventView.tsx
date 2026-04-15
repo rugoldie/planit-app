@@ -350,6 +350,18 @@ const EventView = () => {
   const accentColor = bubbleBg || "#aaee44";
   const accentText = bubbleText || "#111";
 
+  // Auto-contrast: determine if bg is light so text on it should be dark
+  const isLightBg = (() => {
+    if (!event.bg_color) return false;
+    // bg_color is HSL without "hsl()" wrapper, e.g. "0 0% 100%"
+    const parts = event.bg_color.trim().split(/[\s,]+/);
+    const l = parseFloat(parts[2]); // lightness %
+    return l > 55;
+  })();
+  const bgTextColor = isLightBg ? "#111111" : "#ffffff";
+  const bgTextMuted = isLightBg ? "rgba(17,17,17,0.6)" : "rgba(255,255,255,0.6)";
+  const bgTextSoft = isLightBg ? "rgba(17,17,17,0.8)" : "rgba(255,255,255,0.8)";
+
   const eventDate = event.date_time ? new Date(event.date_time) : null;
   const monthName = eventDate ? eventDate.toLocaleString(undefined, { month: "short" }).toUpperCase() : "";
   const dayNum = eventDate ? eventDate.getDate() : "";
