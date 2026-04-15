@@ -86,7 +86,9 @@ const EventView = () => {
     const { error: uploadError } = await supabase.storage.from("event-photos").upload(filePath, file);
     if (uploadError) { setUploadingPhoto(false); return; }
     const { data: urlData } = supabase.storage.from("event-photos").getPublicUrl(filePath);
-    await supabase.from("event_photos").insert({ event_id: event.id, user_id: user.id, photo_url: urlData.publicUrl });
+    const photoUrl = urlData.publicUrl;
+    setPhotos(prev => [...prev, { id: crypto.randomUUID(), photo_url: photoUrl }]);
+    await supabase.from("event_photos").insert({ event_id: event.id, user_id: user.id, photo_url: photoUrl });
     setUploadingPhoto(false);
     e.target.value = "";
   };
@@ -298,8 +300,11 @@ const EventView = () => {
 
   const sendComment = async () => {
     if (!commentDraft.trim() || !user || !event) return;
-    await supabase.from("comments").insert({ event_id: event.id, user_id: user.id, user_name: profile?.name || "Host", text: commentDraft.trim() });
+    const text = commentDraft.trim();
+    const optimistic: Comment = { id: crypto.randomUUID(), user_name: profile?.name || "Host", text, created_at: new Date().toISOString(), avatar_url: profile?.avatar_url || undefined };
+    setComments(prev => [...prev, optimistic]);
     setCommentDraft("");
+    await supabase.from("comments").insert({ event_id: event.id, user_id: user.id, user_name: profile?.name || "Host", text });
   };
 
   const sendDM = async () => {
