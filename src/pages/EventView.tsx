@@ -549,8 +549,8 @@ const EventView = () => {
               </div>
             </div>
             <div className="absolute bottom-0 left-0 right-0 px-6 pb-5">
-              <h1 className={`text-white ${titleClass} drop-shadow-lg`} style={{ fontFamily: eventFontFamily }}>{event.title || "Untitled Event"}</h1>
-              {event.vibe && <p className={`text-white/60 mt-1 ${vibeClass}`} style={{ fontFamily: eventFontFamily }}>{event.vibe}</p>}
+              <h1 className={`${titleClass} drop-shadow-lg`} style={{ fontFamily: eventFontFamily, color: bgTextColor }}>{event.title || "Untitled Event"}</h1>
+              {event.vibe && <p className={`mt-1 ${vibeClass}`} style={{ fontFamily: eventFontFamily, color: bgTextMuted }}>{event.vibe}</p>}
             </div>
           </div>
 
@@ -604,10 +604,10 @@ const EventView = () => {
                     backgroundColor: bubbleBg ? bubbleBg.replace("hsl(", "hsla(").replace(")", ", 0.15)") : "rgba(170,238,68,0.15)",
                     border: `1px solid ${bubbleBg ? bubbleBg.replace("hsl(", "hsla(").replace(")", ", 0.3)") : "rgba(170,238,68,0.3)"}`,
                   }}>
-                    <span className="text-lg mt-0.5">✦</span>
+                    <span className="text-lg mt-0.5" style={{ color: bgTextMuted }}>✦</span>
                     <div className="flex-1">
                       <span className="text-[10px] font-bold uppercase tracking-wider block" style={{ color: accentColor }}>Notes from host</span>
-                      <span className="text-sm text-white/80 mt-1 block">{event.extra}</span>
+                      <span className="text-sm mt-1 block" style={{ color: bgTextSoft }}>{event.extra}</span>
                     </div>
                   </div>
                 )}
