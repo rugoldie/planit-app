@@ -824,9 +824,9 @@ const HostEvent = () => {
                           </div>
                         </div>
                         {/* Name banner */}
-                        <div className="py-1 px-1 text-center" style={{ backgroundColor: t.gradientColor }}>
+                        <div className="py-0.5 px-0.5 text-center" style={{ backgroundColor: t.gradientColor }}>
                           <span style={{
-                            fontSize: "7px",
+                            fontSize: "6px",
                             fontWeight: 700,
                             letterSpacing: "0.08em",
                             textTransform: "uppercase" as const,
