@@ -748,43 +748,96 @@ const HostEvent = () => {
             <div className="overflow-y-auto flex-1">
               {customizeTab === "templates" ? (
                 <div className="grid grid-cols-3 gap-2.5">
-                  {TEMPLATES.map((t) => (
-                    <button
-                      key={t.name}
-                      onClick={() => {
-                        setBgColor(t.bgColor);
-                        setBubbleColor(t.bubbleColor);
-                        setBubbleTextColor(t.bubbleTextColor);
-                        setGradientColor(t.gradientColor);
-                        setFontStyle(t.fontStyle);
-                        setTemplateName(t.templateName);
-                        setBgPhoto(null);
-                        setBgPreset(null);
-                        setBgPresetIsImage(false);
-                      }}
-                      className="flex flex-col rounded-xl overflow-hidden border-2 transition-all"
-                      style={{
-                        borderColor:
-                          bgColor === t.bgColor && bubbleColor === t.bubbleColor && gradientColor === t.gradientColor && fontStyle === t.fontStyle
-                            ? "#aaee44"
-                            : "#333",
-                      }}
-                    >
-                      {/* Mini preview */}
-                      <div
-                        className="w-full aspect-[3/4] flex flex-col items-center justify-between p-2"
-                        style={{ background: `linear-gradient(to bottom, ${t.gradientColor} 0%, ${t.previewBg} 60%)` }}
+                  {TEMPLATES.map((t) => {
+                    const isSelected = templateName === t.templateName;
+                    const isNoir = t.templateName === "planit-noir";
+                    const isVint = t.templateName === "vintage";
+                    const isSunny = t.templateName === "sunny";
+                    const font = t.fontStyle === "Elegant" ? "'Playfair Display', serif" : t.fontStyle === "Handwritten" ? "'Caveat', cursive" : "'Bebas Neue', sans-serif";
+                    const titleWords = ["Your", "event"];
+                    const accentWord = 1;
+
+                    return (
+                      <button
+                        key={t.name}
+                        onClick={() => {
+                          setBgColor(t.bgColor);
+                          setBubbleColor(t.bubbleColor);
+                          setBubbleTextColor(t.bubbleTextColor);
+                          setGradientColor(t.gradientColor);
+                          setFontStyle(t.fontStyle);
+                          setTemplateName(t.templateName);
+                          setBgPhoto(null);
+                          setBgPreset(null);
+                          setBgPresetIsImage(false);
+                        }}
+                        className="flex flex-col rounded-xl overflow-hidden transition-all"
+                        style={{
+                          border: isSelected ? "2px solid #aaee44" : "2px solid #333",
+                        }}
                       >
-                        <div className="w-full flex gap-0.5 mt-auto">
-                          <div className="flex-1 h-2 rounded-sm" style={{ backgroundColor: `hsl(${t.bubbleColor})` }} />
-                          <div className="flex-1 h-2 rounded-sm" style={{ backgroundColor: `hsl(${t.bubbleColor})`, opacity: 0.6 }} />
+                        {/* Mini layout preview */}
+                        <div
+                          className="w-full flex flex-col px-2 pt-2.5 pb-1.5"
+                          style={{
+                            aspectRatio: "3/4",
+                            backgroundColor: isVint ? "#f5f0e8" : isSunny ? undefined : t.previewBg,
+                            background: isSunny ? "linear-gradient(to bottom, #ff6b35, #ff8c00, #3d1e00)" : undefined,
+                          }}
+                        >
+                          {/* Title */}
+                          <div style={{ fontFamily: font, lineHeight: 1.1 }}>
+                            <span style={{ fontSize: "11px", fontWeight: 900, color: isVint ? "#2c1810" : isSunny ? "#fff" : "#fff" }}>
+                              {titleWords[0]}{" "}
+                            </span>
+                            <span style={{ fontSize: "11px", fontWeight: 900, color: t.gradientColor, fontStyle: isNoir || isVint ? "italic" : "normal" }}>
+                              {titleWords[accentWord]}
+                            </span>
+                          </div>
+                          {/* Date + Location pills */}
+                          <div className="mt-auto flex flex-col gap-0.5">
+                            <div
+                              className="rounded-sm px-1 py-0.5 truncate"
+                              style={{
+                                fontSize: "7px",
+                                fontFamily: font,
+                                fontWeight: 700,
+                                backgroundColor: isVint ? "#2c1810" : isSunny ? "rgba(255,255,255,0.2)" : `hsl(${t.bubbleColor})`,
+                                color: isVint ? "#f5f0e8" : isSunny ? "#fff" : `hsl(${t.bubbleTextColor})`,
+                              }}
+                            >
+                              5 Jun
+                            </div>
+                            <div
+                              className="rounded-sm px-1 py-0.5 truncate"
+                              style={{
+                                fontSize: "7px",
+                                fontFamily: font,
+                                fontWeight: 700,
+                                backgroundColor: isVint ? t.gradientColor : isSunny ? "rgba(255,255,255,0.2)" : `hsl(${t.bubbleColor})`,
+                                color: isVint ? "#f5f0e8" : isSunny ? "#fff" : `hsl(${t.bubbleTextColor})`,
+                                opacity: isVint ? 1 : 0.7,
+                              }}
+                            >
+                              Your venue
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                      <div className="py-1.5 px-1 text-center" style={{ backgroundColor: "#1e1e1e" }}>
-                        <span className="text-[10px] font-bold text-white/80 leading-tight">{t.name}</span>
-                      </div>
-                    </button>
-                  ))}
+                        {/* Name banner */}
+                        <div className="py-1 px-1 text-center" style={{ backgroundColor: t.gradientColor }}>
+                          <span style={{
+                            fontSize: "7px",
+                            fontWeight: 700,
+                            letterSpacing: "0.08em",
+                            textTransform: "uppercase" as const,
+                            color: isNoir || t.templateName === "planit-classic" ? "#111" : isVint ? "#f5f0e8" : isSunny ? "#fff" : ["#ffffff", "#222222"].includes(t.gradientColor) ? "#111" : "#fff",
+                          }}>
+                            {t.name}
+                          </span>
+                        </div>
+                      </button>
+                    );
+                  })}
                 </div>
               ) : customisePanel === null ? (
                 <div className="flex flex-col gap-1">
