@@ -255,16 +255,16 @@ export const VintageSharedSections = ({
         )}
       </div>
 
-      {/* Comments */}
+      {/* Chat */}
       <div className="mt-4 rounded-2xl p-4" style={{ backgroundColor: DARK_BROWN }}>
         <div className="flex items-center justify-between mb-3">
-          <h2 style={{ fontFamily: FF, fontSize: "14px", fontWeight: 700, color: CREAM }}>Comments</h2>
+          <h2 style={{ fontFamily: FF, fontSize: "14px", fontWeight: 700, color: CREAM }}>Chat</h2>
           <button onClick={() => setShowFullComments(true)}>
             <Maximize2Icon className="w-4 h-4" style={{ color }} />
           </button>
         </div>
         <div className="space-y-2 max-h-48 overflow-y-auto mb-3">
-          {comments.length === 0 && <p style={{ fontFamily: FF, fontSize: "12px", color, opacity: 0.5, textAlign: "center", padding: "12px 0" }}>No comments yet — be the first!</p>}
+          {comments.length === 0 && <p style={{ fontFamily: FF, fontSize: "12px", color, opacity: 0.5, textAlign: "center", padding: "12px 0" }}>No messages yet — be the first!</p>}
           {comments.map((c: any, i: number) => (
             <div key={i} className="rounded-xl px-3 py-2" style={{ backgroundColor: "#3d2a1a" }}>
               <div className="flex items-center gap-2">
@@ -280,7 +280,7 @@ export const VintageSharedSections = ({
             value={commentDraft}
             onChange={(e: any) => setCommentDraft(e.target.value)}
             onKeyDown={(e: any) => e.key === "Enter" && sendComment()}
-            placeholder="Write a comment..."
+            placeholder="Write a message..."
             className="flex-1 rounded-full px-4 py-2 text-sm outline-none"
             style={{ fontFamily: FF, backgroundColor: "#3d2a1a", color: CREAM, border: `1px solid ${color}33` }}
           />
