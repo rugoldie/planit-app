@@ -492,12 +492,106 @@ const HostEvent = () => {
                   type="datetime-local"
                   value={dateTime}
                   onChange={(e) => setDateTime(e.target.value)}
-                  className="absolute inset-0 opacity-0 cursor-pointer"
-                  style={{ width: "100%", height: "100%" }}
+                  className="absolute w-px h-px opacity-0 pointer-events-none"
+                  style={{ inset: 0 }}
+                />
+              </label>
+              <NoirDressCard dressCode={dressCode} isInput onChange={setDressCode} />
+            </div>
+
+            {/* Location */}
+            <NoirLocationCard location={location} isInput onChange={setLocation} accentColor={accentColor} />
+
+            {/* Notes */}
+            <NoirNotesCard notes={extra} isInput onChange={setExtra} accentColor={accentColor} />
+          </div>
+        </>
+      ) : isVintage ? (
+        /* ═══ VINTAGE LAYOUT ═══ */
+        <>
+          <div className="relative" style={{ minHeight: "260px" }}>
+            <VintageCircles />
+            <button onClick={() => navigate(editCode ? `/event/${editCode}` : "/home")} className="absolute top-5 left-5 z-20">
+              <ArrowLeft className="w-6 h-6" style={{ color: gradientColor }} />
+            </button>
+            <div className="relative z-10 px-6 pt-16 pb-4 text-center">
+              <p style={{ fontFamily: "'Playfair Display', serif", fontSize: "11px", fontWeight: 600, letterSpacing: "0.2em", color: gradientColor, textTransform: "uppercase" }}>
+                you're invited to
+              </p>
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => { setTitle(e.target.value); setTitleError(""); }}
+                placeholder="Event name..."
+                className="w-full bg-transparent outline-none text-center mt-2 placeholder:opacity-30"
+                style={{ fontFamily: "'Playfair Display', serif", fontSize: noirFontSize, fontWeight: 900, color: "#2c1810" }}
+              />
+              {titleError && <p className="text-red-500 text-xs mt-1">{titleError}</p>}
+              <textarea
+                value={vibe}
+                onChange={(e) => setVibe(e.target.value)}
+                placeholder="Set the vibe..."
+                rows={1}
+                maxLength={120}
+                className="w-full bg-transparent outline-none resize-none mt-1 text-center placeholder:opacity-30"
+                style={{ fontFamily: "'Playfair Display', serif", fontSize: "14px", fontStyle: "italic", color: gradientColor }}
+              />
+              <VintageHostDivider hostName={hostName} accentColor={gradientColor} />
+            </div>
+          </div>
+
+          <div className="px-5 pt-2 pb-10 flex flex-col gap-3">
+            {/* Location */}
+            <div className="overflow-hidden" style={{ backgroundColor: gradientColor, borderRadius: "16px" }}>
+              <div className="px-4 py-1.5" style={{ backgroundColor: "rgba(0,0,0,0.2)" }}>
+                <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "10px", fontWeight: 700, letterSpacing: "0.18em", color: "#f5f0e8", textTransform: "uppercase" }}>Location</span>
+              </div>
+              <div className="p-4">
+                <input
+                  type="text"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                  placeholder="Where's the event?"
+                  className="w-full bg-transparent outline-none placeholder:opacity-40"
+                  style={{ fontFamily: "'Playfair Display', serif", fontSize: "20px", fontWeight: 900, color: "#2c1810" }}
+                />
+              </div>
+            </div>
+
+            {/* Date + Dress code row */}
+            <div className="flex gap-3">
+              <label
+                htmlFor="vintage-date-input"
+                className="flex-1 overflow-hidden cursor-pointer relative"
+                style={{ borderRadius: "16px", backgroundColor: "#2c1810" }}
+              >
+                <div className="px-3 py-1.5 text-center" style={{ backgroundColor: "rgba(0,0,0,0.2)" }}>
+                  <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "10px", fontWeight: 700, letterSpacing: "0.15em", color: gradientColor, textTransform: "uppercase" }}>{monthName || "DATE"}</span>
+                </div>
+                <div className="flex flex-col items-center py-3 px-3">
+                  {eventDate ? (
+                    <>
+                      <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "36px", fontWeight: 900, color: "#f5f0e8", lineHeight: 1 }}>{dayNum}</span>
+                      <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "11px", fontWeight: 600, color: gradientColor, opacity: 0.8, marginTop: "4px" }}>{timeStr}</span>
+                      <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "10px", color: gradientColor, opacity: 0.5, marginTop: "2px" }}>{dayOfWeek}</span>
+                    </>
+                  ) : (
+                    <>
+                      <span style={{ fontSize: "20px", marginBottom: "4px" }}>🗓️</span>
+                      <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "10px", fontWeight: 600, color: "#f5f0e8", opacity: 0.5, textAlign: "center" }}>Tap to set date & time</span>
+                    </>
+                  )}
+                </div>
+                <input
+                  id="vintage-date-input"
+                  type="datetime-local"
+                  value={dateTime}
+                  onChange={(e) => setDateTime(e.target.value)}
+                  className="absolute w-px h-px opacity-0 pointer-events-none"
+                  style={{ inset: 0 }}
                 />
               </label>
 
-              {/* Dress code */}
               <div className="flex-1 overflow-hidden" style={{ borderRadius: "16px", backgroundColor: gradientColor }}>
                 <div className="px-3 py-1.5 flex items-center gap-2" style={{ backgroundColor: "rgba(0,0,0,0.15)" }}>
                   <span style={{ fontSize: "16px" }}>🎭</span>
@@ -591,8 +685,8 @@ const HostEvent = () => {
 
             {/* Date + Dress code row */}
             <div className="flex gap-3">
-              {/* Date — fully tappable */}
-              <div
+              <label
+                htmlFor="default-date-input"
                 className="flex-1 overflow-hidden cursor-pointer relative"
                 style={{ borderRadius: "16px", backgroundColor: accentColor }}
               >
@@ -616,13 +710,14 @@ const HostEvent = () => {
                   )}
                 </div>
                 <input
+                  id="default-date-input"
                   type="datetime-local"
                   value={dateTime}
                   onChange={(e) => setDateTime(e.target.value)}
-                  className="absolute inset-0 opacity-0 cursor-pointer"
-                  style={{ width: "100%", height: "100%" }}
+                  className="absolute w-px h-px opacity-0 pointer-events-none"
+                  style={{ inset: 0 }}
                 />
-              </div>
+              </label>
 
               <div className="flex-1 overflow-hidden" style={{ borderRadius: "16px", backgroundColor: accentColor }}>
                 <div className="px-3 py-1.5 flex items-center gap-2" style={{ backgroundColor: "rgba(0,0,0,0.2)" }}>
