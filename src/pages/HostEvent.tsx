@@ -468,7 +468,8 @@ const HostEvent = () => {
             {/* Date + Dress code side by side */}
             <div className="flex gap-3">
               {/* Date bubble — fully tappable */}
-              <div
+              <label
+                htmlFor="noir-date-input"
                 className="flex-1 flex flex-col overflow-hidden cursor-pointer relative"
                 style={{ backgroundColor: accentColor, borderRadius: "14px" }}
               >
@@ -487,13 +488,14 @@ const HostEvent = () => {
                   )}
                 </div>
                 <input
+                  id="noir-date-input"
                   type="datetime-local"
                   value={dateTime}
                   onChange={(e) => setDateTime(e.target.value)}
-                  className="absolute inset-0 opacity-0 cursor-pointer"
-                  style={{ width: "100%", height: "100%" }}
+                  className="absolute w-px h-px opacity-0 pointer-events-none"
+                  style={{ inset: 0 }}
                 />
-              </div>
+              </label>
               <NoirDressCard dressCode={dressCode} isInput onChange={setDressCode} />
             </div>
 
@@ -558,8 +560,8 @@ const HostEvent = () => {
 
             {/* Date + Dress code row */}
             <div className="flex gap-3">
-              {/* Date — fully tappable */}
-              <div
+              <label
+                htmlFor="vintage-date-input"
                 className="flex-1 overflow-hidden cursor-pointer relative"
                 style={{ borderRadius: "16px", backgroundColor: "#2c1810" }}
               >
@@ -581,15 +583,15 @@ const HostEvent = () => {
                   )}
                 </div>
                 <input
+                  id="vintage-date-input"
                   type="datetime-local"
                   value={dateTime}
                   onChange={(e) => setDateTime(e.target.value)}
-                  className="absolute inset-0 opacity-0 cursor-pointer"
-                  style={{ width: "100%", height: "100%" }}
+                  className="absolute w-px h-px opacity-0 pointer-events-none"
+                  style={{ inset: 0 }}
                 />
-              </div>
+              </label>
 
-              {/* Dress code */}
               <div className="flex-1 overflow-hidden" style={{ borderRadius: "16px", backgroundColor: gradientColor }}>
                 <div className="px-3 py-1.5 flex items-center gap-2" style={{ backgroundColor: "rgba(0,0,0,0.15)" }}>
                   <span style={{ fontSize: "16px" }}>🎭</span>
@@ -683,8 +685,8 @@ const HostEvent = () => {
 
             {/* Date + Dress code row */}
             <div className="flex gap-3">
-              {/* Date — fully tappable */}
-              <div
+              <label
+                htmlFor="default-date-input"
                 className="flex-1 overflow-hidden cursor-pointer relative"
                 style={{ borderRadius: "16px", backgroundColor: accentColor }}
               >
@@ -708,13 +710,14 @@ const HostEvent = () => {
                   )}
                 </div>
                 <input
+                  id="default-date-input"
                   type="datetime-local"
                   value={dateTime}
                   onChange={(e) => setDateTime(e.target.value)}
-                  className="absolute inset-0 opacity-0 cursor-pointer"
-                  style={{ width: "100%", height: "100%" }}
+                  className="absolute w-px h-px opacity-0 pointer-events-none"
+                  style={{ inset: 0 }}
                 />
-              </div>
+              </label>
 
               <div className="flex-1 overflow-hidden" style={{ borderRadius: "16px", backgroundColor: accentColor }}>
                 <div className="px-3 py-1.5 flex items-center gap-2" style={{ backgroundColor: "rgba(0,0,0,0.2)" }}>
