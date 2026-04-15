@@ -787,10 +787,10 @@ const HostEvent = () => {
                         >
                           {/* Title */}
                           <div style={{ fontFamily: font, lineHeight: 1.1 }}>
-                            <span style={{ fontSize: "11px", fontWeight: 900, color: isVint ? "#2c1810" : isSunny ? "#fff" : "#fff" }}>
+                            <span style={{ fontSize: "8px", fontWeight: 900, color: isVint ? "#2c1810" : isSunny ? "#fff" : "#fff" }}>
                               {titleWords[0]}{" "}
                             </span>
-                            <span style={{ fontSize: "11px", fontWeight: 900, color: t.gradientColor, fontStyle: isNoir || isVint ? "italic" : "normal" }}>
+                            <span style={{ fontSize: "8px", fontWeight: 900, color: t.gradientColor, fontStyle: isNoir || isVint ? "italic" : "normal" }}>
                               {titleWords[accentWord]}
                             </span>
                           </div>
