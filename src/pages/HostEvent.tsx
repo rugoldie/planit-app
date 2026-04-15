@@ -407,6 +407,16 @@ const HostEvent = () => {
   const currentFontFamily = FONT_MAP[fontStyle] || FONT_MAP["Bold"];
   const accentColor = `hsl(${bubbleColor})`;
   const accentText = `hsl(${bubbleTextColor})`;
+
+  // Auto-contrast for default template text on bg
+  const isLightBg = (() => {
+    const parts = bgColor.trim().split(/[\s,]+/);
+    const l = parseFloat(parts[2]);
+    return l > 55;
+  })();
+  const bgTextColor = isLightBg ? "#111111" : "#ffffff";
+  const bgTextMuted = isLightBg ? "rgba(17,17,17,0.6)" : "rgba(255,255,255,0.6)";
+  const bgTextSoft = isLightBg ? "rgba(17,17,17,0.8)" : "rgba(255,255,255,0.8)";
   const noirFontSize = textSize === "Small" ? "28px" : textSize === "Large" ? "44px" : "36px";
 
   // Parsed date for calendar bubble preview
