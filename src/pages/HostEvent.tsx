@@ -778,9 +778,9 @@ const HostEvent = () => {
                       >
                         {/* Mini layout preview */}
                         <div
-                          className="w-full flex flex-col px-2 pt-2.5 pb-1.5"
+                          className="w-full flex flex-col px-1.5 pt-1.5 pb-1"
                           style={{
-                            aspectRatio: "3/4",
+                            aspectRatio: "4/5",
                             backgroundColor: isVint ? "#f5f0e8" : isSunny ? undefined : t.previewBg,
                             background: isSunny ? "linear-gradient(to bottom, #ff6b35, #ff8c00, #3d1e00)" : undefined,
                           }}
