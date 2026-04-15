@@ -535,16 +535,16 @@ const GuestEventView = () => {
               )}
             </div>
 
-            {/* Sunny Comments */}
+            {/* Sunny Chat */}
             <div className="mt-4 rounded-2xl p-4" style={{ backgroundColor: SUNNY_DARK }}>
               <div className="flex items-center justify-between mb-3">
-                <h2 style={{ fontFamily: SUNNY_FF, fontSize: "18px", fontWeight: 700, color: "#fff" }}>Comments</h2>
+                <h2 style={{ fontFamily: SUNNY_FF, fontSize: "18px", fontWeight: 700, color: "#fff" }}>Chat</h2>
                 <button onClick={() => setShowFullComments(true)}>
                   <Maximize2 className="w-4 h-4" style={{ color: SUNNY_ORANGE }} />
                 </button>
               </div>
               <div className="space-y-2 max-h-48 overflow-y-auto mb-3">
-                {comments.length === 0 && <p style={{ fontFamily: SUNNY_FF, fontSize: "14px", color: SUNNY_ORANGE, opacity: 0.5, textAlign: "center", padding: "12px 0" }}>No comments yet — be the first!</p>}
+                {comments.length === 0 && <p style={{ fontFamily: SUNNY_FF, fontSize: "14px", color: SUNNY_ORANGE, opacity: 0.5, textAlign: "center", padding: "12px 0" }}>No messages yet — be the first!</p>}
                 {comments.map((c, i) => (
                   <div key={i} className="rounded-xl px-3 py-2" style={{ backgroundColor: "#2a1500" }}>
                     <div className="flex items-center gap-2">
@@ -556,7 +556,7 @@ const GuestEventView = () => {
                 ))}
               </div>
               <div className="flex gap-2">
-                <input value={commentDraft} onChange={(e) => setCommentDraft(e.target.value)} onKeyDown={(e) => e.key === "Enter" && sendComment()} placeholder="Write a comment..." className="flex-1 rounded-full px-4 py-2 text-sm outline-none" style={{ fontFamily: SUNNY_FF, backgroundColor: "#2a1500", color: "#fff", border: `1px solid rgba(255,107,53,0.3)` }} />
+                <input value={commentDraft} onChange={(e) => setCommentDraft(e.target.value)} onKeyDown={(e) => e.key === "Enter" && sendComment()} placeholder="Write a message..." className="flex-1 rounded-full px-4 py-2 text-sm outline-none" style={{ fontFamily: SUNNY_FF, backgroundColor: "#2a1500", color: "#fff", border: `1px solid rgba(255,107,53,0.3)` }} />
                 <button onClick={sendComment} className="w-9 h-9 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: SUNNY_ORANGE }}>
                   <Send className="w-4 h-4" style={{ color: "#fff" }} />
                 </button>
@@ -651,17 +651,17 @@ const GuestEventView = () => {
         )}
       </div>
 
-      {/* Comments section */}
+      {/* Chat section */}
       <div className="mt-4 rounded-2xl p-4" style={{ backgroundColor: "#1e1e1e" }}>
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-white font-bold text-sm">Comments</h2>
+          <h2 className="text-white font-bold text-sm">Chat</h2>
           <button onClick={() => setShowFullComments(true)}>
             <Maximize2 className="w-4 h-4" style={{ color: accentColor }} />
           </button>
         </div>
         <div className="space-y-2 max-h-48 overflow-y-auto mb-3">
           {comments.length === 0 && (
-            <p className="text-muted-foreground text-xs text-center py-3">No comments yet — be the first!</p>
+            <p className="text-muted-foreground text-xs text-center py-3">No messages yet — be the first!</p>
           )}
           {comments.map((c, i) => (
             <div key={i} className="rounded-xl px-3 py-2" style={{ backgroundColor: "#2a2a2a" }}>
@@ -678,7 +678,7 @@ const GuestEventView = () => {
             value={commentDraft}
             onChange={(e) => setCommentDraft(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && sendComment()}
-            placeholder="Write a comment..."
+            placeholder="Write a message..."
             className="flex-1 rounded-full px-4 py-2 text-sm text-white placeholder:text-muted-foreground outline-none"
             style={{ backgroundColor: "#2a2a2a" }}
           />
@@ -734,19 +734,19 @@ const GuestEventView = () => {
         )}
       </div>
 
-      {/* Full-screen comments overlay */}
+      {/* Full-screen chat overlay */}
       {showFullComments && (
         <div className="fixed inset-0 z-[60] flex flex-col" style={{ backgroundColor: "#2b2b2b" }}>
           <div className="flex items-center gap-3 px-5 py-4 border-b border-border">
             <button onClick={() => setShowFullComments(false)}>
               <ArrowLeft className="w-5 h-5 text-muted-foreground" />
             </button>
-            <h2 className="text-white font-bold text-base">Comments</h2>
+            <h2 className="text-white font-bold text-base">Chat</h2>
           </div>
 
           <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
             {comments.length === 0 && (
-              <p className="text-muted-foreground text-sm text-center mt-10">No comments yet — be the first!</p>
+              <p className="text-muted-foreground text-sm text-center mt-10">No messages yet — be the first!</p>
             )}
             {comments.map((c, i) => (
               <div key={i} className="flex items-start gap-3">
@@ -772,7 +772,7 @@ const GuestEventView = () => {
               value={commentDraft}
               onChange={(e) => setCommentDraft(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && sendComment()}
-              placeholder="Write a comment..."
+              placeholder="Write a message..."
               className="flex-1 rounded-full px-4 py-2.5 text-sm text-white placeholder:text-muted-foreground outline-none border border-border"
               style={{ backgroundColor: "#383838" }}
             />
