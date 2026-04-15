@@ -467,7 +467,35 @@ const HostEvent = () => {
           <div className="px-5 pt-2 pb-10 flex flex-col gap-3">
             {/* Date + Dress code side by side */}
             <div className="flex gap-3">
-              <NoirDateCard monthName={monthName} dayNum={String(dayNum)} timeStr={timeStr} isInput dateTime={dateTime} onDateChange={setDateTime} accentColor={accentColor} />
+              {/* Date bubble — fully tappable */}
+              <div
+                className="flex-1 flex flex-col overflow-hidden cursor-pointer relative"
+                style={{ backgroundColor: accentColor, borderRadius: "14px" }}
+                onClick={() => document.getElementById("noir-date-input")?.showPicker?.()}
+              >
+                <div className="flex flex-col items-center py-3 px-3">
+                  {eventDate ? (
+                    <>
+                      <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "22px", fontWeight: 900, color: "#0a0a0a", lineHeight: 1 }}>{dayNum}</span>
+                      <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "11px", fontWeight: 700, color: "#0a0a0a", opacity: 0.7, textTransform: "uppercase", letterSpacing: "0.1em", marginTop: "2px" }}>{monthName}</span>
+                      <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "10px", color: "#0a0a0a", opacity: 0.5, marginTop: "2px" }}>{timeStr}</span>
+                    </>
+                  ) : (
+                    <>
+                      <span style={{ fontSize: "20px", marginBottom: "4px" }}>🗓️</span>
+                      <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "10px", fontWeight: 600, color: "#0a0a0a", opacity: 0.6, textAlign: "center" }}>Tap to set date & time</span>
+                    </>
+                  )}
+                </div>
+                <input
+                  id="noir-date-input"
+                  type="datetime-local"
+                  value={dateTime}
+                  onChange={(e) => setDateTime(e.target.value)}
+                  className="absolute opacity-0 pointer-events-none"
+                  style={{ width: 0, height: 0 }}
+                />
+              </div>
               <NoirDressCard dressCode={dressCode} isInput onChange={setDressCode} />
             </div>
 
@@ -532,8 +560,12 @@ const HostEvent = () => {
 
             {/* Date + Dress code row */}
             <div className="flex gap-3">
-              {/* Date */}
-              <div className="flex-1 overflow-hidden" style={{ borderRadius: "16px", backgroundColor: "#2c1810" }}>
+              {/* Date — fully tappable */}
+              <div
+                className="flex-1 overflow-hidden cursor-pointer relative"
+                style={{ borderRadius: "16px", backgroundColor: "#2c1810" }}
+                onClick={() => document.getElementById("vintage-date-input")?.showPicker?.()}
+              >
                 <div className="px-3 py-1.5 text-center" style={{ backgroundColor: "rgba(0,0,0,0.2)" }}>
                   <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "10px", fontWeight: 700, letterSpacing: "0.15em", color: gradientColor, textTransform: "uppercase" }}>{monthName || "DATE"}</span>
                 </div>
@@ -545,16 +577,20 @@ const HostEvent = () => {
                       <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "10px", color: gradientColor, opacity: 0.5, marginTop: "2px" }}>{dayOfWeek}</span>
                     </>
                   ) : (
-                    <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "36px", fontWeight: 900, color: "#f5f0e8", opacity: 0.4, lineHeight: 1 }}>?</span>
+                    <>
+                      <span style={{ fontSize: "20px", marginBottom: "4px" }}>🗓️</span>
+                      <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "10px", fontWeight: 600, color: "#f5f0e8", opacity: 0.5, textAlign: "center" }}>Tap to set date & time</span>
+                    </>
                   )}
-                  <input
-                    type="datetime-local"
-                    value={dateTime}
-                    onChange={(e) => setDateTime(e.target.value)}
-                    className="w-full bg-transparent outline-none text-[10px] mt-2 text-center"
-                    style={{ color: gradientColor, opacity: 0.6 }}
-                  />
                 </div>
+                <input
+                  id="vintage-date-input"
+                  type="datetime-local"
+                  value={dateTime}
+                  onChange={(e) => setDateTime(e.target.value)}
+                  className="absolute opacity-0 pointer-events-none"
+                  style={{ width: 0, height: 0 }}
+                />
               </div>
 
               {/* Dress code */}
@@ -651,7 +687,12 @@ const HostEvent = () => {
 
             {/* Date + Dress code row */}
             <div className="flex gap-3">
-              <div className="flex-1 overflow-hidden" style={{ borderRadius: "16px", backgroundColor: accentColor }}>
+              {/* Date — fully tappable */}
+              <div
+                className="flex-1 overflow-hidden cursor-pointer relative"
+                style={{ borderRadius: "16px", backgroundColor: accentColor }}
+                onClick={() => document.getElementById("default-date-input")?.showPicker?.()}
+              >
                 <div className="px-3 py-1.5 text-center" style={{ backgroundColor: "rgba(0,0,0,0.2)" }}>
                   <span className="text-xs font-bold uppercase tracking-wider" style={{ color: accentText }}>
                     {monthName || "DATE"}
@@ -665,16 +706,20 @@ const HostEvent = () => {
                       <span className="text-[10px] font-medium mt-0.5" style={{ color: accentText, opacity: 0.5 }}>{dayOfWeek}</span>
                     </>
                   ) : (
-                    <span className="text-3xl font-extrabold leading-none" style={{ color: accentText, opacity: 0.4 }}>?</span>
+                    <>
+                      <span style={{ fontSize: "20px", marginBottom: "4px" }}>🗓️</span>
+                      <span className="text-[10px] font-semibold text-center" style={{ color: accentText, opacity: 0.6 }}>Tap to set date & time</span>
+                    </>
                   )}
-                  <input
-                    type="datetime-local"
-                    value={dateTime}
-                    onChange={(e) => setDateTime(e.target.value)}
-                    className="w-full bg-transparent outline-none text-[10px] mt-2 text-center opacity-60"
-                    style={{ color: accentText }}
-                  />
                 </div>
+                <input
+                  id="default-date-input"
+                  type="datetime-local"
+                  value={dateTime}
+                  onChange={(e) => setDateTime(e.target.value)}
+                  className="absolute opacity-0 pointer-events-none"
+                  style={{ width: 0, height: 0 }}
+                />
               </div>
 
               <div className="flex-1 overflow-hidden" style={{ borderRadius: "16px", backgroundColor: accentColor }}>
