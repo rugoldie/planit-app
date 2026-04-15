@@ -747,7 +747,7 @@ const HostEvent = () => {
 
             <div className="overflow-y-auto flex-1">
               {customizeTab === "templates" ? (
-                <div className="grid grid-cols-3 gap-2.5">
+                <div className="grid grid-cols-3 gap-2">
                   {TEMPLATES.map((t) => {
                     const isSelected = templateName === t.templateName;
                     const isNoir = t.templateName === "planit-noir";
@@ -778,28 +778,28 @@ const HostEvent = () => {
                       >
                         {/* Mini layout preview */}
                         <div
-                          className="w-full flex flex-col px-2 pt-2.5 pb-1.5"
+                          className="w-full flex flex-col px-1.5 pt-1.5 pb-1"
                           style={{
-                            aspectRatio: "3/4",
+                            aspectRatio: "4/5",
                             backgroundColor: isVint ? "#f5f0e8" : isSunny ? undefined : t.previewBg,
                             background: isSunny ? "linear-gradient(to bottom, #ff6b35, #ff8c00, #3d1e00)" : undefined,
                           }}
                         >
                           {/* Title */}
                           <div style={{ fontFamily: font, lineHeight: 1.1 }}>
-                            <span style={{ fontSize: "11px", fontWeight: 900, color: isVint ? "#2c1810" : isSunny ? "#fff" : "#fff" }}>
+                            <span style={{ fontSize: "8px", fontWeight: 900, color: isVint ? "#2c1810" : isSunny ? "#fff" : "#fff" }}>
                               {titleWords[0]}{" "}
                             </span>
-                            <span style={{ fontSize: "11px", fontWeight: 900, color: t.gradientColor, fontStyle: isNoir || isVint ? "italic" : "normal" }}>
+                            <span style={{ fontSize: "8px", fontWeight: 900, color: t.gradientColor, fontStyle: isNoir || isVint ? "italic" : "normal" }}>
                               {titleWords[accentWord]}
                             </span>
                           </div>
                           {/* Date + Location pills */}
                           <div className="mt-auto flex flex-col gap-0.5">
                             <div
-                              className="rounded-sm px-1 py-0.5 truncate"
+                              className="rounded-sm px-0.5 py-px truncate"
                               style={{
-                                fontSize: "7px",
+                                fontSize: "6px",
                                 fontFamily: font,
                                 fontWeight: 700,
                                 backgroundColor: isVint ? "#2c1810" : isSunny ? "rgba(255,255,255,0.2)" : `hsl(${t.bubbleColor})`,
@@ -809,9 +809,9 @@ const HostEvent = () => {
                               5 Jun
                             </div>
                             <div
-                              className="rounded-sm px-1 py-0.5 truncate"
+                              className="rounded-sm px-0.5 py-px truncate"
                               style={{
-                                fontSize: "7px",
+                                fontSize: "6px",
                                 fontFamily: font,
                                 fontWeight: 700,
                                 backgroundColor: isVint ? t.gradientColor : isSunny ? "rgba(255,255,255,0.2)" : `hsl(${t.bubbleColor})`,
@@ -824,9 +824,9 @@ const HostEvent = () => {
                           </div>
                         </div>
                         {/* Name banner */}
-                        <div className="py-1 px-1 text-center" style={{ backgroundColor: t.gradientColor }}>
+                        <div className="py-0.5 px-0.5 text-center" style={{ backgroundColor: t.gradientColor }}>
                           <span style={{
-                            fontSize: "7px",
+                            fontSize: "6px",
                             fontWeight: 700,
                             letterSpacing: "0.08em",
                             textTransform: "uppercase" as const,
