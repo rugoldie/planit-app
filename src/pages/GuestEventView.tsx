@@ -295,6 +295,17 @@ const GuestEventView = () => {
   const accentColor = bubbleBg || "#aaee44";
   const accentText = bubbleText || "#111";
 
+  // Auto-contrast for default template
+  const isLightBg = (() => {
+    if (!event.bg_color) return false;
+    const parts = event.bg_color.trim().split(/[\s,]+/);
+    const l = parseFloat(parts[2]);
+    return l > 55;
+  })();
+  const bgTextColor = isLightBg ? "#111111" : "#ffffff";
+  const bgTextMuted = isLightBg ? "rgba(17,17,17,0.6)" : "rgba(255,255,255,0.6)";
+  const bgTextSoft = isLightBg ? "rgba(17,17,17,0.8)" : "rgba(255,255,255,0.8)";
+
   // Parse date parts
   const eventDate = event.date_time ? new Date(event.date_time) : null;
   const monthName = eventDate ? eventDate.toLocaleString(undefined, { month: "short" }).toUpperCase() : "";

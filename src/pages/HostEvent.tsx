@@ -407,6 +407,16 @@ const HostEvent = () => {
   const currentFontFamily = FONT_MAP[fontStyle] || FONT_MAP["Bold"];
   const accentColor = `hsl(${bubbleColor})`;
   const accentText = `hsl(${bubbleTextColor})`;
+
+  // Auto-contrast for default template text on bg
+  const isLightBg = (() => {
+    const parts = bgColor.trim().split(/[\s,]+/);
+    const l = parseFloat(parts[2]);
+    return l > 55;
+  })();
+  const bgTextColor = isLightBg ? "#111111" : "#ffffff";
+  const bgTextMuted = isLightBg ? "rgba(17,17,17,0.6)" : "rgba(255,255,255,0.6)";
+  const bgTextSoft = isLightBg ? "rgba(17,17,17,0.8)" : "rgba(255,255,255,0.8)";
   const noirFontSize = textSize === "Small" ? "28px" : textSize === "Large" ? "44px" : "36px";
 
   // Parsed date for calendar bubble preview
@@ -604,8 +614,8 @@ const HostEvent = () => {
                 value={title}
                 onChange={(e) => { setTitle(e.target.value); setTitleError(""); }}
                 placeholder="Event name..."
-                className={`w-full bg-transparent text-white placeholder:text-white/40 outline-none drop-shadow-lg ${titleClass}`}
-                style={{ fontFamily: currentFontFamily }}
+                className={`w-full bg-transparent placeholder:opacity-40 outline-none drop-shadow-lg ${titleClass}`}
+                style={{ fontFamily: currentFontFamily, color: bgTextColor }}
               />
               {titleError && <p className="text-red-500 text-xs mt-1">{titleError}</p>}
               <textarea
@@ -614,8 +624,8 @@ const HostEvent = () => {
                 placeholder="Set the vibe..."
                 rows={1}
                 maxLength={120}
-                className={`w-full bg-transparent text-white/60 placeholder:text-white/30 outline-none resize-none mt-1 ${vibeClass}`}
-                style={{ fontFamily: currentFontFamily }}
+                className={`w-full bg-transparent placeholder:opacity-30 outline-none resize-none mt-1 ${vibeClass}`}
+                style={{ fontFamily: currentFontFamily, color: bgTextMuted }}
               />
             </div>
           </div>
@@ -691,7 +701,7 @@ const HostEvent = () => {
               backgroundColor: accentColor.replace("hsl(", "hsla(").replace(")", ", 0.15)"),
               border: `1px solid ${accentColor.replace("hsl(", "hsla(").replace(")", ", 0.3)")}`,
             }}>
-              <span className="text-lg mt-0.5">✦</span>
+              <span className="text-lg mt-0.5" style={{ color: bgTextMuted }}>✦</span>
               <div className="flex-1">
                 <span className="text-[10px] font-bold uppercase tracking-wider block" style={{ color: accentColor }}>Notes from host</span>
                 <textarea
@@ -699,7 +709,8 @@ const HostEvent = () => {
                   onChange={(e) => setExtra(e.target.value)}
                   placeholder="Anything else your guests should know..."
                   rows={2}
-                  className="w-full bg-transparent outline-none resize-none text-sm text-white/80 mt-1 placeholder:text-white/30"
+                  className="w-full bg-transparent outline-none resize-none text-sm mt-1 placeholder:opacity-30"
+                  style={{ color: bgTextSoft }}
                 />
               </div>
             </div>
