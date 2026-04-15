@@ -471,7 +471,7 @@ const HostEvent = () => {
               <div
                 className="flex-1 flex flex-col overflow-hidden cursor-pointer relative"
                 style={{ backgroundColor: accentColor, borderRadius: "14px" }}
-                onClick={() => document.getElementById("noir-date-input")?.showPicker?.()}
+                onClick={() => ( document.getElementById("noir-date-input") as HTMLInputElement)?.showPicker()}
               >
                 <div className="flex flex-col items-center py-3 px-3">
                   {eventDate ? (
@@ -564,7 +564,7 @@ const HostEvent = () => {
               <div
                 className="flex-1 overflow-hidden cursor-pointer relative"
                 style={{ borderRadius: "16px", backgroundColor: "#2c1810" }}
-                onClick={() => document.getElementById("vintage-date-input")?.showPicker?.()}
+                onClick={() => ( document.getElementById("vintage-date-input") as HTMLInputElement)?.showPicker()}
               >
                 <div className="px-3 py-1.5 text-center" style={{ backgroundColor: "rgba(0,0,0,0.2)" }}>
                   <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "10px", fontWeight: 700, letterSpacing: "0.15em", color: gradientColor, textTransform: "uppercase" }}>{monthName || "DATE"}</span>
@@ -691,7 +691,7 @@ const HostEvent = () => {
               <div
                 className="flex-1 overflow-hidden cursor-pointer relative"
                 style={{ borderRadius: "16px", backgroundColor: accentColor }}
-                onClick={() => document.getElementById("default-date-input")?.showPicker?.()}
+                onClick={() => ( document.getElementById("default-date-input") as HTMLInputElement)?.showPicker()}
               >
                 <div className="px-3 py-1.5 text-center" style={{ backgroundColor: "rgba(0,0,0,0.2)" }}>
                   <span className="text-xs font-bold uppercase tracking-wider" style={{ color: accentText }}>
