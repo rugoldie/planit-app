@@ -747,7 +747,7 @@ const HostEvent = () => {
 
             <div className="overflow-y-auto flex-1">
               {customizeTab === "templates" ? (
-                <div className="grid grid-cols-3 gap-2.5">
+                <div className="grid grid-cols-3 gap-2">
                   {TEMPLATES.map((t) => {
                     const isSelected = templateName === t.templateName;
                     const isNoir = t.templateName === "planit-noir";
