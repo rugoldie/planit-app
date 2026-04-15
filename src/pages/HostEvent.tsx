@@ -797,9 +797,9 @@ const HostEvent = () => {
                           {/* Date + Location pills */}
                           <div className="mt-auto flex flex-col gap-0.5">
                             <div
-                              className="rounded-sm px-1 py-0.5 truncate"
+                              className="rounded-sm px-0.5 py-px truncate"
                               style={{
-                                fontSize: "7px",
+                                fontSize: "6px",
                                 fontFamily: font,
                                 fontWeight: 700,
                                 backgroundColor: isVint ? "#2c1810" : isSunny ? "rgba(255,255,255,0.2)" : `hsl(${t.bubbleColor})`,
@@ -809,9 +809,9 @@ const HostEvent = () => {
                               5 Jun
                             </div>
                             <div
-                              className="rounded-sm px-1 py-0.5 truncate"
+                              className="rounded-sm px-0.5 py-px truncate"
                               style={{
-                                fontSize: "7px",
+                                fontSize: "6px",
                                 fontFamily: font,
                                 fontWeight: 700,
                                 backgroundColor: isVint ? t.gradientColor : isSunny ? "rgba(255,255,255,0.2)" : `hsl(${t.bubbleColor})`,
