@@ -471,7 +471,6 @@ const HostEvent = () => {
               <div
                 className="flex-1 flex flex-col overflow-hidden cursor-pointer relative"
                 style={{ backgroundColor: accentColor, borderRadius: "14px" }}
-                onClick={() => document.getElementById("noir-date-input")?.click()}
               >
                 <div className="flex flex-col items-center py-3 px-3">
                   {eventDate ? (
@@ -488,12 +487,11 @@ const HostEvent = () => {
                   )}
                 </div>
                 <input
-                  id="noir-date-input"
                   type="datetime-local"
                   value={dateTime}
                   onChange={(e) => setDateTime(e.target.value)}
-                  className="absolute opacity-0 pointer-events-none"
-                  style={{ width: 0, height: 0 }}
+                  className="absolute inset-0 opacity-0 cursor-pointer"
+                  style={{ width: "100%", height: "100%" }}
                 />
               </div>
               <NoirDressCard dressCode={dressCode} isInput onChange={setDressCode} />
@@ -564,7 +562,6 @@ const HostEvent = () => {
               <div
                 className="flex-1 overflow-hidden cursor-pointer relative"
                 style={{ borderRadius: "16px", backgroundColor: "#2c1810" }}
-                onClick={() => document.getElementById("vintage-date-input")?.click()}
               >
                 <div className="px-3 py-1.5 text-center" style={{ backgroundColor: "rgba(0,0,0,0.2)" }}>
                   <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "10px", fontWeight: 700, letterSpacing: "0.15em", color: gradientColor, textTransform: "uppercase" }}>{monthName || "DATE"}</span>
@@ -584,12 +581,11 @@ const HostEvent = () => {
                   )}
                 </div>
                 <input
-                  id="vintage-date-input"
                   type="datetime-local"
                   value={dateTime}
                   onChange={(e) => setDateTime(e.target.value)}
-                  className="absolute opacity-0 pointer-events-none"
-                  style={{ width: 0, height: 0 }}
+                  className="absolute inset-0 opacity-0 cursor-pointer"
+                  style={{ width: "100%", height: "100%" }}
                 />
               </div>
 
@@ -691,7 +687,6 @@ const HostEvent = () => {
               <div
                 className="flex-1 overflow-hidden cursor-pointer relative"
                 style={{ borderRadius: "16px", backgroundColor: accentColor }}
-                onClick={() => document.getElementById("default-date-input")?.click()}
               >
                 <div className="px-3 py-1.5 text-center" style={{ backgroundColor: "rgba(0,0,0,0.2)" }}>
                   <span className="text-xs font-bold uppercase tracking-wider" style={{ color: accentText }}>
@@ -713,12 +708,11 @@ const HostEvent = () => {
                   )}
                 </div>
                 <input
-                  id="default-date-input"
                   type="datetime-local"
                   value={dateTime}
                   onChange={(e) => setDateTime(e.target.value)}
-                  className="absolute opacity-0 pointer-events-none"
-                  style={{ width: 0, height: 0 }}
+                  className="absolute inset-0 opacity-0 cursor-pointer"
+                  style={{ width: "100%", height: "100%" }}
                 />
               </div>
 
