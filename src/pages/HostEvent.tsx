@@ -750,12 +750,21 @@ const HostEvent = () => {
                 <div className="grid grid-cols-3 gap-2">
                   {TEMPLATES.map((t) => {
                     const isSelected = templateName === t.templateName;
-                    const isNoir = t.templateName === "planit-noir";
-                    const isVint = t.templateName === "vintage";
-                    const isSunny = t.templateName === "sunny";
-                    const font = t.fontStyle === "Elegant" ? "'Playfair Display', serif" : t.fontStyle === "Handwritten" ? "'Caveat', cursive" : "'Bebas Neue', sans-serif";
-                    const titleWords = ["Your", "event"];
-                    const accentWord = 1;
+                    const tn = t.templateName;
+
+                    // Per-template config
+                    const cfg: Record<string, { bg: string; bgGrad?: string; titleColor: string; accentColor: string; accentStyle?: React.CSSProperties; font: string; barColor: string; barText: string; extra?: React.ReactNode }> = {
+                      "planit-noir": { bg: "#0a0a0a", titleColor: "#fff", accentColor: "#aaee44", accentStyle: { fontStyle: "italic" }, font: "'Playfair Display', serif", barColor: "#aaee44", barText: "#111" },
+                      "vintage": { bg: "#f5f0e8", titleColor: "#2c1810", accentColor: "#8b7355", font: "'Playfair Display', serif", barColor: "#8b7355", barText: "#f5f0e8" },
+                      "galaxy": { bg: "#0d0d2b", titleColor: "#fff", accentColor: "#7c3aed", font: "'Bebas Neue', sans-serif", barColor: "#7c3aed", barText: "#fff" },
+                      "sunny": { bg: "#ff6b35", bgGrad: "linear-gradient(135deg, #ff6b35, #ff8c00)", titleColor: "#fff", accentColor: "#fff", font: "'Caveat', cursive", barColor: "#ff6b35", barText: "#fff" },
+                      "midnight": { bg: "#ffffff", titleColor: "#000", accentColor: "#000", font: "'Bebas Neue', sans-serif", barColor: "#000", barText: "#fff" },
+                      "ocean": { bg: "#0d1b2a", titleColor: "#fff", accentColor: "#1e90ff", font: "'Bebas Neue', sans-serif", barColor: "#1e90ff", barText: "#fff" },
+                      "blush": { bg: "#1a0a10", titleColor: "#fff", accentColor: "#e91e8c", font: "'Playfair Display', serif", barColor: "#e91e8c", barText: "#fff" },
+                      "forest": { bg: "#0a1f0a", titleColor: "#fff", accentColor: "#2e7d32", font: "'Playfair Display', serif", barColor: "#2e7d32", barText: "#fff" },
+                      "planit-classic": { bg: "#2b2b2b", titleColor: "#fff", accentColor: "#aaee44", font: "'Bebas Neue', sans-serif", barColor: "#aaee44", barText: "#111" },
+                    };
+                    const c = cfg[tn] || { bg: "#2b2b2b", titleColor: "#fff", accentColor: "#aaee44", font: "sans-serif", barColor: "#aaee44", barText: "#111" };
 
                     return (
                       <button
@@ -771,67 +780,49 @@ const HostEvent = () => {
                           setBgPreset(null);
                           setBgPresetIsImage(false);
                         }}
-                        className="flex flex-col rounded-xl overflow-hidden transition-all"
-                        style={{
-                          border: isSelected ? "2px solid #aaee44" : "2px solid #333",
-                        }}
+                        className="flex flex-col rounded-lg overflow-hidden transition-all"
+                        style={{ border: isSelected ? "2px solid #aaee44" : "2px solid transparent" }}
                       >
-                        {/* Mini layout preview */}
                         <div
-                          className="w-full flex flex-col px-1.5 pt-1.5 pb-1"
+                          className="w-full flex flex-col items-center justify-center"
                           style={{
-                            aspectRatio: "4/5",
-                            backgroundColor: isVint ? "#f5f0e8" : isSunny ? undefined : t.previewBg,
-                            background: isSunny ? "linear-gradient(to bottom, #ff6b35, #ff8c00, #3d1e00)" : undefined,
+                            aspectRatio: "3/4",
+                            background: c.bgGrad || c.bg,
+                            backgroundColor: c.bgGrad ? undefined : c.bg,
+                            padding: "6px 4px",
+                            position: "relative",
                           }}
                         >
-                          {/* Title */}
-                          <div style={{ fontFamily: font, lineHeight: 1.1 }}>
-                            <span style={{ fontSize: "8px", fontWeight: 900, color: isVint ? "#2c1810" : isSunny ? "#fff" : "#fff" }}>
-                              {titleWords[0]}{" "}
-                            </span>
-                            <span style={{ fontSize: "8px", fontWeight: 900, color: t.gradientColor, fontStyle: isNoir || isVint ? "italic" : "normal" }}>
-                              {titleWords[accentWord]}
-                            </span>
-                          </div>
-                          {/* Date + Location pills */}
-                          <div className="mt-auto flex flex-col gap-0.5">
-                            <div
-                              className="rounded-sm px-0.5 py-px truncate"
-                              style={{
-                                fontSize: "6px",
-                                fontFamily: font,
-                                fontWeight: 700,
-                                backgroundColor: isVint ? "#2c1810" : isSunny ? "rgba(255,255,255,0.2)" : `hsl(${t.bubbleColor})`,
-                                color: isVint ? "#f5f0e8" : isSunny ? "#fff" : `hsl(${t.bubbleTextColor})`,
-                              }}
-                            >
-                              5 Jun
+                          {/* Blush pink badge */}
+                          {tn === "blush" && (
+                            <div style={{ width: 10, height: 4, borderRadius: 2, backgroundColor: "#e91e8c", marginBottom: 2 }} />
+                          )}
+                          {/* Galaxy glow */}
+                          {tn === "galaxy" && (
+                            <div style={{ position: "absolute", top: "40%", left: "50%", transform: "translate(-50%,-50%)", width: 30, height: 30, borderRadius: "50%", background: "radial-gradient(circle, rgba(124,58,237,0.4) 0%, transparent 70%)" }} />
+                          )}
+                          {/* Forest box */}
+                          {tn === "forest" ? (
+                            <div style={{ border: "1px solid rgba(255,255,255,0.3)", borderRadius: 3, padding: "4px 6px" }}>
+                              <span style={{ fontFamily: c.font, fontSize: 9, fontWeight: 700, color: c.titleColor, lineHeight: 1.1 }}>
+                                Your <span style={{ color: c.accentColor }}>event</span>
+                              </span>
                             </div>
-                            <div
-                              className="rounded-sm px-0.5 py-px truncate"
-                              style={{
-                                fontSize: "6px",
-                                fontFamily: font,
-                                fontWeight: 700,
-                                backgroundColor: isVint ? t.gradientColor : isSunny ? "rgba(255,255,255,0.2)" : `hsl(${t.bubbleColor})`,
-                                color: isVint ? "#f5f0e8" : isSunny ? "#fff" : `hsl(${t.bubbleTextColor})`,
-                                opacity: isVint ? 1 : 0.7,
-                              }}
-                            >
-                              Your venue
+                          ) : tn === "midnight" ? (
+                            <div style={{ borderLeft: "2px solid #000", paddingLeft: 4 }}>
+                              <span style={{ fontFamily: c.font, fontSize: 9, fontWeight: 800, color: c.titleColor, textTransform: "uppercase" as const, letterSpacing: "0.05em" }}>
+                                YOUR EVENT
+                              </span>
                             </div>
-                          </div>
+                          ) : (
+                            <span style={{ fontFamily: c.font, fontSize: 9, fontWeight: 700, color: c.titleColor, lineHeight: 1.2, textAlign: "center", position: "relative", zIndex: 1 }}>
+                              Your{" "}
+                              <span style={{ color: c.accentColor, ...c.accentStyle }}>event</span>
+                            </span>
+                          )}
                         </div>
-                        {/* Name banner */}
-                        <div className="py-0.5 px-0.5 text-center" style={{ backgroundColor: t.gradientColor }}>
-                          <span style={{
-                            fontSize: "6px",
-                            fontWeight: 700,
-                            letterSpacing: "0.08em",
-                            textTransform: "uppercase" as const,
-                            color: isNoir || t.templateName === "planit-classic" ? "#111" : isVint ? "#f5f0e8" : isSunny ? "#fff" : ["#ffffff", "#222222"].includes(t.gradientColor) ? "#111" : "#fff",
-                          }}>
+                        <div className="py-0.5 text-center" style={{ backgroundColor: c.barColor }}>
+                          <span style={{ fontSize: 6, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" as const, color: c.barText }}>
                             {t.name}
                           </span>
                         </div>
