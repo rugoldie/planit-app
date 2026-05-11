@@ -813,7 +813,7 @@ const EventView = () => {
                   </div>
                 </div>
               )}
-              >
+              <div>
                 <button
                   onClick={() => setGuestListExpanded(!guestListExpanded)}
                   className="flex items-center justify-between w-full mb-2"
