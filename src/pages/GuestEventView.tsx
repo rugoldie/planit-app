@@ -396,14 +396,18 @@ const GuestEventView = () => {
   const isNoir = (event as any).template_name === "planit-noir";
   const isVintage = ((event as any).template_name || "").toLowerCase() === "vintage";
   const isSunny = ((event as any).template_name || "").toLowerCase() === "sunny";
+  const isGalaxy = ((event as any).template_name || "").toLowerCase() === "galaxy";
+  const galaxyAccent = (event as any).bubble_color ? `hsl(${(event as any).bubble_color})` : "#a855f7";
   const vintageAccent = (event as any).gradient_color || "#8b7355";
   const containerBg = isSunny
     ? "transparent"
-    : event.bg_color
-      ? `hsl(${event.bg_color})`
-      : isNoir
-        ? "#0a0a0a"
-        : "#1a1a1a";
+    : isGalaxy
+      ? "#0d0d2b"
+      : event.bg_color
+        ? `hsl(${event.bg_color})`
+        : isNoir
+          ? "#0a0a0a"
+          : "#1a1a1a";
   const noirFontSize = event.text_size === "Small" ? "28px" : event.text_size === "Large" ? "44px" : "36px";
 
   const SUNNY_ORANGE = "#ff6b35";
@@ -975,6 +979,447 @@ const GuestEventView = () => {
             </div>
           </div>
         </>
+      ) : isGalaxy ? (
+        /* ═══ GALAXY LAYOUT ═══ */
+        <>
+          <div style={{ backgroundColor: "#0d0d2b", minHeight: "100vh", position: "relative", overflow: "hidden" }}>
+            {/* Background orbs */}
+            <div
+              style={{
+                position: "absolute",
+                top: "-40px",
+                right: "-40px",
+                width: "140px",
+                height: "140px",
+                borderRadius: "50%",
+                background: "rgba(147,51,234,0.18)",
+                pointerEvents: "none",
+              }}
+            />
+            <div
+              style={{
+                position: "absolute",
+                top: "80px",
+                left: "-30px",
+                width: "90px",
+                height: "90px",
+                borderRadius: "50%",
+                background: "rgba(236,72,153,0.12)",
+                pointerEvents: "none",
+              }}
+            />
+            <div
+              style={{
+                position: "absolute",
+                bottom: "200px",
+                right: "-20px",
+                width: "70px",
+                height: "70px",
+                borderRadius: "50%",
+                background: "rgba(99,102,241,0.15)",
+                pointerEvents: "none",
+              }}
+            />
+
+            {/* Nav */}
+            <div className="flex items-center justify-between px-5 pt-6 relative z-10">
+              <button onClick={() => navigate("/home")}>
+                <ArrowLeft className="w-6 h-6" style={{ color: "rgba(255,255,255,0.4)" }} />
+              </button>
+              <button onClick={() => setShowChat(true)} className="flex flex-col items-center gap-0.5">
+                <div
+                  className="w-9 h-9 rounded-full flex items-center justify-center"
+                  style={{ backgroundColor: "rgba(168,85,247,0.15)", border: "1px solid rgba(168,85,247,0.3)" }}
+                >
+                  <MessageCircle className="w-4 h-4" style={{ color: galaxyAccent }} />
+                </div>
+                <span className="text-[9px] font-semibold" style={{ color: galaxyAccent }}>
+                  Message host
+                </span>
+              </button>
+            </div>
+
+            {/* Header */}
+            <div className="text-center px-6 pt-6 pb-4 relative z-10">
+              <p
+                style={{
+                  fontSize: "10px",
+                  color: galaxyAccent,
+                  letterSpacing: "2px",
+                  textTransform: "uppercase" as const,
+                  marginBottom: "6px",
+                  fontFamily: "sans-serif",
+                }}
+              >
+                ✦ You are invited to ✦
+              </p>
+              <h1
+                style={{
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: "28px",
+                  fontWeight: 800,
+                  color: "#fff",
+                  lineHeight: 1.1,
+                  marginBottom: "4px",
+                }}
+              >
+                {event.title || "Untitled Event"}
+              </h1>
+              {event.vibe && (
+                <p
+                  style={{
+                    fontSize: "13px",
+                    color: "rgba(255,255,255,0.45)",
+                    fontStyle: "italic",
+                    fontFamily: "sans-serif",
+                    marginBottom: "8px",
+                  }}
+                >
+                  {event.vibe}
+                </p>
+              )}
+              <p
+                style={{
+                  fontSize: "11px",
+                  color: "rgba(255,255,255,0.3)",
+                  fontFamily: "sans-serif",
+                  marginBottom: "10px",
+                }}
+              >
+                hosted by {hostName}
+              </p>
+              <div
+                style={{
+                  width: "40px",
+                  height: "2px",
+                  background: `linear-gradient(90deg, ${galaxyAccent}, #ec4899)`,
+                  margin: "0 auto",
+                }}
+              />
+            </div>
+
+            {/* Info rows */}
+            <div className="px-5 flex flex-col gap-3 relative z-10 pb-6">
+              {event.location && (
+                <div
+                  style={{
+                    background: "rgba(168,85,247,0.12)",
+                    border: "1px solid rgba(168,85,247,0.3)",
+                    borderRadius: "14px",
+                    padding: "10px 14px",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: "10px",
+                      color: galaxyAccent,
+                      textTransform: "uppercase" as const,
+                      letterSpacing: "1px",
+                      fontFamily: "sans-serif",
+                    }}
+                  >
+                    📍 Location
+                  </span>
+                  <span style={{ fontSize: "13px", fontWeight: 700, color: "#e9d5ff", fontFamily: "sans-serif" }}>
+                    {event.location}
+                  </span>
+                </div>
+              )}
+              {eventDate && (
+                <div
+                  style={{
+                    background: "rgba(236,72,153,0.12)",
+                    border: "1px solid rgba(236,72,153,0.3)",
+                    borderRadius: "14px",
+                    padding: "10px 14px",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: "10px",
+                      color: "#ec4899",
+                      textTransform: "uppercase" as const,
+                      letterSpacing: "1px",
+                      fontFamily: "sans-serif",
+                    }}
+                  >
+                    🗓️ Date
+                  </span>
+                  <span style={{ fontSize: "13px", fontWeight: 700, color: "#fce7f3", fontFamily: "sans-serif" }}>
+                    {dayOfWeek} {dayNum} {monthName} · {timeStr}
+                  </span>
+                </div>
+              )}
+              {event.dress_code && (
+                <div
+                  style={{
+                    background: "rgba(99,102,241,0.12)",
+                    border: "1px solid rgba(99,102,241,0.3)",
+                    borderRadius: "14px",
+                    padding: "10px 14px",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: "10px",
+                      color: "#818cf8",
+                      textTransform: "uppercase" as const,
+                      letterSpacing: "1px",
+                      fontFamily: "sans-serif",
+                    }}
+                  >
+                    🎭 Dress code
+                  </span>
+                  <span style={{ fontSize: "13px", fontWeight: 700, color: "#e0e7ff", fontFamily: "sans-serif" }}>
+                    {event.dress_code}
+                  </span>
+                </div>
+              )}
+              {event.extra && (
+                <div
+                  style={{
+                    background: "rgba(168,85,247,0.08)",
+                    border: "1px solid rgba(168,85,247,0.15)",
+                    borderRadius: "14px",
+                    padding: "10px 14px",
+                  }}
+                >
+                  <p
+                    style={{
+                      fontSize: "10px",
+                      color: galaxyAccent,
+                      textTransform: "uppercase" as const,
+                      letterSpacing: "1px",
+                      marginBottom: "4px",
+                      fontFamily: "sans-serif",
+                    }}
+                  >
+                    ✦ Note from host
+                  </p>
+                  <p
+                    style={{
+                      fontSize: "12px",
+                      color: "rgba(255,255,255,0.55)",
+                      fontStyle: "italic",
+                      fontFamily: "sans-serif",
+                    }}
+                  >
+                    {event.extra}
+                  </p>
+                </div>
+              )}
+
+              {/* Who's going */}
+              <div
+                style={{
+                  background: "rgba(168,85,247,0.08)",
+                  border: "1px solid rgba(168,85,247,0.15)",
+                  borderRadius: "14px",
+                  padding: "12px 14px",
+                }}
+              >
+                <button
+                  onClick={() => setGuestListExpanded(!guestListExpanded)}
+                  className="flex items-center justify-between w-full mb-2"
+                >
+                  <h2 style={{ fontSize: "14px", fontWeight: 700, color: "#fff", fontFamily: "sans-serif" }}>
+                    Who's going
+                  </h2>
+                  <div className="flex items-center gap-2">
+                    {goingList.length > 0 && (
+                      <span
+                        style={{ fontSize: "11px", fontWeight: 700, color: galaxyAccent, fontFamily: "sans-serif" }}
+                      >
+                        {goingList.length} going
+                      </span>
+                    )}
+                    {guestListExpanded ? (
+                      <ChevronUp className="w-4 h-4" style={{ color: galaxyAccent }} />
+                    ) : (
+                      <ChevronDown className="w-4 h-4" style={{ color: galaxyAccent }} />
+                    )}
+                  </div>
+                </button>
+                <div className="flex items-center gap-2 overflow-x-auto">
+                  {goingList.length === 0 && (
+                    <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.3)", fontFamily: "sans-serif" }}>
+                      No one yet
+                    </p>
+                  )}
+                  {goingList.map((r, i) => (
+                    <div key={i} className="flex flex-col items-center shrink-0">
+                      <div
+                        className="w-10 h-10 rounded-full flex items-center justify-center overflow-hidden"
+                        style={{ border: `2px solid ${galaxyAccent}`, backgroundColor: "#1a0a2e" }}
+                      >
+                        {r.avatar_url ? (
+                          <img src={r.avatar_url} alt="" className="w-full h-full object-cover" />
+                        ) : (
+                          <span style={{ fontSize: "12px", fontWeight: 700, color: galaxyAccent }}>
+                            {getInitials(r.name)}
+                          </span>
+                        )}
+                      </div>
+                      <span
+                        style={{ fontSize: "10px", color: "rgba(255,255,255,0.4)", fontFamily: "sans-serif" }}
+                        className="mt-1 max-w-[40px] truncate"
+                      >
+                        {r.name.split(" ")[0]}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Chat */}
+              <div
+                style={{
+                  background: "rgba(168,85,247,0.08)",
+                  border: "1px solid rgba(168,85,247,0.15)",
+                  borderRadius: "14px",
+                  padding: "12px 14px",
+                }}
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <h2 style={{ fontSize: "14px", fontWeight: 700, color: "#fff", fontFamily: "sans-serif" }}>Chat</h2>
+                  <button onClick={() => setShowFullComments(true)}>
+                    <Maximize2 className="w-4 h-4" style={{ color: galaxyAccent }} />
+                  </button>
+                </div>
+                <div className="space-y-2 max-h-48 overflow-y-auto mb-3">
+                  {comments.length === 0 && (
+                    <p
+                      style={{
+                        fontSize: "12px",
+                        color: "rgba(255,255,255,0.3)",
+                        textAlign: "center",
+                        padding: "12px 0",
+                        fontFamily: "sans-serif",
+                      }}
+                    >
+                      No messages yet — be the first!
+                    </p>
+                  )}
+                  {comments.map((c, i) => (
+                    <div key={i} className="rounded-xl px-3 py-2" style={{ backgroundColor: "rgba(26,10,46,0.8)" }}>
+                      <div className="flex items-center gap-2">
+                        <span
+                          style={{ fontSize: "12px", fontWeight: 700, color: galaxyAccent, fontFamily: "sans-serif" }}
+                        >
+                          {c.user_name}
+                        </span>
+                        <span style={{ fontSize: "10px", color: "rgba(255,255,255,0.3)", fontFamily: "sans-serif" }}>
+                          {formatTime(c.created_at)}
+                        </span>
+                      </div>
+                      <p style={{ fontSize: "13px", color: "#e9d5ff", marginTop: "2px", fontFamily: "sans-serif" }}>
+                        {c.text}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex gap-2">
+                  <input
+                    value={commentDraft}
+                    onChange={(e) => setCommentDraft(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && sendComment()}
+                    placeholder="Write a message..."
+                    className="flex-1 rounded-full px-4 py-2 text-sm outline-none"
+                    style={{
+                      backgroundColor: "rgba(26,10,46,0.8)",
+                      color: "#e9d5ff",
+                      border: `1px solid rgba(168,85,247,0.3)`,
+                    }}
+                  />
+                  <button
+                    onClick={sendComment}
+                    className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
+                    style={{ background: `linear-gradient(135deg, ${galaxyAccent}, #ec4899)` }}
+                  >
+                    <Send className="w-4 h-4" style={{ color: "#fff" }} />
+                  </button>
+                </div>
+              </div>
+
+              {/* Gallery */}
+              <div
+                style={{
+                  background: "rgba(168,85,247,0.08)",
+                  border: "1px solid rgba(168,85,247,0.15)",
+                  borderRadius: "14px",
+                  padding: "12px 14px",
+                }}
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <h2 style={{ fontSize: "14px", fontWeight: 700, color: "#fff", fontFamily: "sans-serif" }}>
+                    Gallery
+                  </h2>
+                  <button
+                    onClick={() => photoInput.current?.click()}
+                    className="text-xs font-bold rounded-full px-3 py-1"
+                    style={{
+                      background: `linear-gradient(135deg, ${galaxyAccent}, #ec4899)`,
+                      color: "#fff",
+                      fontFamily: "sans-serif",
+                    }}
+                  >
+                    Add photo
+                  </button>
+                  <input
+                    ref={photoInput}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handlePhotoUpload}
+                  />
+                </div>
+                {uploadingPhoto && (
+                  <p
+                    style={{
+                      fontSize: "12px",
+                      color: galaxyAccent,
+                      textAlign: "center",
+                      padding: "8px 0",
+                      fontFamily: "sans-serif",
+                    }}
+                  >
+                    Uploading...
+                  </p>
+                )}
+                {photos.length === 0 && !uploadingPhoto ? (
+                  <p
+                    style={{
+                      fontSize: "12px",
+                      color: "rgba(255,255,255,0.3)",
+                      textAlign: "center",
+                      padding: "16px 0",
+                      fontFamily: "sans-serif",
+                    }}
+                  >
+                    No photos yet — add the first one!
+                  </p>
+                ) : (
+                  <div className="grid grid-cols-3 gap-1.5">
+                    {photos.map((p) => (
+                      <div key={p.id} className="aspect-square rounded-xl overflow-hidden">
+                        <img src={p.photo_url} alt="" className="w-full h-full object-cover" />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </>
       ) : isSunny ? (
         /* ═══ SUNNY LAYOUT ═══ */
         <>
@@ -1324,7 +1769,7 @@ const GuestEventView = () => {
         </>
       ) : null}
 
-      {!isVintage && !isSunny && (
+      {!isVintage && !isSunny && !isGalaxy && (
         <div className="px-5">
           {/* Who's going section */}
           <div className="mt-4 rounded-2xl p-4" style={{ backgroundColor: "#1e1e1e" }}>
