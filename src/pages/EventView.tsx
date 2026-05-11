@@ -883,7 +883,7 @@ const EventView = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-      </div>}
+      </div>
     </div>
   );
 };
