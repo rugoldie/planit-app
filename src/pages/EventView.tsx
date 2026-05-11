@@ -777,39 +777,201 @@ const EventView = () => {
             </div>
 
             <div className="px-5 flex flex-col gap-3 relative z-10 pb-6">
-             {event.location && (
-                <div style={{ background: "rgba(168,85,247,0.12)", border: "1px solid rgba(168,85,247,0.3)", borderRadius: "14px", padding: "14px 16px", display: "flex", alignItems: "center", gap: "14px" }}>
-                  <div style={{ width: "44px", height: "44px", background: "rgba(168,85,247,0.25)", borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "22px", flexShrink: 0 }}>📍</div>
+              {event.location && (
+                <div
+                  style={{
+                    background: "rgba(168,85,247,0.12)",
+                    border: "1px solid rgba(168,85,247,0.3)",
+                    borderRadius: "14px",
+                    padding: "14px 16px",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "14px",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: "44px",
+                      height: "44px",
+                      background: "rgba(168,85,247,0.25)",
+                      borderRadius: "12px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "22px",
+                      flexShrink: 0,
+                    }}
+                  >
+                    📍
+                  </div>
                   <div>
-                    <p style={{ fontSize: "9px", color: galaxyAccent, textTransform: "uppercase" as const, letterSpacing: "2px", margin: "0 0 3px", fontFamily: "sans-serif" }}>Location</p>
-                    <p style={{ fontSize: "16px", fontWeight: 800, color: "#fff", margin: 0, fontFamily: "sans-serif" }}>{event.location}</p>
+                    <p
+                      style={{
+                        fontSize: "9px",
+                        color: galaxyAccent,
+                        textTransform: "uppercase" as const,
+                        letterSpacing: "2px",
+                        margin: "0 0 3px",
+                        fontFamily: "sans-serif",
+                      }}
+                    >
+                      Location
+                    </p>
+                    <p
+                      style={{ fontSize: "16px", fontWeight: 800, color: "#fff", margin: 0, fontFamily: "sans-serif" }}
+                    >
+                      {event.location}
+                    </p>
                   </div>
                 </div>
               )}
               {eventDate && (
-                <div style={{ background: "rgba(236,72,153,0.12)", border: "1px solid rgba(236,72,153,0.3)", borderRadius: "14px", padding: "14px 16px", display: "flex", alignItems: "center", gap: "14px" }}>
-                  <div style={{ width: "44px", height: "44px", background: "rgba(236,72,153,0.25)", borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "22px", flexShrink: 0 }}>🗓️</div>
+                <div
+                  style={{
+                    background: "rgba(236,72,153,0.12)",
+                    border: "1px solid rgba(236,72,153,0.3)",
+                    borderRadius: "14px",
+                    padding: "14px 16px",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "14px",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: "44px",
+                      height: "44px",
+                      background: "rgba(236,72,153,0.25)",
+                      borderRadius: "12px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "22px",
+                      flexShrink: 0,
+                    }}
+                  >
+                    🗓️
+                  </div>
                   <div>
-                    <p style={{ fontSize: "9px", color: "#ec4899", textTransform: "uppercase" as const, letterSpacing: "2px", margin: "0 0 3px", fontFamily: "sans-serif" }}>Date</p>
-                    <p style={{ fontSize: "16px", fontWeight: 800, color: "#fff", margin: 0, fontFamily: "sans-serif" }}>{dayOfWeek} {dayNum} {monthName} · {timeStr}</p>
+                    <p
+                      style={{
+                        fontSize: "9px",
+                        color: "#ec4899",
+                        textTransform: "uppercase" as const,
+                        letterSpacing: "2px",
+                        margin: "0 0 3px",
+                        fontFamily: "sans-serif",
+                      }}
+                    >
+                      Date
+                    </p>
+                    <p
+                      style={{ fontSize: "16px", fontWeight: 800, color: "#fff", margin: 0, fontFamily: "sans-serif" }}
+                    >
+                      {dayOfWeek} {dayNum} {monthName} · {timeStr}
+                    </p>
                   </div>
                 </div>
               )}
               {event.dress_code && (
-                <div style={{ background: "rgba(99,102,241,0.12)", border: "1px solid rgba(99,102,241,0.3)", borderRadius: "14px", padding: "14px 16px", display: "flex", alignItems: "center", gap: "14px" }}>
-                  <div style={{ width: "44px", height: "44px", background: "rgba(99,102,241,0.25)", borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "22px", flexShrink: 0 }}>🎭</div>
+                <div
+                  style={{
+                    background: "rgba(99,102,241,0.12)",
+                    border: "1px solid rgba(99,102,241,0.3)",
+                    borderRadius: "14px",
+                    padding: "14px 16px",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "14px",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: "44px",
+                      height: "44px",
+                      background: "rgba(99,102,241,0.25)",
+                      borderRadius: "12px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "22px",
+                      flexShrink: 0,
+                    }}
+                  >
+                    🎭
+                  </div>
                   <div>
-                    <p style={{ fontSize: "9px", color: "#818cf8", textTransform: "uppercase" as const, letterSpacing: "2px", margin: "0 0 3px", fontFamily: "sans-serif" }}>Dress code</p>
-                    <p style={{ fontSize: "16px", fontWeight: 800, color: "#fff", margin: 0, fontFamily: "sans-serif" }}>{event.dress_code}</p>
+                    <p
+                      style={{
+                        fontSize: "9px",
+                        color: "#818cf8",
+                        textTransform: "uppercase" as const,
+                        letterSpacing: "2px",
+                        margin: "0 0 3px",
+                        fontFamily: "sans-serif",
+                      }}
+                    >
+                      Dress code
+                    </p>
+                    <p
+                      style={{ fontSize: "16px", fontWeight: 800, color: "#fff", margin: 0, fontFamily: "sans-serif" }}
+                    >
+                      {event.dress_code}
+                    </p>
                   </div>
                 </div>
               )}
               {event.extra && (
-                <div style={{ background: "rgba(168,85,247,0.08)", border: "1px solid rgba(168,85,247,0.15)", borderRadius: "14px", padding: "14px 16px", display: "flex", alignItems: "flex-start", gap: "14px" }}>
-                  <div style={{ width: "44px", height: "44px", background: "rgba(168,85,247,0.15)", borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "22px", flexShrink: 0 }}>✦</div>
+                <div
+                  style={{
+                    background: "rgba(168,85,247,0.08)",
+                    border: "1px solid rgba(168,85,247,0.15)",
+                    borderRadius: "14px",
+                    padding: "14px 16px",
+                    display: "flex",
+                    alignItems: "flex-start",
+                    gap: "14px",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: "44px",
+                      height: "44px",
+                      background: "rgba(168,85,247,0.15)",
+                      borderRadius: "12px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "22px",
+                      flexShrink: 0,
+                    }}
+                  >
+                    ✦
+                  </div>
                   <div>
-                    <p style={{ fontSize: "9px", color: galaxyAccent, textTransform: "uppercase" as const, letterSpacing: "2px", margin: "0 0 3px", fontFamily: "sans-serif" }}>Note from host</p>
-                    <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.55)", fontStyle: "italic", margin: 0, fontFamily: "sans-serif" }}>{event.extra}</p>
+                    <p
+                      style={{
+                        fontSize: "9px",
+                        color: galaxyAccent,
+                        textTransform: "uppercase" as const,
+                        letterSpacing: "2px",
+                        margin: "0 0 3px",
+                        fontFamily: "sans-serif",
+                      }}
+                    >
+                      Note from host
+                    </p>
+                    <p
+                      style={{
+                        fontSize: "13px",
+                        color: "rgba(255,255,255,0.55)",
+                        fontStyle: "italic",
+                        margin: 0,
+                        fontFamily: "sans-serif",
+                      }}
+                    >
+                      {event.extra}
+                    </p>
                   </div>
                 </div>
               )}
@@ -1441,253 +1603,248 @@ const EventView = () => {
               </div>
             )}
           </div>
+        </div>
+      )}
 
-          {/* RSVP floating bar */}
-          <div className="fixed bottom-4 left-4 right-4 z-50">
-            {barMinimised && rsvp ? (
+      {/* RSVP floating bar - all templates */}
+      <div className="fixed bottom-4 left-4 right-4 z-50">
+        {barMinimised && rsvp ? (
+          <button
+            onClick={() => setBarMinimised(false)}
+            className="mx-auto block backdrop-blur-sm rounded-full px-5 py-2.5 text-sm font-bold border border-border"
+            style={{ backgroundColor: "rgba(56,56,56,0.95)", color: "#aaee44" }}
+          >
+            {rsvpLabel}
+          </button>
+        ) : (
+          <div
+            className="backdrop-blur-sm rounded-[var(--radius)] p-4 border border-border"
+            style={{ backgroundColor: "rgba(56,56,56,0.95)" }}
+          >
+            <p className="text-muted-foreground text-xs font-semibold text-center mb-3">
+              {rsvp ? rsvpLabel : "Are you going?"}
+            </p>
+            <div className="flex gap-2">
               <button
-                onClick={() => setBarMinimised(false)}
-                className="mx-auto block backdrop-blur-sm rounded-full px-5 py-2.5 text-sm font-bold border border-border"
-                style={{ backgroundColor: "rgba(56,56,56,0.95)", color: "#aaee44" }}
+                onClick={() => handleRsvp("yes")}
+                className={`flex-1 rounded-full py-2.5 text-sm font-bold ${rsvp === "yes" ? "bg-primary text-primary-foreground" : "bg-muted text-secondary-foreground border border-border"}`}
               >
-                {rsvpLabel}
+                Yes 🙌
               </button>
-            ) : (
-              <div
-                className="backdrop-blur-sm rounded-[var(--radius)] p-4 border border-border"
-                style={{ backgroundColor: "rgba(56,56,56,0.95)" }}
+              <button
+                onClick={() => handleRsvp("no")}
+                className={`flex-1 rounded-full py-2.5 text-sm font-bold ${rsvp === "no" ? "bg-primary text-primary-foreground" : "bg-muted text-secondary-foreground border border-border"}`}
               >
-                <p className="text-muted-foreground text-xs font-semibold text-center mb-3">
-                  {rsvp ? rsvpLabel : "Are you going?"}
-                </p>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => handleRsvp("yes")}
-                    className={`flex-1 rounded-full py-2.5 text-sm font-bold ${rsvp === "yes" ? "bg-primary text-primary-foreground" : "bg-muted text-secondary-foreground border border-border"}`}
+                No 👎
+              </button>
+              <button
+                onClick={() => handleRsvp("maybe")}
+                className={`flex-1 rounded-full py-2.5 text-sm font-bold ${rsvp === "maybe" ? "bg-primary text-primary-foreground" : "bg-muted text-secondary-foreground border border-border"}`}
+              >
+                Maybe 🤷
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Full-screen chat overlay - all templates */}
+      {showFullComments && (
+        <div className="fixed inset-0 z-[60] flex flex-col" style={{ backgroundColor: "#2b2b2b" }}>
+          <div className="flex items-center gap-3 px-5 py-4 border-b border-border">
+            <button onClick={() => setShowFullComments(false)}>
+              <ArrowLeft className="w-5 h-5 text-muted-foreground" />
+            </button>
+            <h2 className="text-white font-bold text-base">Chat</h2>
+          </div>
+          <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
+            {comments.length === 0 && (
+              <p className="text-muted-foreground text-sm text-center mt-10">No messages yet — be the first!</p>
+            )}
+            {comments.map((c, i) => (
+              <div key={i} className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center overflow-hidden shrink-0">
+                  {c.avatar_url ? (
+                    <img src={c.avatar_url} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="text-[10px] font-bold text-muted-foreground">{getInitials(c.user_name)}</span>
+                  )}
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <span className="text-primary text-xs font-bold">{c.user_name}</span>
+                    <span className="text-muted-foreground text-[10px]">{formatTime(c.created_at)}</span>
+                  </div>
+                  <div
+                    className="rounded-2xl rounded-tl-sm px-3 py-2 inline-block"
+                    style={{ backgroundColor: "#383838" }}
                   >
-                    Yes 🙌
-                  </button>
-                  <button
-                    onClick={() => handleRsvp("no")}
-                    className={`flex-1 rounded-full py-2.5 text-sm font-bold ${rsvp === "no" ? "bg-primary text-primary-foreground" : "bg-muted text-secondary-foreground border border-border"}`}
-                  >
-                    No 👎
-                  </button>
-                  <button
-                    onClick={() => handleRsvp("maybe")}
-                    className={`flex-1 rounded-full py-2.5 text-sm font-bold ${rsvp === "maybe" ? "bg-primary text-primary-foreground" : "bg-muted text-secondary-foreground border border-border"}`}
-                  >
-                    Maybe 🤷
-                  </button>
+                    <p className="text-white text-sm">{c.text}</p>
+                  </div>
                 </div>
               </div>
-            )}
+            ))}
           </div>
+          <div className="px-4 py-3 border-t border-border flex gap-2">
+            <input
+              ref={fullCommentInputRef}
+              value={commentDraft}
+              onChange={(e) => setCommentDraft(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && sendComment()}
+              placeholder="Write a message..."
+              className="flex-1 rounded-full px-4 py-2.5 text-sm text-white placeholder:text-muted-foreground outline-none border border-border"
+              style={{ backgroundColor: "#383838" }}
+            />
+            <button
+              onClick={sendComment}
+              className="w-10 h-10 rounded-full bg-primary flex items-center justify-center shrink-0"
+            >
+              <Send className="w-4 h-4 text-primary-foreground" />
+            </button>
+          </div>
+        </div>
+      )}
 
-          {/* Full-screen chat overlay */}
-          {showFullComments && (
-            <div className="fixed inset-0 z-[60] flex flex-col" style={{ backgroundColor: "#2b2b2b" }}>
-              <div className="flex items-center gap-3 px-5 py-4 border-b border-border">
-                <button onClick={() => setShowFullComments(false)}>
-                  <ArrowLeft className="w-5 h-5 text-muted-foreground" />
+      {/* DM overlay - all templates */}
+      {showDMs && (
+        <div className="fixed inset-0 z-[60] flex flex-col" style={{ backgroundColor: "#2b2b2b" }}>
+          {!activeThread ? (
+            <>
+              <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+                <h2 className="text-white font-bold text-base">Private Messages</h2>
+                <button onClick={() => setShowDMs(false)}>
+                  <X className="w-5 h-5 text-muted-foreground" />
                 </button>
-                <h2 className="text-white font-bold text-base">Chat</h2>
               </div>
-              <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
-                {comments.length === 0 && (
-                  <p className="text-muted-foreground text-sm text-center mt-10">No messages yet — be the first!</p>
+              <div className="flex-1 overflow-y-auto px-5 py-4 space-y-2">
+                {dmThreads.length === 0 && (
+                  <p className="text-muted-foreground text-sm text-center mt-10">
+                    No messages yet. Guests can message you privately.
+                  </p>
                 )}
-                {comments.map((c, i) => (
-                  <div key={i} className="flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center overflow-hidden shrink-0">
-                      {c.avatar_url ? (
-                        <img src={c.avatar_url} alt="" className="w-full h-full object-cover" />
+                {dmThreads.map((t) => (
+                  <button
+                    key={t.user_id}
+                    onClick={() => setActiveThread(t.user_id)}
+                    className="w-full flex items-center gap-3 rounded-xl px-4 py-3 border border-border"
+                    style={{ backgroundColor: "#383838" }}
+                  >
+                    <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center overflow-hidden shrink-0">
+                      {t.avatar_url ? (
+                        <img src={t.avatar_url} alt="" className="w-full h-full object-cover" />
                       ) : (
-                        <span className="text-[10px] font-bold text-muted-foreground">{getInitials(c.user_name)}</span>
+                        <span className="text-xs font-bold text-muted-foreground">{getInitials(t.name)}</span>
                       )}
                     </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-0.5">
-                        <span className="text-primary text-xs font-bold">{c.user_name}</span>
-                        <span className="text-muted-foreground text-[10px]">{formatTime(c.created_at)}</span>
-                      </div>
-                      <div
-                        className="rounded-2xl rounded-tl-sm px-3 py-2 inline-block"
-                        style={{ backgroundColor: "#383838" }}
-                      >
-                        <p className="text-white text-sm">{c.text}</p>
-                      </div>
+                    <div className="flex-1 text-left min-w-0">
+                      <p className="text-white text-sm font-semibold">{t.name}</p>
+                      <p className="text-muted-foreground text-xs truncate">{t.lastMsg}</p>
+                    </div>
+                    {t.lastTime && (
+                      <span className="text-muted-foreground text-[10px] shrink-0">{formatTime(t.lastTime)}</span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="flex items-center gap-3 px-5 py-4 border-b border-border">
+                <button
+                  onClick={() => {
+                    setActiveThread(null);
+                    setThreadMessages([]);
+                  }}
+                >
+                  <ArrowLeft className="w-5 h-5 text-muted-foreground" />
+                </button>
+                <h2 className="text-white font-bold text-base">
+                  {dmThreads.find((t) => t.user_id === activeThread)?.name || "Guest"}
+                </h2>
+              </div>
+              <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3">
+                {threadMessages.length === 0 && (
+                  <p className="text-muted-foreground text-sm text-center mt-10">No messages yet</p>
+                )}
+                {threadMessages.map((m) => (
+                  <div key={m.id} className={`flex ${m.sender_id === user?.id ? "justify-end" : "justify-start"}`}>
+                    <div
+                      className={`max-w-[75%] rounded-2xl px-4 py-2.5 ${m.sender_id === user?.id ? "bg-primary text-primary-foreground" : "border border-border"}`}
+                      style={m.sender_id !== user?.id ? { backgroundColor: "#383838" } : undefined}
+                    >
+                      <p className="text-sm" style={m.sender_id !== user?.id ? { color: "white" } : undefined}>
+                        {m.text}
+                      </p>
+                      <p className="text-[10px] opacity-50 mt-0.5">{formatTime(m.created_at)}</p>
                     </div>
                   </div>
                 ))}
               </div>
               <div className="px-4 py-3 border-t border-border flex gap-2">
                 <input
-                  ref={fullCommentInputRef}
-                  value={commentDraft}
-                  onChange={(e) => setCommentDraft(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && sendComment()}
-                  placeholder="Write a message..."
+                  value={dmDraft}
+                  onChange={(e) => setDmDraft(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && sendDM()}
+                  placeholder="Type a reply..."
                   className="flex-1 rounded-full px-4 py-2.5 text-sm text-white placeholder:text-muted-foreground outline-none border border-border"
                   style={{ backgroundColor: "#383838" }}
                 />
-                <button
-                  onClick={sendComment}
-                  className="w-10 h-10 rounded-full bg-primary flex items-center justify-center shrink-0"
-                >
+                <button onClick={sendDM} className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
                   <Send className="w-4 h-4 text-primary-foreground" />
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* DM overlay - thread list or active conversation */}
-          {showDMs && (
-            <div className="fixed inset-0 z-[60] flex flex-col" style={{ backgroundColor: "#2b2b2b" }}>
-              {!activeThread ? (
-                <>
-                  <div className="flex items-center justify-between px-5 py-4 border-b border-border">
-                    <h2 className="text-white font-bold text-base">Private Messages</h2>
-                    <button onClick={() => setShowDMs(false)}>
-                      <X className="w-5 h-5 text-muted-foreground" />
-                    </button>
-                  </div>
-                  <div className="flex-1 overflow-y-auto px-5 py-4 space-y-2">
-                    {dmThreads.length === 0 && (
-                      <p className="text-muted-foreground text-sm text-center mt-10">
-                        No messages yet. Guests can message you privately.
-                      </p>
-                    )}
-                    {dmThreads.map((t) => (
-                      <button
-                        key={t.user_id}
-                        onClick={() => setActiveThread(t.user_id)}
-                        className="w-full flex items-center gap-3 rounded-xl px-4 py-3 border border-border"
-                        style={{ backgroundColor: "#383838" }}
-                      >
-                        <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center overflow-hidden shrink-0">
-                          {t.avatar_url ? (
-                            <img src={t.avatar_url} alt="" className="w-full h-full object-cover" />
-                          ) : (
-                            <span className="text-xs font-bold text-muted-foreground">{getInitials(t.name)}</span>
-                          )}
-                        </div>
-                        <div className="flex-1 text-left min-w-0">
-                          <p className="text-white text-sm font-semibold">{t.name}</p>
-                          <p className="text-muted-foreground text-xs truncate">{t.lastMsg}</p>
-                        </div>
-                        {t.lastTime && (
-                          <span className="text-muted-foreground text-[10px] shrink-0">{formatTime(t.lastTime)}</span>
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="flex items-center gap-3 px-5 py-4 border-b border-border">
-                    <button
-                      onClick={() => {
-                        setActiveThread(null);
-                        setThreadMessages([]);
-                      }}
-                    >
-                      <ArrowLeft className="w-5 h-5 text-muted-foreground" />
-                    </button>
-                    <h2 className="text-white font-bold text-base">
-                      {dmThreads.find((t) => t.user_id === activeThread)?.name || "Guest"}
-                    </h2>
-                  </div>
-                  <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3">
-                    {threadMessages.length === 0 && (
-                      <p className="text-muted-foreground text-sm text-center mt-10">No messages yet</p>
-                    )}
-                    {threadMessages.map((m) => (
-                      <div key={m.id} className={`flex ${m.sender_id === user?.id ? "justify-end" : "justify-start"}`}>
-                        <div
-                          className={`max-w-[75%] rounded-2xl px-4 py-2.5 ${m.sender_id === user?.id ? "bg-primary text-primary-foreground" : "border border-border"}`}
-                          style={m.sender_id !== user?.id ? { backgroundColor: "#383838" } : undefined}
-                        >
-                          <p className="text-sm" style={m.sender_id !== user?.id ? { color: "white" } : undefined}>
-                            {m.text}
-                          </p>
-                          <p className="text-[10px] opacity-50 mt-0.5">{formatTime(m.created_at)}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="px-4 py-3 border-t border-border flex gap-2">
-                    <input
-                      value={dmDraft}
-                      onChange={(e) => setDmDraft(e.target.value)}
-                      onKeyDown={(e) => e.key === "Enter" && sendDM()}
-                      placeholder="Type a reply..."
-                      className="flex-1 rounded-full px-4 py-2.5 text-sm text-white placeholder:text-muted-foreground outline-none border border-border"
-                      style={{ backgroundColor: "#383838" }}
-                    />
-                    <button
-                      onClick={sendDM}
-                      className="w-10 h-10 rounded-full bg-primary flex items-center justify-center"
-                    >
-                      <Send className="w-4 h-4 text-primary-foreground" />
-                    </button>
-                  </div>
-                </>
-              )}
-            </div>
-          )}
-
-          {/* Host menu dropdown - rendered outside nav stacking context */}
-          {showMenu && isHost && (
-            <>
-              <div className="fixed inset-0 z-[60]" onClick={() => setShowMenu(false)} />
-              <div
-                className="fixed top-16 right-5 rounded-xl border border-border shadow-lg z-[70] overflow-hidden"
-                style={{ backgroundColor: "#383838" }}
-              >
-                <button
-                  onClick={() => {
-                    console.log("[Planit] Edit event tapped, code:", event.code);
-                    setShowMenu(false);
-                    navigate(`/host?edit=${event.code}`);
-                  }}
-                  className="px-5 py-3 text-sm font-semibold text-white hover:bg-white/10 w-full text-left whitespace-nowrap"
-                >
-                  Edit event
-                </button>
-                <button
-                  onClick={() => {
-                    console.log("[Planit] Delete event tapped, id:", event.id);
-                    setShowMenu(false);
-                    setShowDeleteDialog(true);
-                  }}
-                  className="px-5 py-3 text-sm font-semibold text-red-400 hover:bg-red-500/10 w-full text-left whitespace-nowrap"
-                >
-                  Delete event
                 </button>
               </div>
             </>
           )}
-
-          {/* Delete confirmation */}
-          <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-            <AlertDialogContent style={{ backgroundColor: "#2b2b2b", border: "1px solid #444" }}>
-              <AlertDialogHeader>
-                <AlertDialogTitle className="text-white">Delete Event</AlertDialogTitle>
-                <AlertDialogDescription className="text-muted-foreground">
-                  Are you sure you want to delete this event? This cannot be undone.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel className="border-border text-white hover:bg-muted">Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={deleteEvent} className="bg-red-600 text-white hover:bg-red-700">
-                  Delete
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
         </div>
       )}
+
+      {/* Host menu - all templates */}
+      {showMenu && isHost && (
+        <>
+          <div className="fixed inset-0 z-[60]" onClick={() => setShowMenu(false)} />
+          <div
+            className="fixed top-16 right-5 rounded-xl border border-border shadow-lg z-[70] overflow-hidden"
+            style={{ backgroundColor: "#383838" }}
+          >
+            <button
+              onClick={() => {
+                setShowMenu(false);
+                navigate(`/host?edit=${event.code}`);
+              }}
+              className="px-5 py-3 text-sm font-semibold text-white hover:bg-white/10 w-full text-left whitespace-nowrap"
+            >
+              Edit event
+            </button>
+            <button
+              onClick={() => {
+                setShowMenu(false);
+                setShowDeleteDialog(true);
+              }}
+              className="px-5 py-3 text-sm font-semibold text-red-400 hover:bg-red-500/10 w-full text-left whitespace-nowrap"
+            >
+              Delete event
+            </button>
+          </div>
+        </>
+      )}
+
+      {/* Delete confirmation - all templates */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent style={{ backgroundColor: "#2b2b2b", border: "1px solid #444" }}>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-white">Delete Event</AlertDialogTitle>
+            <AlertDialogDescription className="text-muted-foreground">
+              Are you sure you want to delete this event? This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="border-border text-white hover:bg-muted">Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={deleteEvent} className="bg-red-600 text-white hover:bg-red-700">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
