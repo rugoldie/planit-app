@@ -868,12 +868,6 @@ const HostEvent = () => {
                   <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", color: accentColor, opacity: 0.6, marginTop: "2px" }}>
                     {timeStr}
                   </span>
-                  >
-                    {dayNum || "?"}
-                  </span>
-                  <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", color: "#555", marginTop: "2px" }}>
-                    {timeStr}
-                  </span>
                   <input
                     type="datetime-local"
                     value={dateTime}
