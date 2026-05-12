@@ -1423,347 +1423,520 @@ const GuestEventView = () => {
       ) : isSunny ? (
         /* ═══ SUNNY LAYOUT ═══ */
         <>
-          <div className="flex items-center justify-between px-5 pt-6">
-            <button onClick={() => navigate("/home")}>
-              <ArrowLeft className="w-6 h-6 text-white" />
-            </button>
-            <button onClick={() => setShowChat(true)} className="flex flex-col items-center gap-0.5">
-              <div
-                className="w-9 h-9 rounded-full flex items-center justify-center"
-                style={{ backgroundColor: "rgba(255,255,255,0.15)" }}
-              >
-                <MessageCircle className="w-4 h-4 text-white" />
-              </div>
-              <span className="text-[9px] font-semibold text-white/80">Message host</span>
-            </button>
-          </div>
+          <div
+            style={{
+              background: "linear-gradient(180deg, #ff6b35 0%, #ff8c00 40%, #2a0e00 100%)",
+              minHeight: "100vh",
+              position: "relative",
+              overflow: "hidden",
+            }}
+          >
+            <div
+              style={{
+                position: "absolute",
+                top: "-60px",
+                right: "-60px",
+                width: "180px",
+                height: "180px",
+                borderRadius: "50%",
+                background: "rgba(255,200,100,0.15)",
+                pointerEvents: "none",
+              }}
+            />
+            <div
+              style={{
+                position: "absolute",
+                top: "60px",
+                left: "-40px",
+                width: "120px",
+                height: "120px",
+                borderRadius: "50%",
+                background: "rgba(255,150,50,0.1)",
+                pointerEvents: "none",
+              }}
+            />
 
-          <div className="text-center px-6 pt-8 pb-2">
-            <h1 style={{ fontFamily: SUNNY_FF, fontSize: "40px", fontWeight: 700, color: "#fff", lineHeight: 1.1 }}>
-              {event.title || "Untitled Event"}
-            </h1>
-            {event.vibe && (
-              <p
-                className="mt-2"
-                style={{ fontFamily: SUNNY_FF, fontSize: "18px", fontStyle: "italic", color: "rgba(255,255,255,0.8)" }}
-              >
-                {event.vibe}
-              </p>
-            )}
-          </div>
-
-          <div className="px-6 pt-4 flex flex-col items-center gap-3">
-            {event.location && (
-              <div
-                className="w-full max-w-xs rounded-full px-5 py-3 text-center"
-                style={{
-                  backgroundColor: "rgba(255,255,255,0.25)",
-                  border: "1px solid rgba(255,255,255,0.3)",
-                  backdropFilter: "blur(8px)",
-                }}
-              >
-                <span style={{ fontFamily: SUNNY_FF, fontSize: "18px", color: "#fff" }}>📍 {event.location}</span>
-              </div>
-            )}
-            {eventDate && (
-              <div
-                className="w-full max-w-xs rounded-full px-5 py-3 text-center"
-                style={{
-                  backgroundColor: "rgba(255,255,255,0.25)",
-                  border: "1px solid rgba(255,255,255,0.3)",
-                  backdropFilter: "blur(8px)",
-                }}
-              >
-                <span style={{ fontFamily: SUNNY_FF, fontSize: "18px", color: "#fff" }}>
-                  🗓️ {dayOfWeek}, {monthName} {dayNum} · {timeStr}
-                </span>
-              </div>
-            )}
-            {event.dress_code && (
-              <div
-                className="w-full max-w-xs rounded-full px-5 py-3 text-center"
-                style={{
-                  backgroundColor: "rgba(255,255,255,0.25)",
-                  border: "1px solid rgba(255,255,255,0.3)",
-                  backdropFilter: "blur(8px)",
-                }}
-              >
-                <span style={{ fontFamily: SUNNY_FF, fontSize: "18px", color: "#fff" }}>🎭 {event.dress_code}</span>
-              </div>
-            )}
-            {event.extra && (
-              <div
-                className="w-full max-w-xs rounded-2xl px-5 py-4 text-center"
-                style={{
-                  backgroundColor: "rgba(0,0,0,0.35)",
-                  border: "1px solid rgba(255,255,255,0.15)",
-                  backdropFilter: "blur(8px)",
-                }}
-              >
-                <span style={{ fontFamily: SUNNY_FF, fontSize: "16px", color: "#fff" }}>✦ {event.extra}</span>
-              </div>
-            )}
-          </div>
-
-          {/* Sunny Who's going */}
-          <div className="px-5 mt-6">
-            <div className="rounded-2xl p-4" style={{ backgroundColor: SUNNY_DARK }}>
-              <button
-                onClick={() => setGuestListExpanded(!guestListExpanded)}
-                className="flex items-center justify-between w-full mb-3"
-              >
-                <h2 style={{ fontFamily: SUNNY_FF, fontSize: "18px", fontWeight: 700, color: "#fff" }}>Who's going</h2>
-                <div className="flex items-center gap-2">
-                  {goingList.length > 0 && (
-                    <span style={{ fontFamily: SUNNY_FF, fontSize: "14px", fontWeight: 700, color: SUNNY_ORANGE }}>
-                      {goingList.length} going
-                    </span>
-                  )}
-                  {guestListExpanded ? (
-                    <ChevronUp className="w-4 h-4" style={{ color: SUNNY_ORANGE }} />
-                  ) : (
-                    <ChevronDown className="w-4 h-4" style={{ color: SUNNY_ORANGE }} />
-                  )}
-                </div>
+            {/* Nav */}
+            <div className="flex items-center justify-between px-5 pt-6 relative z-10">
+              <button onClick={() => navigate("/home")}>
+                <ArrowLeft className="w-6 h-6 text-white/60" />
               </button>
-              {!guestListExpanded ? (
-                <>
-                  <div className="flex items-center gap-2 overflow-x-auto mb-2">
-                    {goingList.length === 0 && (
-                      <p style={{ fontFamily: SUNNY_FF, fontSize: "14px", color: SUNNY_ORANGE, opacity: 0.6 }}>
-                        No one yet
-                      </p>
-                    )}
-                    {goingList.map((r, i) => (
-                      <div key={i} className="flex flex-col items-center shrink-0">
-                        <div
-                          className="w-10 h-10 rounded-full flex items-center justify-center overflow-hidden"
-                          style={{ border: `2px solid ${SUNNY_ORANGE}`, backgroundColor: "#2a1500" }}
-                        >
-                          {r.avatar_url ? (
-                            <img src={r.avatar_url} alt="" className="w-full h-full object-cover" />
-                          ) : (
-                            <span className="text-xs font-bold" style={{ color: SUNNY_ORANGE }}>
-                              {getInitials(r.name)}
-                            </span>
-                          )}
-                        </div>
-                        <span
-                          style={{ fontFamily: SUNNY_FF, fontSize: "12px", color: SUNNY_ORANGE }}
-                          className="mt-1 max-w-[40px] truncate"
-                        >
-                          {r.name.split(" ")[0]}
-                        </span>
-                      </div>
-                    ))}
+              <button onClick={() => setShowChat(true)} className="flex flex-col items-center gap-0.5">
+                <div
+                  className="w-9 h-9 rounded-full flex items-center justify-center"
+                  style={{ backgroundColor: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.25)" }}
+                >
+                  <MessageCircle className="w-4 h-4 text-white" />
+                </div>
+                <span className="text-[9px] font-semibold text-white/70" style={{ fontFamily: SUNNY_FF }}>
+                  Message host
+                </span>
+              </button>
+            </div>
+
+            {/* Header */}
+            <div className="text-center px-6 pt-6 pb-4 relative z-10">
+              <p
+                style={{
+                  fontFamily: SUNNY_FF,
+                  fontSize: "14px",
+                  color: "rgba(255,255,255,0.6)",
+                  fontStyle: "italic",
+                  marginBottom: "4px",
+                }}
+              >
+                you're invited to
+              </p>
+              <h1
+                style={{
+                  fontFamily: SUNNY_FF,
+                  fontSize: "38px",
+                  fontWeight: 700,
+                  color: "#fff",
+                  lineHeight: 1.1,
+                  marginBottom: "4px",
+                }}
+              >
+                {event.title || "Untitled Event"}
+              </h1>
+              {event.vibe && (
+                <p
+                  style={{
+                    fontFamily: SUNNY_FF,
+                    fontSize: "16px",
+                    fontStyle: "italic",
+                    color: "rgba(255,255,255,0.7)",
+                    marginBottom: "4px",
+                  }}
+                >
+                  {event.vibe}
+                </p>
+              )}
+              <p
+                style={{ fontFamily: SUNNY_FF, fontSize: "13px", color: "rgba(255,255,255,0.4)", marginBottom: "12px" }}
+              >
+                hosted by {hostName}
+              </p>
+              <div className="flex items-center gap-3 justify-center">
+                <div className="flex-1 h-px" style={{ backgroundColor: "rgba(255,255,255,0.2)" }} />
+                <span style={{ color: "rgba(255,255,255,0.5)", fontSize: "16px" }}>☀</span>
+                <div className="flex-1 h-px" style={{ backgroundColor: "rgba(255,255,255,0.2)" }} />
+              </div>
+            </div>
+
+            {/* Info rows */}
+            <div className="px-5 flex flex-col gap-3 relative z-10">
+              {event.location && (
+                <div
+                  style={{
+                    background: "rgba(255,255,255,0.12)",
+                    border: "1px solid rgba(255,255,255,0.2)",
+                    borderRadius: "16px",
+                    padding: "12px 14px",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "12px",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: "40px",
+                      height: "40px",
+                      background: "rgba(255,255,255,0.15)",
+                      borderRadius: "12px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "20px",
+                      flexShrink: 0,
+                    }}
+                  >
+                    📍
                   </div>
-                  {maybeList.length > 0 && (
-                    <div className="flex items-center gap-2 overflow-x-auto">
-                      {maybeList.map((r, i) => (
-                        <div key={i} className="flex flex-col items-center shrink-0">
-                          <div
-                            className="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden opacity-60"
-                            style={{ backgroundColor: "#2a1500" }}
-                          >
-                            {r.avatar_url ? (
-                              <img src={r.avatar_url} alt="" className="w-full h-full object-cover" />
-                            ) : (
-                              <span className="text-[10px] font-bold" style={{ color: SUNNY_ORANGE }}>
-                                {getInitials(r.name)}
-                              </span>
-                            )}
-                          </div>
-                          <span
-                            style={{ fontFamily: SUNNY_FF, fontSize: "11px", color: SUNNY_ORANGE, opacity: 0.5 }}
-                            className="mt-0.5 max-w-[36px] truncate"
-                          >
-                            {r.name.split(" ")[0]}
-                          </span>
-                        </div>
-                      ))}
-                      <span
-                        style={{
-                          fontFamily: SUNNY_FF,
-                          fontSize: "12px",
-                          fontWeight: 600,
-                          color: SUNNY_ORANGE,
-                          opacity: 0.6,
-                        }}
-                      >
-                        {maybeList.length} maybe
-                      </span>
-                    </div>
-                  )}
-                  {rsvp === "yes" && (
-                    <div className="mt-3 flex justify-center">
-                      <div
-                        className="rounded-full px-4 py-1.5"
-                        style={{
-                          backgroundColor: "rgba(255,107,53,0.15)",
-                          fontFamily: SUNNY_FF,
-                          fontSize: "14px",
-                          fontWeight: 700,
-                          color: SUNNY_ORANGE,
-                        }}
-                      >
-                        🎉 You're going!
-                      </div>
-                    </div>
-                  )}
-                </>
-              ) : (
-                <div className="space-y-2 max-h-64 overflow-y-auto">
-                  {rsvpList.length === 0 && (
+                  <div>
+                    <p
+                      style={{
+                        fontSize: "9px",
+                        color: "rgba(255,255,255,0.55)",
+                        textTransform: "uppercase" as const,
+                        letterSpacing: "2px",
+                        margin: "0 0 2px",
+                        fontFamily: "sans-serif",
+                      }}
+                    >
+                      Location
+                    </p>
+                    <p style={{ fontFamily: SUNNY_FF, fontSize: "18px", fontWeight: 700, color: "#fff", margin: 0 }}>
+                      {event.location}
+                    </p>
+                  </div>
+                </div>
+              )}
+              {eventDate && (
+                <div
+                  style={{
+                    background: "rgba(255,255,255,0.12)",
+                    border: "1px solid rgba(255,255,255,0.2)",
+                    borderRadius: "16px",
+                    padding: "12px 14px",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "12px",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: "40px",
+                      height: "40px",
+                      background: "rgba(255,255,255,0.15)",
+                      borderRadius: "12px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "20px",
+                      flexShrink: 0,
+                    }}
+                  >
+                    🗓️
+                  </div>
+                  <div>
+                    <p
+                      style={{
+                        fontSize: "9px",
+                        color: "rgba(255,255,255,0.55)",
+                        textTransform: "uppercase" as const,
+                        letterSpacing: "2px",
+                        margin: "0 0 2px",
+                        fontFamily: "sans-serif",
+                      }}
+                    >
+                      Date
+                    </p>
+                    <p style={{ fontFamily: SUNNY_FF, fontSize: "18px", fontWeight: 700, color: "#fff", margin: 0 }}>
+                      {dayOfWeek} {dayNum} {monthName} · {timeStr}
+                    </p>
+                  </div>
+                </div>
+              )}
+              {event.dress_code && (
+                <div
+                  style={{
+                    background: "rgba(255,255,255,0.12)",
+                    border: "1px solid rgba(255,255,255,0.2)",
+                    borderRadius: "16px",
+                    padding: "12px 14px",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "12px",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: "40px",
+                      height: "40px",
+                      background: "rgba(255,255,255,0.15)",
+                      borderRadius: "12px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "20px",
+                      flexShrink: 0,
+                    }}
+                  >
+                    🎭
+                  </div>
+                  <div>
+                    <p
+                      style={{
+                        fontSize: "9px",
+                        color: "rgba(255,255,255,0.55)",
+                        textTransform: "uppercase" as const,
+                        letterSpacing: "2px",
+                        margin: "0 0 2px",
+                        fontFamily: "sans-serif",
+                      }}
+                    >
+                      Dress code
+                    </p>
+                    <p style={{ fontFamily: SUNNY_FF, fontSize: "18px", fontWeight: 700, color: "#fff", margin: 0 }}>
+                      {event.dress_code}
+                    </p>
+                  </div>
+                </div>
+              )}
+              {event.extra && (
+                <div
+                  style={{
+                    background: "rgba(0,0,0,0.2)",
+                    border: "1px solid rgba(255,255,255,0.1)",
+                    borderRadius: "16px",
+                    padding: "12px 14px",
+                    display: "flex",
+                    alignItems: "flex-start",
+                    gap: "12px",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: "40px",
+                      height: "40px",
+                      background: "rgba(255,255,255,0.1)",
+                      borderRadius: "12px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "20px",
+                      flexShrink: 0,
+                    }}
+                  >
+                    ✦
+                  </div>
+                  <div>
+                    <p
+                      style={{
+                        fontSize: "9px",
+                        color: "rgba(255,255,255,0.45)",
+                        textTransform: "uppercase" as const,
+                        letterSpacing: "2px",
+                        margin: "0 0 2px",
+                        fontFamily: "sans-serif",
+                      }}
+                    >
+                      Note from host
+                    </p>
                     <p
                       style={{
                         fontFamily: SUNNY_FF,
-                        fontSize: "14px",
-                        color: SUNNY_ORANGE,
-                        opacity: 0.5,
-                        textAlign: "center",
-                        padding: "12px 0",
+                        fontSize: "16px",
+                        color: "rgba(255,255,255,0.8)",
+                        margin: 0,
+                        fontStyle: "italic",
                       }}
                     >
-                      No RSVPs yet
+                      {event.extra}
                     </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Who's going */}
+              <div
+                style={{
+                  background: "rgba(255,255,255,0.1)",
+                  border: "1px solid rgba(255,255,255,0.15)",
+                  borderRadius: "16px",
+                  padding: "12px 14px",
+                }}
+              >
+                <button
+                  onClick={() => setGuestListExpanded(!guestListExpanded)}
+                  className="flex items-center justify-between w-full mb-2"
+                >
+                  <h2 style={{ fontFamily: SUNNY_FF, fontSize: "18px", fontWeight: 700, color: "#fff" }}>
+                    Who's going
+                  </h2>
+                  <div className="flex items-center gap-2">
+                    {goingList.length > 0 && (
+                      <span
+                        style={{
+                          fontFamily: SUNNY_FF,
+                          fontSize: "13px",
+                          fontWeight: 700,
+                          color: "rgba(255,255,255,0.6)",
+                        }}
+                      >
+                        {goingList.length} going
+                      </span>
+                    )}
+                    {guestListExpanded ? (
+                      <ChevronUp className="w-4 h-4 text-white/60" />
+                    ) : (
+                      <ChevronDown className="w-4 h-4 text-white/60" />
+                    )}
+                  </div>
+                </button>
+                <div className="flex items-center gap-2 overflow-x-auto">
+                  {goingList.length === 0 && (
+                    <p style={{ fontFamily: SUNNY_FF, fontSize: "14px", color: "rgba(255,255,255,0.4)" }}>No one yet</p>
                   )}
-                  {rsvpList.map((r, i) => (
-                    <div
-                      key={i}
-                      className="flex items-center gap-3 rounded-xl px-3 py-2"
-                      style={{ backgroundColor: "#2a1500" }}
-                    >
+                  {goingList.map((r, i) => (
+                    <div key={i} className="flex flex-col items-center shrink-0">
                       <div
-                        className="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden shrink-0"
-                        style={{ border: `2px solid ${SUNNY_ORANGE}`, backgroundColor: SUNNY_DARK }}
+                        className="w-10 h-10 rounded-full flex items-center justify-center overflow-hidden"
+                        style={{ border: "2px solid rgba(255,255,255,0.4)", backgroundColor: "rgba(255,255,255,0.15)" }}
                       >
                         {r.avatar_url ? (
                           <img src={r.avatar_url} alt="" className="w-full h-full object-cover" />
                         ) : (
-                          <span className="text-[10px] font-bold" style={{ color: SUNNY_ORANGE }}>
+                          <span style={{ fontFamily: SUNNY_FF, fontSize: "14px", fontWeight: 700, color: "#fff" }}>
                             {getInitials(r.name)}
                           </span>
                         )}
                       </div>
-                      <span style={{ fontFamily: SUNNY_FF, fontSize: "16px", fontWeight: 600, color: "#fff", flex: 1 }}>
-                        {r.name}
+                      <span
+                        style={{ fontFamily: SUNNY_FF, fontSize: "12px", color: "rgba(255,255,255,0.6)" }}
+                        className="mt-1 max-w-[40px] truncate"
+                      >
+                        {r.name.split(" ")[0]}
                       </span>
-                      {statusBadge(r.status)}
                     </div>
                   ))}
                 </div>
-              )}
-            </div>
-
-            {/* Sunny Chat */}
-            <div className="mt-4 rounded-2xl p-4" style={{ backgroundColor: SUNNY_DARK }}>
-              <div className="flex items-center justify-between mb-3">
-                <h2 style={{ fontFamily: SUNNY_FF, fontSize: "18px", fontWeight: 700, color: "#fff" }}>Chat</h2>
-                <button onClick={() => setShowFullComments(true)}>
-                  <Maximize2 className="w-4 h-4" style={{ color: SUNNY_ORANGE }} />
-                </button>
               </div>
-              <div className="space-y-2 max-h-48 overflow-y-auto mb-3">
-                {comments.length === 0 && (
+
+              {/* Chat */}
+              <div
+                style={{
+                  background: "rgba(255,255,255,0.1)",
+                  border: "1px solid rgba(255,255,255,0.15)",
+                  borderRadius: "16px",
+                  padding: "12px 14px",
+                }}
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <h2 style={{ fontFamily: SUNNY_FF, fontSize: "18px", fontWeight: 700, color: "#fff" }}>Chat</h2>
+                  <button onClick={() => setShowFullComments(true)}>
+                    <Maximize2 className="w-4 h-4 text-white/60" />
+                  </button>
+                </div>
+                <div className="space-y-2 max-h-48 overflow-y-auto mb-3">
+                  {comments.length === 0 && (
+                    <p
+                      style={{
+                        fontFamily: SUNNY_FF,
+                        fontSize: "14px",
+                        color: "rgba(255,255,255,0.4)",
+                        textAlign: "center",
+                        padding: "12px 0",
+                      }}
+                    >
+                      No messages yet — be the first!
+                    </p>
+                  )}
+                  {comments.map((c, i) => (
+                    <div key={i} className="rounded-xl px-3 py-2" style={{ backgroundColor: "rgba(0,0,0,0.2)" }}>
+                      <div className="flex items-center gap-2">
+                        <span style={{ fontFamily: SUNNY_FF, fontSize: "14px", fontWeight: 700, color: "#fff" }}>
+                          {c.user_name}
+                        </span>
+                        <span style={{ fontSize: "10px", color: "rgba(255,255,255,0.4)" }}>
+                          {formatTime(c.created_at)}
+                        </span>
+                      </div>
+                      <p
+                        style={{
+                          fontFamily: SUNNY_FF,
+                          fontSize: "15px",
+                          color: "rgba(255,255,255,0.85)",
+                          marginTop: "2px",
+                        }}
+                      >
+                        {c.text}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex gap-2">
+                  <input
+                    value={commentDraft}
+                    onChange={(e) => setCommentDraft(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && sendComment()}
+                    placeholder="Write a message..."
+                    className="flex-1 rounded-full px-4 py-2 text-sm outline-none"
+                    style={{
+                      fontFamily: SUNNY_FF,
+                      backgroundColor: "rgba(0,0,0,0.2)",
+                      color: "#fff",
+                      border: "1px solid rgba(255,255,255,0.2)",
+                    }}
+                  />
+                  <button
+                    onClick={sendComment}
+                    className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
+                    style={{ backgroundColor: "rgba(255,255,255,0.9)" }}
+                  >
+                    <Send className="w-4 h-4" style={{ color: "#c8440a" }} />
+                  </button>
+                </div>
+              </div>
+
+              {/* Gallery */}
+              <div
+                style={{
+                  background: "rgba(255,255,255,0.1)",
+                  border: "1px solid rgba(255,255,255,0.15)",
+                  borderRadius: "16px",
+                  padding: "12px 14px",
+                  marginBottom: "20px",
+                }}
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <h2 style={{ fontFamily: SUNNY_FF, fontSize: "18px", fontWeight: 700, color: "#fff" }}>Gallery</h2>
+                  <button
+                    onClick={() => photoInput.current?.click()}
+                    className="text-xs font-bold rounded-full px-3 py-1"
+                    style={{ backgroundColor: "rgba(255,255,255,0.9)", color: "#c8440a", fontFamily: SUNNY_FF }}
+                  >
+                    Add photo
+                  </button>
+                  <input
+                    ref={photoInput}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handlePhotoUpload}
+                  />
+                </div>
+                {uploadingPhoto && (
                   <p
                     style={{
                       fontFamily: SUNNY_FF,
                       fontSize: "14px",
-                      color: SUNNY_ORANGE,
-                      opacity: 0.5,
+                      color: "rgba(255,255,255,0.6)",
                       textAlign: "center",
-                      padding: "12px 0",
+                      padding: "8px 0",
                     }}
                   >
-                    No messages yet — be the first!
+                    Uploading...
                   </p>
                 )}
-                {comments.map((c, i) => (
-                  <div key={i} className="rounded-xl px-3 py-2" style={{ backgroundColor: "#2a1500" }}>
-                    <div className="flex items-center gap-2">
-                      <span style={{ fontFamily: SUNNY_FF, fontSize: "14px", fontWeight: 700, color: SUNNY_ORANGE }}>
-                        {c.user_name}
-                      </span>
-                      <span style={{ fontSize: "10px", color: SUNNY_ORANGE, opacity: 0.4 }}>
-                        {formatTime(c.created_at)}
-                      </span>
-                    </div>
-                    <p style={{ fontFamily: SUNNY_FF, fontSize: "15px", color: "#fff", marginTop: "2px" }}>{c.text}</p>
+                {photos.length === 0 && !uploadingPhoto ? (
+                  <p
+                    style={{
+                      fontFamily: SUNNY_FF,
+                      fontSize: "14px",
+                      color: "rgba(255,255,255,0.4)",
+                      textAlign: "center",
+                      padding: "16px 0",
+                    }}
+                  >
+                    No photos yet — add the first one!
+                  </p>
+                ) : (
+                  <div className="grid grid-cols-3 gap-1.5">
+                    {photos.map((p) => (
+                      <div key={p.id} className="aspect-square rounded-xl overflow-hidden">
+                        <img src={p.photo_url} alt="" className="w-full h-full object-cover" />
+                      </div>
+                    ))}
                   </div>
-                ))}
+                )}
               </div>
-              <div className="flex gap-2">
-                <input
-                  value={commentDraft}
-                  onChange={(e) => setCommentDraft(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && sendComment()}
-                  placeholder="Write a message..."
-                  className="flex-1 rounded-full px-4 py-2 text-sm outline-none"
-                  style={{
-                    fontFamily: SUNNY_FF,
-                    backgroundColor: "#2a1500",
-                    color: "#fff",
-                    border: `1px solid rgba(255,107,53,0.3)`,
-                  }}
-                />
-                <button
-                  onClick={sendComment}
-                  className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
-                  style={{ backgroundColor: SUNNY_ORANGE }}
-                >
-                  <Send className="w-4 h-4" style={{ color: "#fff" }} />
-                </button>
-              </div>
-            </div>
 
-            {/* Sunny Gallery */}
-            <div className="mt-4 rounded-2xl p-4" style={{ backgroundColor: SUNNY_DARK }}>
-              <div className="flex items-center justify-between mb-3">
-                <h2 style={{ fontFamily: SUNNY_FF, fontSize: "18px", fontWeight: 700, color: "#fff" }}>Gallery</h2>
-                <button
-                  onClick={() => photoInput.current?.click()}
-                  className="text-xs font-bold rounded-full px-3 py-1"
-                  style={{ backgroundColor: SUNNY_ORANGE, color: "#fff" }}
-                >
-                  Add photo
-                </button>
-                <input ref={photoInput} type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} />
+              {/* View event button */}
+              <div
+                style={{
+                  background: "rgba(255,255,255,0.92)",
+                  borderRadius: "14px",
+                  padding: "12px",
+                  textAlign: "center",
+                  marginBottom: "100px",
+                }}
+              >
+                <span style={{ fontFamily: SUNNY_FF, fontSize: "18px", fontWeight: 700, color: "#c8440a" }}>
+                  You're going! ☀
+                </span>
               </div>
-              {uploadingPhoto && (
-                <p
-                  style={{
-                    fontFamily: SUNNY_FF,
-                    fontSize: "14px",
-                    color: SUNNY_ORANGE,
-                    textAlign: "center",
-                    padding: "8px 0",
-                  }}
-                >
-                  Uploading...
-                </p>
-              )}
-              {photos.length === 0 && !uploadingPhoto ? (
-                <p
-                  style={{
-                    fontFamily: SUNNY_FF,
-                    fontSize: "14px",
-                    color: SUNNY_ORANGE,
-                    opacity: 0.5,
-                    textAlign: "center",
-                    padding: "16px 0",
-                  }}
-                >
-                  No photos yet — add the first one!
-                </p>
-              ) : (
-                <div className="grid grid-cols-3 gap-1.5">
-                  {photos.map((p) => (
-                    <div key={p.id} className="aspect-square rounded-xl overflow-hidden">
-                      <img src={p.photo_url} alt="" className="w-full h-full object-cover" />
-                    </div>
-                  ))}
-                </div>
-              )}
             </div>
           </div>
         </>
