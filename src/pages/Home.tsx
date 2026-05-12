@@ -39,17 +39,14 @@ const useUserEvents = (userId: string | undefined) => {
 
       const { data: hosted } = await supabase
         .from("events")
-        .select("id, code, title, date_time, location, gradient_color, bubble_color, bg_color, font_style, template_name")
+        .select(
+          "id, code, title, date_time, location, gradient_color, bubble_color, bg_color, font_style, template_name",
+        )
         .eq("host_id", userId);
 
-      const { data: rsvps } = await supabase
-        .from("event_guests")
-        .select("event_id, rsvp_status")
-        .eq("user_id", userId);
+      const { data: rsvps } = await supabase.from("event_guests").select("event_id, rsvp_status").eq("user_id", userId);
 
-      const rsvpMap = new Map(
-        (rsvps || []).map((r) => [r.event_id, r.rsvp_status])
-      );
+      const rsvpMap = new Map((rsvps || []).map((r) => [r.event_id, r.rsvp_status]));
 
       const hostedIds = new Set((hosted || []).map((e) => e.id));
       const guestEventIds = (rsvps || [])
@@ -61,15 +58,14 @@ const useUserEvents = (userId: string | undefined) => {
       if (guestEventIds.length > 0) {
         const { data } = await supabase
           .from("events")
-          .select("id, code, title, date_time, location, gradient_color, bubble_color, bg_color, font_style, template_name")
+          .select(
+            "id, code, title, date_time, location, gradient_color, bubble_color, bg_color, font_style, template_name",
+          )
           .in("id", guestEventIds);
         guestEvents = data || [];
       }
 
-      const allEventIds = [
-        ...(hosted || []).map((e) => e.id),
-        ...guestEventIds,
-      ];
+      const allEventIds = [...(hosted || []).map((e) => e.id), ...guestEventIds];
 
       let guestCounts: Record<string, number> = {};
       if (allEventIds.length > 0) {
@@ -134,18 +130,27 @@ const RoleBadge = ({ role, accentColor }: { role: "host" | "going" | "maybe"; ac
   const bg = accentColor || "#aaee44";
   if (role === "host")
     return (
-      <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold" style={{ backgroundColor: bg, color: "#111" }}>
+      <span
+        className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold"
+        style={{ backgroundColor: bg, color: "#111" }}
+      >
         Host
       </span>
     );
   if (role === "going")
     return (
-      <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold" style={{ backgroundColor: bg, color: "#111" }}>
+      <span
+        className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold"
+        style={{ backgroundColor: bg, color: "#111" }}
+      >
         Going
       </span>
     );
   return (
-    <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold" style={{ backgroundColor: "#f59e0b", color: "#111" }}>
+    <span
+      className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold"
+      style={{ backgroundColor: "#f59e0b", color: "#111" }}
+    >
       Maybe
     </span>
   );
@@ -196,12 +201,26 @@ const isGalaxy = (templateName: string | null) => {
   if (!templateName) return false;
   return templateName.toLowerCase().trim() === "galaxy";
 };
+const isSunny = (templateName: string | null) => {
+  if (!templateName) return false;
+  return templateName.toLowerCase().trim() === "sunny";
+};
 /** Noir-styled title: second word in accent color + italic */
-const NoirCardTitle = ({ title, accentColor, fontSize = "1.25rem" }: { title: string; accentColor: string; fontSize?: string }) => {
+const NoirCardTitle = ({
+  title,
+  accentColor,
+  fontSize = "1.25rem",
+}: {
+  title: string;
+  accentColor: string;
+  fontSize?: string;
+}) => {
   const words = (title || "Untitled Event").split(" ");
   if (words.length <= 1) {
     return (
-      <span style={{ fontFamily: "'Playfair Display', serif", fontWeight: 900, fontSize, color: "white", lineHeight: 1.2 }}>
+      <span
+        style={{ fontFamily: "'Playfair Display', serif", fontWeight: 900, fontSize, color: "white", lineHeight: 1.2 }}
+      >
         {words[0]}
       </span>
     );
@@ -450,7 +469,10 @@ const NoirUpcomingCard = ({ event, navigate }: { event: EventWithRole; navigate:
     >
       <div className="relative z-10 flex items-center justify-between">
         <div className="flex-1 mr-3 min-w-0">
-          <h3 className="truncate" style={{ fontFamily: "'Playfair Display', serif", fontSize: "14px", fontWeight: 700, color: "white" }}>
+          <h3
+            className="truncate"
+            style={{ fontFamily: "'Playfair Display', serif", fontSize: "14px", fontWeight: 700, color: "white" }}
+          >
             {event.title || "Untitled Event"}
           </h3>
           <p className="truncate mt-0.5" style={{ fontSize: "11px", color: "rgba(255,255,255,0.4)" }}>
@@ -473,44 +495,159 @@ const GalaxyNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate:
   const navPath = event.role === "host" ? `/event/${event.code}` : `/guest/${event.code}`;
 
   return (
-    <div className="rounded-2xl overflow-hidden relative cursor-pointer" style={{ backgroundColor: "#0d0d2b", border: "1px solid rgba(168,85,247,0.3)" }} onClick={() => navigate(navPath)}>
-      <div style={{ position: "absolute", top: "-20px", right: "-20px", width: "80px", height: "80px", borderRadius: "50%", background: "rgba(147,51,234,0.2)", pointerEvents: "none" }} />
-      <div style={{ position: "absolute", bottom: "40px", left: "-15px", width: "50px", height: "50px", borderRadius: "50%", background: "rgba(236,72,153,0.12)", pointerEvents: "none" }} />
+    <div
+      className="rounded-2xl overflow-hidden relative cursor-pointer"
+      style={{ backgroundColor: "#0d0d2b", border: "1px solid rgba(168,85,247,0.3)" }}
+      onClick={() => navigate(navPath)}
+    >
+      <div
+        style={{
+          position: "absolute",
+          top: "-20px",
+          right: "-20px",
+          width: "80px",
+          height: "80px",
+          borderRadius: "50%",
+          background: "rgba(147,51,234,0.2)",
+          pointerEvents: "none",
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          bottom: "40px",
+          left: "-15px",
+          width: "50px",
+          height: "50px",
+          borderRadius: "50%",
+          background: "rgba(236,72,153,0.12)",
+          pointerEvents: "none",
+        }}
+      />
 
       <div className="relative z-10 p-3.5">
-        <p style={{ fontSize: "9px", color: accent, letterSpacing: "2px", textTransform: "uppercase" as const, marginBottom: "4px", fontFamily: "sans-serif" }}>✦ you are invited to ✦</p>
-        <span style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 800, fontSize: "1.15rem", color: "#fff", lineHeight: 1.2 }}>{event.title || "Untitled Event"}</span>
+        <p
+          style={{
+            fontSize: "9px",
+            color: accent,
+            letterSpacing: "2px",
+            textTransform: "uppercase" as const,
+            marginBottom: "4px",
+            fontFamily: "sans-serif",
+          }}
+        >
+          ✦ you are invited to ✦
+        </p>
+        <span
+          style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontWeight: 800,
+            fontSize: "1.15rem",
+            color: "#fff",
+            lineHeight: 1.2,
+          }}
+        >
+          {event.title || "Untitled Event"}
+        </span>
 
         <div className="flex items-center gap-3 mt-2.5 mb-3">
           <div className="flex-1 h-px" style={{ backgroundColor: "rgba(168,85,247,0.2)" }} />
-          <span style={{ fontSize: "8px", fontWeight: 600, letterSpacing: "0.22em", color: "rgba(255,255,255,0.3)", textTransform: "uppercase" as const, fontFamily: "sans-serif" }}>
+          <span
+            style={{
+              fontSize: "8px",
+              fontWeight: 600,
+              letterSpacing: "0.22em",
+              color: "rgba(255,255,255,0.3)",
+              textTransform: "uppercase" as const,
+              fontFamily: "sans-serif",
+            }}
+          >
             by {event.role === "host" ? "You" : "Host"}
           </span>
           <div className="flex-1 h-px" style={{ backgroundColor: "rgba(168,85,247,0.2)" }} />
         </div>
 
         <div className="flex gap-2 mb-3">
-          <div className="flex-1 flex flex-col items-center justify-center rounded-lg py-2 px-2" style={{ background: "rgba(236,72,153,0.15)", border: "1px solid rgba(236,72,153,0.3)" }}>
-            <span style={{ fontSize: "22px", fontWeight: 800, color: "#fff", lineHeight: 1, fontFamily: "sans-serif" }}>{dayNum}</span>
-            <span style={{ fontSize: "8px", fontWeight: 700, color: "#ec4899", textTransform: "uppercase" as const, letterSpacing: "0.12em", marginTop: "2px", fontFamily: "sans-serif" }}>{monthName}</span>
-            {timeStr && <span style={{ fontSize: "8px", color: "#ec4899", opacity: 0.6, marginTop: "1px", fontFamily: "sans-serif" }}>{timeStr}</span>}
+          <div
+            className="flex-1 flex flex-col items-center justify-center rounded-lg py-2 px-2"
+            style={{ background: "rgba(236,72,153,0.15)", border: "1px solid rgba(236,72,153,0.3)" }}
+          >
+            <span style={{ fontSize: "22px", fontWeight: 800, color: "#fff", lineHeight: 1, fontFamily: "sans-serif" }}>
+              {dayNum}
+            </span>
+            <span
+              style={{
+                fontSize: "8px",
+                fontWeight: 700,
+                color: "#ec4899",
+                textTransform: "uppercase" as const,
+                letterSpacing: "0.12em",
+                marginTop: "2px",
+                fontFamily: "sans-serif",
+              }}
+            >
+              {monthName}
+            </span>
+            {timeStr && (
+              <span
+                style={{ fontSize: "8px", color: "#ec4899", opacity: 0.6, marginTop: "1px", fontFamily: "sans-serif" }}
+              >
+                {timeStr}
+              </span>
+            )}
           </div>
-          <div className="flex-1 flex flex-col justify-center rounded-lg py-2 px-2.5" style={{ background: "rgba(168,85,247,0.15)", border: "1px solid rgba(168,85,247,0.3)" }}>
-            <span style={{ fontSize: "8px", fontWeight: 600, color: accent, textTransform: "uppercase" as const, letterSpacing: "0.15em", fontFamily: "sans-serif" }}>Location</span>
-            <span className="truncate mt-0.5" style={{ fontSize: "13px", fontWeight: 700, color: "white", fontFamily: "sans-serif" }}>{event.location || "TBD"}</span>
+          <div
+            className="flex-1 flex flex-col justify-center rounded-lg py-2 px-2.5"
+            style={{ background: "rgba(168,85,247,0.15)", border: "1px solid rgba(168,85,247,0.3)" }}
+          >
+            <span
+              style={{
+                fontSize: "8px",
+                fontWeight: 600,
+                color: accent,
+                textTransform: "uppercase" as const,
+                letterSpacing: "0.15em",
+                fontFamily: "sans-serif",
+              }}
+            >
+              Location
+            </span>
+            <span
+              className="truncate mt-0.5"
+              style={{ fontSize: "13px", fontWeight: 700, color: "white", fontFamily: "sans-serif" }}
+            >
+              {event.location || "TBD"}
+            </span>
           </div>
         </div>
 
         <div className="flex items-center justify-between mb-3">
-          <span style={{ fontSize: "8px", fontWeight: 600, color: "rgba(255,255,255,0.3)", textTransform: "uppercase" as const, letterSpacing: "0.18em", fontFamily: "sans-serif" }}>
+          <span
+            style={{
+              fontSize: "8px",
+              fontWeight: 600,
+              color: "rgba(255,255,255,0.3)",
+              textTransform: "uppercase" as const,
+              letterSpacing: "0.18em",
+              fontFamily: "sans-serif",
+            }}
+          >
             {event.guest_count > 0 ? `${event.guest_count} going` : "No one yet"}
           </span>
         </div>
 
         <button
           className="w-full rounded-lg py-2 text-xs font-bold"
-          style={{ background: `linear-gradient(90deg, ${accent}, #ec4899)`, color: "#fff", fontFamily: "sans-serif", letterSpacing: "0.03em" }}
-          onClick={(e) => { e.stopPropagation(); navigate(navPath); }}
+          style={{
+            background: `linear-gradient(90deg, ${accent}, #ec4899)`,
+            color: "#fff",
+            fontFamily: "sans-serif",
+            letterSpacing: "0.03em",
+          }}
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate(navPath);
+          }}
         >
           View event →
         </button>
@@ -520,7 +657,13 @@ const GalaxyNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate:
 };
 
 /** Galaxy Upcoming card — compact row */
-const GalaxyUpcomingCard = ({ event, navigate }: { event: EventWithRole; navigate: ReturnType<typeof useNavigate> }) => {
+const GalaxyUpcomingCard = ({
+  event,
+  navigate,
+}: {
+  event: EventWithRole;
+  navigate: ReturnType<typeof useNavigate>;
+}) => {
   const accent = hslToColor(event.bubble_color, "#a855f7");
   return (
     <div
@@ -531,14 +674,294 @@ const GalaxyUpcomingCard = ({ event, navigate }: { event: EventWithRole; navigat
         navigate(path);
       }}
     >
-      <div style={{ position: "absolute", top: "-15px", right: "-15px", width: "50px", height: "50px", borderRadius: "50%", background: "rgba(147,51,234,0.15)", pointerEvents: "none" }} />
+      <div
+        style={{
+          position: "absolute",
+          top: "-15px",
+          right: "-15px",
+          width: "50px",
+          height: "50px",
+          borderRadius: "50%",
+          background: "rgba(147,51,234,0.15)",
+          pointerEvents: "none",
+        }}
+      />
       <div className="relative z-10 flex items-center justify-between">
         <div className="flex-1 mr-3 min-w-0">
-          <div style={{ fontSize: "9px", color: accent, letterSpacing: "1.5px", textTransform: "uppercase" as const, marginBottom: "2px", fontFamily: "sans-serif" }}>✦ galaxy</div>
-          <h3 className="truncate" style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "14px", fontWeight: 800, color: "#fff" }}>{event.title || "Untitled Event"}</h3>
-          <p className="truncate mt-0.5" style={{ fontSize: "11px", color: "rgba(255,255,255,0.35)", fontFamily: "sans-serif" }}>{formatDate(event.date_time)} · {event.location || "Location TBD"}</p>
+          <div
+            style={{
+              fontSize: "9px",
+              color: accent,
+              letterSpacing: "1.5px",
+              textTransform: "uppercase" as const,
+              marginBottom: "2px",
+              fontFamily: "sans-serif",
+            }}
+          >
+            ✦ galaxy
+          </div>
+          <h3
+            className="truncate"
+            style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "14px", fontWeight: 800, color: "#fff" }}
+          >
+            {event.title || "Untitled Event"}
+          </h3>
+          <p
+            className="truncate mt-0.5"
+            style={{ fontSize: "11px", color: "rgba(255,255,255,0.35)", fontFamily: "sans-serif" }}
+          >
+            {formatDate(event.date_time)} · {event.location || "Location TBD"}
+          </p>
         </div>
-        <div style={{ background: "rgba(168,85,247,0.2)", border: "1px solid rgba(168,85,247,0.4)", borderRadius: "20px", padding: "4px 10px", fontSize: "10px", fontWeight: 700, color: accent, whiteSpace: "nowrap" as const }}>
+        <div
+          style={{
+            background: "rgba(168,85,247,0.2)",
+            border: "1px solid rgba(168,85,247,0.4)",
+            borderRadius: "20px",
+            padding: "4px 10px",
+            fontSize: "10px",
+            fontWeight: 700,
+            color: accent,
+            whiteSpace: "nowrap" as const,
+          }}
+        >
+          {event.role === "host" ? "Host" : event.role === "going" ? "Going" : "Maybe"}
+        </div>
+      </div>
+    </div>
+  );
+};
+/** Sunny Next Up card */
+const SunnyNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate: ReturnType<typeof useNavigate> }) => {
+  const parsed = event.date_time ? parseISO(event.date_time) : null;
+  const dayNum = parsed ? format(parsed, "d") : "?";
+  const monthName = parsed ? format(parsed, "MMM").toUpperCase() : "TBD";
+  const timeStr = parsed ? format(parsed, "h:mm a") : "";
+  const navPath = event.role === "host" ? `/event/${event.code}` : `/guest/${event.code}`;
+
+  return (
+    <div
+      className="rounded-2xl overflow-hidden relative cursor-pointer"
+      style={{
+        background: "linear-gradient(160deg, #ff6b35 0%, #ff8c00 50%, #2a0e00 100%)",
+        border: "1px solid rgba(255,255,255,0.15)",
+      }}
+      onClick={() => navigate(navPath)}
+    >
+      <div
+        style={{
+          position: "absolute",
+          top: "-30px",
+          right: "-30px",
+          width: "100px",
+          height: "100px",
+          borderRadius: "50%",
+          background: "rgba(255,200,100,0.15)",
+          pointerEvents: "none",
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          bottom: "20px",
+          left: "-20px",
+          width: "60px",
+          height: "60px",
+          borderRadius: "50%",
+          background: "rgba(255,150,50,0.1)",
+          pointerEvents: "none",
+        }}
+      />
+
+      <div className="relative z-10 p-3.5">
+        <p
+          style={{
+            fontFamily: "'Caveat', cursive",
+            fontSize: "13px",
+            fontStyle: "italic",
+            color: "rgba(255,255,255,0.6)",
+            marginBottom: "2px",
+          }}
+        >
+          you're invited to
+        </p>
+        <span
+          style={{
+            fontFamily: "'Caveat', cursive",
+            fontWeight: 700,
+            fontSize: "1.45rem",
+            color: "#fff",
+            lineHeight: 1.2,
+          }}
+        >
+          {event.title || "Untitled Event"}
+        </span>
+
+        <div className="flex items-center gap-3 mt-2.5 mb-3">
+          <div className="flex-1 h-px" style={{ backgroundColor: "rgba(255,255,255,0.2)" }} />
+          <span style={{ color: "rgba(255,255,255,0.5)", fontSize: "12px" }}>☀</span>
+          <div className="flex-1 h-px" style={{ backgroundColor: "rgba(255,255,255,0.2)" }} />
+        </div>
+
+        <div className="flex gap-2 mb-3">
+          <div
+            className="flex-1 flex flex-col items-center justify-center rounded-2xl py-2 px-2"
+            style={{ background: "rgba(255,255,255,0.2)", border: "1px solid rgba(255,255,255,0.3)" }}
+          >
+            <span
+              style={{
+                fontFamily: "'Caveat', cursive",
+                fontSize: "24px",
+                fontWeight: 700,
+                color: "#fff",
+                lineHeight: 1,
+              }}
+            >
+              {dayNum}
+            </span>
+            <span
+              style={{
+                fontFamily: "'Caveat', cursive",
+                fontSize: "10px",
+                fontWeight: 700,
+                color: "rgba(255,255,255,0.7)",
+                textTransform: "uppercase" as const,
+                letterSpacing: "0.1em",
+                marginTop: "1px",
+              }}
+            >
+              {monthName}
+            </span>
+            {timeStr && (
+              <span
+                style={{
+                  fontFamily: "'Caveat', cursive",
+                  fontSize: "10px",
+                  color: "rgba(255,255,255,0.5)",
+                  marginTop: "1px",
+                }}
+              >
+                {timeStr}
+              </span>
+            )}
+          </div>
+          <div
+            className="flex-1 flex flex-col justify-center rounded-2xl py-2 px-2.5"
+            style={{ background: "rgba(0,0,0,0.25)", border: "1px solid rgba(255,255,255,0.1)" }}
+          >
+            <span
+              style={{
+                fontFamily: "'Caveat', cursive",
+                fontSize: "10px",
+                fontWeight: 700,
+                color: "rgba(255,255,255,0.5)",
+                textTransform: "uppercase" as const,
+                letterSpacing: "0.1em",
+              }}
+            >
+              Location
+            </span>
+            <span
+              className="truncate mt-0.5"
+              style={{ fontFamily: "'Caveat', cursive", fontSize: "15px", fontWeight: 700, color: "#fff" }}
+            >
+              {event.location || "TBD"}
+            </span>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between mb-3">
+          <span style={{ fontFamily: "'Caveat', cursive", fontSize: "12px", color: "rgba(255,255,255,0.5)" }}>
+            {event.guest_count > 0 ? `${event.guest_count} going` : "No one yet"}
+          </span>
+        </div>
+
+        <button
+          className="w-full rounded-2xl py-2 text-sm font-bold"
+          style={{
+            backgroundColor: "rgba(255,255,255,0.9)",
+            color: "#c8440a",
+            fontFamily: "'Caveat', cursive",
+            fontSize: "16px",
+          }}
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate(navPath);
+          }}
+        >
+          View event →
+        </button>
+      </div>
+    </div>
+  );
+};
+
+/** Sunny Upcoming card — compact row */
+const SunnyUpcomingCard = ({ event, navigate }: { event: EventWithRole; navigate: ReturnType<typeof useNavigate> }) => {
+  return (
+    <div
+      className="rounded-xl px-3.5 py-3 cursor-pointer overflow-hidden relative"
+      style={{
+        background: "linear-gradient(135deg, #ff6b35 0%, #ff8c00 60%, #2a0e00 100%)",
+        border: "1px solid rgba(255,255,255,0.15)",
+      }}
+      onClick={() => {
+        const path = event.role === "host" ? `/event/${event.code}` : `/guest/${event.code}`;
+        navigate(path);
+      }}
+    >
+      <div
+        style={{
+          position: "absolute",
+          top: "-10px",
+          right: "-10px",
+          width: "40px",
+          height: "40px",
+          borderRadius: "50%",
+          background: "rgba(255,200,100,0.2)",
+          pointerEvents: "none",
+        }}
+      />
+      <div className="relative z-10 flex items-center justify-between">
+        <div className="flex-1 mr-3 min-w-0">
+          <div
+            style={{
+              fontFamily: "'Caveat', cursive",
+              fontSize: "10px",
+              color: "rgba(255,255,255,0.55)",
+              letterSpacing: "1.5px",
+              textTransform: "uppercase" as const,
+              marginBottom: "2px",
+            }}
+          >
+            ☀ sunny
+          </div>
+          <h3
+            className="truncate"
+            style={{ fontFamily: "'Caveat', cursive", fontSize: "16px", fontWeight: 700, color: "#fff" }}
+          >
+            {event.title || "Untitled Event"}
+          </h3>
+          <p
+            className="truncate mt-0.5"
+            style={{ fontFamily: "'Caveat', cursive", fontSize: "12px", color: "rgba(255,255,255,0.6)" }}
+          >
+            {formatDate(event.date_time)} · {event.location || "Location TBD"}
+          </p>
+        </div>
+        <div
+          style={{
+            background: "rgba(255,255,255,0.2)",
+            border: "1px solid rgba(255,255,255,0.35)",
+            borderRadius: "20px",
+            padding: "4px 10px",
+            fontFamily: "'Caveat', cursive",
+            fontSize: "12px",
+            fontWeight: 700,
+            color: "#fff",
+            whiteSpace: "nowrap" as const,
+          }}
+        >
           {event.role === "host" ? "Host" : event.role === "going" ? "Going" : "Maybe"}
         </div>
       </div>
@@ -562,10 +985,26 @@ const VintageNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate
     >
       <VintageCircles accentColor={accent} />
       <div className="relative z-10 p-3.5">
-        <p style={{ fontFamily: "'Playfair Display', serif", fontSize: "10px", fontStyle: "italic", color: accent, marginBottom: "4px" }}>
+        <p
+          style={{
+            fontFamily: "'Playfair Display', serif",
+            fontSize: "10px",
+            fontStyle: "italic",
+            color: accent,
+            marginBottom: "4px",
+          }}
+        >
           you're invited to
         </p>
-        <span style={{ fontFamily: "'Playfair Display', serif", fontWeight: 900, fontSize: "1.15rem", color: "#2c1810", lineHeight: 1.2 }}>
+        <span
+          style={{
+            fontFamily: "'Playfair Display', serif",
+            fontWeight: 900,
+            fontSize: "1.15rem",
+            color: "#2c1810",
+            lineHeight: 1.2,
+          }}
+        >
           {event.title || "Untitled Event"}
         </span>
 
@@ -578,28 +1017,102 @@ const VintageNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate
 
         {/* Mini cards */}
         <div className="flex gap-2 mb-3">
-          <div className="flex-1 flex flex-col items-center justify-center rounded-lg py-2 px-2" style={{ backgroundColor: "#2c1810" }}>
-            <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "22px", fontWeight: 900, color: "#f5f0e8", lineHeight: 1 }}>{dayNum}</span>
-            <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "8px", fontWeight: 700, color: accent, textTransform: "uppercase", letterSpacing: "0.12em", marginTop: "2px" }}>{monthName}</span>
-            {timeStr && <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "8px", color: accent, opacity: 0.6, marginTop: "1px" }}>{timeStr}</span>}
+          <div
+            className="flex-1 flex flex-col items-center justify-center rounded-lg py-2 px-2"
+            style={{ backgroundColor: "#2c1810" }}
+          >
+            <span
+              style={{
+                fontFamily: "'Playfair Display', serif",
+                fontSize: "22px",
+                fontWeight: 900,
+                color: "#f5f0e8",
+                lineHeight: 1,
+              }}
+            >
+              {dayNum}
+            </span>
+            <span
+              style={{
+                fontFamily: "'Playfair Display', serif",
+                fontSize: "8px",
+                fontWeight: 700,
+                color: accent,
+                textTransform: "uppercase",
+                letterSpacing: "0.12em",
+                marginTop: "2px",
+              }}
+            >
+              {monthName}
+            </span>
+            {timeStr && (
+              <span
+                style={{
+                  fontFamily: "'Playfair Display', serif",
+                  fontSize: "8px",
+                  color: accent,
+                  opacity: 0.6,
+                  marginTop: "1px",
+                }}
+              >
+                {timeStr}
+              </span>
+            )}
           </div>
-          <div className="flex-1 flex flex-col justify-center rounded-lg py-2 px-2.5" style={{ backgroundColor: accent }}>
-            <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "8px", fontWeight: 600, color: "#f5f0e8", textTransform: "uppercase", letterSpacing: "0.15em", opacity: 0.7 }}>Location</span>
-            <span className="truncate mt-0.5" style={{ fontFamily: "'Playfair Display', serif", fontSize: "13px", fontWeight: 700, color: "#f5f0e8" }}>{event.location || "TBD"}</span>
+          <div
+            className="flex-1 flex flex-col justify-center rounded-lg py-2 px-2.5"
+            style={{ backgroundColor: accent }}
+          >
+            <span
+              style={{
+                fontFamily: "'Playfair Display', serif",
+                fontSize: "8px",
+                fontWeight: 600,
+                color: "#f5f0e8",
+                textTransform: "uppercase",
+                letterSpacing: "0.15em",
+                opacity: 0.7,
+              }}
+            >
+              Location
+            </span>
+            <span
+              className="truncate mt-0.5"
+              style={{ fontFamily: "'Playfair Display', serif", fontSize: "13px", fontWeight: 700, color: "#f5f0e8" }}
+            >
+              {event.location || "TBD"}
+            </span>
           </div>
         </div>
 
         {/* Going count */}
         <div className="flex items-center justify-between mb-3">
-          <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "8px", fontWeight: 600, color: accent, textTransform: "uppercase", letterSpacing: "0.18em" }}>
+          <span
+            style={{
+              fontFamily: "'Playfair Display', serif",
+              fontSize: "8px",
+              fontWeight: 600,
+              color: accent,
+              textTransform: "uppercase",
+              letterSpacing: "0.18em",
+            }}
+          >
             {event.guest_count > 0 ? `${event.guest_count} going` : "No one yet"}
           </span>
         </div>
 
         <button
           className="w-full rounded-lg py-2 text-xs font-bold tracking-wide"
-          style={{ backgroundColor: "#2c1810", color: "#f5f0e8", fontFamily: "'Playfair Display', serif", letterSpacing: "0.03em" }}
-          onClick={(e) => { e.stopPropagation(); navigate(navPath); }}
+          style={{
+            backgroundColor: "#2c1810",
+            color: "#f5f0e8",
+            fontFamily: "'Playfair Display', serif",
+            letterSpacing: "0.03em",
+          }}
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate(navPath);
+          }}
         >
           View event →
         </button>
@@ -609,7 +1122,13 @@ const VintageNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate
 };
 
 /** Vintage Upcoming card — compact row */
-const VintageUpcomingCard = ({ event, navigate }: { event: EventWithRole; navigate: ReturnType<typeof useNavigate> }) => {
+const VintageUpcomingCard = ({
+  event,
+  navigate,
+}: {
+  event: EventWithRole;
+  navigate: ReturnType<typeof useNavigate>;
+}) => {
   const accent = (event as any).gradient_color || "#8b7355";
   return (
     <div
@@ -622,10 +1141,16 @@ const VintageUpcomingCard = ({ event, navigate }: { event: EventWithRole; naviga
     >
       <div className="relative z-10 flex items-center justify-between">
         <div className="flex-1 mr-3 min-w-0">
-          <h3 className="truncate" style={{ fontFamily: "'Playfair Display', serif", fontSize: "14px", fontWeight: 700, color: "#2c1810" }}>
+          <h3
+            className="truncate"
+            style={{ fontFamily: "'Playfair Display', serif", fontSize: "14px", fontWeight: 700, color: "#2c1810" }}
+          >
             {event.title || "Untitled Event"}
           </h3>
-          <p className="truncate mt-0.5" style={{ fontFamily: "'Playfair Display', serif", fontSize: "11px", color: accent }}>
+          <p
+            className="truncate mt-0.5"
+            style={{ fontFamily: "'Playfair Display', serif", fontSize: "11px", color: accent }}
+          >
             {formatDate(event.date_time)} · {event.location || "Location TBD"}
           </p>
         </div>
@@ -636,7 +1161,13 @@ const VintageUpcomingCard = ({ event, navigate }: { event: EventWithRole; naviga
 };
 
 /** Upcoming section with max 3 visible, fade on 3rd, and "See all" toggle */
-const UpcomingSection = ({ events, navigate }: { events: EventWithRole[]; navigate: ReturnType<typeof useNavigate> }) => {
+const UpcomingSection = ({
+  events,
+  navigate,
+}: {
+  events: EventWithRole[];
+  navigate: ReturnType<typeof useNavigate>;
+}) => {
   const [showAll, setShowAll] = React.useState(false);
   const displayEvents = showAll ? events : events.slice(0, 3);
   const hasMore = events.length > 3;
@@ -648,6 +1179,14 @@ const UpcomingSection = ({ events, navigate }: { events: EventWithRole[]; naviga
       return (
         <div key={event.id} style={{ opacity: isFaded ? 0.45 : 1, transition: "opacity 0.3s" }}>
           <GalaxyUpcomingCard event={event} navigate={navigate} />
+        </div>
+      );
+    }
+
+    if (isSunny(event.template_name)) {
+      return (
+        <div key={event.id} style={{ opacity: isFaded ? 0.45 : 1, transition: "opacity 0.3s" }}>
+          <SunnyUpcomingCard event={event} navigate={navigate} />
         </div>
       );
     }
@@ -712,9 +1251,7 @@ const UpcomingSection = ({ events, navigate }: { events: EventWithRole[]; naviga
   return (
     <div className="flex-1 overflow-y-auto pb-4">
       <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Upcoming</h2>
-      <div className="space-y-3">
-        {displayEvents.map((event, i) => renderCard(event, i))}
-      </div>
+      <div className="space-y-3">{displayEvents.map((event, i) => renderCard(event, i))}</div>
       {hasMore && !showAll && (
         <div className="flex justify-center mt-3">
           <button
@@ -738,14 +1275,10 @@ const Home = () => {
 
   React.useEffect(() => {
     const channel = supabase
-      .channel('home-events-realtime')
-      .on(
-        'postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: 'events' },
-        () => {
-          queryClient.invalidateQueries({ queryKey: ["user-events", user?.id] });
-        }
-      )
+      .channel("home-events-realtime")
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "events" }, () => {
+        queryClient.invalidateQueries({ queryKey: ["user-events", user?.id] });
+      })
       .subscribe();
 
     return () => {
@@ -771,8 +1304,18 @@ const Home = () => {
           <h1 className="text-7xl font-extrabold text-foreground tracking-tight">planit</h1>
         </div>
         <div className="flex flex-col items-center justify-center flex-1 gap-12 px-2">
-          <button onClick={() => navigate("/host")} className="w-full max-w-md bg-primary text-primary-foreground rounded-[var(--radius)] py-10 text-3xl font-extrabold">Host</button>
-          <button onClick={() => navigate("/join")} className="w-full max-w-md bg-primary text-primary-foreground rounded-[var(--radius)] py-10 text-3xl font-extrabold">Join</button>
+          <button
+            onClick={() => navigate("/host")}
+            className="w-full max-w-md bg-primary text-primary-foreground rounded-[var(--radius)] py-10 text-3xl font-extrabold"
+          >
+            Host
+          </button>
+          <button
+            onClick={() => navigate("/join")}
+            className="w-full max-w-md bg-primary text-primary-foreground rounded-[var(--radius)] py-10 text-3xl font-extrabold"
+          >
+            Join
+          </button>
         </div>
       </div>
     );
@@ -792,7 +1335,9 @@ const Home = () => {
       <div className="flex items-start justify-between mb-6">
         <div>
           <p className="text-muted-foreground text-sm">{getGreeting()}</p>
-          <h1 className="text-2xl font-extrabold mt-0.5" style={{ color: "#ffffff" }}>{firstName}</h1>
+          <h1 className="text-2xl font-extrabold mt-0.5" style={{ color: "#ffffff" }}>
+            {firstName}
+          </h1>
         </div>
         <button
           onClick={() => navigate("/profile")}
@@ -807,8 +1352,10 @@ const Home = () => {
       {nextEvent && (
         <div className="mb-6">
           <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Next up</h2>
-         {isGalaxy(nextEvent.template_name) ? (
+          {isGalaxy(nextEvent.template_name) ? (
             <GalaxyNextUpCard event={nextEvent} navigate={navigate} />
+          ) : isSunny(nextEvent.template_name) ? (
+            <SunnyNextUpCard event={nextEvent} navigate={navigate} />
           ) : isVintage(nextEvent.template_name) ? (
             <VintageNextUpCard event={nextEvent} navigate={navigate} />
           ) : isNoir(nextEvent.template_name) ? (
@@ -844,7 +1391,10 @@ const Home = () => {
               </p>
               <button
                 className="w-full rounded-lg py-1.5 text-xs font-bold"
-                style={{ backgroundColor: hslToColor(nextEvent.bubble_color, "#aaee44"), color: textForBubble(nextEvent.bubble_color) }}
+                style={{
+                  backgroundColor: hslToColor(nextEvent.bubble_color, "#aaee44"),
+                  color: textForBubble(nextEvent.bubble_color),
+                }}
                 onClick={(e) => {
                   e.stopPropagation();
                   const path = nextEvent.role === "host" ? `/event/${nextEvent.code}` : `/guest/${nextEvent.code}`;
