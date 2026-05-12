@@ -420,6 +420,7 @@ const HostEvent = () => {
   const bgTextSoft = isLightBg ? "rgba(17,17,17,0.8)" : "rgba(255,255,255,0.8)";
   const noirFontSize = textSize === "Small" ? "28px" : textSize === "Large" ? "44px" : "36px";
   const isGalaxy = templateName === "galaxy";
+  const isSunny = templateName === "sunny";
   const galaxyAccent = "#a78bfa";
 
   // Parsed date for calendar bubble preview
@@ -432,7 +433,7 @@ const HostEvent = () => {
   const isNoir = templateName === "planit-noir";
   const isVintage = templateName === "vintage";
   const hostName = profile?.name || "Host";
-  const containerBg = isVintage ? "#f5f0e8" : `hsl(${bgColor})`;
+  const containerBg = isVintage ? "#f5f0e8" : isGalaxy ? "#0d0d2b" : isSunny ? "#ff6b35" : `hsl(${bgColor})`;
 
   return (
     <div className="flex flex-col min-h-screen transition-all duration-300" style={{ backgroundColor: containerBg }}>
@@ -513,6 +514,330 @@ const HostEvent = () => {
 
             {/* Notes */}
             <NoirNotesCard notes={extra} isInput onChange={setExtra} accentColor={accentColor} />
+          </div>
+        </>
+      ) : isSunny ? (
+        /* ═══ SUNNY LAYOUT ═══ */
+        <>
+          <div
+            style={{
+              background: "linear-gradient(180deg, #ff6b35 0%, #ff8c00 40%, #2a0e00 100%)",
+              minHeight: "100vh",
+              position: "relative",
+              overflow: "hidden",
+            }}
+          >
+            <div
+              style={{
+                position: "absolute",
+                top: "-60px",
+                right: "-60px",
+                width: "180px",
+                height: "180px",
+                borderRadius: "50%",
+                background: "rgba(255,200,100,0.15)",
+                pointerEvents: "none",
+              }}
+            />
+            <button
+              onClick={() => navigate(editCode ? `/event/${editCode}` : "/home")}
+              className="absolute top-5 left-5 z-20"
+            >
+              <ArrowLeft className="w-6 h-6 text-white/60" />
+            </button>
+            <div className="text-center px-6 pt-16 pb-4 relative z-10">
+              <p
+                style={{
+                  fontFamily: "'Caveat', cursive",
+                  fontSize: "14px",
+                  color: "rgba(255,255,255,0.6)",
+                  fontStyle: "italic",
+                  marginBottom: "4px",
+                }}
+              >
+                you're invited to
+              </p>
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => {
+                  setTitle(e.target.value);
+                  setTitleError("");
+                }}
+                placeholder="Event name..."
+                className="w-full bg-transparent outline-none text-center placeholder:opacity-30"
+                style={{ fontFamily: "'Caveat', cursive", fontSize: "38px", fontWeight: 700, color: "#fff" }}
+              />
+              {titleError && <p className="text-red-500 text-xs mt-1">{titleError}</p>}
+              <textarea
+                value={vibe}
+                onChange={(e) => setVibe(e.target.value)}
+                placeholder="Set the vibe..."
+                rows={1}
+                maxLength={120}
+                className="w-full bg-transparent outline-none resize-none mt-1 text-center placeholder:opacity-30"
+                style={{
+                  fontFamily: "'Caveat', cursive",
+                  fontSize: "16px",
+                  fontStyle: "italic",
+                  color: "rgba(255,255,255,0.7)",
+                }}
+              />
+              <p
+                style={{
+                  fontFamily: "'Caveat', cursive",
+                  fontSize: "13px",
+                  color: "rgba(255,255,255,0.4)",
+                  marginTop: "6px",
+                  marginBottom: "12px",
+                }}
+              >
+                hosted by {hostName}
+              </p>
+              <div className="flex items-center gap-3 justify-center">
+                <div className="flex-1 h-px" style={{ backgroundColor: "rgba(255,255,255,0.2)" }} />
+                <span style={{ color: "rgba(255,255,255,0.5)", fontSize: "16px" }}>☀</span>
+                <div className="flex-1 h-px" style={{ backgroundColor: "rgba(255,255,255,0.2)" }} />
+              </div>
+            </div>
+
+            <div className="px-5 flex flex-col gap-3 relative z-10 pb-6">
+              <div
+                style={{
+                  background: "rgba(255,255,255,0.12)",
+                  border: "1px solid rgba(255,255,255,0.2)",
+                  borderRadius: "16px",
+                  padding: "12px 14px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "12px",
+                }}
+              >
+                <div
+                  style={{
+                    width: "40px",
+                    height: "40px",
+                    background: "rgba(255,255,255,0.15)",
+                    borderRadius: "12px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "20px",
+                    flexShrink: 0,
+                  }}
+                >
+                  📍
+                </div>
+                <div className="flex-1">
+                  <p
+                    style={{
+                      fontSize: "9px",
+                      color: "rgba(255,255,255,0.55)",
+                      textTransform: "uppercase" as const,
+                      letterSpacing: "2px",
+                      margin: "0 0 2px",
+                      fontFamily: "sans-serif",
+                    }}
+                  >
+                    Location
+                  </p>
+                  <input
+                    type="text"
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                    placeholder="Where's the event?"
+                    className="w-full bg-transparent outline-none placeholder:opacity-30"
+                    style={{ fontFamily: "'Caveat', cursive", fontSize: "18px", fontWeight: 700, color: "#fff" }}
+                  />
+                </div>
+              </div>
+
+              <div
+                style={{
+                  background: "rgba(255,255,255,0.12)",
+                  border: "1px solid rgba(255,255,255,0.2)",
+                  borderRadius: "16px",
+                  padding: "12px 14px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "12px",
+                  position: "relative",
+                }}
+              >
+                <div
+                  style={{
+                    width: "40px",
+                    height: "40px",
+                    background: "rgba(255,255,255,0.15)",
+                    borderRadius: "12px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "20px",
+                    flexShrink: 0,
+                  }}
+                >
+                  🗓️
+                </div>
+                <div className="flex-1">
+                  <p
+                    style={{
+                      fontSize: "9px",
+                      color: "rgba(255,255,255,0.55)",
+                      textTransform: "uppercase" as const,
+                      letterSpacing: "2px",
+                      margin: "0 0 2px",
+                      fontFamily: "sans-serif",
+                    }}
+                  >
+                    Date
+                  </p>
+                  {eventDate ? (
+                    <p
+                      style={{
+                        fontFamily: "'Caveat', cursive",
+                        fontSize: "18px",
+                        fontWeight: 700,
+                        color: "#fff",
+                        margin: 0,
+                      }}
+                    >
+                      {dayOfWeek} {dayNum} {monthName} · {timeStr}
+                    </p>
+                  ) : (
+                    <p
+                      style={{
+                        fontFamily: "'Caveat', cursive",
+                        fontSize: "18px",
+                        color: "rgba(255,255,255,0.35)",
+                        margin: 0,
+                      }}
+                    >
+                      When's the event?
+                    </p>
+                  )}
+                </div>
+                <input
+                  type="datetime-local"
+                  value={dateTime}
+                  onChange={(e) => setDateTime(e.target.value)}
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    width: "100%",
+                    height: "100%",
+                    opacity: 0,
+                    cursor: "pointer",
+                    zIndex: 10,
+                  }}
+                />
+              </div>
+
+              <div
+                style={{
+                  background: "rgba(255,255,255,0.12)",
+                  border: "1px solid rgba(255,255,255,0.2)",
+                  borderRadius: "16px",
+                  padding: "12px 14px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "12px",
+                }}
+              >
+                <div
+                  style={{
+                    width: "40px",
+                    height: "40px",
+                    background: "rgba(255,255,255,0.15)",
+                    borderRadius: "12px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "20px",
+                    flexShrink: 0,
+                  }}
+                >
+                  🎭
+                </div>
+                <div className="flex-1">
+                  <p
+                    style={{
+                      fontSize: "9px",
+                      color: "rgba(255,255,255,0.55)",
+                      textTransform: "uppercase" as const,
+                      letterSpacing: "2px",
+                      margin: "0 0 2px",
+                      fontFamily: "sans-serif",
+                    }}
+                  >
+                    Dress code
+                  </p>
+                  <input
+                    type="text"
+                    value={dressCode}
+                    onChange={(e) => setDressCode(e.target.value)}
+                    placeholder="Theme..."
+                    className="w-full bg-transparent outline-none placeholder:opacity-30"
+                    style={{ fontFamily: "'Caveat', cursive", fontSize: "18px", fontWeight: 700, color: "#fff" }}
+                  />
+                </div>
+              </div>
+
+              <div
+                style={{
+                  background: "rgba(0,0,0,0.2)",
+                  border: "1px solid rgba(255,255,255,0.1)",
+                  borderRadius: "16px",
+                  padding: "12px 14px",
+                  display: "flex",
+                  alignItems: "flex-start",
+                  gap: "12px",
+                }}
+              >
+                <div
+                  style={{
+                    width: "40px",
+                    height: "40px",
+                    background: "rgba(255,255,255,0.1)",
+                    borderRadius: "12px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "20px",
+                    flexShrink: 0,
+                  }}
+                >
+                  ✦
+                </div>
+                <div className="flex-1">
+                  <p
+                    style={{
+                      fontSize: "9px",
+                      color: "rgba(255,255,255,0.45)",
+                      textTransform: "uppercase" as const,
+                      letterSpacing: "2px",
+                      margin: "0 0 2px",
+                      fontFamily: "sans-serif",
+                    }}
+                  >
+                    Note from host
+                  </p>
+                  <textarea
+                    value={extra}
+                    onChange={(e) => setExtra(e.target.value)}
+                    placeholder="Anything else your guests should know..."
+                    rows={2}
+                    className="w-full bg-transparent outline-none resize-none placeholder:opacity-30"
+                    style={{
+                      fontFamily: "'Caveat', cursive",
+                      fontSize: "16px",
+                      color: "rgba(255,255,255,0.8)",
+                      fontStyle: "italic",
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
           </div>
         </>
       ) : isGalaxy ? (
