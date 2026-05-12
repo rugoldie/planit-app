@@ -16,11 +16,7 @@ import {
   NoirLocationCard,
   NoirNotesCard,
 } from "@/components/layouts/PlanitNoirLayout";
-import {
-  VintageCircles,
-  VintageDivider,
-  VintageHostDivider,
-} from "@/components/layouts/VintageLayout";
+import { VintageCircles, VintageDivider, VintageHostDivider } from "@/components/layouts/VintageLayout";
 
 const PALETTE_COLORS = [
   { name: "White", hsl: "0 0% 100%" },
@@ -222,7 +218,7 @@ const HostEvent = () => {
   const [bgPhoto, setBgPhoto] = useState<string | null>(null);
   const [bgPreset, setBgPreset] = useState<string | null>(null);
   const [bgPresetIsImage, setBgPresetIsImage] = useState(false);
-  const [textSize, setTextSize] = useState<typeof TEXT_SIZES[number]>("Medium");
+  const [textSize, setTextSize] = useState<(typeof TEXT_SIZES)[number]>("Medium");
   const [bubbleColor, setBubbleColor] = useState("82 100% 48%");
   const [bubbleTextColor, setBubbleTextColor] = useState("0 0% 10%");
   const [showCode, setShowCode] = useState(false);
@@ -255,7 +251,7 @@ const HostEvent = () => {
             setDressCode(data.dress_code || "");
             setExtra(data.extra || "");
             setBgColor(data.bg_color || PALETTE_COLORS[0].hsl);
-            setTextSize((data.text_size as typeof TEXT_SIZES[number]) || "Medium");
+            setTextSize((data.text_size as (typeof TEXT_SIZES)[number]) || "Medium");
             setBubbleColor(data.bubble_color || BUBBLE_COLORS[0].hsl);
             setBubbleTextColor(data.bubble_text_color || BUBBLE_COLORS[0].text);
             setGradientColor(data.gradient_color || GRADIENT_COLORS[0].color);
@@ -402,7 +398,12 @@ const HostEvent = () => {
     );
   }
 
-  const titleClass = textSize === "Small" ? "text-2xl font-bold" : textSize === "Large" ? "text-5xl font-extrabold" : "text-4xl font-extrabold";
+  const titleClass =
+    textSize === "Small"
+      ? "text-2xl font-bold"
+      : textSize === "Large"
+        ? "text-5xl font-extrabold"
+        : "text-4xl font-extrabold";
   const vibeClass = textSize === "Small" ? "text-xs" : textSize === "Large" ? "text-base" : "text-sm";
   const currentFontFamily = FONT_MAP[fontStyle] || FONT_MAP["Bold"];
   const accentColor = `hsl(${bubbleColor})`;
@@ -433,22 +434,43 @@ const HostEvent = () => {
 
   return (
     <div className="flex flex-col min-h-screen transition-all duration-300" style={{ backgroundColor: containerBg }}>
-
       {isNoir ? (
         /* ═══ PLANIT NOIR LAYOUT ═══ */
         <>
           {/* Concentric circle bg pattern */}
           <div className="relative" style={{ minHeight: "260px" }}>
             <ConcentricCircles accentColor={accentColor} />
-            <button onClick={() => navigate(editCode ? `/event/${editCode}` : "/home")} className="absolute top-5 left-5 z-20" style={{ pointerEvents: "auto" }}>
+            <button
+              onClick={() => navigate(editCode ? `/event/${editCode}` : "/home")}
+              className="absolute top-5 left-5 z-20"
+              style={{ pointerEvents: "auto" }}
+            >
               <ArrowLeft className="w-6 h-6 text-white/40" />
             </button>
             <div className="relative z-10 px-6 pt-16 pb-4">
-              <p style={{ fontFamily: "'Playfair Display', serif", fontSize: "13px", fontStyle: "italic", color: "rgba(255,255,255,0.4)" }}>
+              <p
+                style={{
+                  fontFamily: "'Playfair Display', serif",
+                  fontSize: "13px",
+                  fontStyle: "italic",
+                  color: "rgba(255,255,255,0.4)",
+                }}
+              >
                 you're invited to
               </p>
               <div className="mt-2">
-                <StyledTitle isInput value={title} onChange={(v) => { setTitle(v); setTitleError(""); }} placeholder="Event name..." accentColor={accentColor} fontFamily={currentFontFamily} fontSize={noirFontSize} />
+                <StyledTitle
+                  isInput
+                  value={title}
+                  onChange={(v) => {
+                    setTitle(v);
+                    setTitleError("");
+                  }}
+                  placeholder="Event name..."
+                  accentColor={accentColor}
+                  fontFamily={currentFontFamily}
+                  fontSize={noirFontSize}
+                />
               </div>
               {titleError && <p className="text-red-500 text-xs mt-1">{titleError}</p>}
               <textarea
@@ -458,7 +480,12 @@ const HostEvent = () => {
                 rows={1}
                 maxLength={120}
                 className="w-full bg-transparent outline-none resize-none mt-1 placeholder:text-white/15"
-                style={{ fontFamily: "'Playfair Display', serif", fontSize: "13px", fontStyle: "italic", color: "rgba(255,255,255,0.4)" }}
+                style={{
+                  fontFamily: "'Playfair Display', serif",
+                  fontSize: "13px",
+                  fontStyle: "italic",
+                  color: "rgba(255,255,255,0.4)",
+                }}
               />
               <HostDivider hostName={hostName} />
             </div>
@@ -467,7 +494,15 @@ const HostEvent = () => {
           <div className="px-5 pt-2 pb-10 flex flex-col gap-3">
             {/* Date + Dress code side by side */}
             <div className="flex gap-3">
-              <NoirDateCard monthName={monthName} dayNum={String(dayNum)} timeStr={timeStr} isInput dateTime={dateTime} onDateChange={setDateTime} accentColor={accentColor} />
+              <NoirDateCard
+                monthName={monthName}
+                dayNum={String(dayNum)}
+                timeStr={timeStr}
+                isInput
+                dateTime={dateTime}
+                onDateChange={setDateTime}
+                accentColor={accentColor}
+              />
               <NoirDressCard dressCode={dressCode} isInput onChange={setDressCode} />
             </div>
 
@@ -478,25 +513,77 @@ const HostEvent = () => {
             <NoirNotesCard notes={extra} isInput onChange={setExtra} accentColor={accentColor} />
           </div>
         </>
-      ) : isVintage ? (
-        /* ═══ VINTAGE LAYOUT ═══ */
+      ) : isGalaxy ? (
+        /* ═══ GALAXY LAYOUT ═══ */
         <>
-          <div className="relative" style={{ minHeight: "260px" }}>
-            <VintageCircles />
-            <button onClick={() => navigate(editCode ? `/event/${editCode}` : "/home")} className="absolute top-5 left-5 z-20">
-              <ArrowLeft className="w-6 h-6" style={{ color: gradientColor }} />
+          <div style={{ backgroundColor: "#0d0d2b", minHeight: "100vh", position: "relative", overflow: "hidden" }}>
+            <div
+              style={{
+                position: "absolute",
+                top: "-40px",
+                right: "-40px",
+                width: "140px",
+                height: "140px",
+                borderRadius: "50%",
+                background: "rgba(147,51,234,0.18)",
+                pointerEvents: "none",
+              }}
+            />
+            <div
+              style={{
+                position: "absolute",
+                top: "80px",
+                left: "-30px",
+                width: "90px",
+                height: "90px",
+                borderRadius: "50%",
+                background: "rgba(236,72,153,0.12)",
+                pointerEvents: "none",
+              }}
+            />
+            <div
+              style={{
+                position: "absolute",
+                bottom: "200px",
+                right: "-20px",
+                width: "70px",
+                height: "70px",
+                borderRadius: "50%",
+                background: "rgba(99,102,241,0.15)",
+                pointerEvents: "none",
+              }}
+            />
+
+            <button
+              onClick={() => navigate(editCode ? `/event/${editCode}` : "/home")}
+              className="absolute top-5 left-5 z-20"
+            >
+              <ArrowLeft className="w-6 h-6" style={{ color: "rgba(255,255,255,0.4)" }} />
             </button>
-            <div className="relative z-10 px-6 pt-16 pb-4 text-center">
-              <p style={{ fontFamily: "'Playfair Display', serif", fontSize: "11px", fontWeight: 600, letterSpacing: "0.2em", color: gradientColor, textTransform: "uppercase" }}>
-                you're invited to
+
+            <div className="text-center px-6 pt-16 pb-4 relative z-10">
+              <p
+                style={{
+                  fontSize: "10px",
+                  color: galaxyAccent,
+                  letterSpacing: "2px",
+                  textTransform: "uppercase" as const,
+                  marginBottom: "6px",
+                  fontFamily: "sans-serif",
+                }}
+              >
+                ✦ You are invited to ✦
               </p>
               <input
                 type="text"
                 value={title}
-                onChange={(e) => { setTitle(e.target.value); setTitleError(""); }}
+                onChange={(e) => {
+                  setTitle(e.target.value);
+                  setTitleError("");
+                }}
                 placeholder="Event name..."
-                className="w-full bg-transparent outline-none text-center mt-2 placeholder:opacity-30"
-                style={{ fontFamily: "'Playfair Display', serif", fontSize: noirFontSize, fontWeight: 900, color: "#2c1810" }}
+                className="w-full bg-transparent outline-none text-center placeholder:opacity-30"
+                style={{ fontFamily: "'DM Sans', sans-serif", fontSize: noirFontSize, fontWeight: 800, color: "#fff" }}
               />
               {titleError && <p className="text-red-500 text-xs mt-1">{titleError}</p>}
               <textarea
@@ -506,7 +593,314 @@ const HostEvent = () => {
                 rows={1}
                 maxLength={120}
                 className="w-full bg-transparent outline-none resize-none mt-1 text-center placeholder:opacity-30"
-                style={{ fontFamily: "'Playfair Display', serif", fontSize: "14px", fontStyle: "italic", color: gradientColor }}
+                style={{
+                  fontSize: "13px",
+                  color: "rgba(255,255,255,0.45)",
+                  fontStyle: "italic",
+                  fontFamily: "sans-serif",
+                }}
+              />
+              <p
+                style={{
+                  fontSize: "11px",
+                  color: "rgba(255,255,255,0.3)",
+                  fontFamily: "sans-serif",
+                  marginTop: "6px",
+                  marginBottom: "10px",
+                }}
+              >
+                hosted by {hostName}
+              </p>
+              <div
+                style={{
+                  width: "40px",
+                  height: "2px",
+                  background: `linear-gradient(90deg, ${galaxyAccent}, #ec4899)`,
+                  margin: "0 auto",
+                }}
+              />
+            </div>
+
+            <div className="px-5 flex flex-col gap-3 relative z-10 pb-6">
+              <div
+                style={{
+                  background: "rgba(168,85,247,0.12)",
+                  border: "1px solid rgba(168,85,247,0.3)",
+                  borderRadius: "14px",
+                  padding: "14px 16px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "14px",
+                }}
+              >
+                <div
+                  style={{
+                    width: "44px",
+                    height: "44px",
+                    background: "rgba(168,85,247,0.25)",
+                    borderRadius: "12px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "22px",
+                    flexShrink: 0,
+                  }}
+                >
+                  📍
+                </div>
+                <div className="flex-1">
+                  <p
+                    style={{
+                      fontSize: "9px",
+                      color: galaxyAccent,
+                      textTransform: "uppercase" as const,
+                      letterSpacing: "2px",
+                      margin: "0 0 3px",
+                      fontFamily: "sans-serif",
+                    }}
+                  >
+                    Location
+                  </p>
+                  <input
+                    type="text"
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                    placeholder="Where's the event?"
+                    className="w-full bg-transparent outline-none placeholder:opacity-30"
+                    style={{ fontSize: "16px", fontWeight: 800, color: "#fff", fontFamily: "sans-serif" }}
+                  />
+                </div>
+              </div>
+
+              <div
+                style={{
+                  background: "rgba(236,72,153,0.12)",
+                  border: "1px solid rgba(236,72,153,0.3)",
+                  borderRadius: "14px",
+                  padding: "14px 16px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "14px",
+                }}
+              >
+                <div
+                  style={{
+                    width: "44px",
+                    height: "44px",
+                    background: "rgba(236,72,153,0.25)",
+                    borderRadius: "12px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "22px",
+                    flexShrink: 0,
+                  }}
+                >
+                  🗓️
+                </div>
+                <div className="flex-1">
+                  <p
+                    style={{
+                      fontSize: "9px",
+                      color: "#ec4899",
+                      textTransform: "uppercase" as const,
+                      letterSpacing: "2px",
+                      margin: "0 0 3px",
+                      fontFamily: "sans-serif",
+                    }}
+                  >
+                    Date
+                  </p>
+                  {eventDate ? (
+                    <p
+                      style={{ fontSize: "16px", fontWeight: 800, color: "#fff", margin: 0, fontFamily: "sans-serif" }}
+                    >
+                      {dayOfWeek} {dayNum} {monthName} · {timeStr}
+                    </p>
+                  ) : (
+                    <p
+                      style={{
+                        fontSize: "16px",
+                        fontWeight: 800,
+                        color: "rgba(255,255,255,0.3)",
+                        margin: 0,
+                        fontFamily: "sans-serif",
+                      }}
+                    >
+                      When's the event?
+                    </p>
+                  )}
+                  <input
+                    type="datetime-local"
+                    value={dateTime}
+                    onChange={(e) => setDateTime(e.target.value)}
+                    className="w-full bg-transparent outline-none text-[10px] mt-1 opacity-50"
+                    style={{ color: "#ec4899" }}
+                  />
+                </div>
+              </div>
+
+              <div
+                style={{
+                  background: "rgba(99,102,241,0.12)",
+                  border: "1px solid rgba(99,102,241,0.3)",
+                  borderRadius: "14px",
+                  padding: "14px 16px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "14px",
+                }}
+              >
+                <div
+                  style={{
+                    width: "44px",
+                    height: "44px",
+                    background: "rgba(99,102,241,0.25)",
+                    borderRadius: "12px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "22px",
+                    flexShrink: 0,
+                  }}
+                >
+                  🎭
+                </div>
+                <div className="flex-1">
+                  <p
+                    style={{
+                      fontSize: "9px",
+                      color: "#818cf8",
+                      textTransform: "uppercase" as const,
+                      letterSpacing: "2px",
+                      margin: "0 0 3px",
+                      fontFamily: "sans-serif",
+                    }}
+                  >
+                    Dress code
+                  </p>
+                  <input
+                    type="text"
+                    value={dressCode}
+                    onChange={(e) => setDressCode(e.target.value)}
+                    placeholder="Theme..."
+                    className="w-full bg-transparent outline-none placeholder:opacity-30"
+                    style={{ fontSize: "16px", fontWeight: 800, color: "#fff", fontFamily: "sans-serif" }}
+                  />
+                </div>
+              </div>
+
+              <div
+                style={{
+                  background: "rgba(168,85,247,0.08)",
+                  border: "1px solid rgba(168,85,247,0.15)",
+                  borderRadius: "14px",
+                  padding: "14px 16px",
+                  display: "flex",
+                  alignItems: "flex-start",
+                  gap: "14px",
+                }}
+              >
+                <div
+                  style={{
+                    width: "44px",
+                    height: "44px",
+                    background: "rgba(168,85,247,0.15)",
+                    borderRadius: "12px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "22px",
+                    flexShrink: 0,
+                  }}
+                >
+                  ✦
+                </div>
+                <div className="flex-1">
+                  <p
+                    style={{
+                      fontSize: "9px",
+                      color: galaxyAccent,
+                      textTransform: "uppercase" as const,
+                      letterSpacing: "2px",
+                      margin: "0 0 3px",
+                      fontFamily: "sans-serif",
+                    }}
+                  >
+                    Note from host
+                  </p>
+                  <textarea
+                    value={extra}
+                    onChange={(e) => setExtra(e.target.value)}
+                    placeholder="Anything else your guests should know..."
+                    rows={2}
+                    className="w-full bg-transparent outline-none resize-none placeholder:opacity-30"
+                    style={{
+                      fontSize: "13px",
+                      color: "rgba(255,255,255,0.55)",
+                      fontStyle: "italic",
+                      fontFamily: "sans-serif",
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      ) : isVintage ? (
+        /* ═══ VINTAGE LAYOUT ═══ */
+        <>
+          <div className="relative" style={{ minHeight: "260px" }}>
+            <VintageCircles />
+            <button
+              onClick={() => navigate(editCode ? `/event/${editCode}` : "/home")}
+              className="absolute top-5 left-5 z-20"
+            >
+              <ArrowLeft className="w-6 h-6" style={{ color: gradientColor }} />
+            </button>
+            <div className="relative z-10 px-6 pt-16 pb-4 text-center">
+              <p
+                style={{
+                  fontFamily: "'Playfair Display', serif",
+                  fontSize: "11px",
+                  fontWeight: 600,
+                  letterSpacing: "0.2em",
+                  color: gradientColor,
+                  textTransform: "uppercase",
+                }}
+              >
+                you're invited to
+              </p>
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => {
+                  setTitle(e.target.value);
+                  setTitleError("");
+                }}
+                placeholder="Event name..."
+                className="w-full bg-transparent outline-none text-center mt-2 placeholder:opacity-30"
+                style={{
+                  fontFamily: "'Playfair Display', serif",
+                  fontSize: noirFontSize,
+                  fontWeight: 900,
+                  color: "#2c1810",
+                }}
+              />
+              {titleError && <p className="text-red-500 text-xs mt-1">{titleError}</p>}
+              <textarea
+                value={vibe}
+                onChange={(e) => setVibe(e.target.value)}
+                placeholder="Set the vibe..."
+                rows={1}
+                maxLength={120}
+                className="w-full bg-transparent outline-none resize-none mt-1 text-center placeholder:opacity-30"
+                style={{
+                  fontFamily: "'Playfair Display', serif",
+                  fontSize: "14px",
+                  fontStyle: "italic",
+                  color: gradientColor,
+                }}
               />
               <VintageHostDivider hostName={hostName} accentColor={gradientColor} />
             </div>
@@ -516,7 +910,18 @@ const HostEvent = () => {
             {/* Location */}
             <div className="overflow-hidden" style={{ backgroundColor: gradientColor, borderRadius: "16px" }}>
               <div className="px-4 py-1.5" style={{ backgroundColor: "rgba(0,0,0,0.2)" }}>
-                <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "10px", fontWeight: 700, letterSpacing: "0.18em", color: "#f5f0e8", textTransform: "uppercase" }}>Location</span>
+                <span
+                  style={{
+                    fontFamily: "'Playfair Display', serif",
+                    fontSize: "10px",
+                    fontWeight: 700,
+                    letterSpacing: "0.18em",
+                    color: "#f5f0e8",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  Location
+                </span>
               </div>
               <div className="p-4">
                 <input
@@ -525,7 +930,12 @@ const HostEvent = () => {
                   onChange={(e) => setLocation(e.target.value)}
                   placeholder="Where's the event?"
                   className="w-full bg-transparent outline-none placeholder:opacity-40"
-                  style={{ fontFamily: "'Playfair Display', serif", fontSize: "20px", fontWeight: 900, color: "#2c1810" }}
+                  style={{
+                    fontFamily: "'Playfair Display', serif",
+                    fontSize: "20px",
+                    fontWeight: 900,
+                    color: "#2c1810",
+                  }}
                 />
               </div>
             </div>
@@ -535,17 +945,70 @@ const HostEvent = () => {
               {/* Date */}
               <div className="flex-1 overflow-hidden" style={{ borderRadius: "16px", backgroundColor: "#2c1810" }}>
                 <div className="px-3 py-1.5 text-center" style={{ backgroundColor: "rgba(0,0,0,0.2)" }}>
-                  <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "10px", fontWeight: 700, letterSpacing: "0.15em", color: gradientColor, textTransform: "uppercase" }}>{monthName || "DATE"}</span>
+                  <span
+                    style={{
+                      fontFamily: "'Playfair Display', serif",
+                      fontSize: "10px",
+                      fontWeight: 700,
+                      letterSpacing: "0.15em",
+                      color: gradientColor,
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    {monthName || "DATE"}
+                  </span>
                 </div>
                 <div className="flex flex-col items-center py-3 px-3">
                   {eventDate ? (
                     <>
-                      <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "36px", fontWeight: 900, color: "#f5f0e8", lineHeight: 1 }}>{dayNum}</span>
-                      <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "11px", fontWeight: 600, color: gradientColor, opacity: 0.8, marginTop: "4px" }}>{timeStr}</span>
-                      <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "10px", color: gradientColor, opacity: 0.5, marginTop: "2px" }}>{dayOfWeek}</span>
+                      <span
+                        style={{
+                          fontFamily: "'Playfair Display', serif",
+                          fontSize: "36px",
+                          fontWeight: 900,
+                          color: "#f5f0e8",
+                          lineHeight: 1,
+                        }}
+                      >
+                        {dayNum}
+                      </span>
+                      <span
+                        style={{
+                          fontFamily: "'Playfair Display', serif",
+                          fontSize: "11px",
+                          fontWeight: 600,
+                          color: gradientColor,
+                          opacity: 0.8,
+                          marginTop: "4px",
+                        }}
+                      >
+                        {timeStr}
+                      </span>
+                      <span
+                        style={{
+                          fontFamily: "'Playfair Display', serif",
+                          fontSize: "10px",
+                          color: gradientColor,
+                          opacity: 0.5,
+                          marginTop: "2px",
+                        }}
+                      >
+                        {dayOfWeek}
+                      </span>
                     </>
                   ) : (
-                    <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "36px", fontWeight: 900, color: "#f5f0e8", opacity: 0.4, lineHeight: 1 }}>?</span>
+                    <span
+                      style={{
+                        fontFamily: "'Playfair Display', serif",
+                        fontSize: "36px",
+                        fontWeight: 900,
+                        color: "#f5f0e8",
+                        opacity: 0.4,
+                        lineHeight: 1,
+                      }}
+                    >
+                      ?
+                    </span>
                   )}
                   <input
                     type="datetime-local"
@@ -561,7 +1024,18 @@ const HostEvent = () => {
               <div className="flex-1 overflow-hidden" style={{ borderRadius: "16px", backgroundColor: gradientColor }}>
                 <div className="px-3 py-1.5 flex items-center gap-2" style={{ backgroundColor: "rgba(0,0,0,0.15)" }}>
                   <span style={{ fontSize: "16px" }}>🎭</span>
-                  <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "10px", fontWeight: 700, letterSpacing: "0.15em", color: "#f5f0e8", textTransform: "uppercase" }}>Dress Code</span>
+                  <span
+                    style={{
+                      fontFamily: "'Playfair Display', serif",
+                      fontSize: "10px",
+                      fontWeight: 700,
+                      letterSpacing: "0.15em",
+                      color: "#f5f0e8",
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    Dress Code
+                  </span>
                 </div>
                 <div className="flex flex-col py-3 px-3">
                   <input
@@ -570,24 +1044,55 @@ const HostEvent = () => {
                     onChange={(e) => setDressCode(e.target.value)}
                     placeholder="Theme..."
                     className="bg-transparent outline-none placeholder:opacity-40"
-                    style={{ fontFamily: "'Playfair Display', serif", fontSize: "18px", fontWeight: 900, color: "#f5f0e8" }}
+                    style={{
+                      fontFamily: "'Playfair Display', serif",
+                      fontSize: "18px",
+                      fontWeight: 900,
+                      color: "#f5f0e8",
+                    }}
                   />
                 </div>
               </div>
             </div>
 
             {/* Notes */}
-            <div className="flex items-start gap-3" style={{ backgroundColor: "#2c1810", borderRadius: "14px", padding: "14px 16px", border: `1px solid ${gradientColor}33` }}>
+            <div
+              className="flex items-start gap-3"
+              style={{
+                backgroundColor: "#2c1810",
+                borderRadius: "14px",
+                padding: "14px 16px",
+                border: `1px solid ${gradientColor}33`,
+              }}
+            >
               <span style={{ color: gradientColor, fontSize: "14px", marginTop: "1px" }}>✦</span>
               <div className="flex-1">
-                <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "9px", fontWeight: 600, color: gradientColor, textTransform: "uppercase", letterSpacing: "0.15em", display: "block" }}>Notes from host</span>
+                <span
+                  style={{
+                    fontFamily: "'Playfair Display', serif",
+                    fontSize: "9px",
+                    fontWeight: 600,
+                    color: gradientColor,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.15em",
+                    display: "block",
+                  }}
+                >
+                  Notes from host
+                </span>
                 <textarea
                   value={extra}
                   onChange={(e) => setExtra(e.target.value)}
                   placeholder="Anything else your guests should know..."
                   rows={2}
                   className="w-full bg-transparent outline-none resize-none mt-1 placeholder:opacity-30"
-                  style={{ fontFamily: "'Playfair Display', serif", fontSize: "14px", fontStyle: "italic", color: "#f5f0e8", opacity: 0.8 }}
+                  style={{
+                    fontFamily: "'Playfair Display', serif",
+                    fontSize: "14px",
+                    fontStyle: "italic",
+                    color: "#f5f0e8",
+                    opacity: 0.8,
+                  }}
                 />
               </div>
             </div>
@@ -604,7 +1109,11 @@ const HostEvent = () => {
               minHeight: "220px",
             }}
           >
-            <button onClick={() => navigate(editCode ? `/event/${editCode}` : "/home")} className="absolute top-5 left-5 z-20" style={{ pointerEvents: "auto" }}>
+            <button
+              onClick={() => navigate(editCode ? `/event/${editCode}` : "/home")}
+              className="absolute top-5 left-5 z-20"
+              style={{ pointerEvents: "auto" }}
+            >
               <ArrowLeft className="w-6 h-6" style={{ color: "#111" }} />
             </button>
 
@@ -612,7 +1121,10 @@ const HostEvent = () => {
               <input
                 type="text"
                 value={title}
-                onChange={(e) => { setTitle(e.target.value); setTitleError(""); }}
+                onChange={(e) => {
+                  setTitle(e.target.value);
+                  setTitleError("");
+                }}
                 placeholder="Event name..."
                 className={`w-full bg-transparent placeholder:opacity-40 outline-none drop-shadow-lg ${titleClass}`}
                 style={{ fontFamily: currentFontFamily, color: bgTextColor }}
@@ -634,7 +1146,9 @@ const HostEvent = () => {
             {/* Location bubble — full width with header band */}
             <div className="overflow-hidden" style={{ backgroundColor: accentColor, borderRadius: "16px" }}>
               <div className="px-4 py-1.5" style={{ backgroundColor: "rgba(0,0,0,0.2)" }}>
-                <span className="text-xs font-bold uppercase tracking-wider" style={{ color: accentText }}>Location</span>
+                <span className="text-xs font-bold uppercase tracking-wider" style={{ color: accentText }}>
+                  Location
+                </span>
               </div>
               <div className="p-4 flex items-center gap-4">
                 <span style={{ fontSize: "28px" }}>📍</span>
@@ -660,12 +1174,20 @@ const HostEvent = () => {
                 <div className="flex flex-col items-center py-3 px-3">
                   {eventDate ? (
                     <>
-                      <span className="text-4xl font-extrabold leading-none" style={{ color: accentText }}>{dayNum}</span>
-                      <span className="text-xs font-semibold mt-1" style={{ color: accentText, opacity: 0.7 }}>{timeStr}</span>
-                      <span className="text-[10px] font-medium mt-0.5" style={{ color: accentText, opacity: 0.5 }}>{dayOfWeek}</span>
+                      <span className="text-4xl font-extrabold leading-none" style={{ color: accentText }}>
+                        {dayNum}
+                      </span>
+                      <span className="text-xs font-semibold mt-1" style={{ color: accentText, opacity: 0.7 }}>
+                        {timeStr}
+                      </span>
+                      <span className="text-[10px] font-medium mt-0.5" style={{ color: accentText, opacity: 0.5 }}>
+                        {dayOfWeek}
+                      </span>
                     </>
                   ) : (
-                    <span className="text-3xl font-extrabold leading-none" style={{ color: accentText, opacity: 0.4 }}>?</span>
+                    <span className="text-3xl font-extrabold leading-none" style={{ color: accentText, opacity: 0.4 }}>
+                      ?
+                    </span>
                   )}
                   <input
                     type="datetime-local"
@@ -680,7 +1202,9 @@ const HostEvent = () => {
               <div className="flex-1 overflow-hidden" style={{ borderRadius: "16px", backgroundColor: accentColor }}>
                 <div className="px-3 py-1.5 flex items-center gap-2" style={{ backgroundColor: "rgba(0,0,0,0.2)" }}>
                   <span style={{ fontSize: "18px" }}>🎭</span>
-                  <span className="text-xs font-bold uppercase tracking-wider" style={{ color: accentText }}>Dress Code</span>
+                  <span className="text-xs font-bold uppercase tracking-wider" style={{ color: accentText }}>
+                    Dress Code
+                  </span>
                 </div>
                 <div className="flex flex-col py-3 px-3">
                   <input
@@ -696,14 +1220,21 @@ const HostEvent = () => {
             </div>
 
             {/* Notes bubble */}
-            <div className="p-4 flex items-start gap-3" style={{
-              borderRadius: "16px",
-              backgroundColor: accentColor.replace("hsl(", "hsla(").replace(")", ", 0.15)"),
-              border: `1px solid ${accentColor.replace("hsl(", "hsla(").replace(")", ", 0.3)")}`,
-            }}>
-              <span className="text-lg mt-0.5" style={{ color: bgTextMuted }}>✦</span>
+            <div
+              className="p-4 flex items-start gap-3"
+              style={{
+                borderRadius: "16px",
+                backgroundColor: accentColor.replace("hsl(", "hsla(").replace(")", ", 0.15)"),
+                border: `1px solid ${accentColor.replace("hsl(", "hsla(").replace(")", ", 0.3)")}`,
+              }}
+            >
+              <span className="text-lg mt-0.5" style={{ color: bgTextMuted }}>
+                ✦
+              </span>
               <div className="flex-1">
-                <span className="text-[10px] font-bold uppercase tracking-wider block" style={{ color: accentColor }}>Notes from host</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider block" style={{ color: accentColor }}>
+                  Notes from host
+                </span>
                 <textarea
                   value={extra}
                   onChange={(e) => setExtra(e.target.value)}
@@ -735,7 +1266,10 @@ const HostEvent = () => {
             {/* Tabs */}
             <div className="flex gap-1 mb-5 p-1 rounded-xl" style={{ backgroundColor: "#2b2b2b" }}>
               <button
-                onClick={() => { setCustomizeTab("templates"); setCustomisePanel(null); }}
+                onClick={() => {
+                  setCustomizeTab("templates");
+                  setCustomisePanel(null);
+                }}
                 className="flex-1 py-2 rounded-lg text-sm font-bold transition-all"
                 style={{
                   backgroundColor: customizeTab === "templates" ? "#383838" : "transparent",
@@ -745,7 +1279,10 @@ const HostEvent = () => {
                 Templates
               </button>
               <button
-                onClick={() => { setCustomizeTab("customise"); setCustomisePanel(null); }}
+                onClick={() => {
+                  setCustomizeTab("customise");
+                  setCustomisePanel(null);
+                }}
                 className="flex-1 py-2 rounded-lg text-sm font-bold transition-all"
                 style={{
                   backgroundColor: customizeTab === "customise" ? "#383838" : "transparent",
@@ -764,18 +1301,103 @@ const HostEvent = () => {
                     const tn = t.templateName;
 
                     // Per-template config
-                    const cfg: Record<string, { bg: string; bgGrad?: string; titleColor: string; accentColor: string; accentStyle?: React.CSSProperties; font: string; barColor: string; barText: string; extra?: React.ReactNode }> = {
-                      "planit-noir": { bg: "#0a0a0a", titleColor: "#fff", accentColor: "#aaee44", accentStyle: { fontStyle: "italic" }, font: "'Playfair Display', serif", barColor: "#aaee44", barText: "#111" },
-                      "vintage": { bg: "#f5f0e8", titleColor: "#2c1810", accentColor: "#8b7355", font: "'Playfair Display', serif", barColor: "#8b7355", barText: "#f5f0e8" },
-                      "galaxy": { bg: "#0d0d2b", titleColor: "#fff", accentColor: "#7c3aed", font: "'Bebas Neue', sans-serif", barColor: "#7c3aed", barText: "#fff" },
-                      "sunny": { bg: "#ff6b35", bgGrad: "linear-gradient(135deg, #ff6b35, #ff8c00)", titleColor: "#fff", accentColor: "#fff", font: "'Caveat', cursive", barColor: "#ff6b35", barText: "#fff" },
-                      "midnight": { bg: "#ffffff", titleColor: "#000", accentColor: "#000", font: "'Bebas Neue', sans-serif", barColor: "#000", barText: "#fff" },
-                      "ocean": { bg: "#0d1b2a", titleColor: "#fff", accentColor: "#1e90ff", font: "'Bebas Neue', sans-serif", barColor: "#1e90ff", barText: "#fff" },
-                      "blush": { bg: "#1a0a10", titleColor: "#fff", accentColor: "#e91e8c", font: "'Playfair Display', serif", barColor: "#e91e8c", barText: "#fff" },
-                      "forest": { bg: "#0a1f0a", titleColor: "#fff", accentColor: "#2e7d32", font: "'Playfair Display', serif", barColor: "#2e7d32", barText: "#fff" },
-                      "planit-classic": { bg: "#2b2b2b", titleColor: "#fff", accentColor: "#aaee44", font: "'Bebas Neue', sans-serif", barColor: "#aaee44", barText: "#111" },
+                    const cfg: Record<
+                      string,
+                      {
+                        bg: string;
+                        bgGrad?: string;
+                        titleColor: string;
+                        accentColor: string;
+                        accentStyle?: React.CSSProperties;
+                        font: string;
+                        barColor: string;
+                        barText: string;
+                        extra?: React.ReactNode;
+                      }
+                    > = {
+                      "planit-noir": {
+                        bg: "#0a0a0a",
+                        titleColor: "#fff",
+                        accentColor: "#aaee44",
+                        accentStyle: { fontStyle: "italic" },
+                        font: "'Playfair Display', serif",
+                        barColor: "#aaee44",
+                        barText: "#111",
+                      },
+                      vintage: {
+                        bg: "#f5f0e8",
+                        titleColor: "#2c1810",
+                        accentColor: "#8b7355",
+                        font: "'Playfair Display', serif",
+                        barColor: "#8b7355",
+                        barText: "#f5f0e8",
+                      },
+                      galaxy: {
+                        bg: "#0d0d2b",
+                        titleColor: "#fff",
+                        accentColor: "#7c3aed",
+                        font: "'Bebas Neue', sans-serif",
+                        barColor: "#7c3aed",
+                        barText: "#fff",
+                      },
+                      sunny: {
+                        bg: "#ff6b35",
+                        bgGrad: "linear-gradient(135deg, #ff6b35, #ff8c00)",
+                        titleColor: "#fff",
+                        accentColor: "#fff",
+                        font: "'Caveat', cursive",
+                        barColor: "#ff6b35",
+                        barText: "#fff",
+                      },
+                      midnight: {
+                        bg: "#ffffff",
+                        titleColor: "#000",
+                        accentColor: "#000",
+                        font: "'Bebas Neue', sans-serif",
+                        barColor: "#000",
+                        barText: "#fff",
+                      },
+                      ocean: {
+                        bg: "#0d1b2a",
+                        titleColor: "#fff",
+                        accentColor: "#1e90ff",
+                        font: "'Bebas Neue', sans-serif",
+                        barColor: "#1e90ff",
+                        barText: "#fff",
+                      },
+                      blush: {
+                        bg: "#1a0a10",
+                        titleColor: "#fff",
+                        accentColor: "#e91e8c",
+                        font: "'Playfair Display', serif",
+                        barColor: "#e91e8c",
+                        barText: "#fff",
+                      },
+                      forest: {
+                        bg: "#0a1f0a",
+                        titleColor: "#fff",
+                        accentColor: "#2e7d32",
+                        font: "'Playfair Display', serif",
+                        barColor: "#2e7d32",
+                        barText: "#fff",
+                      },
+                      "planit-classic": {
+                        bg: "#2b2b2b",
+                        titleColor: "#fff",
+                        accentColor: "#aaee44",
+                        font: "'Bebas Neue', sans-serif",
+                        barColor: "#aaee44",
+                        barText: "#111",
+                      },
                     };
-                    const c = cfg[tn] || { bg: "#2b2b2b", titleColor: "#fff", accentColor: "#aaee44", font: "sans-serif", barColor: "#aaee44", barText: "#111" };
+                    const c = cfg[tn] || {
+                      bg: "#2b2b2b",
+                      titleColor: "#fff",
+                      accentColor: "#aaee44",
+                      font: "sans-serif",
+                      barColor: "#aaee44",
+                      barText: "#111",
+                    };
 
                     return (
                       <button
@@ -806,34 +1428,90 @@ const HostEvent = () => {
                         >
                           {/* Blush pink badge */}
                           {tn === "blush" && (
-                            <div style={{ width: 10, height: 4, borderRadius: 2, backgroundColor: "#e91e8c", marginBottom: 2 }} />
+                            <div
+                              style={{
+                                width: 10,
+                                height: 4,
+                                borderRadius: 2,
+                                backgroundColor: "#e91e8c",
+                                marginBottom: 2,
+                              }}
+                            />
                           )}
                           {/* Galaxy glow */}
                           {tn === "galaxy" && (
-                            <div style={{ position: "absolute", top: "40%", left: "50%", transform: "translate(-50%,-50%)", width: 30, height: 30, borderRadius: "50%", background: "radial-gradient(circle, rgba(124,58,237,0.4) 0%, transparent 70%)" }} />
+                            <div
+                              style={{
+                                position: "absolute",
+                                top: "40%",
+                                left: "50%",
+                                transform: "translate(-50%,-50%)",
+                                width: 30,
+                                height: 30,
+                                borderRadius: "50%",
+                                background: "radial-gradient(circle, rgba(124,58,237,0.4) 0%, transparent 70%)",
+                              }}
+                            />
                           )}
                           {/* Forest box */}
                           {tn === "forest" ? (
-                            <div style={{ border: "1px solid rgba(255,255,255,0.3)", borderRadius: 3, padding: "4px 6px" }}>
-                              <span style={{ fontFamily: c.font, fontSize: 9, fontWeight: 700, color: c.titleColor, lineHeight: 1.1 }}>
+                            <div
+                              style={{ border: "1px solid rgba(255,255,255,0.3)", borderRadius: 3, padding: "4px 6px" }}
+                            >
+                              <span
+                                style={{
+                                  fontFamily: c.font,
+                                  fontSize: 9,
+                                  fontWeight: 700,
+                                  color: c.titleColor,
+                                  lineHeight: 1.1,
+                                }}
+                              >
                                 Your <span style={{ color: c.accentColor }}>event</span>
                               </span>
                             </div>
                           ) : tn === "midnight" ? (
                             <div style={{ borderLeft: "2px solid #000", paddingLeft: 4 }}>
-                              <span style={{ fontFamily: c.font, fontSize: 9, fontWeight: 800, color: c.titleColor, textTransform: "uppercase" as const, letterSpacing: "0.05em" }}>
+                              <span
+                                style={{
+                                  fontFamily: c.font,
+                                  fontSize: 9,
+                                  fontWeight: 800,
+                                  color: c.titleColor,
+                                  textTransform: "uppercase" as const,
+                                  letterSpacing: "0.05em",
+                                }}
+                              >
                                 YOUR EVENT
                               </span>
                             </div>
                           ) : (
-                            <span style={{ fontFamily: c.font, fontSize: 9, fontWeight: 700, color: c.titleColor, lineHeight: 1.2, textAlign: "center", position: "relative", zIndex: 1 }}>
-                              Your{" "}
-                              <span style={{ color: c.accentColor, ...c.accentStyle }}>event</span>
+                            <span
+                              style={{
+                                fontFamily: c.font,
+                                fontSize: 9,
+                                fontWeight: 700,
+                                color: c.titleColor,
+                                lineHeight: 1.2,
+                                textAlign: "center",
+                                position: "relative",
+                                zIndex: 1,
+                              }}
+                            >
+                              Your <span style={{ color: c.accentColor, ...c.accentStyle }}>event</span>
                             </span>
                           )}
                         </div>
                         <div className="py-0.5 text-center" style={{ backgroundColor: c.barColor }}>
-                          <span style={{ fontSize: 6, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" as const, color: c.barText }}>
+                          <span
+                            style={{
+                              fontSize: 6,
+                              fontWeight: 700,
+                              letterSpacing: "0.1em",
+                              textTransform: "uppercase" as const,
+                              color: c.barText,
+                            }}
+                          >
                             {t.name}
                           </span>
                         </div>
@@ -845,47 +1523,74 @@ const HostEvent = () => {
                 <div className="flex flex-col gap-1">
                   {/* Background colour — hidden for Vintage */}
                   {!isVintage && (
-                    <button onClick={() => setCustomisePanel("bg")} className="flex items-center justify-between py-3.5 px-1">
+                    <button
+                      onClick={() => setCustomisePanel("bg")}
+                      className="flex items-center justify-between py-3.5 px-1"
+                    >
                       <span className="text-sm font-semibold text-white">Background colour</span>
                       <div className="flex items-center gap-2">
-                        <div className="w-5 h-5 rounded-full border border-white/20" style={{ backgroundColor: `hsl(${bgColor})` }} />
+                        <div
+                          className="w-5 h-5 rounded-full border border-white/20"
+                          style={{ backgroundColor: `hsl(${bgColor})` }}
+                        />
                         <span className="text-white/40 text-lg">›</span>
                       </div>
                     </button>
                   )}
                   {/* Accent colour — Vintage only */}
                   {isVintage && (
-                    <button onClick={() => setCustomisePanel("accent")} className="flex items-center justify-between py-3.5 px-1">
+                    <button
+                      onClick={() => setCustomisePanel("accent")}
+                      className="flex items-center justify-between py-3.5 px-1"
+                    >
                       <span className="text-sm font-semibold text-white">Accent colour</span>
                       <div className="flex items-center gap-2">
-                        <div className="w-5 h-5 rounded-full border border-white/20" style={{ backgroundColor: gradientColor }} />
+                        <div
+                          className="w-5 h-5 rounded-full border border-white/20"
+                          style={{ backgroundColor: gradientColor }}
+                        />
                         <span className="text-white/40 text-lg">›</span>
                       </div>
                     </button>
                   )}
                   {/* Bubble colour — hidden for Vintage */}
                   {!isVintage && (
-                    <button onClick={() => setCustomisePanel("bubble")} className="flex items-center justify-between py-3.5 px-1">
+                    <button
+                      onClick={() => setCustomisePanel("bubble")}
+                      className="flex items-center justify-between py-3.5 px-1"
+                    >
                       <span className="text-sm font-semibold text-white">Bubble colour</span>
                       <div className="flex items-center gap-2">
-                        <div className="w-5 h-5 rounded-full border border-white/20" style={{ backgroundColor: accentColor }} />
+                        <div
+                          className="w-5 h-5 rounded-full border border-white/20"
+                          style={{ backgroundColor: accentColor }}
+                        />
                         <span className="text-white/40 text-lg">›</span>
                       </div>
                     </button>
                   )}
                   {/* Header gradient — hidden for Noir & Vintage */}
                   {!isNoir && !isVintage && (
-                    <button onClick={() => setCustomisePanel("gradient")} className="flex items-center justify-between py-3.5 px-1">
+                    <button
+                      onClick={() => setCustomisePanel("gradient")}
+                      className="flex items-center justify-between py-3.5 px-1"
+                    >
                       <span className="text-sm font-semibold text-white">Header gradient</span>
                       <div className="flex items-center gap-2">
-                        <div className="w-5 h-5 rounded-full border border-white/20" style={{ background: `linear-gradient(135deg, ${gradientColor}, #1a1a1a)` }} />
+                        <div
+                          className="w-5 h-5 rounded-full border border-white/20"
+                          style={{ background: `linear-gradient(135deg, ${gradientColor}, #1a1a1a)` }}
+                        />
                         <span className="text-white/40 text-lg">›</span>
                       </div>
                     </button>
                   )}
                   {/* Font style — hidden for Vintage */}
                   {!isVintage && (
-                    <button onClick={() => setCustomisePanel("font")} className="flex items-center justify-between py-3.5 px-1">
+                    <button
+                      onClick={() => setCustomisePanel("font")}
+                      className="flex items-center justify-between py-3.5 px-1"
+                    >
                       <span className="text-sm font-semibold text-white">Font style</span>
                       <div className="flex items-center gap-2">
                         <span className="text-xs text-white/60">{fontStyle}</span>
@@ -894,7 +1599,10 @@ const HostEvent = () => {
                     </button>
                   )}
                   {/* Text size */}
-                  <button onClick={() => setCustomisePanel("size")} className="flex items-center justify-between py-3.5 px-1">
+                  <button
+                    onClick={() => setCustomisePanel("size")}
+                    className="flex items-center justify-between py-3.5 px-1"
+                  >
                     <span className="text-sm font-semibold text-white">Text size</span>
                     <div className="flex items-center gap-2">
                       <span className="text-xs text-white/60">{textSize}</span>
@@ -904,7 +1612,10 @@ const HostEvent = () => {
                 </div>
               ) : (
                 <div>
-                  <button onClick={() => setCustomisePanel(null)} className="flex items-center gap-1 text-sm text-white/60 mb-4">
+                  <button
+                    onClick={() => setCustomisePanel(null)}
+                    className="flex items-center gap-1 text-sm text-white/60 mb-4"
+                  >
                     <ArrowLeft className="w-4 h-4" /> Back
                   </button>
 
@@ -915,7 +1626,12 @@ const HostEvent = () => {
                         {(isNoir ? NOIR_PALETTE_COLORS : PALETTE_COLORS).map((c) => (
                           <button
                             key={c.name}
-                            onClick={() => { setBgColor(c.hsl); setBgPhoto(null); setBgPreset(null); setBgPresetIsImage(false); }}
+                            onClick={() => {
+                              setBgColor(c.hsl);
+                              setBgPhoto(null);
+                              setBgPreset(null);
+                              setBgPresetIsImage(false);
+                            }}
                             className="w-8 h-8 rounded-full border-2 transition-all shrink-0"
                             style={{
                               backgroundColor: `hsl(${c.hsl})`,
@@ -934,10 +1650,20 @@ const HostEvent = () => {
                         >
                           <Upload className="w-4 h-4" /> Upload photo
                         </button>
-                        <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileUpload} />
+                        <input
+                          ref={fileInputRef}
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={handleFileUpload}
+                        />
                         {uploadedPhoto && (
                           <button
-                            onClick={() => { setBgPhoto(uploadedPhoto); setBgPreset(null); setBgPresetIsImage(false); }}
+                            onClick={() => {
+                              setBgPhoto(uploadedPhoto);
+                              setBgPreset(null);
+                              setBgPresetIsImage(false);
+                            }}
                             className="w-11 h-11 rounded-xl overflow-hidden border-2"
                             style={{ borderColor: bgPhoto === uploadedPhoto ? "#aaee44" : "transparent" }}
                           >
@@ -949,12 +1675,16 @@ const HostEvent = () => {
                         {PRESET_BACKGROUNDS.map((p) => (
                           <button
                             key={p.name}
-                            onClick={() => { setBgPreset(p.gradient); setBgPresetIsImage(!!(p as any).isImage); setBgPhoto(null); }}
+                            onClick={() => {
+                              setBgPreset(p.gradient);
+                              setBgPresetIsImage(!!(p as any).isImage);
+                              setBgPhoto(null);
+                            }}
                             className="h-14 rounded-xl border-2 transition-all overflow-hidden"
                             style={{
-                              ...(p as any).isImage
+                              ...((p as any).isImage
                                 ? { backgroundImage: p.gradient, backgroundSize: "cover", backgroundPosition: "center" }
-                                : { background: p.gradient },
+                                : { background: p.gradient }),
                               borderColor: bgPreset === p.gradient ? "#aaee44" : "transparent",
                             }}
                           >
@@ -972,7 +1702,10 @@ const HostEvent = () => {
                         {BUBBLE_COLORS.map((c) => (
                           <button
                             key={c.name}
-                            onClick={() => { setBubbleColor(c.hsl); setBubbleTextColor(c.text); }}
+                            onClick={() => {
+                              setBubbleColor(c.hsl);
+                              setBubbleTextColor(c.text);
+                            }}
                             className="w-8 h-8 rounded-full border-2 transition-all"
                             style={{
                               backgroundColor: `hsl(${c.hsl})`,
@@ -1042,8 +1775,15 @@ const HostEvent = () => {
                               borderColor: fontStyle === f.name ? "#aaee44" : "#444",
                             }}
                           >
-                            <span className="text-2xl text-white" style={{ fontFamily: f.family }}>{f.name}</span>
-                            <span className="text-[10px] font-semibold" style={{ color: fontStyle === f.name ? "#aaee44" : "#999" }}>{f.name}</span>
+                            <span className="text-2xl text-white" style={{ fontFamily: f.family }}>
+                              {f.name}
+                            </span>
+                            <span
+                              className="text-[10px] font-semibold"
+                              style={{ color: fontStyle === f.name ? "#aaee44" : "#999" }}
+                            >
+                              {f.name}
+                            </span>
                           </button>
                         ))}
                       </div>
