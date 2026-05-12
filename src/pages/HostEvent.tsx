@@ -945,7 +945,10 @@ const HostEvent = () => {
             {/* Date + Dress code row */}
             <div className="flex gap-3">
               {/* Date */}
-              <div className="flex-1 overflow-hidden" style={{ borderRadius: "16px", backgroundColor: "#2c1810" }}>
+              <div
+                className="flex-1 overflow-hidden"
+                style={{ borderRadius: "16px", backgroundColor: "#2c1810", position: "relative" }}
+              >
                 <div className="px-3 py-1.5 text-center" style={{ backgroundColor: "rgba(0,0,0,0.2)" }}>
                   <span
                     style={{
@@ -1012,14 +1015,21 @@ const HostEvent = () => {
                       ?
                     </span>
                   )}
-                  <input
-                    type="datetime-local"
-                    value={dateTime}
-                    onChange={(e) => setDateTime(e.target.value)}
-                    className="w-full bg-transparent outline-none text-[10px] mt-2 text-center"
-                    style={{ color: gradientColor, opacity: 0.6 }}
-                  />
                 </div>
+                <input
+                  type="datetime-local"
+                  value={dateTime}
+                  onChange={(e) => setDateTime(e.target.value)}
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    width: "100%",
+                    height: "100%",
+                    opacity: 0,
+                    cursor: "pointer",
+                    zIndex: 10,
+                  }}
+                />
               </div>
 
               {/* Dress code */}
