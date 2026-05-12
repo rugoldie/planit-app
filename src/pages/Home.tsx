@@ -653,7 +653,6 @@ const UpcomingSection = ({ events, navigate }: { events: EventWithRole[]; naviga
     }
 
     if (isVintage(event.template_name)) {
-    if (isVintage(event.template_name)) {
       return (
         <div key={event.id} style={{ opacity: isFaded ? 0.45 : 1, transition: "opacity 0.3s" }}>
           <VintageUpcomingCard event={event} navigate={navigate} />
