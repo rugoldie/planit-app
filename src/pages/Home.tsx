@@ -192,7 +192,10 @@ const isVintage = (templateName: string | null) => {
   const t = templateName.toLowerCase().trim();
   return t === "vintage" || t.includes("vintage");
 };
-
+const isGalaxy = (templateName: string | null) => {
+  if (!templateName) return false;
+  return templateName.toLowerCase().trim() === "galaxy";
+};
 /** Noir-styled title: second word in accent color + italic */
 const NoirCardTitle = ({ title, accentColor, fontSize = "1.25rem" }: { title: string; accentColor: string; fontSize?: string }) => {
   const words = (title || "Untitled Event").split(" ");
@@ -460,6 +463,88 @@ const NoirUpcomingCard = ({ event, navigate }: { event: EventWithRole; navigate:
   );
 };
 
+/** Galaxy Next Up card */
+const GalaxyNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate: ReturnType<typeof useNavigate> }) => {
+  const accent = hslToColor(event.bubble_color, "#a855f7");
+  const parsed = event.date_time ? parseISO(event.date_time) : null;
+  const dayNum = parsed ? format(parsed, "d") : "?";
+  const monthName = parsed ? format(parsed, "MMM").toUpperCase() : "TBD";
+  const timeStr = parsed ? format(parsed, "h:mm a") : "";
+  const navPath = event.role === "host" ? `/event/${event.code}` : `/guest/${event.code}`;
+
+  return (
+    <div className="rounded-2xl overflow-hidden relative cursor-pointer" style={{ backgroundColor: "#0d0d2b", border: "1px solid rgba(168,85,247,0.3)" }} onClick={() => navigate(navPath)}>
+      <div style={{ position: "absolute", top: "-20px", right: "-20px", width: "80px", height: "80px", borderRadius: "50%", background: "rgba(147,51,234,0.2)", pointerEvents: "none" }} />
+      <div style={{ position: "absolute", bottom: "40px", left: "-15px", width: "50px", height: "50px", borderRadius: "50%", background: "rgba(236,72,153,0.12)", pointerEvents: "none" }} />
+
+      <div className="relative z-10 p-3.5">
+        <p style={{ fontSize: "9px", color: accent, letterSpacing: "2px", textTransform: "uppercase" as const, marginBottom: "4px", fontFamily: "sans-serif" }}>✦ you are invited to ✦</p>
+        <span style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 800, fontSize: "1.15rem", color: "#fff", lineHeight: 1.2 }}>{event.title || "Untitled Event"}</span>
+
+        <div className="flex items-center gap-3 mt-2.5 mb-3">
+          <div className="flex-1 h-px" style={{ backgroundColor: "rgba(168,85,247,0.2)" }} />
+          <span style={{ fontSize: "8px", fontWeight: 600, letterSpacing: "0.22em", color: "rgba(255,255,255,0.3)", textTransform: "uppercase" as const, fontFamily: "sans-serif" }}>
+            by {event.role === "host" ? "You" : "Host"}
+          </span>
+          <div className="flex-1 h-px" style={{ backgroundColor: "rgba(168,85,247,0.2)" }} />
+        </div>
+
+        <div className="flex gap-2 mb-3">
+          <div className="flex-1 flex flex-col items-center justify-center rounded-lg py-2 px-2" style={{ background: "rgba(236,72,153,0.15)", border: "1px solid rgba(236,72,153,0.3)" }}>
+            <span style={{ fontSize: "22px", fontWeight: 800, color: "#fff", lineHeight: 1, fontFamily: "sans-serif" }}>{dayNum}</span>
+            <span style={{ fontSize: "8px", fontWeight: 700, color: "#ec4899", textTransform: "uppercase" as const, letterSpacing: "0.12em", marginTop: "2px", fontFamily: "sans-serif" }}>{monthName}</span>
+            {timeStr && <span style={{ fontSize: "8px", color: "#ec4899", opacity: 0.6, marginTop: "1px", fontFamily: "sans-serif" }}>{timeStr}</span>}
+          </div>
+          <div className="flex-1 flex flex-col justify-center rounded-lg py-2 px-2.5" style={{ background: "rgba(168,85,247,0.15)", border: "1px solid rgba(168,85,247,0.3)" }}>
+            <span style={{ fontSize: "8px", fontWeight: 600, color: accent, textTransform: "uppercase" as const, letterSpacing: "0.15em", fontFamily: "sans-serif" }}>Location</span>
+            <span className="truncate mt-0.5" style={{ fontSize: "13px", fontWeight: 700, color: "white", fontFamily: "sans-serif" }}>{event.location || "TBD"}</span>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between mb-3">
+          <span style={{ fontSize: "8px", fontWeight: 600, color: "rgba(255,255,255,0.3)", textTransform: "uppercase" as const, letterSpacing: "0.18em", fontFamily: "sans-serif" }}>
+            {event.guest_count > 0 ? `${event.guest_count} going` : "No one yet"}
+          </span>
+        </div>
+
+        <button
+          className="w-full rounded-lg py-2 text-xs font-bold"
+          style={{ background: `linear-gradient(90deg, ${accent}, #ec4899)`, color: "#fff", fontFamily: "sans-serif", letterSpacing: "0.03em" }}
+          onClick={(e) => { e.stopPropagation(); navigate(navPath); }}
+        >
+          View event →
+        </button>
+      </div>
+    </div>
+  );
+};
+
+/** Galaxy Upcoming card — compact row */
+const GalaxyUpcomingCard = ({ event, navigate }: { event: EventWithRole; navigate: ReturnType<typeof useNavigate> }) => {
+  const accent = hslToColor(event.bubble_color, "#a855f7");
+  return (
+    <div
+      className="rounded-xl px-3.5 py-3 cursor-pointer overflow-hidden relative"
+      style={{ backgroundColor: "#0d0d2b", border: "1px solid rgba(168,85,247,0.25)" }}
+      onClick={() => {
+        const path = event.role === "host" ? `/event/${event.code}` : `/guest/${event.code}`;
+        navigate(path);
+      }}
+    >
+      <div style={{ position: "absolute", top: "-15px", right: "-15px", width: "50px", height: "50px", borderRadius: "50%", background: "rgba(147,51,234,0.15)", pointerEvents: "none" }} />
+      <div className="relative z-10 flex items-center justify-between">
+        <div className="flex-1 mr-3 min-w-0">
+          <div style={{ fontSize: "9px", color: accent, letterSpacing: "1.5px", textTransform: "uppercase" as const, marginBottom: "2px", fontFamily: "sans-serif" }}>✦ galaxy</div>
+          <h3 className="truncate" style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "14px", fontWeight: 800, color: "#fff" }}>{event.title || "Untitled Event"}</h3>
+          <p className="truncate mt-0.5" style={{ fontSize: "11px", color: "rgba(255,255,255,0.35)", fontFamily: "sans-serif" }}>{formatDate(event.date_time)} · {event.location || "Location TBD"}</p>
+        </div>
+        <div style={{ background: "rgba(168,85,247,0.2)", border: "1px solid rgba(168,85,247,0.4)", borderRadius: "20px", padding: "4px 10px", fontSize: "10px", fontWeight: 700, color: accent, whiteSpace: "nowrap" as const }}>
+          {event.role === "host" ? "Host" : event.role === "going" ? "Going" : "Maybe"}
+        </div>
+      </div>
+    </div>
+  );
+};
 /** Vintage Next Up card */
 const VintageNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate: ReturnType<typeof useNavigate> }) => {
   const parsed = event.date_time ? parseISO(event.date_time) : null;
@@ -559,6 +644,15 @@ const UpcomingSection = ({ events, navigate }: { events: EventWithRole[]; naviga
   const renderCard = (event: EventWithRole, index: number) => {
     const isFaded = !showAll && index === 2 && hasMore;
 
+    if (isGalaxy(event.template_name)) {
+      return (
+        <div key={event.id} style={{ opacity: isFaded ? 0.45 : 1, transition: "opacity 0.3s" }}>
+          <GalaxyUpcomingCard event={event} navigate={navigate} />
+        </div>
+      );
+    }
+
+    if (isVintage(event.template_name)) {
     if (isVintage(event.template_name)) {
       return (
         <div key={event.id} style={{ opacity: isFaded ? 0.45 : 1, transition: "opacity 0.3s" }}>
@@ -714,7 +808,9 @@ const Home = () => {
       {nextEvent && (
         <div className="mb-6">
           <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Next up</h2>
-          {isVintage(nextEvent.template_name) ? (
+         {isGalaxy(nextEvent.template_name) ? (
+            <GalaxyNextUpCard event={nextEvent} navigate={navigate} />
+          ) : isVintage(nextEvent.template_name) ? (
             <VintageNextUpCard event={nextEvent} navigate={navigate} />
           ) : isNoir(nextEvent.template_name) ? (
             <NoirNextUpCard event={nextEvent} navigate={navigate} />
