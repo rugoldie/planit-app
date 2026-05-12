@@ -831,7 +831,8 @@ const HostEvent = () => {
               <div style={{ display: "grid", gridTemplateColumns: "80px 1fr", gap: "10px" }}>
                 <div
                   style={{
-                    backgroundColor: "#0a0a0a",
+                    backgroundColor: `${accentColor}22`,
+                    border: `1px solid ${accentColor}40`,
                     borderRadius: "12px",
                     padding: "10px 8px",
                     display: "flex",
@@ -848,7 +849,7 @@ const HostEvent = () => {
                       fontWeight: 700,
                       letterSpacing: "0.14em",
                       textTransform: "uppercase" as const,
-                      color: "#666",
+                      color: accentColor,
                     }}
                   >
                     {monthName || "DATE"}
@@ -858,9 +859,15 @@ const HostEvent = () => {
                       fontFamily: "'Inter', sans-serif",
                       fontSize: "30px",
                       fontWeight: 900,
-                      color: "#fff",
+                      color: bgTextColor,
                       lineHeight: 1,
                     }}
+                  >
+                    {dayNum || "?"}
+                  </span>
+                  <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", color: accentColor, opacity: 0.6, marginTop: "2px" }}>
+                    {timeStr}
+                  </span>
                   >
                     {dayNum || "?"}
                   </span>
