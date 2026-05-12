@@ -632,6 +632,8 @@ const HostEvent = () => {
                 <textarea value={extra} onChange={(e) => setExtra(e.target.value)} placeholder="Anything else your guests should know..." rows={2} className="w-full bg-transparent outline-none resize-none placeholder:opacity-30 text-center" style={{ fontFamily: "'Caveat', cursive", fontSize: "17px", color: "rgba(255,255,255,0.85)", fontStyle: "italic" }} />
               </div>
             </div>
+          </div>
+        </>
       ) : isGalaxy ? (
         /* ═══ GALAXY LAYOUT ═══ */
         <>
