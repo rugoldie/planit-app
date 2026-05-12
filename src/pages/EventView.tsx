@@ -490,6 +490,7 @@ const EventView = () => {
   const isNoir = (event as any).template_name === "planit-noir";
   const isVintage = (event as any).template_name === "vintage";
   const isGalaxy = ((event as any).template_name || "").toLowerCase() === "galaxy";
+  const isSunny = ((event as any).template_name || "").toLowerCase() === "sunny";
   const galaxyAccent = (event as any).bubble_color ? `hsl(${(event as any).bubble_color})` : "#a855f7";
   const isHost = !authLoading && !!user && !!event && user.id === event.host_id;
   const vintageAccent = (event as any).gradient_color || "#8b7355";
@@ -497,11 +498,13 @@ const EventView = () => {
     ? "#f5f0e8"
     : isGalaxy
       ? "#0d0d2b"
-      : event.bg_color
-        ? `hsl(${event.bg_color})`
-        : isNoir
-          ? "#0a0a0a"
-          : "#1a1a1a";
+      : isSunny
+        ? "#ff6b35"
+        : event.bg_color
+          ? `hsl(${event.bg_color})`
+          : isNoir
+            ? "#0a0a0a"
+            : "#1a1a1a";
   const noirFontSize = event.text_size === "Small" ? "28px" : event.text_size === "Large" ? "44px" : "36px";
 
   return (
@@ -1167,6 +1170,569 @@ const EventView = () => {
             </div>
           </div>
         </>
+      ) : isSunny ? (
+        /* ═══ SUNNY LAYOUT ═══ */
+        <>
+          <div
+            style={{
+              background: "linear-gradient(180deg, #ff6b35 0%, #ff8c00 40%, #2a0e00 100%)",
+              minHeight: "100vh",
+              position: "relative",
+              overflow: "hidden",
+            }}
+          >
+            <div
+              style={{
+                position: "absolute",
+                top: "-60px",
+                right: "-60px",
+                width: "180px",
+                height: "180px",
+                borderRadius: "50%",
+                background: "rgba(255,200,100,0.15)",
+                pointerEvents: "none",
+              }}
+            />
+            <div
+              style={{
+                position: "absolute",
+                top: "60px",
+                left: "-40px",
+                width: "120px",
+                height: "120px",
+                borderRadius: "50%",
+                background: "rgba(255,150,50,0.1)",
+                pointerEvents: "none",
+              }}
+            />
+
+            <div className="flex items-center justify-between px-5 pt-6 relative z-10">
+              <button onClick={() => navigate("/home")}>
+                <ArrowLeft className="w-6 h-6 text-white/60" />
+              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={copyCode}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold"
+                  style={{
+                    backgroundColor: "rgba(255,255,255,0.15)",
+                    border: "1px solid rgba(255,255,255,0.25)",
+                    color: "#fff",
+                  }}
+                >
+                  {codeCopied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                  {event.code}
+                </button>
+                <button onClick={() => setShowDMs(true)} className="flex flex-col items-center gap-0.5">
+                  <div
+                    className="w-9 h-9 rounded-full flex items-center justify-center"
+                    style={{ backgroundColor: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.25)" }}
+                  >
+                    <MessageCircle className="w-4 h-4 text-white" />
+                  </div>
+                  <span className="text-[9px] font-semibold text-white/70">Messages</span>
+                </button>
+                {isHost && (
+                  <button
+                    onClick={() => setShowMenu(!showMenu)}
+                    className="w-9 h-9 rounded-full flex items-center justify-center"
+                    style={{ backgroundColor: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.25)" }}
+                  >
+                    <MoreVertical className="w-4 h-4 text-white" />
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <div className="text-center px-6 pt-6 pb-4 relative z-10">
+              <p
+                style={{
+                  fontFamily: "'Caveat', cursive",
+                  fontSize: "14px",
+                  color: "rgba(255,255,255,0.6)",
+                  fontStyle: "italic",
+                  marginBottom: "4px",
+                }}
+              >
+                you're invited to
+              </p>
+              <h1
+                style={{
+                  fontFamily: "'Caveat', cursive",
+                  fontSize: "38px",
+                  fontWeight: 700,
+                  color: "#fff",
+                  lineHeight: 1.1,
+                  marginBottom: "4px",
+                }}
+              >
+                {event.title || "Untitled Event"}
+              </h1>
+              {event.vibe && (
+                <p
+                  style={{
+                    fontFamily: "'Caveat', cursive",
+                    fontSize: "16px",
+                    fontStyle: "italic",
+                    color: "rgba(255,255,255,0.7)",
+                    marginBottom: "4px",
+                  }}
+                >
+                  {event.vibe}
+                </p>
+              )}
+              <p
+                style={{
+                  fontFamily: "'Caveat', cursive",
+                  fontSize: "13px",
+                  color: "rgba(255,255,255,0.4)",
+                  marginBottom: "12px",
+                }}
+              >
+                hosted by {profile?.name || "Host"}
+              </p>
+              <div className="flex items-center gap-3 justify-center">
+                <div className="flex-1 h-px" style={{ backgroundColor: "rgba(255,255,255,0.2)" }} />
+                <span style={{ color: "rgba(255,255,255,0.5)", fontSize: "16px" }}>☀</span>
+                <div className="flex-1 h-px" style={{ backgroundColor: "rgba(255,255,255,0.2)" }} />
+              </div>
+            </div>
+
+            <div className="px-5 flex flex-col gap-3 relative z-10 pb-6">
+              {event.location && (
+                <div
+                  style={{
+                    background: "rgba(255,255,255,0.12)",
+                    border: "1px solid rgba(255,255,255,0.2)",
+                    borderRadius: "16px",
+                    padding: "12px 14px",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "12px",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: "40px",
+                      height: "40px",
+                      background: "rgba(255,255,255,0.15)",
+                      borderRadius: "12px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "20px",
+                      flexShrink: 0,
+                    }}
+                  >
+                    📍
+                  </div>
+                  <div>
+                    <p
+                      style={{
+                        fontSize: "9px",
+                        color: "rgba(255,255,255,0.55)",
+                        textTransform: "uppercase" as const,
+                        letterSpacing: "2px",
+                        margin: "0 0 2px",
+                        fontFamily: "sans-serif",
+                      }}
+                    >
+                      Location
+                    </p>
+                    <p
+                      style={{
+                        fontFamily: "'Caveat', cursive",
+                        fontSize: "18px",
+                        fontWeight: 700,
+                        color: "#fff",
+                        margin: 0,
+                      }}
+                    >
+                      {event.location}
+                    </p>
+                  </div>
+                </div>
+              )}
+              {eventDate && (
+                <div
+                  style={{
+                    background: "rgba(255,255,255,0.12)",
+                    border: "1px solid rgba(255,255,255,0.2)",
+                    borderRadius: "16px",
+                    padding: "12px 14px",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "12px",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: "40px",
+                      height: "40px",
+                      background: "rgba(255,255,255,0.15)",
+                      borderRadius: "12px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "20px",
+                      flexShrink: 0,
+                    }}
+                  >
+                    🗓️
+                  </div>
+                  <div>
+                    <p
+                      style={{
+                        fontSize: "9px",
+                        color: "rgba(255,255,255,0.55)",
+                        textTransform: "uppercase" as const,
+                        letterSpacing: "2px",
+                        margin: "0 0 2px",
+                        fontFamily: "sans-serif",
+                      }}
+                    >
+                      Date
+                    </p>
+                    <p
+                      style={{
+                        fontFamily: "'Caveat', cursive",
+                        fontSize: "18px",
+                        fontWeight: 700,
+                        color: "#fff",
+                        margin: 0,
+                      }}
+                    >
+                      {dayOfWeek} {dayNum} {monthName} · {timeStr}
+                    </p>
+                  </div>
+                </div>
+              )}
+              {event.dress_code && (
+                <div
+                  style={{
+                    background: "rgba(255,255,255,0.12)",
+                    border: "1px solid rgba(255,255,255,0.2)",
+                    borderRadius: "16px",
+                    padding: "12px 14px",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "12px",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: "40px",
+                      height: "40px",
+                      background: "rgba(255,255,255,0.15)",
+                      borderRadius: "12px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "20px",
+                      flexShrink: 0,
+                    }}
+                  >
+                    🎭
+                  </div>
+                  <div>
+                    <p
+                      style={{
+                        fontSize: "9px",
+                        color: "rgba(255,255,255,0.55)",
+                        textTransform: "uppercase" as const,
+                        letterSpacing: "2px",
+                        margin: "0 0 2px",
+                        fontFamily: "sans-serif",
+                      }}
+                    >
+                      Dress code
+                    </p>
+                    <p
+                      style={{
+                        fontFamily: "'Caveat', cursive",
+                        fontSize: "18px",
+                        fontWeight: 700,
+                        color: "#fff",
+                        margin: 0,
+                      }}
+                    >
+                      {event.dress_code}
+                    </p>
+                  </div>
+                </div>
+              )}
+              {event.extra && (
+                <div
+                  style={{
+                    background: "rgba(0,0,0,0.2)",
+                    border: "1px solid rgba(255,255,255,0.1)",
+                    borderRadius: "16px",
+                    padding: "12px 14px",
+                    display: "flex",
+                    alignItems: "flex-start",
+                    gap: "12px",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: "40px",
+                      height: "40px",
+                      background: "rgba(255,255,255,0.1)",
+                      borderRadius: "12px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "20px",
+                      flexShrink: 0,
+                    }}
+                  >
+                    ✦
+                  </div>
+                  <div>
+                    <p
+                      style={{
+                        fontSize: "9px",
+                        color: "rgba(255,255,255,0.45)",
+                        textTransform: "uppercase" as const,
+                        letterSpacing: "2px",
+                        margin: "0 0 2px",
+                        fontFamily: "sans-serif",
+                      }}
+                    >
+                      Note from host
+                    </p>
+                    <p
+                      style={{
+                        fontFamily: "'Caveat', cursive",
+                        fontSize: "16px",
+                        color: "rgba(255,255,255,0.8)",
+                        margin: 0,
+                        fontStyle: "italic",
+                      }}
+                    >
+                      {event.extra}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              <div
+                style={{
+                  background: "rgba(255,255,255,0.1)",
+                  border: "1px solid rgba(255,255,255,0.15)",
+                  borderRadius: "16px",
+                  padding: "12px 14px",
+                }}
+              >
+                <button
+                  onClick={() => setGuestListExpanded(!guestListExpanded)}
+                  className="flex items-center justify-between w-full mb-2"
+                >
+                  <h2 style={{ fontFamily: "'Caveat', cursive", fontSize: "18px", fontWeight: 700, color: "#fff" }}>
+                    Who's going
+                  </h2>
+                  <div className="flex items-center gap-2">
+                    {goingList.length > 0 && (
+                      <span
+                        style={{ fontFamily: "'Caveat', cursive", fontSize: "13px", color: "rgba(255,255,255,0.6)" }}
+                      >
+                        {goingList.length} going
+                      </span>
+                    )}
+                    {guestListExpanded ? (
+                      <ChevronUp className="w-4 h-4 text-white/60" />
+                    ) : (
+                      <ChevronDown className="w-4 h-4 text-white/60" />
+                    )}
+                  </div>
+                </button>
+                <div className="flex items-center gap-2 overflow-x-auto">
+                  {goingList.length === 0 && (
+                    <p style={{ fontFamily: "'Caveat', cursive", fontSize: "14px", color: "rgba(255,255,255,0.4)" }}>
+                      No one yet
+                    </p>
+                  )}
+                  {goingList.map((r, i) => (
+                    <div key={i} className="flex flex-col items-center shrink-0">
+                      <div
+                        className="w-10 h-10 rounded-full flex items-center justify-center overflow-hidden"
+                        style={{ border: "2px solid rgba(255,255,255,0.4)", backgroundColor: "rgba(255,255,255,0.15)" }}
+                      >
+                        {r.avatar_url ? (
+                          <img src={r.avatar_url} alt="" className="w-full h-full object-cover" />
+                        ) : (
+                          <span
+                            style={{
+                              fontFamily: "'Caveat', cursive",
+                              fontSize: "14px",
+                              fontWeight: 700,
+                              color: "#fff",
+                            }}
+                          >
+                            {getInitials(r.name)}
+                          </span>
+                        )}
+                      </div>
+                      <span
+                        style={{ fontFamily: "'Caveat', cursive", fontSize: "12px", color: "rgba(255,255,255,0.6)" }}
+                        className="mt-1 max-w-[40px] truncate"
+                      >
+                        {r.name.split(" ")[0]}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div
+                style={{
+                  background: "rgba(255,255,255,0.1)",
+                  border: "1px solid rgba(255,255,255,0.15)",
+                  borderRadius: "16px",
+                  padding: "12px 14px",
+                }}
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <h2 style={{ fontFamily: "'Caveat', cursive", fontSize: "18px", fontWeight: 700, color: "#fff" }}>
+                    Chat
+                  </h2>
+                  <button onClick={() => setShowFullComments(true)}>
+                    <Maximize2 className="w-4 h-4 text-white/60" />
+                  </button>
+                </div>
+                <div className="space-y-2 max-h-48 overflow-y-auto mb-3">
+                  {comments.length === 0 && (
+                    <p
+                      style={{
+                        fontFamily: "'Caveat', cursive",
+                        fontSize: "14px",
+                        color: "rgba(255,255,255,0.4)",
+                        textAlign: "center",
+                        padding: "12px 0",
+                      }}
+                    >
+                      No messages yet — be the first!
+                    </p>
+                  )}
+                  {comments.map((c, i) => (
+                    <div key={i} className="rounded-xl px-3 py-2" style={{ backgroundColor: "rgba(0,0,0,0.2)" }}>
+                      <div className="flex items-center gap-2">
+                        <span
+                          style={{ fontFamily: "'Caveat', cursive", fontSize: "14px", fontWeight: 700, color: "#fff" }}
+                        >
+                          {c.user_name}
+                        </span>
+                        <span style={{ fontSize: "10px", color: "rgba(255,255,255,0.4)" }}>
+                          {formatTime(c.created_at)}
+                        </span>
+                      </div>
+                      <p
+                        style={{
+                          fontFamily: "'Caveat', cursive",
+                          fontSize: "15px",
+                          color: "rgba(255,255,255,0.85)",
+                          marginTop: "2px",
+                        }}
+                      >
+                        {c.text}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex gap-2">
+                  <input
+                    value={commentDraft}
+                    onChange={(e) => setCommentDraft(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && sendComment()}
+                    placeholder="Write a message..."
+                    className="flex-1 rounded-full px-4 py-2 text-sm outline-none"
+                    style={{
+                      fontFamily: "'Caveat', cursive",
+                      backgroundColor: "rgba(0,0,0,0.2)",
+                      color: "#fff",
+                      border: "1px solid rgba(255,255,255,0.2)",
+                    }}
+                  />
+                  <button
+                    onClick={sendComment}
+                    className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
+                    style={{ backgroundColor: "rgba(255,255,255,0.9)" }}
+                  >
+                    <Send className="w-4 h-4" style={{ color: "#c8440a" }} />
+                  </button>
+                </div>
+              </div>
+
+              <div
+                style={{
+                  background: "rgba(255,255,255,0.1)",
+                  border: "1px solid rgba(255,255,255,0.15)",
+                  borderRadius: "16px",
+                  padding: "12px 14px",
+                  marginBottom: "20px",
+                }}
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <h2 style={{ fontFamily: "'Caveat', cursive", fontSize: "18px", fontWeight: 700, color: "#fff" }}>
+                    Gallery
+                  </h2>
+                  <button
+                    onClick={() => photoInput.current?.click()}
+                    className="text-xs font-bold rounded-full px-3 py-1"
+                    style={{
+                      backgroundColor: "rgba(255,255,255,0.9)",
+                      color: "#c8440a",
+                      fontFamily: "'Caveat', cursive",
+                    }}
+                  >
+                    Add photo
+                  </button>
+                  <input
+                    ref={photoInput}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handlePhotoUpload}
+                  />
+                </div>
+                {uploadingPhoto && (
+                  <p
+                    style={{
+                      fontFamily: "'Caveat', cursive",
+                      fontSize: "14px",
+                      color: "rgba(255,255,255,0.6)",
+                      textAlign: "center",
+                      padding: "8px 0",
+                    }}
+                  >
+                    Uploading...
+                  </p>
+                )}
+                {photos.length === 0 && !uploadingPhoto ? (
+                  <p
+                    style={{
+                      fontFamily: "'Caveat', cursive",
+                      fontSize: "14px",
+                      color: "rgba(255,255,255,0.4)",
+                      textAlign: "center",
+                      padding: "16px 0",
+                    }}
+                  >
+                    No photos yet — add the first one!
+                  </p>
+                ) : (
+                  <div className="grid grid-cols-3 gap-1.5">
+                    {photos.map((p) => (
+                      <div key={p.id} className="aspect-square rounded-xl overflow-hidden">
+                        <img src={p.photo_url} alt="" className="w-full h-full object-cover" />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </>
       ) : isNoir ? (
         /* ═══ PLANIT NOIR LAYOUT ═══ */
         <>
@@ -1431,7 +1997,7 @@ const EventView = () => {
       )}
 
       {/* Shared content area */}
-      {!isVintage && !isGalaxy && (
+      {!isVintage && !isGalaxy && !isSunny && (
         <div className="px-5 pt-4">
           {/* Who's going section */}
           <div className="mt-4 rounded-2xl p-4" style={{ backgroundColor: "#1e1e1e" }}>
