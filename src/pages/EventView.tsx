@@ -1694,7 +1694,8 @@ const EventView = () => {
               <div style={{ display: "grid", gridTemplateColumns: "80px 1fr", gap: "10px" }}>
                 <div
                   style={{
-                    backgroundColor: "#0a0a0a",
+                    backgroundColor: `${accentColor}22`,
+                    border: `1px solid ${accentColor}40`,
                     borderRadius: "12px",
                     padding: "10px 8px",
                     display: "flex",
@@ -1710,7 +1711,7 @@ const EventView = () => {
                       fontWeight: 700,
                       letterSpacing: "0.14em",
                       textTransform: "uppercase" as const,
-                      color: "#666",
+                      color: accentColor,
                     }}
                   >
                     {monthName}
@@ -1720,13 +1721,21 @@ const EventView = () => {
                       fontFamily: "'Inter', sans-serif",
                       fontSize: "30px",
                       fontWeight: 900,
-                      color: "#fff",
+                      color: bgTextColor,
                       lineHeight: 1,
                     }}
                   >
                     {dayNum || "?"}
                   </span>
-                  <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", color: "#555", marginTop: "2px" }}>
+                  <span
+                    style={{
+                      fontFamily: "'Inter', sans-serif",
+                      fontSize: "9px",
+                      color: accentColor,
+                      opacity: 0.6,
+                      marginTop: "2px",
+                    }}
+                  >
                     {timeStr}
                   </span>
                 </div>
@@ -2327,7 +2336,7 @@ const EventView = () => {
       )}
 
       {/* Shared content area */}
-      {!isVintage && !isGalaxy && !isSunny && (
+      {!isVintage && !isGalaxy && !isSunny && !isMidnight && (
         <div className="px-5 pt-4">
           {/* Who's going section */}
           <div className="mt-4 rounded-2xl p-4" style={{ backgroundColor: "#1e1e1e" }}>
