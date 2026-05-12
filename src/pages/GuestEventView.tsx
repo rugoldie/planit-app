@@ -1490,7 +1490,7 @@ const GuestEventView = () => {
               <h1
                 style={{
                   fontFamily: SUNNY_FF,
-                  fontSize: "38px",
+                  fontSize: "52px",
                   fontWeight: 700,
                   color: "#fff",
                   lineHeight: 1.1,

@@ -572,7 +572,7 @@ const HostEvent = () => {
                 }}
                 placeholder="Event name..."
                 className="w-full bg-transparent outline-none text-center placeholder:opacity-30"
-                style={{ fontFamily: "'Caveat', cursive", fontSize: "38px", fontWeight: 700, color: "#fff" }}
+                style={{ fontFamily: "'Caveat', cursive", fontSize: "52px", fontWeight: 700, color: "#fff" }}
               />
               {titleError && <p className="text-red-500 text-xs mt-1">{titleError}</p>}
               <textarea
@@ -607,29 +607,151 @@ const HostEvent = () => {
               </div>
             </div>
 
-          <div className="px-5 flex flex-col gap-3 relative z-10 pb-6">
-              <div style={{ background: "rgba(255,255,255,0.2)", border: "1px solid rgba(255,255,255,0.35)", borderRadius: "50px", padding: "10px 20px", position: "relative" }}>
+            <div className="px-5 flex flex-col gap-3 relative z-10 pb-6">
+              <div
+                style={{
+                  background: "rgba(255,255,255,0.2)",
+                  border: "1px solid rgba(255,255,255,0.35)",
+                  borderRadius: "50px",
+                  padding: "10px 20px",
+                  position: "relative",
+                }}
+              >
                 <div style={{ textAlign: "center" as const }}>
-                  <span style={{ fontFamily: "'Caveat', cursive", fontSize: "20px", fontWeight: 700, color: location ? "#fff" : "rgba(255,255,255,0.4)" }}>📍 {location || "Where's the event?"}</span>
+                  <span
+                    style={{
+                      fontFamily: "'Caveat', cursive",
+                      fontSize: "20px",
+                      fontWeight: 700,
+                      color: location ? "#fff" : "rgba(255,255,255,0.4)",
+                    }}
+                  >
+                    📍 {location || "Where's the event?"}
+                  </span>
                 </div>
-                <input type="text" value={location} onChange={(e) => setLocation(e.target.value)} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", opacity: 0, cursor: "text", zIndex: 10 }} />
+                <input
+                  type="text"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    width: "100%",
+                    height: "100%",
+                    opacity: 0,
+                    cursor: "text",
+                    zIndex: 10,
+                  }}
+                />
               </div>
 
-              <div style={{ background: "rgba(255,255,255,0.2)", border: "1px solid rgba(255,255,255,0.35)", borderRadius: "50px", padding: "10px 20px", textAlign: "center" as const, position: "relative" }}>
-                <span style={{ fontFamily: "'Caveat', cursive", fontSize: "20px", fontWeight: 700, color: eventDate ? "#fff" : "rgba(255,255,255,0.4)" }}>🗓️ {eventDate ? `${dayOfWeek} ${dayNum} ${monthName} · ${timeStr}` : "When's the event?"}</span>
-                <input type="datetime-local" value={dateTime} onChange={(e) => setDateTime(e.target.value)} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", opacity: 0, cursor: "pointer", zIndex: 10 }} />
+              <div
+                style={{
+                  background: "rgba(255,255,255,0.2)",
+                  border: "1px solid rgba(255,255,255,0.35)",
+                  borderRadius: "50px",
+                  padding: "10px 20px",
+                  textAlign: "center" as const,
+                  position: "relative",
+                }}
+              >
+                <span
+                  style={{
+                    fontFamily: "'Caveat', cursive",
+                    fontSize: "20px",
+                    fontWeight: 700,
+                    color: eventDate ? "#fff" : "rgba(255,255,255,0.4)",
+                  }}
+                >
+                  🗓️ {eventDate ? `${dayOfWeek} ${dayNum} ${monthName} · ${timeStr}` : "When's the event?"}
+                </span>
+                <input
+                  type="datetime-local"
+                  value={dateTime}
+                  onChange={(e) => setDateTime(e.target.value)}
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    width: "100%",
+                    height: "100%",
+                    opacity: 0,
+                    cursor: "pointer",
+                    zIndex: 10,
+                  }}
+                />
               </div>
 
-              <div style={{ background: "rgba(255,255,255,0.2)", border: "1px solid rgba(255,255,255,0.35)", borderRadius: "50px", padding: "10px 20px", position: "relative" }}>
+              <div
+                style={{
+                  background: "rgba(255,255,255,0.2)",
+                  border: "1px solid rgba(255,255,255,0.35)",
+                  borderRadius: "50px",
+                  padding: "10px 20px",
+                  position: "relative",
+                }}
+              >
                 <div style={{ textAlign: "center" as const }}>
-                  <span style={{ fontFamily: "'Caveat', cursive", fontSize: "20px", fontWeight: 700, color: dressCode ? "#fff" : "rgba(255,255,255,0.4)" }}>🎭 {dressCode || "Theme..."}</span>
+                  <span
+                    style={{
+                      fontFamily: "'Caveat', cursive",
+                      fontSize: "20px",
+                      fontWeight: 700,
+                      color: dressCode ? "#fff" : "rgba(255,255,255,0.4)",
+                    }}
+                  >
+                    🎭 {dressCode || "Theme..."}
+                  </span>
                 </div>
-                <input type="text" value={dressCode} onChange={(e) => setDressCode(e.target.value)} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", opacity: 0, cursor: "text", zIndex: 10 }} />
+                <input
+                  type="text"
+                  value={dressCode}
+                  onChange={(e) => setDressCode(e.target.value)}
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    width: "100%",
+                    height: "100%",
+                    opacity: 0,
+                    cursor: "text",
+                    zIndex: 10,
+                  }}
+                />
               </div>
 
-              <div style={{ background: "rgba(0,0,0,0.25)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: "20px", padding: "12px 16px" }}>
-                <p style={{ fontSize: "9px", color: "rgba(255,255,255,0.5)", textTransform: "uppercase" as const, letterSpacing: "2px", margin: "0 0 4px", fontFamily: "sans-serif", textAlign: "center" as const }}>✦ from the host</p>
-                <textarea value={extra} onChange={(e) => setExtra(e.target.value)} placeholder="Anything else your guests should know..." rows={2} className="w-full bg-transparent outline-none resize-none placeholder:opacity-30 text-center" style={{ fontFamily: "'Caveat', cursive", fontSize: "17px", color: "rgba(255,255,255,0.85)", fontStyle: "italic" }} />
+              <div
+                style={{
+                  background: "rgba(0,0,0,0.25)",
+                  border: "1px solid rgba(255,255,255,0.15)",
+                  borderRadius: "20px",
+                  padding: "12px 16px",
+                }}
+              >
+                <p
+                  style={{
+                    fontSize: "9px",
+                    color: "rgba(255,255,255,0.5)",
+                    textTransform: "uppercase" as const,
+                    letterSpacing: "2px",
+                    margin: "0 0 4px",
+                    fontFamily: "sans-serif",
+                    textAlign: "center" as const,
+                  }}
+                >
+                  ✦ from the host
+                </p>
+                <textarea
+                  value={extra}
+                  onChange={(e) => setExtra(e.target.value)}
+                  placeholder="Anything else your guests should know..."
+                  rows={2}
+                  className="w-full bg-transparent outline-none resize-none placeholder:opacity-30 text-center"
+                  style={{
+                    fontFamily: "'Caveat', cursive",
+                    fontSize: "17px",
+                    color: "rgba(255,255,255,0.85)",
+                    fontStyle: "italic",
+                  }}
+                />
               </div>
             </div>
           </div>
