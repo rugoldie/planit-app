@@ -419,6 +419,8 @@ const HostEvent = () => {
   const bgTextMuted = isLightBg ? "rgba(17,17,17,0.6)" : "rgba(255,255,255,0.6)";
   const bgTextSoft = isLightBg ? "rgba(17,17,17,0.8)" : "rgba(255,255,255,0.8)";
   const noirFontSize = textSize === "Small" ? "28px" : textSize === "Large" ? "44px" : "36px";
+  const isGalaxy = templateName === "galaxy";
+  const galaxyAccent = "#a78bfa";
 
   // Parsed date for calendar bubble preview
   const eventDate = dateTime ? new Date(dateTime) : null;
