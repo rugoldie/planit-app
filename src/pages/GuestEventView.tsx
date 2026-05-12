@@ -1529,193 +1529,81 @@ const GuestEventView = () => {
               {event.location && (
                 <div
                   style={{
-                    background: "rgba(255,255,255,0.12)",
-                    border: "1px solid rgba(255,255,255,0.2)",
-                    borderRadius: "16px",
-                    padding: "12px 14px",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "12px",
+                    background: "rgba(255,255,255,0.2)",
+                    border: "1px solid rgba(255,255,255,0.35)",
+                    borderRadius: "50px",
+                    padding: "10px 20px",
+                    textAlign: "center" as const,
                   }}
                 >
-                  <div
-                    style={{
-                      width: "40px",
-                      height: "40px",
-                      background: "rgba(255,255,255,0.15)",
-                      borderRadius: "12px",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: "20px",
-                      flexShrink: 0,
-                    }}
-                  >
-                    📍
-                  </div>
-                  <div>
-                    <p
-                      style={{
-                        fontSize: "9px",
-                        color: "rgba(255,255,255,0.55)",
-                        textTransform: "uppercase" as const,
-                        letterSpacing: "2px",
-                        margin: "0 0 2px",
-                        fontFamily: "sans-serif",
-                      }}
-                    >
-                      Location
-                    </p>
-                    <p style={{ fontFamily: SUNNY_FF, fontSize: "18px", fontWeight: 700, color: "#fff", margin: 0 }}>
-                      {event.location}
-                    </p>
-                  </div>
+                  <span style={{ fontFamily: SUNNY_FF, fontSize: "20px", fontWeight: 700, color: "#fff" }}>
+                    📍 {event.location}
+                  </span>
                 </div>
               )}
               {eventDate && (
                 <div
                   style={{
-                    background: "rgba(255,255,255,0.12)",
-                    border: "1px solid rgba(255,255,255,0.2)",
-                    borderRadius: "16px",
-                    padding: "12px 14px",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "12px",
+                    background: "rgba(255,255,255,0.2)",
+                    border: "1px solid rgba(255,255,255,0.35)",
+                    borderRadius: "50px",
+                    padding: "10px 20px",
+                    textAlign: "center" as const,
                   }}
                 >
-                  <div
-                    style={{
-                      width: "40px",
-                      height: "40px",
-                      background: "rgba(255,255,255,0.15)",
-                      borderRadius: "12px",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: "20px",
-                      flexShrink: 0,
-                    }}
-                  >
-                    🗓️
-                  </div>
-                  <div>
-                    <p
-                      style={{
-                        fontSize: "9px",
-                        color: "rgba(255,255,255,0.55)",
-                        textTransform: "uppercase" as const,
-                        letterSpacing: "2px",
-                        margin: "0 0 2px",
-                        fontFamily: "sans-serif",
-                      }}
-                    >
-                      Date
-                    </p>
-                    <p style={{ fontFamily: SUNNY_FF, fontSize: "18px", fontWeight: 700, color: "#fff", margin: 0 }}>
-                      {dayOfWeek} {dayNum} {monthName} · {timeStr}
-                    </p>
-                  </div>
+                  <span style={{ fontFamily: SUNNY_FF, fontSize: "20px", fontWeight: 700, color: "#fff" }}>
+                    🗓️ {dayOfWeek} {dayNum} {monthName} · {timeStr}
+                  </span>
                 </div>
               )}
               {event.dress_code && (
                 <div
                   style={{
-                    background: "rgba(255,255,255,0.12)",
-                    border: "1px solid rgba(255,255,255,0.2)",
-                    borderRadius: "16px",
-                    padding: "12px 14px",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "12px",
+                    background: "rgba(255,255,255,0.2)",
+                    border: "1px solid rgba(255,255,255,0.35)",
+                    borderRadius: "50px",
+                    padding: "10px 20px",
+                    textAlign: "center" as const,
                   }}
                 >
-                  <div
-                    style={{
-                      width: "40px",
-                      height: "40px",
-                      background: "rgba(255,255,255,0.15)",
-                      borderRadius: "12px",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: "20px",
-                      flexShrink: 0,
-                    }}
-                  >
-                    🎭
-                  </div>
-                  <div>
-                    <p
-                      style={{
-                        fontSize: "9px",
-                        color: "rgba(255,255,255,0.55)",
-                        textTransform: "uppercase" as const,
-                        letterSpacing: "2px",
-                        margin: "0 0 2px",
-                        fontFamily: "sans-serif",
-                      }}
-                    >
-                      Dress code
-                    </p>
-                    <p style={{ fontFamily: SUNNY_FF, fontSize: "18px", fontWeight: 700, color: "#fff", margin: 0 }}>
-                      {event.dress_code}
-                    </p>
-                  </div>
+                  <span style={{ fontFamily: SUNNY_FF, fontSize: "20px", fontWeight: 700, color: "#fff" }}>
+                    🎭 {event.dress_code}
+                  </span>
                 </div>
               )}
               {event.extra && (
                 <div
                   style={{
-                    background: "rgba(0,0,0,0.2)",
-                    border: "1px solid rgba(255,255,255,0.1)",
-                    borderRadius: "16px",
-                    padding: "12px 14px",
-                    display: "flex",
-                    alignItems: "flex-start",
-                    gap: "12px",
+                    background: "rgba(0,0,0,0.25)",
+                    border: "1px solid rgba(255,255,255,0.15)",
+                    borderRadius: "20px",
+                    padding: "12px 16px",
+                    textAlign: "center" as const,
                   }}
                 >
-                  <div
+                  <p
                     style={{
-                      width: "40px",
-                      height: "40px",
-                      background: "rgba(255,255,255,0.1)",
-                      borderRadius: "12px",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: "20px",
-                      flexShrink: 0,
+                      fontSize: "9px",
+                      color: "rgba(255,255,255,0.5)",
+                      textTransform: "uppercase" as const,
+                      letterSpacing: "2px",
+                      margin: "0 0 4px",
+                      fontFamily: "sans-serif",
                     }}
                   >
-                    ✦
-                  </div>
-                  <div>
-                    <p
-                      style={{
-                        fontSize: "9px",
-                        color: "rgba(255,255,255,0.45)",
-                        textTransform: "uppercase" as const,
-                        letterSpacing: "2px",
-                        margin: "0 0 2px",
-                        fontFamily: "sans-serif",
-                      }}
-                    >
-                      Note from host
-                    </p>
-                    <p
-                      style={{
-                        fontFamily: SUNNY_FF,
-                        fontSize: "16px",
-                        color: "rgba(255,255,255,0.8)",
-                        margin: 0,
-                        fontStyle: "italic",
-                      }}
-                    >
-                      {event.extra}
-                    </p>
-                  </div>
+                    ✦ from the host
+                  </p>
+                  <p
+                    style={{
+                      fontFamily: SUNNY_FF,
+                      fontSize: "17px",
+                      color: "rgba(255,255,255,0.85)",
+                      margin: 0,
+                      fontStyle: "italic",
+                    }}
+                  >
+                    {event.extra}
+                  </p>
                 </div>
               )}
 
