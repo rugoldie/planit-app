@@ -433,10 +433,16 @@ const HostEvent = () => {
   const isNoir = templateName === "planit-noir";
   const isVintage = templateName === "vintage";
   const hostName = profile?.name || "Host";
-  const containerBg = isVintage ? "#f5f0e8" : isGalaxy ? "#0d0d2b" : isSunny ? "#ff6b35" : `hsl(${bgColor})`;
+  const containerBg = isVintage ? "#f5f0e8" : isGalaxy ? "#0d0d2b" : isSunny ? "transparent" : `hsl(${bgColor})`;
 
   return (
-    <div className="flex flex-col min-h-screen transition-all duration-300" style={{ backgroundColor: containerBg }}>
+    <div
+      className="flex flex-col min-h-screen transition-all duration-300"
+      style={{
+        backgroundColor: containerBg,
+        background: isSunny ? "linear-gradient(180deg, #ff6b35 0%, #ff8c00 40%, #2a0e00 100%)" : undefined,
+      }}
+    >
       {isNoir ? (
         /* ═══ PLANIT NOIR LAYOUT ═══ */
         <>
