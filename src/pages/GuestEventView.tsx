@@ -397,17 +397,22 @@ const GuestEventView = () => {
   const isVintage = ((event as any).template_name || "").toLowerCase() === "vintage";
   const isSunny = ((event as any).template_name || "").toLowerCase() === "sunny";
   const isGalaxy = ((event as any).template_name || "").toLowerCase() === "galaxy";
+  const isMidnight = ((event as any).template_name || "").toLowerCase() === "midnight";
   const galaxyAccent = (event as any).bubble_color ? `hsl(${(event as any).bubble_color})` : "#a855f7";
   const vintageAccent = (event as any).gradient_color || "#8b7355";
   const containerBg = isSunny
     ? "transparent"
     : isGalaxy
       ? "#0d0d2b"
-      : event.bg_color
-        ? `hsl(${event.bg_color})`
-        : isNoir
-          ? "#0a0a0a"
-          : "#1a1a1a";
+      : isMidnight
+        ? event.bg_color
+          ? `hsl(${event.bg_color})`
+          : "#ffffff"
+        : event.bg_color
+          ? `hsl(${event.bg_color})`
+          : isNoir
+            ? "#0a0a0a"
+            : "#1a1a1a";
   const noirFontSize = event.text_size === "Small" ? "28px" : event.text_size === "Large" ? "44px" : "36px";
 
   const SUNNY_ORANGE = "#ff6b35";
@@ -1403,6 +1408,456 @@ const GuestEventView = () => {
                       textAlign: "center",
                       padding: "16px 0",
                       fontFamily: "sans-serif",
+                    }}
+                  >
+                    No photos yet — add the first one!
+                  </p>
+                ) : (
+                  <div className="grid grid-cols-3 gap-1.5">
+                    {photos.map((p) => (
+                      <div key={p.id} className="aspect-square rounded-xl overflow-hidden">
+                        <img src={p.photo_url} alt="" className="w-full h-full object-cover" />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </>
+      ) : isMidnight ? (
+        /* ═══ MIDNIGHT LAYOUT ═══ */
+        <>
+          <div style={{ backgroundColor: containerBg, minHeight: "100vh", position: "relative" }}>
+            <div className="flex items-center justify-between px-5 pt-6">
+              <button onClick={() => navigate("/home")}>
+                <ArrowLeft className="w-6 h-6" style={{ color: accentColor }} />
+              </button>
+              <button onClick={() => setShowChat(true)} className="flex flex-col items-center gap-0.5">
+                <div
+                  className="w-9 h-9 rounded-full flex items-center justify-center"
+                  style={{ backgroundColor: `${accentColor}18`, border: `1px solid ${accentColor}40` }}
+                >
+                  <MessageCircle className="w-4 h-4" style={{ color: accentColor }} />
+                </div>
+                <span className="text-[9px] font-semibold" style={{ color: accentColor }}>
+                  Message host
+                </span>
+              </button>
+            </div>
+
+            <div className="px-5 pt-6 pb-4">
+              <div className="flex gap-3">
+                <div style={{ width: "4px", borderRadius: "2px", backgroundColor: accentColor, flexShrink: 0 }} />
+                <div>
+                  {event.vibe && (
+                    <p
+                      style={{
+                        fontFamily: "'Inter', sans-serif",
+                        fontSize: "10px",
+                        fontWeight: 700,
+                        letterSpacing: "0.18em",
+                        textTransform: "uppercase" as const,
+                        color: isLightBg ? "#888" : "#555",
+                        marginBottom: "6px",
+                      }}
+                    >
+                      {event.vibe}
+                    </p>
+                  )}
+                  <h1
+                    style={{
+                      fontFamily: eventFontFamily,
+                      fontSize: noirFontSize,
+                      fontWeight: 900,
+                      color: bgTextColor,
+                      lineHeight: 1.1,
+                    }}
+                  >
+                    {event.title || "Untitled Event"}
+                  </h1>
+                  <p
+                    style={{
+                      fontFamily: "'Inter', sans-serif",
+                      fontSize: "11px",
+                      color: isLightBg ? "#999" : "#555",
+                      marginTop: "6px",
+                    }}
+                  >
+                    hosted by {hostName}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="px-5 pb-6 flex flex-col gap-3">
+              <div style={{ display: "grid", gridTemplateColumns: "80px 1fr", gap: "10px" }}>
+                {/* Date block */}
+                <div
+                  style={{
+                    backgroundColor: "#0a0a0a",
+                    borderRadius: "12px",
+                    padding: "10px 8px",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <span
+                    style={{
+                      fontFamily: "'Inter', sans-serif",
+                      fontSize: "8px",
+                      fontWeight: 700,
+                      letterSpacing: "0.14em",
+                      textTransform: "uppercase" as const,
+                      color: "#666",
+                    }}
+                  >
+                    {monthName}
+                  </span>
+                  <span
+                    style={{
+                      fontFamily: "'Inter', sans-serif",
+                      fontSize: "30px",
+                      fontWeight: 900,
+                      color: "#fff",
+                      lineHeight: 1,
+                    }}
+                  >
+                    {dayNum || "?"}
+                  </span>
+                  <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", color: "#555", marginTop: "2px" }}>
+                    {timeStr}
+                  </span>
+                </div>
+
+                {/* Location + dress code */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                  {event.location && (
+                    <div>
+                      <p
+                        style={{
+                          fontFamily: "'Inter', sans-serif",
+                          fontSize: "8px",
+                          fontWeight: 700,
+                          letterSpacing: "0.14em",
+                          textTransform: "uppercase" as const,
+                          color: accentColor,
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "3px",
+                        }}
+                      >
+                        📍 Location
+                      </p>
+                      <p
+                        style={{
+                          fontFamily: "'Inter', sans-serif",
+                          fontSize: "15px",
+                          fontWeight: 700,
+                          color: bgTextColor,
+                          marginTop: "2px",
+                        }}
+                      >
+                        {event.location}
+                      </p>
+                    </div>
+                  )}
+                  {event.location && event.dress_code && (
+                    <div style={{ height: "1px", backgroundColor: isLightBg ? "#e5e5e5" : "#222" }} />
+                  )}
+                  {event.dress_code && (
+                    <div>
+                      <p
+                        style={{
+                          fontFamily: "'Inter', sans-serif",
+                          fontSize: "8px",
+                          fontWeight: 700,
+                          letterSpacing: "0.14em",
+                          textTransform: "uppercase" as const,
+                          color: accentColor,
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "3px",
+                        }}
+                      >
+                        🎭 Dress code
+                      </p>
+                      <p
+                        style={{
+                          fontFamily: "'Inter', sans-serif",
+                          fontSize: "15px",
+                          fontWeight: 700,
+                          color: bgTextColor,
+                          marginTop: "2px",
+                        }}
+                      >
+                        {event.dress_code}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {event.extra && (
+                <div
+                  style={{
+                    backgroundColor: isLightBg ? "#f5f5f5" : "#111",
+                    borderRadius: "12px",
+                    padding: "12px 14px",
+                  }}
+                >
+                  <p
+                    style={{
+                      fontFamily: "'Inter', sans-serif",
+                      fontSize: "8px",
+                      fontWeight: 700,
+                      letterSpacing: "0.14em",
+                      textTransform: "uppercase" as const,
+                      color: isLightBg ? "#888" : "#444",
+                      marginBottom: "4px",
+                    }}
+                  >
+                    From the host
+                  </p>
+                  <p
+                    style={{
+                      fontFamily: "'Inter', sans-serif",
+                      fontSize: "13px",
+                      color: isLightBg ? "#333" : "#aaa",
+                      lineHeight: 1.5,
+                    }}
+                  >
+                    {event.extra}
+                  </p>
+                </div>
+              )}
+
+              {/* Who's going */}
+              <div
+                style={{ backgroundColor: isLightBg ? "#f5f5f5" : "#111", borderRadius: "12px", padding: "12px 14px" }}
+              >
+                <button
+                  onClick={() => setGuestListExpanded(!guestListExpanded)}
+                  className="flex items-center justify-between w-full mb-2"
+                >
+                  <h2
+                    style={{ fontFamily: "'Inter', sans-serif", fontSize: "13px", fontWeight: 700, color: bgTextColor }}
+                  >
+                    Who's going
+                  </h2>
+                  <div className="flex items-center gap-2">
+                    {goingList.length > 0 && (
+                      <span
+                        style={{
+                          fontFamily: "'Inter', sans-serif",
+                          fontSize: "11px",
+                          fontWeight: 700,
+                          color: accentColor,
+                        }}
+                      >
+                        {goingList.length} going
+                      </span>
+                    )}
+                    {guestListExpanded ? (
+                      <ChevronUp className="w-4 h-4" style={{ color: accentColor }} />
+                    ) : (
+                      <ChevronDown className="w-4 h-4" style={{ color: accentColor }} />
+                    )}
+                  </div>
+                </button>
+                <div className="flex items-center gap-2 overflow-x-auto">
+                  {goingList.length === 0 && (
+                    <p
+                      style={{
+                        fontFamily: "'Inter', sans-serif",
+                        fontSize: "12px",
+                        color: isLightBg ? "#aaa" : "#555",
+                      }}
+                    >
+                      No one yet
+                    </p>
+                  )}
+                  {goingList.map((r, i) => (
+                    <div key={i} className="flex flex-col items-center shrink-0">
+                      <div
+                        className="w-9 h-9 rounded-full flex items-center justify-center overflow-hidden"
+                        style={{
+                          border: `2px solid ${accentColor}`,
+                          backgroundColor: isLightBg ? "#e5e5e5" : "#1a1a1a",
+                        }}
+                      >
+                        {r.avatar_url ? (
+                          <img src={r.avatar_url} alt="" className="w-full h-full object-cover" />
+                        ) : (
+                          <span
+                            style={{
+                              fontFamily: "'Inter', sans-serif",
+                              fontSize: "12px",
+                              fontWeight: 700,
+                              color: accentColor,
+                            }}
+                          >
+                            {getInitials(r.name)}
+                          </span>
+                        )}
+                      </div>
+                      <span
+                        style={{
+                          fontFamily: "'Inter', sans-serif",
+                          fontSize: "10px",
+                          color: isLightBg ? "#888" : "#555",
+                        }}
+                        className="mt-1 max-w-[40px] truncate"
+                      >
+                        {r.name.split(" ")[0]}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Chat */}
+              <div
+                style={{ backgroundColor: isLightBg ? "#f5f5f5" : "#111", borderRadius: "12px", padding: "12px 14px" }}
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <h2
+                    style={{ fontFamily: "'Inter', sans-serif", fontSize: "13px", fontWeight: 700, color: bgTextColor }}
+                  >
+                    Chat
+                  </h2>
+                  <button onClick={() => setShowFullComments(true)}>
+                    <Maximize2 className="w-4 h-4" style={{ color: accentColor }} />
+                  </button>
+                </div>
+                <div className="space-y-2 max-h-48 overflow-y-auto mb-3">
+                  {comments.length === 0 && (
+                    <p
+                      style={{
+                        fontFamily: "'Inter', sans-serif",
+                        fontSize: "12px",
+                        color: isLightBg ? "#aaa" : "#555",
+                        textAlign: "center",
+                        padding: "12px 0",
+                      }}
+                    >
+                      No messages yet — be the first!
+                    </p>
+                  )}
+                  {comments.map((c, i) => (
+                    <div
+                      key={i}
+                      className="rounded-xl px-3 py-2"
+                      style={{ backgroundColor: isLightBg ? "#ebebeb" : "#1a1a1a" }}
+                    >
+                      <div className="flex items-center gap-2">
+                        <span
+                          style={{
+                            fontFamily: "'Inter', sans-serif",
+                            fontSize: "11px",
+                            fontWeight: 700,
+                            color: accentColor,
+                          }}
+                        >
+                          {c.user_name}
+                        </span>
+                        <span style={{ fontSize: "10px", color: isLightBg ? "#bbb" : "#444" }}>
+                          {formatTime(c.created_at)}
+                        </span>
+                      </div>
+                      <p
+                        style={{
+                          fontFamily: "'Inter', sans-serif",
+                          fontSize: "13px",
+                          color: bgTextColor,
+                          marginTop: "2px",
+                        }}
+                      >
+                        {c.text}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex gap-2">
+                  <input
+                    value={commentDraft}
+                    onChange={(e) => setCommentDraft(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && sendComment()}
+                    placeholder="Write a message..."
+                    className="flex-1 rounded-full px-4 py-2 text-sm outline-none"
+                    style={{
+                      backgroundColor: isLightBg ? "#ebebeb" : "#1a1a1a",
+                      color: bgTextColor,
+                      border: `1px solid ${accentColor}30`,
+                    }}
+                  />
+                  <button
+                    onClick={sendComment}
+                    className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
+                    style={{ backgroundColor: accentColor }}
+                  >
+                    <Send className="w-4 h-4" style={{ color: isLightBg ? "#fff" : "#111" }} />
+                  </button>
+                </div>
+              </div>
+
+              {/* Gallery */}
+              <div
+                style={{
+                  backgroundColor: isLightBg ? "#f5f5f5" : "#111",
+                  borderRadius: "12px",
+                  padding: "12px 14px",
+                  marginBottom: "20px",
+                }}
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <h2
+                    style={{ fontFamily: "'Inter', sans-serif", fontSize: "13px", fontWeight: 700, color: bgTextColor }}
+                  >
+                    Gallery
+                  </h2>
+                  <button
+                    onClick={() => photoInput.current?.click()}
+                    className="text-xs font-bold rounded-full px-3 py-1"
+                    style={{
+                      backgroundColor: accentColor,
+                      color: isLightBg ? "#fff" : "#111",
+                      fontFamily: "'Inter', sans-serif",
+                    }}
+                  >
+                    Add photo
+                  </button>
+                  <input
+                    ref={photoInput}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handlePhotoUpload}
+                  />
+                </div>
+                {uploadingPhoto && (
+                  <p
+                    style={{
+                      fontFamily: "'Inter', sans-serif",
+                      fontSize: "12px",
+                      color: accentColor,
+                      textAlign: "center",
+                      padding: "8px 0",
+                    }}
+                  >
+                    Uploading...
+                  </p>
+                )}
+                {photos.length === 0 && !uploadingPhoto ? (
+                  <p
+                    style={{
+                      fontFamily: "'Inter', sans-serif",
+                      fontSize: "12px",
+                      color: isLightBg ? "#aaa" : "#555",
+                      textAlign: "center",
+                      padding: "16px 0",
                     }}
                   >
                     No photos yet — add the first one!
