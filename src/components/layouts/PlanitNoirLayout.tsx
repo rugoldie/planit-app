@@ -144,7 +144,7 @@ export const NoirDateCard = ({
 }) => (
   <div
     className="flex-1 flex flex-col overflow-hidden"
-    style={{ backgroundColor: accentColor, borderRadius: "14px" }}
+    style={{ backgroundColor: accentColor, borderRadius: "14px", position: "relative" }}
   >
     <div className="flex flex-col items-center py-3 px-3">
       <span
@@ -189,8 +189,15 @@ export const NoirDateCard = ({
         type="datetime-local"
         value={dateTime || ""}
         onChange={(e) => onDateChange?.(e.target.value)}
-        className="w-full bg-transparent outline-none text-[10px] text-center opacity-60 pb-2 px-2"
-        style={{ color: "#0a0a0a" }}
+        style={{
+          position: "absolute",
+          inset: 0,
+          width: "100%",
+          height: "100%",
+          opacity: 0,
+          cursor: "pointer",
+          zIndex: 10,
+        }}
       />
     )}
   </div>
@@ -206,10 +213,7 @@ export const NoirDressCard = ({
   isInput?: boolean;
   onChange?: (v: string) => void;
 }) => (
-  <div
-    className="flex-1 flex flex-col overflow-hidden"
-    style={{ backgroundColor: "#111", borderRadius: "14px" }}
-  >
+  <div className="flex-1 flex flex-col overflow-hidden" style={{ backgroundColor: "#111", borderRadius: "14px" }}>
     <div className="flex flex-col py-3 px-3">
       <span
         style={{
@@ -402,7 +406,10 @@ export const NoirAttendeeStrip = ({
     >
       {goingList.length > 0 ? `${goingList.length} going` : "No one yet"}
     </span>
-    <div className="flex items-center" style={{ marginRight: `${Math.max(0, (goingList.slice(0, 5).length - 1)) * -6}px` }}>
+    <div
+      className="flex items-center"
+      style={{ marginRight: `${Math.max(0, goingList.slice(0, 5).length - 1) * -6}px` }}
+    >
       {goingList.slice(0, 5).map((r, i) => (
         <div
           key={i}
@@ -439,7 +446,9 @@ export const NoirAttendeeStrip = ({
             position: "relative",
           }}
         >
-          <span style={{ fontSize: "8px", fontWeight: 700, color: "rgba(255,255,255,0.4)" }}>+{goingList.length - 5}</span>
+          <span style={{ fontSize: "8px", fontWeight: 700, color: "rgba(255,255,255,0.4)" }}>
+            +{goingList.length - 5}
+          </span>
         </div>
       )}
     </div>
