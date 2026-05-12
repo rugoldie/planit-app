@@ -1536,7 +1536,7 @@ const GuestEventView = () => {
                     textAlign: "center" as const,
                   }}
                 >
-                  <span style={{ fontFamily: SUNNY_FF, fontSize: "20px", fontWeight: 700, color: "#fff" }}>
+                  <span style={{ fontFamily: "'Caveat', cursive", fontSize: "20px", fontWeight: 700, color: "#fff" }}>
                     📍 {event.location}
                   </span>
                 </div>
@@ -1551,7 +1551,7 @@ const GuestEventView = () => {
                     textAlign: "center" as const,
                   }}
                 >
-                  <span style={{ fontFamily: SUNNY_FF, fontSize: "20px", fontWeight: 700, color: "#fff" }}>
+                  <span style={{ fontFamily: "'Caveat', cursive", fontSize: "20px", fontWeight: 700, color: "#fff" }}>
                     🗓️ {dayOfWeek} {dayNum} {monthName} · {timeStr}
                   </span>
                 </div>
@@ -1566,7 +1566,7 @@ const GuestEventView = () => {
                     textAlign: "center" as const,
                   }}
                 >
-                  <span style={{ fontFamily: SUNNY_FF, fontSize: "20px", fontWeight: 700, color: "#fff" }}>
+                  <span style={{ fontFamily: "'Caveat', cursive", fontSize: "20px", fontWeight: 700, color: "#fff" }}>
                     🎭 {event.dress_code}
                   </span>
                 </div>
@@ -1595,7 +1595,7 @@ const GuestEventView = () => {
                   </p>
                   <p
                     style={{
-                      fontFamily: SUNNY_FF,
+                      fontFamily: "'Caveat', cursive",
                       fontSize: "17px",
                       color: "rgba(255,255,255,0.85)",
                       margin: 0,
