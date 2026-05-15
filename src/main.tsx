@@ -8,6 +8,7 @@ import "@fontsource/caveat/400.css";
 import "@fontsource/caveat/700.css";
 import "@fontsource/playfair-display/400.css";
 import "@fontsource/playfair-display/700.css";
+import "@fontsource/playfair-display/900.css";
 import App from "./App.tsx";
 import "./index.css";
 

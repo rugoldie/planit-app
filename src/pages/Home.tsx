@@ -217,6 +217,10 @@ const isForest = (templateName: string | null) => {
   if (!templateName) return false;
   return templateName.toLowerCase().trim() === "forest";
 };
+const isClassic = (templateName: string | null) => {
+  if (!templateName) return false;
+  return templateName.toLowerCase().trim() === "planit-classic";
+};
 /** Noir-styled title: second word in accent color + italic */
 const NoirCardTitle = ({
   title,
@@ -1302,6 +1306,62 @@ const ForestUpcomingCard = ({ event, navigate }: { event: EventWithRole; navigat
   </div>
 );
 
+const ClassicNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate: ReturnType<typeof useNavigate> }) => {
+  const parsed = event.date_time ? parseISO(event.date_time) : null;
+  const dayNum = parsed ? format(parsed, "d") : "?";
+  const monthName = parsed ? format(parsed, "MMM").toUpperCase() : "TBD";
+  const timeStr = parsed ? format(parsed, "h:mm a") : "—";
+  const navPath = event.role === "host" ? `/event/${event.code}` : `/guest/${event.code}`;
+
+  return (
+    <div className="overflow-hidden relative cursor-pointer" style={{ backgroundColor: "#2b2b2b", border: "2px solid #aaee44" }} onClick={() => navigate(navPath)}>
+      <div className="p-3.5 pb-0">
+        <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 700, letterSpacing: "0.25em", textTransform: "uppercase" as const, color: "#aaee44", marginBottom: "4px" }}>Planit</p>
+        <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "38px", fontWeight: 400, color: "#fff", lineHeight: 0.95, letterSpacing: "0.02em", marginBottom: "10px" }}>{event.title || "Untitled Event"}</h2>
+      </div>
+      {/* Stat bar */}
+      <div style={{ display: "flex", borderTop: "2px solid #aaee44", borderBottom: "2px solid #aaee44" }}>
+        <div style={{ flex: 1, backgroundColor: "#aaee44", padding: "10px 8px", textAlign: "center" as const, borderRight: "1px solid rgba(0,0,0,0.2)" }}>
+          <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "24px", fontWeight: 400, color: "#111", display: "block", lineHeight: 1, letterSpacing: "0.02em" }}>{dayNum}</span>
+          <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase" as const, color: "rgba(0,0,0,0.55)" }}>{monthName}</span>
+        </div>
+        <div style={{ flex: 1, backgroundColor: "#aaee44", padding: "10px 8px", textAlign: "center" as const, borderRight: "1px solid rgba(0,0,0,0.2)" }}>
+          <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "24px", fontWeight: 400, color: "#111", display: "block", lineHeight: 1, letterSpacing: "0.02em" }}>{timeStr}</span>
+          <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase" as const, color: "rgba(0,0,0,0.55)" }}>Start</span>
+        </div>
+        <div style={{ flex: 1, backgroundColor: "#aaee44", padding: "10px 8px", textAlign: "center" as const }}>
+          <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "24px", fontWeight: 400, color: "#111", display: "block", lineHeight: 1, letterSpacing: "0.02em" }}>{event.guest_count}</span>
+          <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase" as const, color: "rgba(0,0,0,0.55)" }}>Going</span>
+        </div>
+      </div>
+      {/* Location */}
+      <div className="px-3.5 py-3">
+        {event.location && (
+          <div style={{ backgroundColor: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px", padding: "10px 12px" }}>
+            <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "7px", fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase" as const, color: "#aaee44", marginBottom: "3px" }}>Location</p>
+            <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "18px", fontWeight: 400, color: "#fff", lineHeight: 1.1, letterSpacing: "0.02em" }}>{event.location}</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const ClassicUpcomingCard = ({ event, navigate }: { event: EventWithRole; navigate: ReturnType<typeof useNavigate> }) => (
+  <div className="rounded-none px-3.5 py-3 cursor-pointer relative" style={{ backgroundColor: "#2b2b2b", border: "1px solid #aaee44" }} onClick={() => { const p = event.role === "host" ? `/event/${event.code}` : `/guest/${event.code}`; navigate(p); }}>
+    <div className="flex items-center justify-between relative z-10">
+      <div className="flex-1 mr-3 min-w-0">
+        <div style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 700, color: "#aaee44", letterSpacing: "1.5px", textTransform: "uppercase" as const, marginBottom: "2px" }}>Planit</div>
+        <h3 className="truncate" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "16px", fontWeight: 400, color: "#fff", letterSpacing: "0.02em" }}>{event.title || "Untitled Event"}</h3>
+        <p className="truncate mt-0.5" style={{ fontFamily: "'Inter', sans-serif", fontSize: "11px", color: "rgba(255,255,255,0.35)" }}>{formatDate(event.date_time)} · {event.location || "Location TBD"}</p>
+      </div>
+      <div style={{ backgroundColor: "rgba(170,238,68,0.1)", border: "1px solid rgba(170,238,68,0.3)", borderRadius: "4px", padding: "4px 10px", fontFamily: "'Inter', sans-serif", fontSize: "10px", fontWeight: 700, color: "#aaee44", whiteSpace: "nowrap" as const }}>
+        {event.role === "host" ? "Host" : event.role === "going" ? "Going" : "Maybe"}
+      </div>
+    </div>
+  </div>
+);
+
 const OceanNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate: ReturnType<typeof useNavigate> }) => {
   const accent = hslToColor(event.bubble_color, "#38bdf8");
   const parsed = event.date_time ? parseISO(event.date_time) : null;
@@ -1610,6 +1670,14 @@ const UpcomingSection = ({
       );
     }
 
+    if (isClassic(event.template_name)) {
+      return (
+        <div key={event.id} style={{ opacity: isFaded ? 0.45 : 1, transition: "opacity 0.3s" }}>
+          <ClassicUpcomingCard event={event} navigate={navigate} />
+        </div>
+      );
+    }
+
     const gradientHex = event.gradient_color || "#aaee44";
     const fontFamily = FONT_MAP[event.font_style || "Bold"] || FONT_MAP.Bold;
 
@@ -1769,6 +1837,8 @@ const Home = () => {
             <BlushNextUpCard event={nextEvent} navigate={navigate} />
           ) : isForest(nextEvent.template_name) ? (
             <ForestNextUpCard event={nextEvent} navigate={navigate} />
+          ) : isClassic(nextEvent.template_name) ? (
+            <ClassicNextUpCard event={nextEvent} navigate={navigate} />
           ) : (
             <div
               className="rounded-2xl p-3.5 cursor-pointer overflow-hidden"
