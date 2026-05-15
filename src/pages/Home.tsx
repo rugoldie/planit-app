@@ -209,6 +209,14 @@ const isOcean = (templateName: string | null) => {
   if (!templateName) return false;
   return templateName.toLowerCase().trim() === "ocean";
 };
+const isBlush = (templateName: string | null) => {
+  if (!templateName) return false;
+  return templateName.toLowerCase().trim() === "blush";
+};
+const isForest = (templateName: string | null) => {
+  if (!templateName) return false;
+  return templateName.toLowerCase().trim() === "forest";
+};
 /** Noir-styled title: second word in accent color + italic */
 const NoirCardTitle = ({
   title,
@@ -1165,6 +1173,146 @@ const VintageUpcomingCard = ({
 };
 
 /** Ocean Next Up card */
+/** Blush Next-Up card */
+const BlushNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate: ReturnType<typeof useNavigate> }) => {
+  const parsed = event.date_time ? parseISO(event.date_time) : null;
+  const dayNum = parsed ? format(parsed, "d") : "?";
+  const monthName = parsed ? format(parsed, "MMM").toUpperCase() : "TBD";
+  const timeStr = parsed ? format(parsed, "h:mm a") : "";
+  const navPath = event.role === "host" ? `/event/${event.code}` : `/guest/${event.code}`;
+
+  return (
+    <div className="rounded-2xl overflow-hidden cursor-pointer" style={{ backgroundColor: "#1a0a10", border: "1px solid rgba(244,114,182,0.22)" }} onClick={() => navigate(navPath)}>
+      <div className="p-3.5">
+        {event.vibe && (
+          <div style={{ display: "inline-block", backgroundColor: "rgba(244,114,182,0.14)", border: "1px solid rgba(244,114,182,0.28)", borderRadius: "50px", padding: "3px 12px", marginBottom: "10px" }}>
+            <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase" as const, color: "#f472b6" }}>{event.vibe}</span>
+          </div>
+        )}
+        <span style={{ fontFamily: "'Playfair Display', serif", fontWeight: 900, fontSize: "1.15rem", color: "#fff", lineHeight: 1.2, display: "block", marginBottom: "12px" }}>{event.title || "Untitled Event"}</span>
+
+        {/* Stat bar */}
+        <div style={{ borderRadius: "10px", overflow: "hidden", border: "1px solid rgba(244,114,182,0.2)", display: "flex", marginBottom: "12px" }}>
+          <div style={{ flex: 1, backgroundColor: "rgba(244,114,182,0.1)", padding: "10px 6px", textAlign: "center" as const, borderRight: "1px solid rgba(244,114,182,0.18)" }}>
+            <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "20px", fontWeight: 900, color: "#fff", display: "block", lineHeight: 1 }}>{dayNum}</span>
+            <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, color: "#f472b6", textTransform: "uppercase" as const }}>{monthName}</span>
+          </div>
+          <div style={{ flex: 1, backgroundColor: "rgba(244,114,182,0.1)", padding: "10px 6px", textAlign: "center" as const, borderRight: "1px solid rgba(244,114,182,0.18)" }}>
+            <span style={{ fontFamily: "'Inter', sans-serif", fontSize: timeStr ? "13px" : "20px", fontWeight: 900, color: timeStr ? "#fff" : "rgba(255,255,255,0.2)", display: "block", lineHeight: 1 }}>{timeStr || "—"}</span>
+            <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, color: "#f472b6", textTransform: "uppercase" as const }}>Time</span>
+          </div>
+          <div style={{ flex: 1, backgroundColor: "rgba(244,114,182,0.1)", padding: "10px 6px", textAlign: "center" as const }}>
+            <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "20px", fontWeight: 900, color: "#fff", display: "block", lineHeight: 1 }}>{event.guest_count}</span>
+            <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, color: "#f472b6", textTransform: "uppercase" as const }}>Going</span>
+          </div>
+        </div>
+
+        {event.location && (
+          <div style={{ backgroundColor: "rgba(244,114,182,0.06)", borderRadius: "8px", borderLeft: "3px solid #f472b6", padding: "6px 10px", marginBottom: "10px" }}>
+            <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 600, color: "rgba(244,114,182,0.6)", textTransform: "uppercase" as const, letterSpacing: "0.12em", display: "block" }}>Location</span>
+            <span className="truncate" style={{ fontFamily: "'Inter', sans-serif", fontSize: "12px", fontWeight: 700, color: "#fff", display: "block" }}>{event.location}</span>
+          </div>
+        )}
+
+        <button className="w-full rounded-lg py-2 text-xs font-bold tracking-wide" style={{ backgroundColor: "#f472b6", color: "#1a0a10", fontFamily: "'Inter', sans-serif" }} onClick={(e) => { e.stopPropagation(); navigate(navPath); }}>
+          View event →
+        </button>
+      </div>
+    </div>
+  );
+};
+
+/** Blush Upcoming card — compact row */
+const BlushUpcomingCard = ({ event, navigate }: { event: EventWithRole; navigate: ReturnType<typeof useNavigate> }) => (
+  <div className="rounded-xl px-3.5 py-3 cursor-pointer" style={{ backgroundColor: "#1a0a10", border: "1px solid rgba(244,114,182,0.2)" }} onClick={() => { const p = event.role === "host" ? `/event/${event.code}` : `/guest/${event.code}`; navigate(p); }}>
+    <div className="flex items-center justify-between">
+      <div className="flex-1 mr-3 min-w-0">
+        <div style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 700, color: "#f472b6", opacity: 0.7, letterSpacing: "1.5px", textTransform: "uppercase" as const, marginBottom: "2px" }}>✦ blush</div>
+        <h3 className="truncate" style={{ fontFamily: "'Playfair Display', serif", fontSize: "14px", fontWeight: 700, color: "#fff" }}>{event.title || "Untitled Event"}</h3>
+        <p className="truncate mt-0.5" style={{ fontFamily: "'Inter', sans-serif", fontSize: "11px", color: "rgba(255,255,255,0.35)" }}>{formatDate(event.date_time)} · {event.location || "Location TBD"}</p>
+      </div>
+      <div style={{ backgroundColor: "rgba(244,114,182,0.12)", border: "1px solid rgba(244,114,182,0.25)", borderRadius: "50px", padding: "4px 10px", fontFamily: "'Inter', sans-serif", fontSize: "10px", fontWeight: 700, color: "#f472b6", whiteSpace: "nowrap" as const }}>
+        {event.role === "host" ? "Host" : event.role === "going" ? "Going" : "Maybe"}
+      </div>
+    </div>
+  </div>
+);
+
+/** Forest Next-Up card */
+const ForestNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate: ReturnType<typeof useNavigate> }) => {
+  const parsed = event.date_time ? parseISO(event.date_time) : null;
+  const dayNum = parsed ? format(parsed, "d") : "?";
+  const monthName = parsed ? format(parsed, "MMM").toUpperCase() : "TBD";
+  const timeStr = parsed ? format(parsed, "h:mm a") : "";
+  const navPath = event.role === "host" ? `/event/${event.code}` : `/guest/${event.code}`;
+
+  return (
+    <div className="rounded-2xl overflow-hidden cursor-pointer relative" style={{ backgroundColor: "#0a1f0a", border: "1px solid rgba(74,222,128,0.2)" }} onClick={() => navigate(navPath)}>
+      <div style={{ position: "absolute", inset: "8px", border: "1px solid rgba(74,222,128,0.07)", borderRadius: "6px", pointerEvents: "none" }} />
+      <div className="relative z-10 p-3.5">
+        <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase" as const, color: "rgba(74,222,128,0.55)", marginBottom: "6px" }}>An Invitation</p>
+        <span style={{ fontFamily: "'Playfair Display', serif", fontWeight: 900, fontSize: "1.15rem", color: "#fff", lineHeight: 1.2, display: "block", marginBottom: "10px" }}>{event.title || "Untitled Event"}</span>
+
+        {/* Diamond divider */}
+        <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "10px" }}>
+          <div style={{ flex: 1, height: "1px", backgroundColor: "rgba(74,222,128,0.2)" }} />
+          <span style={{ color: "rgba(74,222,128,0.45)", fontSize: "10px" }}>◆</span>
+          <div style={{ flex: 1, height: "1px", backgroundColor: "rgba(74,222,128,0.2)" }} />
+        </div>
+
+        {/* Inline date · time · going */}
+        <div style={{ display: "flex", alignItems: "center", marginBottom: "12px" }}>
+          <div style={{ flex: 1, textAlign: "center" as const }}>
+            <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "20px", fontWeight: 900, color: "#fff", display: "block", lineHeight: 1 }}>{dayNum}</span>
+            <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, color: "#4ade80", textTransform: "uppercase" as const }}>{monthName}</span>
+          </div>
+          <div style={{ width: "1px", height: "28px", backgroundColor: "rgba(74,222,128,0.2)" }} />
+          <div style={{ flex: 1, textAlign: "center" as const }}>
+            <span style={{ fontFamily: "'Inter', sans-serif", fontSize: timeStr ? "11px" : "20px", fontWeight: 900, color: timeStr ? "#fff" : "rgba(255,255,255,0.2)", display: "block", lineHeight: 1.2 }}>{timeStr || "—"}</span>
+            <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, color: "#4ade80", textTransform: "uppercase" as const }}>Time</span>
+          </div>
+          <div style={{ width: "1px", height: "28px", backgroundColor: "rgba(74,222,128,0.2)" }} />
+          <div style={{ flex: 1, textAlign: "center" as const }}>
+            <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "20px", fontWeight: 900, color: "#fff", display: "block", lineHeight: 1 }}>{event.guest_count}</span>
+            <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, color: "#4ade80", textTransform: "uppercase" as const }}>Going</span>
+          </div>
+        </div>
+
+        {event.location && (
+          <div style={{ border: "1px solid rgba(74,222,128,0.2)", borderRadius: "10px", overflow: "hidden", marginBottom: "10px" }}>
+            <div style={{ backgroundColor: "rgba(74,222,128,0.1)", padding: "4px 10px", borderBottom: "1px solid rgba(74,222,128,0.15)" }}>
+              <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "7px", fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase" as const, color: "rgba(74,222,128,0.7)" }}>Location</span>
+            </div>
+            <div style={{ padding: "6px 10px", backgroundColor: "rgba(74,222,128,0.04)" }}>
+              <span className="truncate" style={{ fontFamily: "'Inter', sans-serif", fontSize: "12px", fontWeight: 700, color: "#fff", display: "block" }}>{event.location}</span>
+            </div>
+          </div>
+        )}
+
+        <button className="w-full rounded-lg py-2 text-xs font-bold tracking-wide" style={{ backgroundColor: "#4ade80", color: "#0a1f0a", fontFamily: "'Inter', sans-serif" }} onClick={(e) => { e.stopPropagation(); navigate(navPath); }}>
+          View event →
+        </button>
+      </div>
+    </div>
+  );
+};
+
+/** Forest Upcoming card — compact row */
+const ForestUpcomingCard = ({ event, navigate }: { event: EventWithRole; navigate: ReturnType<typeof useNavigate> }) => (
+  <div className="rounded-xl px-3.5 py-3 cursor-pointer relative" style={{ backgroundColor: "#0a1f0a", border: "1px solid rgba(74,222,128,0.18)" }} onClick={() => { const p = event.role === "host" ? `/event/${event.code}` : `/guest/${event.code}`; navigate(p); }}>
+    <div className="flex items-center justify-between relative z-10">
+      <div className="flex-1 mr-3 min-w-0">
+        <div style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 700, color: "#4ade80", opacity: 0.6, letterSpacing: "1.5px", textTransform: "uppercase" as const, marginBottom: "2px" }}>◆ forest</div>
+        <h3 className="truncate" style={{ fontFamily: "'Playfair Display', serif", fontSize: "14px", fontWeight: 700, color: "#fff" }}>{event.title || "Untitled Event"}</h3>
+        <p className="truncate mt-0.5" style={{ fontFamily: "'Inter', sans-serif", fontSize: "11px", color: "rgba(255,255,255,0.35)" }}>{formatDate(event.date_time)} · {event.location || "Location TBD"}</p>
+      </div>
+      <div style={{ backgroundColor: "rgba(74,222,128,0.1)", border: "1px solid rgba(74,222,128,0.22)", borderRadius: "50px", padding: "4px 10px", fontFamily: "'Inter', sans-serif", fontSize: "10px", fontWeight: 700, color: "#4ade80", whiteSpace: "nowrap" as const }}>
+        {event.role === "host" ? "Host" : event.role === "going" ? "Going" : "Maybe"}
+      </div>
+    </div>
+  </div>
+);
+
 const OceanNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate: ReturnType<typeof useNavigate> }) => {
   const accent = hslToColor(event.bubble_color, "#38bdf8");
   const parsed = event.date_time ? parseISO(event.date_time) : null;
@@ -1457,6 +1605,22 @@ const UpcomingSection = ({
       );
     }
 
+    if (isBlush(event.template_name)) {
+      return (
+        <div key={event.id} style={{ opacity: isFaded ? 0.45 : 1, transition: "opacity 0.3s" }}>
+          <BlushUpcomingCard event={event} navigate={navigate} />
+        </div>
+      );
+    }
+
+    if (isForest(event.template_name)) {
+      return (
+        <div key={event.id} style={{ opacity: isFaded ? 0.45 : 1, transition: "opacity 0.3s" }}>
+          <ForestUpcomingCard event={event} navigate={navigate} />
+        </div>
+      );
+    }
+
     const gradientHex = event.gradient_color || "#aaee44";
     const fontFamily = FONT_MAP[event.font_style || "Bold"] || FONT_MAP.Bold;
 
@@ -1612,6 +1776,10 @@ const Home = () => {
             <NoirNextUpCard event={nextEvent} navigate={navigate} />
           ) : isOcean(nextEvent.template_name) ? (
             <OceanNextUpCard event={nextEvent} navigate={navigate} />
+          ) : isBlush(nextEvent.template_name) ? (
+            <BlushNextUpCard event={nextEvent} navigate={navigate} />
+          ) : isForest(nextEvent.template_name) ? (
+            <ForestNextUpCard event={nextEvent} navigate={navigate} />
           ) : (
             <div
               className="rounded-2xl p-3.5 cursor-pointer overflow-hidden"

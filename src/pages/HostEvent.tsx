@@ -423,6 +423,8 @@ const HostEvent = () => {
   const isSunny = templateName === "sunny";
   const isMidnight = templateName === "midnight";
   const isOcean = templateName === "ocean";
+  const isBlush = templateName === "blush";
+  const isForest = templateName === "forest";
   const galaxyAccent = "#a78bfa";
 
   // Parsed date for calendar bubble preview
@@ -1073,6 +1075,145 @@ const HostEvent = () => {
                   className="w-full bg-transparent outline-none resize-none placeholder:opacity-20"
                   style={{ fontFamily: "'Inter', sans-serif", fontSize: "13px", color: "rgba(255,255,255,0.7)", lineHeight: 1.5 }}
                 />
+              </div>
+            </div>
+          </div>
+        </>
+      ) : isBlush ? (
+        /* ═══ BLUSH LAYOUT ═══ */
+        <>
+          <div style={{ backgroundColor: "#1a0a10", minHeight: "100vh", position: "relative" }}>
+            <button onClick={() => navigate(editCode ? `/event/${editCode}` : "/home")} className="absolute top-5 left-5 z-20">
+              <ArrowLeft className="w-6 h-6" style={{ color: "rgba(244,114,182,0.6)" }} />
+            </button>
+
+            {/* Header */}
+            <div className="px-5 pt-16 pb-3 relative z-10 text-center">
+              {/* Vibe pill badge */}
+              <div style={{ display: "inline-block", position: "relative", marginBottom: "14px" }}>
+                <div style={{ backgroundColor: "rgba(244,114,182,0.14)", border: "1px solid rgba(244,114,182,0.3)", borderRadius: "50px", padding: "5px 18px" }}>
+                  <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "10px", fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase" as const, color: vibe ? "#f472b6" : "rgba(244,114,182,0.35)" }}>{vibe || "Event type..."}</span>
+                </div>
+                <input type="text" value={vibe} onChange={(e) => setVibe(e.target.value)} maxLength={40} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", opacity: 0, cursor: "text", zIndex: 10 }} />
+              </div>
+
+              <input type="text" value={title} onChange={(e) => { setTitle(e.target.value); setTitleError(""); }} placeholder="Event name..." className="w-full bg-transparent outline-none text-center placeholder:opacity-20 block" style={{ fontFamily: "'Playfair Display', serif", fontSize: noirFontSize, fontWeight: 900, color: "#ffffff", lineHeight: 1.1, marginBottom: "8px" }} />
+              {titleError && <p className="text-red-400 text-xs mt-1">{titleError}</p>}
+              <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "11px", color: "rgba(244,114,182,0.4)", marginBottom: "18px" }}>hosted by {hostName}</p>
+            </div>
+
+            {/* Striped stat bar */}
+            <div className="px-5 pb-3 relative z-10">
+              <div style={{ borderRadius: "14px", overflow: "hidden", border: "1px solid rgba(244,114,182,0.22)", display: "flex" }}>
+                <div style={{ flex: 1, backgroundColor: "rgba(244,114,182,0.1)", padding: "14px 8px", textAlign: "center" as const, position: "relative", borderRight: "1px solid rgba(244,114,182,0.2)" }}>
+                  <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "7px", fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase" as const, color: "rgba(244,114,182,0.6)", marginBottom: "4px" }}>Date</p>
+                  <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "28px", fontWeight: 900, color: "#fff", lineHeight: 1, display: "block" }}>{dayNum || "—"}</span>
+                  <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 700, color: "#f472b6", textTransform: "uppercase" as const, marginTop: "2px" }}>{monthName || "TBD"}</p>
+                  <input type="datetime-local" value={dateTime} onChange={(e) => setDateTime(e.target.value)} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", opacity: 0, cursor: "pointer", zIndex: 10 }} />
+                </div>
+                <div style={{ flex: 1, backgroundColor: "rgba(244,114,182,0.1)", padding: "14px 8px", textAlign: "center" as const, position: "relative", borderRight: "1px solid rgba(244,114,182,0.2)" }}>
+                  <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "7px", fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase" as const, color: "rgba(244,114,182,0.6)", marginBottom: "4px" }}>Time</p>
+                  <span style={{ fontFamily: "'Inter', sans-serif", fontSize: eventDate ? "16px" : "24px", fontWeight: 900, color: eventDate ? "#fff" : "rgba(255,255,255,0.18)", lineHeight: 1.1, display: "block" }}>{timeStr || "—"}</span>
+                  <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 700, color: "#f472b6", textTransform: "uppercase" as const, marginTop: "2px" }}>{dayOfWeek ? dayOfWeek.slice(0, 3).toUpperCase() : "TBD"}</p>
+                  <input type="datetime-local" value={dateTime} onChange={(e) => setDateTime(e.target.value)} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", opacity: 0, cursor: "pointer", zIndex: 10 }} />
+                </div>
+                <div style={{ flex: 1, backgroundColor: "rgba(244,114,182,0.1)", padding: "14px 8px", textAlign: "center" as const }}>
+                  <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "7px", fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase" as const, color: "rgba(244,114,182,0.6)", marginBottom: "4px" }}>Going</p>
+                  <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "28px", fontWeight: 900, color: "#fff", lineHeight: 1, display: "block" }}>0</span>
+                  <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 700, color: "#f472b6", textTransform: "uppercase" as const, marginTop: "2px" }}>Guests</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Fields */}
+            <div className="px-5 pb-10 relative z-10 flex flex-col gap-3">
+              <div style={{ backgroundColor: "rgba(244,114,182,0.06)", borderRadius: "12px", borderLeft: "3px solid #f472b6", padding: "12px 16px", position: "relative" }}>
+                <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "7px", fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase" as const, color: "rgba(244,114,182,0.6)", marginBottom: "4px" }}>📍 Location</p>
+                <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "15px", fontWeight: 700, color: location ? "#fff" : "rgba(255,255,255,0.2)" }}>{location || "Where's the event?"}</p>
+                <input type="text" value={location} onChange={(e) => setLocation(e.target.value)} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", opacity: 0, cursor: "text", zIndex: 10 }} />
+              </div>
+              <div style={{ backgroundColor: "rgba(244,114,182,0.06)", borderRadius: "12px", borderLeft: "3px solid #f472b6", padding: "12px 16px", position: "relative" }}>
+                <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "7px", fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase" as const, color: "rgba(244,114,182,0.6)", marginBottom: "4px" }}>👗 Dress Code</p>
+                <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "15px", fontWeight: 700, color: dressCode ? "#fff" : "rgba(255,255,255,0.2)" }}>{dressCode || "Theme..."}</p>
+                <input type="text" value={dressCode} onChange={(e) => setDressCode(e.target.value)} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", opacity: 0, cursor: "text", zIndex: 10 }} />
+              </div>
+              <div style={{ backgroundColor: "rgba(244,114,182,0.05)", border: "1px solid rgba(244,114,182,0.15)", borderRadius: "12px", padding: "12px 16px" }}>
+                <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "7px", fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase" as const, color: "rgba(244,114,182,0.5)", marginBottom: "6px" }}>From the host</p>
+                <textarea value={extra} onChange={(e) => setExtra(e.target.value)} placeholder="Anything else your guests should know..." rows={2} className="w-full bg-transparent outline-none resize-none placeholder:opacity-20" style={{ fontFamily: "'Inter', sans-serif", fontSize: "13px", color: "rgba(255,255,255,0.65)", lineHeight: 1.5 }} />
+              </div>
+            </div>
+          </div>
+        </>
+      ) : isForest ? (
+        /* ═══ FOREST LAYOUT ═══ */
+        <>
+          <div style={{ backgroundColor: "#0a1f0a", minHeight: "100vh", position: "relative" }}>
+            <div style={{ position: "absolute", inset: "12px", border: "1px solid rgba(74,222,128,0.08)", borderRadius: "8px", pointerEvents: "none" as const, zIndex: 0 }} />
+            <button onClick={() => navigate(editCode ? `/event/${editCode}` : "/home")} className="absolute top-5 left-5 z-20">
+              <ArrowLeft className="w-6 h-6" style={{ color: "rgba(74,222,128,0.6)" }} />
+            </button>
+
+            {/* Header */}
+            <div className="px-8 pt-16 pb-3 relative z-10 text-center">
+              <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, letterSpacing: "0.3em", textTransform: "uppercase" as const, color: "rgba(74,222,128,0.5)", marginBottom: "12px" }}>An Invitation</p>
+              <input type="text" value={title} onChange={(e) => { setTitle(e.target.value); setTitleError(""); }} placeholder="Event name..." className="w-full bg-transparent outline-none text-center placeholder:opacity-20 block" style={{ fontFamily: "'Playfair Display', serif", fontSize: noirFontSize, fontWeight: 900, color: "#ffffff", lineHeight: 1.1, marginBottom: "6px" }} />
+              {titleError && <p className="text-red-400 text-xs mt-1">{titleError}</p>}
+              <textarea value={vibe} onChange={(e) => setVibe(e.target.value)} placeholder="Add a tagline..." rows={1} maxLength={80} className="w-full bg-transparent outline-none resize-none text-center placeholder:opacity-20" style={{ fontFamily: "'Inter', sans-serif", fontSize: "12px", fontStyle: "italic", color: "rgba(74,222,128,0.45)" }} />
+
+              {/* Diamond divider */}
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", margin: "14px 0" }}>
+                <div style={{ flex: 1, height: "1px", backgroundColor: "rgba(74,222,128,0.2)" }} />
+                <span style={{ color: "rgba(74,222,128,0.5)", fontSize: "12px" }}>◆</span>
+                <div style={{ flex: 1, height: "1px", backgroundColor: "rgba(74,222,128,0.2)" }} />
+              </div>
+
+              {/* Inline DATE · TIME · GOING */}
+              <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+                <div style={{ flex: 1, textAlign: "center" as const, position: "relative" }}>
+                  <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "7px", fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase" as const, color: "rgba(74,222,128,0.5)" }}>Date</p>
+                  <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "22px", fontWeight: 900, color: "#fff", display: "block", lineHeight: 1.1 }}>{dayNum || "—"}</span>
+                  <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 600, color: "#4ade80" }}>{monthName || "TBD"}</p>
+                  <input type="datetime-local" value={dateTime} onChange={(e) => setDateTime(e.target.value)} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", opacity: 0, cursor: "pointer", zIndex: 10 }} />
+                </div>
+                <div style={{ width: "1px", height: "38px", backgroundColor: "rgba(74,222,128,0.2)" }} />
+                <div style={{ flex: 1, textAlign: "center" as const, position: "relative" }}>
+                  <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "7px", fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase" as const, color: "rgba(74,222,128,0.5)" }}>Time</p>
+                  <span style={{ fontFamily: "'Inter', sans-serif", fontSize: eventDate ? "15px" : "22px", fontWeight: 900, color: eventDate ? "#fff" : "rgba(255,255,255,0.18)", display: "block", lineHeight: 1.2 }}>{timeStr || "—"}</span>
+                  <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 600, color: "#4ade80" }}>{dayOfWeek ? dayOfWeek.slice(0, 3).toUpperCase() : "TBD"}</p>
+                  <input type="datetime-local" value={dateTime} onChange={(e) => setDateTime(e.target.value)} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", opacity: 0, cursor: "pointer", zIndex: 10 }} />
+                </div>
+                <div style={{ width: "1px", height: "38px", backgroundColor: "rgba(74,222,128,0.2)" }} />
+                <div style={{ flex: 1, textAlign: "center" as const }}>
+                  <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "7px", fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase" as const, color: "rgba(74,222,128,0.5)" }}>Going</p>
+                  <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "22px", fontWeight: 900, color: "#fff", display: "block", lineHeight: 1.1 }}>0</span>
+                  <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 600, color: "#4ade80" }}>Guests</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Fields */}
+            <div className="px-5 pb-10 relative z-10 flex flex-col gap-3">
+              <div style={{ border: "1px solid rgba(74,222,128,0.2)", borderRadius: "14px", overflow: "hidden", position: "relative" }}>
+                <div style={{ backgroundColor: "rgba(74,222,128,0.1)", padding: "6px 16px", borderBottom: "1px solid rgba(74,222,128,0.15)" }}>
+                  <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "7px", fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase" as const, color: "rgba(74,222,128,0.7)" }}>📍 Location</p>
+                </div>
+                <div style={{ padding: "12px 16px", backgroundColor: "rgba(74,222,128,0.04)" }}>
+                  <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "15px", fontWeight: 700, color: location ? "#fff" : "rgba(255,255,255,0.2)" }}>{location || "Where's the event?"}</p>
+                </div>
+                <input type="text" value={location} onChange={(e) => setLocation(e.target.value)} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", opacity: 0, cursor: "text", zIndex: 10 }} />
+              </div>
+              <div style={{ border: "1px solid rgba(74,222,128,0.2)", borderRadius: "14px", overflow: "hidden", position: "relative" }}>
+                <div style={{ backgroundColor: "rgba(74,222,128,0.1)", padding: "6px 16px", borderBottom: "1px solid rgba(74,222,128,0.15)" }}>
+                  <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "7px", fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase" as const, color: "rgba(74,222,128,0.7)" }}>👗 Dress Code</p>
+                </div>
+                <div style={{ padding: "12px 16px", backgroundColor: "rgba(74,222,128,0.04)" }}>
+                  <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "15px", fontWeight: 700, color: dressCode ? "#fff" : "rgba(255,255,255,0.2)" }}>{dressCode || "Theme..."}</p>
+                </div>
+                <input type="text" value={dressCode} onChange={(e) => setDressCode(e.target.value)} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", opacity: 0, cursor: "text", zIndex: 10 }} />
+              </div>
+              <div style={{ border: "1px solid rgba(74,222,128,0.15)", borderRadius: "12px", padding: "12px 16px" }}>
+                <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "7px", fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase" as const, color: "rgba(74,222,128,0.5)", marginBottom: "6px" }}>From the host</p>
+                <textarea value={extra} onChange={(e) => setExtra(e.target.value)} placeholder="Anything else your guests should know..." rows={2} className="w-full bg-transparent outline-none resize-none placeholder:opacity-20" style={{ fontFamily: "'Inter', sans-serif", fontSize: "13px", color: "rgba(255,255,255,0.65)", lineHeight: 1.5 }} />
               </div>
             </div>
           </div>
