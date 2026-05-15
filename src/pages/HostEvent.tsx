@@ -99,6 +99,97 @@ const PRESET_BACKGROUNDS = [
   { name: "Marble", gradient: "linear-gradient(135deg, hsl(0 0% 95%), hsl(0 0% 80%), hsl(0 0% 90%))" },
 ];
 
+type StickerItem = { id: string; emoji: string; x: number; y: number; size: number };
+
+const STICKER_EMOJIS = ["🍷","🌟","😊","🎉","🎈","🌸","🔥","💫","🦋","🍾","💎","🌙","🎂","👑","🕺","💃","🍕","🎸"];
+
+const CUSTOM_BG_PATTERNS = [
+  { key: "planit-pattern:retro-stars",   name: "Retro Stars",   isLight: true  },
+  { key: "planit-pattern:checkerboard",  name: "Checker",       isLight: false },
+  { key: "planit-pattern:tie-dye",       name: "Tie Dye",       isLight: false },
+  { key: "planit-pattern:holographic",   name: "Holo",          isLight: true  },
+  { key: "planit-pattern:cherry-blossom",name: "Blossom",       isLight: true  },
+  { key: "planit-pattern:camo",          name: "Camo",          isLight: false },
+  { key: "planit-pattern:blueprint",     name: "Blueprint",     isLight: false },
+];
+
+const getPatternBgStyle = (key: string): React.CSSProperties => {
+  switch (key) {
+    case "planit-pattern:retro-stars":    return { backgroundColor: "#ede8d8" };
+    case "planit-pattern:checkerboard":   return { backgroundImage: "repeating-conic-gradient(#000 0% 25%, #fff 0% 50%)", backgroundSize: "24px 24px" };
+    case "planit-pattern:tie-dye":        return { background: "radial-gradient(circle at 50% 50%, #ff6b6b, #ffd93d 30%, #6bcb77 55%, #4d96ff 75%, #c77dff)" };
+    case "planit-pattern:holographic":    return { background: "conic-gradient(from 0deg at 50% 50%, #ff9de2, #a78bfa, #67e8f9, #86efac, #fde68a, #ff9de2)" };
+    case "planit-pattern:cherry-blossom": return { background: "linear-gradient(135deg, #fce4ec 0%, #f8bbd0 50%, #fce4ec 100%)" };
+    case "planit-pattern:camo":           return { backgroundColor: "#4a5240" };
+    case "planit-pattern:blueprint":      return { backgroundColor: "#0a1628" };
+    default: return {};
+  }
+};
+
+const isLightPattern = (key: string) =>
+  ["planit-pattern:retro-stars","planit-pattern:holographic","planit-pattern:cherry-blossom"].includes(key);
+
+const PatternOverlay = ({ patternKey }: { patternKey: string }) => {
+  if (patternKey === "planit-pattern:retro-stars") {
+    return (
+      <>
+        {Array.from({ length: 22 }).map((_, i) => (
+          <div key={i} style={{ position: "absolute", left: `${(i*17+5)%90+2}%`, top: `${(i*13+7)%88+2}%`, fontSize: `${i%3===0?26:i%2===0?18:13}px`, color: "#e63946", opacity: 0.78, pointerEvents: "none" as const, lineHeight: 1 }}>★</div>
+        ))}
+      </>
+    );
+  }
+  if (patternKey === "planit-pattern:cherry-blossom") {
+    return (
+      <>
+        {Array.from({ length: 14 }).map((_, i) => (
+          <div key={i} style={{ position: "absolute", left: `${(i*19+3)%86+4}%`, top: `${(i*11+9)%80+5}%`, fontSize: "22px", opacity: 0.45, pointerEvents: "none" as const, transform: `rotate(${i*25}deg)` }}>🌸</div>
+        ))}
+      </>
+    );
+  }
+  if (patternKey === "planit-pattern:camo") {
+    const blobs = [
+      { x:8,  y:5,  w:120, h:70, c:"#3a4a32", r:-15 },
+      { x:45, y:18, w:140, h:80, c:"#2d3a25", r:22  },
+      { x:-5, y:48, w:110, h:65, c:"#5a6b4a", r:8   },
+      { x:62, y:58, w:130, h:72, c:"#3a4a32", r:-28 },
+      { x:15, y:68, w:100, h:60, c:"#2d3a25", r:18  },
+      { x:72, y:28, w:90,  h:80, c:"#4a5a38", r:-12 },
+      { x:30, y:82, w:115, h:55, c:"#35452d", r:30  },
+    ];
+    return (
+      <div style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none" as const }}>
+        {blobs.map((b,i) => <div key={i} style={{ position:"absolute", left:`${b.x}%`, top:`${b.y}%`, width:`${b.w}px`, height:`${b.h}px`, backgroundColor:b.c, borderRadius:"50%", transform:`rotate(${b.r}deg)`, opacity:0.85 }} />)}
+      </div>
+    );
+  }
+  if (patternKey === "planit-pattern:blueprint") {
+    return (
+      <div style={{ position:"absolute", inset:0, pointerEvents:"none" as const }}>
+        <svg style={{ position:"absolute", inset:0, width:"100%", height:"100%" }} xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="bp-sm" width="40" height="40" patternUnits="userSpaceOnUse">
+              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#4da6ff" strokeWidth="0.4" opacity="0.35"/>
+            </pattern>
+            <pattern id="bp-lg" width="200" height="200" patternUnits="userSpaceOnUse">
+              <rect width="200" height="200" fill="url(#bp-sm)"/>
+              <path d="M 200 0 L 0 0 0 200" fill="none" stroke="#4da6ff" strokeWidth="0.9" opacity="0.4"/>
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#bp-lg)"/>
+          <circle cx="50%" cy="38%" r="90" fill="none" stroke="#4da6ff" strokeWidth="0.8" opacity="0.4"/>
+          <circle cx="50%" cy="38%" r="55" fill="none" stroke="#4da6ff" strokeWidth="0.5" opacity="0.35"/>
+          <circle cx="50%" cy="38%" r="130" fill="none" stroke="#4da6ff" strokeWidth="0.5" opacity="0.25"/>
+          <line x1="50%" y1="15%" x2="50%" y2="62%" stroke="#4da6ff" strokeWidth="0.6" opacity="0.35"/>
+          <line x1="25%" y1="38%" x2="75%" y2="38%" stroke="#4da6ff" strokeWidth="0.6" opacity="0.35"/>
+        </svg>
+      </div>
+    );
+  }
+  return null;
+};
+
 const TEMPLATES = [
   {
     name: "Planit Noir",
@@ -198,7 +289,7 @@ const TEMPLATES = [
     gradientColor: "#aaee44",
     fontStyle: "Bold",
     previewBg: "rainbow",
-    templateName: "planit-custom-card-stack",
+    templateName: "planit-custom",
   },
 ];
 
@@ -242,6 +333,11 @@ const HostEvent = () => {
   const [customisePanel, setCustomisePanel] = useState<string | null>(null);
   const [editLoading, setEditLoading] = useState(!!editCode);
   const [titleError, setTitleError] = useState("");
+  const [stickers, setStickers] = useState<StickerItem[]>([]);
+  const [selectedStickerId, setSelectedStickerId] = useState<string | null>(null);
+  const customContainerRef = useRef<HTMLDivElement>(null);
+  const stickerDragRef = useRef<{ id: string; startX: number; startY: number; sx: number; sy: number } | null>(null);
+  const stickerPinchRef = useRef<{ id: string; initDist: number; initSize: number } | null>(null);
 
   // Load event data if editing
   useEffect(() => {
@@ -269,7 +365,10 @@ const HostEvent = () => {
             setTemplateName((data as any).template_name || "planit-noir");
             setEventCode(editCode);
             setEventId(data.id);
-            if (data.bg_photo?.startsWith("linear-gradient")) {
+            if (data.bg_photo?.startsWith("planit-pattern:")) {
+              setBgPreset(data.bg_photo);
+              setBgPresetIsImage(false);
+            } else if (data.bg_photo?.startsWith("linear-gradient")) {
               setBgPreset(data.bg_photo);
               setBgPresetIsImage(false);
             } else if (data.bg_photo?.startsWith("url(")) {
@@ -362,6 +461,44 @@ const HostEvent = () => {
     return lightness <= 30;
   })();
 
+  const addSticker = (emoji: string) => {
+    setStickers(prev => [...prev, { id: Date.now().toString(), emoji, x: Math.random()*60+15, y: Math.random()*35+12, size: 48 }]);
+  };
+  const deleteSticker = (id: string) => { setStickers(prev => prev.filter(s => s.id !== id)); setSelectedStickerId(null); };
+
+  const handleStickerTouchStart = (e: React.TouchEvent, id: string) => {
+    e.stopPropagation();
+    setSelectedStickerId(prev => prev === id ? prev : id);
+    const stk = stickers.find(s => s.id === id);
+    if (!stk) return;
+    if (e.touches.length === 1) {
+      stickerDragRef.current = { id, startX: e.touches[0].clientX, startY: e.touches[0].clientY, sx: stk.x, sy: stk.y };
+      stickerPinchRef.current = null;
+    } else if (e.touches.length === 2) {
+      const dx = e.touches[0].clientX - e.touches[1].clientX;
+      const dy = e.touches[0].clientY - e.touches[1].clientY;
+      stickerPinchRef.current = { id, initDist: Math.sqrt(dx*dx+dy*dy), initSize: stk.size };
+      stickerDragRef.current = null;
+    }
+  };
+  const handleStickerTouchMove = (e: React.TouchEvent, id: string) => {
+    e.stopPropagation();
+    if (e.touches.length === 1 && stickerDragRef.current?.id === id) {
+      const rect = customContainerRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      const dx = e.touches[0].clientX - stickerDragRef.current.startX;
+      const dy = e.touches[0].clientY - stickerDragRef.current.startY;
+      setStickers(prev => prev.map(s => s.id === id ? { ...s, x: Math.max(0,Math.min(88, stickerDragRef.current!.sx + (dx/rect.width)*100)), y: Math.max(0,Math.min(88, stickerDragRef.current!.sy + (dy/rect.height)*100)) } : s));
+    } else if (e.touches.length === 2 && stickerPinchRef.current?.id === id) {
+      const dx = e.touches[0].clientX - e.touches[1].clientX;
+      const dy = e.touches[0].clientY - e.touches[1].clientY;
+      const dist = Math.sqrt(dx*dx+dy*dy);
+      const newSize = Math.max(20, Math.min(120, stickerPinchRef.current.initSize * (dist/stickerPinchRef.current.initDist)));
+      setStickers(prev => prev.map(s => s.id === id ? { ...s, size: newSize } : s));
+    }
+  };
+  const handleStickerTouchEnd = (e: React.TouchEvent) => { e.stopPropagation(); stickerDragRef.current = null; stickerPinchRef.current = null; };
+
   // Loading screen for edit mode — prevents flash
   if (editLoading) {
     return (
@@ -436,8 +573,13 @@ const HostEvent = () => {
   const isBlush = templateName === "blush";
   const isForest = templateName === "forest";
   const isClassic = templateName === "planit-classic";
-  const isCustom = templateName.startsWith("planit-custom");
-  const customLayout = templateName.endsWith("-centered") ? "centered" : templateName.endsWith("-editorial") ? "editorial" : "card-stack";
+  const isCustom = templateName === "planit-custom";
+  const customPatternKey = bgPreset?.startsWith("planit-pattern:") ? bgPreset : null;
+  const customIsLight = customPatternKey ? isLightPattern(customPatternKey) : (!!(bgPhoto) ? false : false);
+  const customTextColor = customIsLight ? "#111111" : "#ffffff";
+  const customTextMuted = customIsLight ? "rgba(17,17,17,0.55)" : "rgba(255,255,255,0.55)";
+  const customFrostBg = customIsLight ? "rgba(0,0,0,0.06)" : "rgba(255,255,255,0.09)";
+  const customFrostBorder = customIsLight ? "rgba(0,0,0,0.12)" : "rgba(255,255,255,0.16)";
   const galaxyAccent = "#a78bfa";
 
   // Parsed date for calendar bubble preview
@@ -1864,158 +2006,88 @@ const HostEvent = () => {
         /* ═══ PLANIT CUSTOM LAYOUT ═══ */
         <>
           {(() => {
-            const customBgStyle: React.CSSProperties = bgPreset
-              ? bgPresetIsImage
-                ? { backgroundImage: bgPreset, backgroundSize: "cover", backgroundPosition: "center" }
-                : { background: bgPreset }
+            const patternStyle: React.CSSProperties = customPatternKey
+              ? getPatternBgStyle(customPatternKey)
               : bgPhoto
                 ? { backgroundImage: `url(${bgPhoto})`, backgroundSize: "cover", backgroundPosition: "center" }
-                : { backgroundColor: `hsl(${bgColor})` };
-            const hasScrim = !!(bgPhoto || bgPresetIsImage);
+                : { backgroundColor: "#111111" };
+            const hasPhotoScrim = !!bgPhoto;
             return (
-              <div style={{ minHeight: "100vh", position: "relative", ...customBgStyle }}>
-                {hasScrim && <div style={{ position: "absolute", inset: 0, backgroundColor: "rgba(0,0,0,0.38)", zIndex: 0 }} />}
+              <div ref={customContainerRef} style={{ minHeight: "100vh", position: "relative", overflow: "hidden", ...patternStyle }} onClick={() => setSelectedStickerId(null)}>
+                {/* Pattern overlays for complex patterns */}
+                {customPatternKey && <PatternOverlay patternKey={customPatternKey} />}
+                {/* Photo scrim */}
+                {hasPhotoScrim && <div style={{ position: "absolute", inset: 0, backgroundColor: "rgba(0,0,0,0.4)", zIndex: 1, pointerEvents: "none" }} />}
+                {/* Stickers layer */}
+                {stickers.map(stk => (
+                  <div
+                    key={stk.id}
+                    style={{ position: "absolute", left: `${stk.x}%`, top: `${stk.y}%`, fontSize: `${stk.size}px`, zIndex: 30, cursor: "move", userSelect: "none" as const, touchAction: "none", lineHeight: 1 }}
+                    onTouchStart={(e) => handleStickerTouchStart(e, stk.id)}
+                    onTouchMove={(e) => handleStickerTouchMove(e, stk.id)}
+                    onTouchEnd={handleStickerTouchEnd}
+                    onClick={(e) => { e.stopPropagation(); setSelectedStickerId(prev => prev === stk.id ? null : stk.id); }}
+                  >
+                    {stk.emoji}
+                    {selectedStickerId === stk.id && (
+                      <button
+                        style={{ position: "absolute", top: "-10px", right: "-10px", width: "22px", height: "22px", borderRadius: "50%", backgroundColor: "#ff3b30", border: "2px solid #fff", color: "#fff", fontSize: "11px", fontWeight: 900, cursor: "pointer", zIndex: 40, display: "flex", alignItems: "center", justifyContent: "center", lineHeight: 1 }}
+                        onClick={(e) => { e.stopPropagation(); deleteSticker(stk.id); }}
+                      >✕</button>
+                    )}
+                  </div>
+                ))}
+                {/* Back nav */}
                 <button onClick={() => navigate(editCode ? `/event/${editCode}` : "/home")} className="absolute top-5 left-5 z-20">
-                  <ArrowLeft className="w-6 h-6" style={{ color: bgTextColor }} />
+                  <ArrowLeft className="w-6 h-6" style={{ color: customTextColor }} />
                 </button>
-
-                {customLayout === "centered" && (
-                  <div className="flex flex-col items-center text-center px-5 pt-16 pb-6 relative z-10">
-                    {/* Vibe pill */}
-                    <div style={{ display: "inline-block", position: "relative", marginBottom: "12px" }}>
-                      <div style={{ border: `1px solid ${accentColor}60`, borderRadius: "50px", padding: "4px 14px", backgroundColor: `${accentColor}18` }}>
-                        <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "10px", fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase" as const, color: vibe ? accentColor : `${accentColor}50` }}>{vibe || "Event type..."}</span>
-                      </div>
-                      <input type="text" value={vibe} onChange={(e) => setVibe(e.target.value)} maxLength={30} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", opacity: 0, cursor: "text", zIndex: 10 }} />
+                {/* Content */}
+                <div className="flex flex-col items-center text-center px-5 pt-16 pb-6 relative z-10">
+                  {/* Vibe */}
+                  <div style={{ display: "inline-block", position: "relative", marginBottom: "10px" }}>
+                    <div style={{ border: `1px solid ${accentColor}55`, borderRadius: "50px", padding: "3px 12px", backgroundColor: `${accentColor}15`, backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}>
+                      <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "10px", fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase" as const, color: vibe ? accentColor : `${accentColor}45` }}>{vibe || "Event type..."}</span>
                     </div>
-                    {/* Title */}
-                    <input type="text" value={title} onChange={(e) => { setTitle(e.target.value); setTitleError(""); }} placeholder="Event name..." className="w-full bg-transparent outline-none placeholder:opacity-20 text-center block" style={{ fontFamily: currentFontFamily, fontSize: noirFontSize, fontWeight: fontStyle === "Bold" ? 400 : 700, color: bgTextColor, lineHeight: 1.05, marginBottom: "8px" }} />
-                    {titleError && <p className="text-red-400 text-xs mb-2">{titleError}</p>}
-                    <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "12px", color: bgTextMuted, marginBottom: "20px" }}>hosted by {hostName}</p>
-                    {/* Stat pills row */}
-                    <div style={{ display: "flex", gap: "8px", justifyContent: "center", flexWrap: "wrap" as const, marginBottom: "20px" }}>
-                      <div style={{ position: "relative", borderRadius: "50px", border: `1px solid ${accentColor}50`, padding: "8px 14px", backgroundColor: `${accentColor}18` }}>
-                        <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "13px", fontWeight: 700, color: accentColor }}>{dayNum ? `${dayNum} ${monthName}` : "Date"}</span>
-                        <input type="datetime-local" value={dateTime} onChange={(e) => setDateTime(e.target.value)} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", opacity: 0, cursor: "pointer", zIndex: 10 }} />
-                      </div>
-                      <div style={{ position: "relative", borderRadius: "50px", border: `1px solid ${accentColor}50`, padding: "8px 14px", backgroundColor: `${accentColor}18` }}>
-                        <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "13px", fontWeight: 700, color: accentColor }}>{timeStr || "Time"}</span>
-                        <input type="datetime-local" value={dateTime} onChange={(e) => setDateTime(e.target.value)} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", opacity: 0, cursor: "pointer", zIndex: 10 }} />
-                      </div>
-                      <div style={{ borderRadius: "50px", border: `1px solid ${accentColor}50`, padding: "8px 14px", backgroundColor: `${accentColor}18` }}>
-                        <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "13px", fontWeight: 700, color: accentColor }}>0 going</span>
-                      </div>
-                    </div>
-                    {/* Info cards */}
-                    <div className="w-full flex flex-col gap-3">
-                      <div style={{ border: `1px solid ${bgTextColor}18`, borderRadius: "12px", padding: "14px 16px", backgroundColor: `${bgTextColor}08`, position: "relative" }}>
-                        <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase" as const, color: accentColor, marginBottom: "6px" }}>Location</p>
-                        <p style={{ fontFamily: currentFontFamily, fontSize: "18px", fontWeight: fontStyle === "Bold" ? 400 : 600, color: location ? bgTextColor : bgTextMuted, lineHeight: 1.2 }}>{location || "Where's the event?"}</p>
-                        <input type="text" value={location} onChange={(e) => setLocation(e.target.value)} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", opacity: 0, cursor: "text", zIndex: 10 }} />
-                      </div>
-                      <div style={{ border: `1px solid ${bgTextColor}18`, borderRadius: "12px", padding: "14px 16px", backgroundColor: `${bgTextColor}08`, position: "relative" }}>
-                        <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase" as const, color: accentColor, marginBottom: "6px" }}>Dress Code</p>
-                        <p style={{ fontFamily: currentFontFamily, fontSize: "18px", fontWeight: fontStyle === "Bold" ? 400 : 600, color: dressCode ? bgTextColor : bgTextMuted, lineHeight: 1.2 }}>{dressCode || "Theme..."}</p>
-                        <input type="text" value={dressCode} onChange={(e) => setDressCode(e.target.value)} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", opacity: 0, cursor: "text", zIndex: 10 }} />
-                      </div>
-                      <div style={{ border: `1px solid ${accentColor}20`, borderRadius: "12px", padding: "14px 16px" }}>
-                        <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase" as const, color: accentColor, marginBottom: "6px" }}>From the host</p>
-                        <textarea value={extra} onChange={(e) => setExtra(e.target.value)} placeholder="Anything else..." rows={2} className="w-full bg-transparent outline-none resize-none placeholder:opacity-20 text-center" style={{ fontFamily: "'Inter', sans-serif", fontSize: "13px", color: bgTextSoft, lineHeight: 1.5 }} />
-                      </div>
-                    </div>
+                    <input type="text" value={vibe} onChange={(e) => setVibe(e.target.value)} maxLength={30} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", opacity: 0, cursor: "text", zIndex: 10 }} />
                   </div>
-                )}
+                  {/* Title */}
+                  <input type="text" value={title} onChange={(e) => { setTitle(e.target.value); setTitleError(""); }} placeholder="Event name..." className="w-full bg-transparent outline-none placeholder:opacity-20 text-center block" style={{ fontFamily: currentFontFamily, fontSize: noirFontSize, fontWeight: fontStyle === "Bold" ? 400 : 800, color: customTextColor, lineHeight: 1.05, marginBottom: "6px", textShadow: customIsLight ? "none" : "0 1px 8px rgba(0,0,0,0.5)" }} />
+                  {titleError && <p className="text-red-400 text-xs mb-2">{titleError}</p>}
+                  <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "12px", color: customTextMuted, marginBottom: "20px", textShadow: customIsLight ? "none" : "0 1px 6px rgba(0,0,0,0.4)" }}>hosted by {hostName}</p>
 
-                {customLayout === "editorial" && (
-                  <div className="px-5 pt-14 pb-6 relative z-10">
-                    {/* Vibe / type label */}
-                    <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
-                      <div style={{ width: "3px", height: "16px", borderRadius: "2px", backgroundColor: accentColor, flexShrink: 0 }} />
-                      <input type="text" value={vibe} onChange={(e) => setVibe(e.target.value)} placeholder="Event type or tagline..." maxLength={40} className="bg-transparent outline-none placeholder:opacity-25 flex-1" style={{ fontFamily: "'Inter', sans-serif", fontSize: "11px", fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase" as const, color: accentColor }} />
-                    </div>
-                    {/* Big title */}
-                    <input type="text" value={title} onChange={(e) => { setTitle(e.target.value); setTitleError(""); }} placeholder="Event name..." className="w-full bg-transparent outline-none placeholder:opacity-20 block" style={{ fontFamily: currentFontFamily, fontSize: fontStyle === "Bold" ? "62px" : "46px", fontWeight: fontStyle === "Bold" ? 400 : 900, color: bgTextColor, lineHeight: fontStyle === "Bold" ? 0.9 : 1.0, marginBottom: "14px", letterSpacing: fontStyle === "Bold" ? "0.02em" : 0 }} />
-                    {titleError && <p className="text-red-400 text-xs mb-2">{titleError}</p>}
-                    {/* Divider */}
-                    <div style={{ height: "1px", backgroundColor: `${accentColor}30`, marginBottom: "14px" }} />
-                    {/* Inline stat row */}
-                    <div style={{ position: "relative", marginBottom: "20px" }}>
-                      <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "14px", fontWeight: 500, color: bgTextSoft }}>
+                  {/* Date/time picker — frosted pill */}
+                  <div style={{ position: "relative", marginBottom: "20px" }}>
+                    <div style={{ borderRadius: "50px", border: `1px solid ${customFrostBorder}`, padding: "10px 20px", backgroundColor: customFrostBg, backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", display: "inline-block" }}>
+                      <span style={{ fontFamily: currentFontFamily, fontSize: "16px", fontWeight: fontStyle==="Bold"?400:700, color: accentColor, letterSpacing: fontStyle==="Bold"?"0.05em":0 }}>
                         {dayNum ? `${dayNum} ${monthName}` : "Date"}
-                        <span style={{ color: accentColor, margin: "0 8px" }}>·</span>
+                        <span style={{ color: customTextMuted, margin: "0 8px" }}>·</span>
                         {timeStr || "Time"}
-                        <span style={{ color: accentColor, margin: "0 8px" }}>·</span>
-                        0 going
-                      </p>
-                      <input type="datetime-local" value={dateTime} onChange={(e) => setDateTime(e.target.value)} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", opacity: 0, cursor: "pointer", zIndex: 10 }} />
+                      </span>
                     </div>
-                    {/* Cards */}
-                    <div className="flex flex-col gap-3">
-                      <div style={{ border: `1px solid ${accentColor}25`, borderRadius: "12px", padding: "14px 16px", backgroundColor: `${bgTextColor}06`, position: "relative" }}>
-                        <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase" as const, color: accentColor, marginBottom: "6px" }}>Location</p>
-                        <p style={{ fontFamily: currentFontFamily, fontSize: "20px", fontWeight: fontStyle === "Bold" ? 400 : 700, color: location ? bgTextColor : bgTextMuted, lineHeight: 1.2, letterSpacing: fontStyle === "Bold" ? "0.02em" : 0 }}>{location || "Where's the event?"}</p>
-                        <input type="text" value={location} onChange={(e) => setLocation(e.target.value)} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", opacity: 0, cursor: "text", zIndex: 10 }} />
-                      </div>
-                      <div style={{ border: `1px solid ${accentColor}25`, borderRadius: "12px", padding: "14px 16px", backgroundColor: `${bgTextColor}06`, position: "relative" }}>
-                        <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase" as const, color: accentColor, marginBottom: "6px" }}>Dress Code</p>
-                        <p style={{ fontFamily: currentFontFamily, fontSize: "20px", fontWeight: fontStyle === "Bold" ? 400 : 700, color: dressCode ? bgTextColor : bgTextMuted, lineHeight: 1.2, letterSpacing: fontStyle === "Bold" ? "0.02em" : 0 }}>{dressCode || "Theme..."}</p>
-                        <input type="text" value={dressCode} onChange={(e) => setDressCode(e.target.value)} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", opacity: 0, cursor: "text", zIndex: 10 }} />
-                      </div>
-                      <div style={{ border: `1px solid ${accentColor}18`, borderRadius: "12px", padding: "14px 16px" }}>
-                        <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase" as const, color: accentColor, marginBottom: "6px" }}>From the host</p>
-                        <textarea value={extra} onChange={(e) => setExtra(e.target.value)} placeholder="Anything else your guests should know..." rows={2} className="w-full bg-transparent outline-none resize-none placeholder:opacity-20" style={{ fontFamily: "'Inter', sans-serif", fontSize: "13px", color: bgTextSoft, lineHeight: 1.5 }} />
-                      </div>
+                    <input type="datetime-local" value={dateTime} onChange={(e) => setDateTime(e.target.value)} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", opacity: 0, cursor: "pointer", zIndex: 10 }} />
+                  </div>
+
+                  {/* Info bubbles */}
+                  <div className="w-full flex flex-col gap-3">
+                    {/* Location */}
+                    <div style={{ borderRadius: "20px", border: `1px solid ${customFrostBorder}`, padding: "16px 18px", backgroundColor: customFrostBg, backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", position: "relative" }}>
+                      <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase" as const, color: accentColor, marginBottom: "5px" }}>Location</p>
+                      <p style={{ fontFamily: currentFontFamily, fontSize: "18px", fontWeight: fontStyle==="Bold"?400:600, color: location ? customTextColor : `${customTextColor}40`, lineHeight: 1.2 }}>{location || "Where's the event?"}</p>
+                      <input type="text" value={location} onChange={(e) => setLocation(e.target.value)} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", opacity: 0, cursor: "text", zIndex: 10 }} />
+                    </div>
+                    {/* Dress Code */}
+                    <div style={{ borderRadius: "20px", border: `1px solid ${customFrostBorder}`, padding: "16px 18px", backgroundColor: customFrostBg, backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", position: "relative" }}>
+                      <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase" as const, color: accentColor, marginBottom: "5px" }}>Dress Code</p>
+                      <p style={{ fontFamily: currentFontFamily, fontSize: "18px", fontWeight: fontStyle==="Bold"?400:600, color: dressCode ? customTextColor : `${customTextColor}40`, lineHeight: 1.2 }}>{dressCode || "Theme..."}</p>
+                      <input type="text" value={dressCode} onChange={(e) => setDressCode(e.target.value)} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", opacity: 0, cursor: "text", zIndex: 10 }} />
+                    </div>
+                    {/* Notes */}
+                    <div style={{ borderRadius: "20px", border: `1px solid ${customFrostBorder}`, padding: "16px 18px", backgroundColor: customFrostBg, backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)" }}>
+                      <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase" as const, color: accentColor, marginBottom: "5px" }}>From the host</p>
+                      <textarea value={extra} onChange={(e) => setExtra(e.target.value)} placeholder="Anything else..." rows={2} className="w-full bg-transparent outline-none resize-none placeholder:opacity-20 text-center" style={{ fontFamily: "'Inter', sans-serif", fontSize: "13px", color: customTextColor, lineHeight: 1.5 }} />
                     </div>
                   </div>
-                )}
-
-                {customLayout === "card-stack" && (
-                  <div className="relative z-10">
-                    <div className="px-5 pt-14 pb-3">
-                      <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px" }}>
-                        <input type="text" value={vibe} onChange={(e) => setVibe(e.target.value)} placeholder="Vibe / event type..." maxLength={30} className="bg-transparent outline-none placeholder:opacity-25" style={{ fontFamily: "'Inter', sans-serif", fontSize: "10px", fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase" as const, color: accentColor }} />
-                      </div>
-                      <input type="text" value={title} onChange={(e) => { setTitle(e.target.value); setTitleError(""); }} placeholder="Event name..." className="w-full bg-transparent outline-none placeholder:opacity-20 block" style={{ fontFamily: currentFontFamily, fontSize: noirFontSize, fontWeight: fontStyle === "Bold" ? 400 : 800, color: bgTextColor, lineHeight: fontStyle === "Bold" ? 0.95 : 1.1, marginBottom: "6px", letterSpacing: fontStyle === "Bold" ? "0.02em" : 0 }} />
-                      {titleError && <p className="text-red-400 text-xs mb-1">{titleError}</p>}
-                      <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "12px", color: bgTextMuted }}>hosted by {hostName}</p>
-                    </div>
-                    {/* Stat bar — accent bg */}
-                    <div style={{ display: "flex", borderTop: `2px solid ${accentColor}`, borderBottom: `2px solid ${accentColor}` }}>
-                      <div style={{ flex: 1, backgroundColor: accentColor, padding: "14px 8px", textAlign: "center" as const, borderRight: "1px solid rgba(0,0,0,0.15)", position: "relative" }}>
-                        <span style={{ fontFamily: currentFontFamily, fontSize: "28px", fontWeight: fontStyle === "Bold" ? 400 : 800, color: accentText, display: "block", lineHeight: 1, letterSpacing: fontStyle === "Bold" ? "0.02em" : 0 }}>{dayNum || "—"}</span>
-                        <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase" as const, color: `${accentText}99`, marginTop: "3px", display: "block" }}>{monthName || "TBD"}</span>
-                        <input type="datetime-local" value={dateTime} onChange={(e) => setDateTime(e.target.value)} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", opacity: 0, cursor: "pointer", zIndex: 10 }} />
-                      </div>
-                      <div style={{ flex: 1, backgroundColor: accentColor, padding: "14px 8px", textAlign: "center" as const, borderRight: "1px solid rgba(0,0,0,0.15)", position: "relative" }}>
-                        <span style={{ fontFamily: currentFontFamily, fontSize: "28px", fontWeight: fontStyle === "Bold" ? 400 : 800, color: accentText, display: "block", lineHeight: 1, letterSpacing: fontStyle === "Bold" ? "0.02em" : 0 }}>{timeStr || "—"}</span>
-                        <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase" as const, color: `${accentText}99`, marginTop: "3px", display: "block" }}>Start</span>
-                        <input type="datetime-local" value={dateTime} onChange={(e) => setDateTime(e.target.value)} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", opacity: 0, cursor: "pointer", zIndex: 10 }} />
-                      </div>
-                      <div style={{ flex: 1, backgroundColor: accentColor, padding: "14px 8px", textAlign: "center" as const }}>
-                        <span style={{ fontFamily: currentFontFamily, fontSize: "28px", fontWeight: fontStyle === "Bold" ? 400 : 800, color: accentText, display: "block", lineHeight: 1, letterSpacing: fontStyle === "Bold" ? "0.02em" : 0 }}>0</span>
-                        <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase" as const, color: `${accentText}99`, marginTop: "3px", display: "block" }}>Going</span>
-                      </div>
-                    </div>
-                    {/* Cards */}
-                    <div className="px-5 pt-4 pb-6 flex flex-col gap-3">
-                      <div style={{ border: `1px solid ${accentColor}25`, borderRadius: "12px", padding: "14px 16px", backgroundColor: `${bgTextColor}06`, position: "relative" }}>
-                        <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase" as const, color: accentColor, marginBottom: "6px" }}>Location</p>
-                        <p style={{ fontFamily: currentFontFamily, fontSize: "20px", fontWeight: fontStyle === "Bold" ? 400 : 700, color: location ? bgTextColor : bgTextMuted, lineHeight: 1.2, letterSpacing: fontStyle === "Bold" ? "0.02em" : 0 }}>{location || "Where's the event?"}</p>
-                        <input type="text" value={location} onChange={(e) => setLocation(e.target.value)} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", opacity: 0, cursor: "text", zIndex: 10 }} />
-                      </div>
-                      <div style={{ border: `1px solid ${accentColor}25`, borderRadius: "12px", padding: "14px 16px", backgroundColor: `${bgTextColor}06`, position: "relative" }}>
-                        <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase" as const, color: accentColor, marginBottom: "6px" }}>Dress Code</p>
-                        <p style={{ fontFamily: currentFontFamily, fontSize: "20px", fontWeight: fontStyle === "Bold" ? 400 : 700, color: dressCode ? bgTextColor : bgTextMuted, lineHeight: 1.2, letterSpacing: fontStyle === "Bold" ? "0.02em" : 0 }}>{dressCode || "Theme..."}</p>
-                        <input type="text" value={dressCode} onChange={(e) => setDressCode(e.target.value)} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", opacity: 0, cursor: "text", zIndex: 10 }} />
-                      </div>
-                      <div style={{ border: `1px solid ${accentColor}18`, borderRadius: "12px", padding: "14px 16px" }}>
-                        <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase" as const, color: accentColor, marginBottom: "6px" }}>From the host</p>
-                        <textarea value={extra} onChange={(e) => setExtra(e.target.value)} placeholder="Anything else your guests should know..." rows={2} className="w-full bg-transparent outline-none resize-none placeholder:opacity-20" style={{ fontFamily: "'Inter', sans-serif", fontSize: "13px", color: bgTextSoft, lineHeight: 1.5 }} />
-                      </div>
-                    </div>
-                  </div>
-                )}
-
+                </div>
                 <div style={{ height: "100px" }} />
               </div>
             );
@@ -2187,42 +2259,42 @@ const HostEvent = () => {
             <div className="mx-auto w-10 h-1 rounded-full bg-muted-foreground/30 mb-4" />
 
             {/* Tabs */}
-            <div className="flex gap-1 mb-5 p-1 rounded-xl" style={{ backgroundColor: "#2b2b2b" }}>
-              <button
-                onClick={() => {
-                  setCustomizeTab("templates");
-                  setCustomisePanel(null);
-                }}
-                className="flex-1 py-2 rounded-lg text-sm font-bold transition-all"
-                style={{
-                  backgroundColor: customizeTab === "templates" ? "#383838" : "transparent",
-                  color: customizeTab === "templates" ? "#aaee44" : "#999",
-                }}
-              >
-                Templates
-              </button>
-              <button
-                onClick={() => {
-                  setCustomizeTab("customise");
-                  setCustomisePanel(null);
-                }}
-                className="flex-1 py-2 rounded-lg text-sm font-bold transition-all"
-                style={{
-                  backgroundColor: customizeTab === "customise" ? "#383838" : "transparent",
-                  color: customizeTab === "customise" ? "#aaee44" : "#999",
-                }}
-              >
-                Customise
-              </button>
-            </div>
+            {!isCustom && (
+              <div className="flex gap-1 mb-5 p-1 rounded-xl" style={{ backgroundColor: "#2b2b2b" }}>
+                <button
+                  onClick={() => {
+                    setCustomizeTab("templates");
+                    setCustomisePanel(null);
+                  }}
+                  className="flex-1 py-2 rounded-lg text-sm font-bold transition-all"
+                  style={{
+                    backgroundColor: customizeTab === "templates" ? "#383838" : "transparent",
+                    color: customizeTab === "templates" ? "#aaee44" : "#999",
+                  }}
+                >
+                  Templates
+                </button>
+                <button
+                  onClick={() => {
+                    setCustomizeTab("customise");
+                    setCustomisePanel(null);
+                  }}
+                  className="flex-1 py-2 rounded-lg text-sm font-bold transition-all"
+                  style={{
+                    backgroundColor: customizeTab === "customise" ? "#383838" : "transparent",
+                    color: customizeTab === "customise" ? "#aaee44" : "#999",
+                  }}
+                >
+                  Customise
+                </button>
+              </div>
+            )}
 
             <div className="overflow-y-auto flex-1">
-              {customizeTab === "templates" ? (
+              {(!isCustom && customizeTab === "templates") ? (
                 <div className="grid grid-cols-3 gap-2">
                   {TEMPLATES.map((t) => {
-                    const isSelected = t.templateName.startsWith("planit-custom")
-                      ? templateName.startsWith("planit-custom")
-                      : templateName === t.templateName;
+                    const isSelected = templateName === t.templateName;
                     const tn = t.templateName;
 
                     // Per-template config
@@ -2314,7 +2386,7 @@ const HostEvent = () => {
                         barColor: "#aaee44",
                         barText: "#111",
                       },
-                      "planit-custom-card-stack": {
+                      "planit-custom": {
                         bg: "linear-gradient(135deg, #f857a6, #ff5858, #43e97b, #38f9d7, #4776e6)",
                         titleColor: "#fff",
                         accentColor: "#fff",
@@ -2387,7 +2459,7 @@ const HostEvent = () => {
                             />
                           )}
                           {/* Forest box */}
-                          {tn === "planit-custom-card-stack" ? (
+                          {tn === "planit-custom" ? (
                             <div style={{ textAlign: "center" as const }}>
                               <span style={{ fontSize: 14, filter: "drop-shadow(0 0 4px rgba(255,255,255,0.6))" }}>✦</span>
                               <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 7, fontWeight: 700, color: "#fff", marginTop: 2, letterSpacing: "0.1em" }}>YOUR WAY</p>
@@ -2442,7 +2514,7 @@ const HostEvent = () => {
                         </div>
                         <div
                           className="py-0.5 text-center"
-                          style={tn === "planit-custom-card-stack"
+                          style={tn === "planit-custom"
                             ? { background: "linear-gradient(90deg, #f857a6, #ff5858, #43e97b, #38f9d7, #4776e6)" }
                             : { backgroundColor: c.barColor }
                           }
@@ -2453,7 +2525,7 @@ const HostEvent = () => {
                               fontWeight: 700,
                               letterSpacing: "0.1em",
                               textTransform: "uppercase" as const,
-                              color: tn === "planit-custom-card-stack" ? "#fff" : c.barText,
+                              color: tn === "planit-custom" ? "#fff" : c.barText,
                             }}
                           >
                             {t.name}
@@ -2464,6 +2536,45 @@ const HostEvent = () => {
                   })}
                 </div>
               ) : customisePanel === null ? (
+                isCustom ? (
+                  <div className="flex flex-col gap-1">
+                    <button onClick={() => setCustomisePanel("custom-bg")} className="flex items-center justify-between py-3.5 px-1">
+                      <span className="text-sm font-semibold text-white">Background</span>
+                      <div className="flex items-center gap-2">
+                        <div className="w-5 h-5 rounded-full border border-white/20" style={customPatternKey ? getPatternBgStyle(customPatternKey) : bgPhoto ? { backgroundImage: `url(${bgPhoto})`, backgroundSize: "cover" } : { backgroundColor: `hsl(${bgColor})` }} />
+                        <span className="text-white/40 text-lg">›</span>
+                      </div>
+                    </button>
+                    <button onClick={() => setCustomisePanel("bubble")} className="flex items-center justify-between py-3.5 px-1">
+                      <span className="text-sm font-semibold text-white">Accent colour</span>
+                      <div className="flex items-center gap-2">
+                        <div className="w-5 h-5 rounded-full border border-white/20" style={{ backgroundColor: accentColor }} />
+                        <span className="text-white/40 text-lg">›</span>
+                      </div>
+                    </button>
+                    <button onClick={() => setCustomisePanel("font")} className="flex items-center justify-between py-3.5 px-1">
+                      <span className="text-sm font-semibold text-white">Font</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-white/60">{fontStyle}</span>
+                        <span className="text-white/40 text-lg">›</span>
+                      </div>
+                    </button>
+                    <button onClick={() => setCustomisePanel("size")} className="flex items-center justify-between py-3.5 px-1">
+                      <span className="text-sm font-semibold text-white">Text size</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-white/60">{textSize}</span>
+                        <span className="text-white/40 text-lg">›</span>
+                      </div>
+                    </button>
+                    <button onClick={() => setCustomisePanel("custom-stickers")} className="flex items-center justify-between py-3.5 px-1">
+                      <span className="text-sm font-semibold text-white">Stickers</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-white/60">{stickers.length > 0 ? `${stickers.length} placed` : "None"}</span>
+                        <span className="text-white/40 text-lg">›</span>
+                      </div>
+                    </button>
+                  </div>
+                ) : (
                 <div className="flex flex-col gap-1">
                   {/* Background colour — hidden for Vintage */}
                   {!isVintage && (
@@ -2542,19 +2653,6 @@ const HostEvent = () => {
                       </div>
                     </button>
                   )}
-                  {/* Layout — Custom template only */}
-                  {isCustom && (
-                    <button
-                      onClick={() => setCustomisePanel("layout")}
-                      className="flex items-center justify-between py-3.5 px-1"
-                    >
-                      <span className="text-sm font-semibold text-white">Layout</span>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-white/60 capitalize">{customLayout.replace("-", " ")}</span>
-                        <span className="text-white/40 text-lg">›</span>
-                      </div>
-                    </button>
-                  )}
                   {/* Text size */}
                   <button
                     onClick={() => setCustomisePanel("size")}
@@ -2567,6 +2665,7 @@ const HostEvent = () => {
                     </div>
                   </button>
                 </div>
+                )
               ) : (
                 <div>
                   <button
@@ -2607,13 +2706,6 @@ const HostEvent = () => {
                         >
                           <Upload className="w-4 h-4" /> Upload photo
                         </button>
-                        <input
-                          ref={fileInputRef}
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          onChange={handleFileUpload}
-                        />
                         {uploadedPhoto && (
                           <button
                             onClick={() => {
@@ -2747,37 +2839,75 @@ const HostEvent = () => {
                     </>
                   )}
 
-                  {customisePanel === "layout" && (
+                  {customisePanel === "custom-bg" && (
                     <>
-                      <p className="text-card-foreground font-bold text-sm mb-3">Layout</p>
-                      <div className="flex flex-col gap-2">
-                        {([
-                          { key: "card-stack", label: "Card Stack", desc: "Structured with stat bar and info cards" },
-                          { key: "centered", label: "Centered", desc: "Minimal, content centred — great for photos" },
-                          { key: "editorial", label: "Editorial", desc: "Big bold title, magazine-style layout" },
-                        ] as const).map(({ key, label, desc }) => (
+                      <p className="text-card-foreground font-bold text-sm mb-3">Background</p>
+                      <div className="grid grid-cols-4 gap-2 mb-4">
+                        {CUSTOM_BG_PATTERNS.map((p) => (
                           <button
-                            key={key}
-                            onClick={() => setTemplateName(`planit-custom-${key}`)}
-                            className="flex items-center gap-3 py-3 px-4 rounded-xl text-left transition-all"
-                            style={{
-                              backgroundColor: customLayout === key ? "#383838" : "#2b2b2b",
-                              border: customLayout === key ? "1px solid #aaee44" : "1px solid transparent",
-                            }}
+                            key={p.key}
+                            onClick={() => { setBgPreset(p.key); setBgPresetIsImage(false); setBgPhoto(null); setUploadedPhoto(null); }}
+                            className="flex flex-col items-center gap-1"
+                            style={{ border: bgPreset === p.key ? "2px solid #aaee44" : "2px solid transparent", borderRadius: "10px", overflow: "hidden", padding: "2px" }}
                           >
-                            <div
-                              className="w-3 h-3 rounded-full flex-shrink-0"
-                              style={{ backgroundColor: customLayout === key ? "#aaee44" : "#555" }}
-                            />
-                            <div>
-                              <p className="text-sm font-bold text-white">{label}</p>
-                              <p className="text-xs text-white/50 mt-0.5">{desc}</p>
+                            <div style={{ width: "100%", aspectRatio: "1", borderRadius: "8px", overflow: "hidden", position: "relative", ...getPatternBgStyle(p.key) }}>
+                              {(p.key === "planit-pattern:retro-stars" || p.key === "planit-pattern:camo" || p.key === "planit-pattern:blueprint" || p.key === "planit-pattern:cherry-blossom") && (
+                                <div style={{ position: "absolute", inset: 0, overflow: "hidden" }}>
+                                  <PatternOverlay patternKey={p.key} />
+                                </div>
+                              )}
                             </div>
+                            <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 600, color: "#ccc", textAlign: "center" as const }}>{p.name}</span>
+                          </button>
+                        ))}
+                        {/* Camera Roll */}
+                        <button
+                          onClick={() => fileInputRef.current?.click()}
+                          className="flex flex-col items-center gap-1"
+                          style={{ border: (bgPhoto && !customPatternKey) ? "2px solid #aaee44" : "2px solid transparent", borderRadius: "10px", overflow: "hidden", padding: "2px" }}
+                        >
+                          <div style={{ width: "100%", aspectRatio: "1", borderRadius: "8px", backgroundColor: "#2b2b2b", border: "1px dashed #555", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
+                            {uploadedPhoto ? <img src={uploadedPhoto} style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <span style={{ fontSize: "22px" }}>📷</span>}
+                          </div>
+                          <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 600, color: "#ccc" }}>Camera Roll</span>
+                        </button>
+                      </div>
+                      {(customPatternKey || bgPhoto) && (
+                        <button onClick={() => { setBgPreset(null); setBgPhoto(null); setUploadedPhoto(null); setBgPresetIsImage(false); }} className="text-xs text-white/50 underline mb-2">Clear (use solid colour)</button>
+                      )}
+                    </>
+                  )}
+
+                  {customisePanel === "custom-stickers" && (
+                    <>
+                      <p className="text-card-foreground font-bold text-sm mb-3">Stickers</p>
+                      <p className="text-xs text-white/50 mb-3">Tap to place · Drag to move · Pinch to resize · Tap sticker → ✕ to remove</p>
+                      <div className="grid grid-cols-6 gap-2 mb-4">
+                        {STICKER_EMOJIS.map((emoji) => (
+                          <button
+                            key={emoji}
+                            onClick={() => addSticker(emoji)}
+                            className="flex items-center justify-center rounded-xl"
+                            style={{ aspectRatio: "1", backgroundColor: "#2b2b2b", fontSize: "22px" }}
+                          >
+                            {emoji}
                           </button>
                         ))}
                       </div>
+                      {stickers.length > 0 && (
+                        <div className="flex flex-col gap-1 mt-2">
+                          <p className="text-xs text-white/40 mb-1">Placed stickers</p>
+                          {stickers.map(stk => (
+                            <div key={stk.id} className="flex items-center justify-between px-3 py-2 rounded-xl" style={{ backgroundColor: "#2b2b2b" }}>
+                              <span style={{ fontSize: "20px" }}>{stk.emoji}</span>
+                              <button onClick={() => deleteSticker(stk.id)} className="text-xs text-red-400 font-bold">Remove</button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </>
                   )}
+
                   {customisePanel === "size" && (
                     <>
                       <p className="text-card-foreground font-bold text-sm mb-2">Text size</p>
@@ -2800,6 +2930,13 @@ const HostEvent = () => {
               )}
             </div>
 
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleFileUpload}
+            />
             <DrawerTrigger asChild>
               <button className="w-full bg-secondary text-secondary-foreground rounded-[var(--radius)] py-4 text-base font-extrabold border border-border mt-4">
                 Done

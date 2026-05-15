@@ -223,7 +223,7 @@ const isClassic = (templateName: string | null) => {
 };
 const isCustomTemplate = (templateName: string | null) => {
   if (!templateName) return false;
-  return templateName.toLowerCase().trim().startsWith("planit-custom");
+  return templateName.toLowerCase().trim() === "planit-custom";
 };
 /** Noir-styled title: second word in accent color + italic */
 const NoirCardTitle = ({
