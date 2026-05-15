@@ -1426,8 +1426,8 @@ const GuestEventView = () => {
             </div>
           </div>
         </>
-      ) : isMidnight || isOcean ? (
-        /* ═══ MIDNIGHT / OCEAN LAYOUT ═══ */
+      ) : isMidnight ? (
+        /* ═══ MIDNIGHT LAYOUT ═══ */
         <>
           <div style={{ backgroundColor: containerBg, minHeight: "100vh", position: "relative" }}>
             <div className="flex items-center justify-between px-5 pt-6">
@@ -1872,6 +1872,156 @@ const GuestEventView = () => {
                   >
                     No photos yet — add the first one!
                   </p>
+                ) : (
+                  <div className="grid grid-cols-3 gap-1.5">
+                    {photos.map((p) => (
+                      <div key={p.id} className="aspect-square rounded-xl overflow-hidden">
+                        <img src={p.photo_url} alt="" className="w-full h-full object-cover" />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </>
+      ) : isOcean ? (
+        /* ═══ OCEAN LAYOUT ═══ */
+        <>
+          <div style={{ backgroundColor: "#0c1929", minHeight: "100vh", position: "relative", overflow: "hidden" }}>
+            {/* Glow orbs */}
+            <div style={{ position: "absolute", top: "-80px", right: "-80px", width: "280px", height: "280px", borderRadius: "50%", background: "radial-gradient(circle, rgba(56,189,248,0.06) 0%, transparent 70%)", pointerEvents: "none" }} />
+            <div style={{ position: "absolute", bottom: "120px", left: "-50px", width: "160px", height: "160px", borderRadius: "50%", background: "radial-gradient(circle, rgba(14,165,233,0.04) 0%, transparent 70%)", pointerEvents: "none" }} />
+
+            {/* Nav */}
+            <div className="flex items-center justify-between px-5 pt-6 relative z-10">
+              <button onClick={() => navigate("/home")}>
+                <ArrowLeft className="w-6 h-6" style={{ color: "rgba(56,189,248,0.6)" }} />
+              </button>
+              <button onClick={() => setShowChat(true)} className="flex flex-col items-center gap-0.5">
+                <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ backgroundColor: "rgba(56,189,248,0.08)", border: "1px solid rgba(56,189,248,0.2)" }}>
+                  <MessageCircle className="w-4 h-4" style={{ color: "rgba(56,189,248,0.7)" }} />
+                </div>
+                <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 600, color: "rgba(56,189,248,0.5)" }}>Message host</span>
+              </button>
+            </div>
+
+            {/* Header */}
+            <div className="px-5 pt-10 pb-2 relative z-10 text-center">
+              <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 700, letterSpacing: "0.28em", textTransform: "uppercase", color: "rgba(56,189,248,0.5)", marginBottom: "10px" }}>You're Invited</p>
+              <h1 style={{ fontFamily: "'Inter', sans-serif", fontSize: noirFontSize, fontWeight: 900, color: "#ffffff", lineHeight: 1.1, marginBottom: "8px" }}>{event.title || "Untitled Event"}</h1>
+              {event.vibe && <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "13px", fontStyle: "italic", color: "rgba(56,189,248,0.45)", marginBottom: "6px" }}>{event.vibe}</p>}
+              <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "11px", color: "rgba(56,189,248,0.35)", marginBottom: "16px" }}>hosted by {hostName}</p>
+              <svg viewBox="0 0 320 20" style={{ width: "100%", maxWidth: "280px", margin: "0 auto", display: "block", marginBottom: "20px" }}>
+                <path d="M0,10 C26.7,2 53.3,18 80,10 C106.7,2 133.3,18 160,10 C186.7,2 213.3,18 240,10 C266.7,2 293.3,18 320,10" stroke="rgba(56,189,248,0.22)" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+              </svg>
+            </div>
+
+            <div className="px-5 pb-10 relative z-10 flex flex-col gap-3">
+              {/* Stat cards */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "8px" }}>
+                {/* DAY */}
+                <div style={{ backgroundColor: "rgba(56,189,248,0.07)", border: "1px solid rgba(56,189,248,0.15)", borderRadius: "16px", padding: "14px 8px", textAlign: "center" }}>
+                  <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "7px", fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(56,189,248,0.5)", marginBottom: "4px" }}>Day</p>
+                  <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "34px", fontWeight: 900, color: "#ffffff", lineHeight: 1, display: "block" }}>{dayNum || "—"}</span>
+                  <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 700, color: "rgb(56,189,248)", textTransform: "uppercase", marginTop: "2px" }}>{monthName || "TBD"}</p>
+                </div>
+                {/* TIME */}
+                <div style={{ backgroundColor: "rgba(56,189,248,0.07)", border: "1px solid rgba(56,189,248,0.15)", borderRadius: "16px", padding: "14px 8px", textAlign: "center" }}>
+                  <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "7px", fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(56,189,248,0.5)", marginBottom: "4px" }}>Time</p>
+                  <span style={{ fontFamily: "'Inter', sans-serif", fontSize: eventDate ? "16px" : "28px", fontWeight: 900, color: eventDate ? "#ffffff" : "rgba(255,255,255,0.18)", lineHeight: 1.1, display: "block" }}>{timeStr || "—"}</span>
+                  <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 700, color: "rgb(56,189,248)", textTransform: "uppercase", marginTop: "2px" }}>{dayOfWeek ? dayOfWeek.slice(0, 3).toUpperCase() : "TBD"}</p>
+                </div>
+                {/* GOING */}
+                <div style={{ backgroundColor: "rgba(56,189,248,0.07)", border: "1px solid rgba(56,189,248,0.15)", borderRadius: "16px", padding: "14px 8px", textAlign: "center" }}>
+                  <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "7px", fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(56,189,248,0.5)", marginBottom: "4px" }}>Going</p>
+                  <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "34px", fontWeight: 900, color: "#ffffff", lineHeight: 1, display: "block" }}>{goingList.length}</span>
+                  <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 700, color: "rgb(56,189,248)", textTransform: "uppercase", marginTop: "2px" }}>Guests</p>
+                </div>
+              </div>
+
+              {/* Location pill */}
+              {event.location && (
+                <div style={{ borderRadius: "50px", backgroundColor: "rgba(56,189,248,0.07)", border: "1px solid rgba(56,189,248,0.15)", padding: "14px 22px" }}>
+                  <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(56,189,248,0.5)", marginBottom: "3px" }}>📍 Location</p>
+                  <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "14px", fontWeight: 600, color: "#ffffff" }}>{event.location}</p>
+                </div>
+              )}
+
+              {/* Dress code pill */}
+              {event.dress_code && (
+                <div style={{ borderRadius: "50px", backgroundColor: "rgba(56,189,248,0.07)", border: "1px solid rgba(56,189,248,0.15)", padding: "14px 22px" }}>
+                  <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(56,189,248,0.5)", marginBottom: "3px" }}>👗 Dress Code</p>
+                  <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "14px", fontWeight: 600, color: "#ffffff" }}>{event.dress_code}</p>
+                </div>
+              )}
+
+              {/* Notes card */}
+              {event.extra && (
+                <div style={{ backgroundColor: "rgba(10,25,50,0.8)", border: "1px solid rgba(56,189,248,0.1)", borderRadius: "16px", padding: "14px 16px" }}>
+                  <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(56,189,248,0.45)", marginBottom: "6px" }}>From the host</p>
+                  <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "13px", color: "rgba(255,255,255,0.65)", lineHeight: 1.5 }}>{event.extra}</p>
+                </div>
+              )}
+
+              {/* Who's going */}
+              <div style={{ backgroundColor: "rgba(56,189,248,0.06)", border: "1px solid rgba(56,189,248,0.12)", borderRadius: "16px", padding: "12px 14px" }}>
+                <button onClick={() => setGuestListExpanded(!guestListExpanded)} className="flex items-center justify-between w-full mb-2">
+                  <h2 style={{ fontFamily: "'Inter', sans-serif", fontSize: "13px", fontWeight: 700, color: "#ffffff" }}>Who's going</h2>
+                  <div className="flex items-center gap-2">
+                    {goingList.length > 0 && <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "11px", fontWeight: 700, color: "rgb(56,189,248)" }}>{goingList.length} going</span>}
+                    {guestListExpanded ? <ChevronUp className="w-4 h-4" style={{ color: "rgb(56,189,248)" }} /> : <ChevronDown className="w-4 h-4" style={{ color: "rgb(56,189,248)" }} />}
+                  </div>
+                </button>
+                <div className="flex items-center gap-2 overflow-x-auto">
+                  {goingList.length === 0 && <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "12px", color: "rgba(56,189,248,0.35)" }}>No one yet</p>}
+                  {goingList.map((r, i) => (
+                    <div key={i} className="flex flex-col items-center shrink-0">
+                      <div className="w-9 h-9 rounded-full flex items-center justify-center overflow-hidden" style={{ border: "2px solid rgba(56,189,248,0.5)", backgroundColor: "rgba(56,189,248,0.1)" }}>
+                        {r.avatar_url ? <img src={r.avatar_url} alt="" className="w-full h-full object-cover" /> : <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "12px", fontWeight: 700, color: "rgb(56,189,248)" }}>{getInitials(r.name)}</span>}
+                      </div>
+                      <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "10px", color: "rgba(56,189,248,0.5)" }} className="mt-1 max-w-[40px] truncate">{r.name.split(" ")[0]}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Chat */}
+              <div style={{ backgroundColor: "rgba(56,189,248,0.06)", border: "1px solid rgba(56,189,248,0.12)", borderRadius: "16px", padding: "12px 14px" }}>
+                <div className="flex items-center justify-between mb-3">
+                  <h2 style={{ fontFamily: "'Inter', sans-serif", fontSize: "13px", fontWeight: 700, color: "#ffffff" }}>Chat</h2>
+                  <button onClick={() => setShowFullComments(true)}><Maximize2 className="w-4 h-4" style={{ color: "rgba(56,189,248,0.6)" }} /></button>
+                </div>
+                <div className="space-y-2 max-h-48 overflow-y-auto mb-3">
+                  {comments.length === 0 && <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "12px", color: "rgba(56,189,248,0.35)", textAlign: "center", padding: "12px 0" }}>No messages yet — be the first!</p>}
+                  {comments.map((c, i) => (
+                    <div key={i} className="rounded-xl px-3 py-2" style={{ backgroundColor: "rgba(56,189,248,0.06)" }}>
+                      <div className="flex items-center gap-2">
+                        <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "11px", fontWeight: 700, color: "rgb(56,189,248)" }}>{c.user_name}</span>
+                        <span style={{ fontSize: "10px", color: "rgba(56,189,248,0.35)" }}>{formatTime(c.created_at)}</span>
+                      </div>
+                      <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "13px", color: "rgba(255,255,255,0.8)", marginTop: "2px" }}>{c.text}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex gap-2">
+                  <input value={commentDraft} onChange={(e) => setCommentDraft(e.target.value)} onKeyDown={(e) => e.key === "Enter" && sendComment()} placeholder="Write a message..." className="flex-1 rounded-full px-4 py-2 text-sm outline-none" style={{ backgroundColor: "rgba(56,189,248,0.07)", color: "#ffffff", border: "1px solid rgba(56,189,248,0.2)", fontFamily: "'Inter', sans-serif" }} />
+                  <button onClick={sendComment} className="w-9 h-9 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: "rgb(56,189,248)" }}>
+                    <Send className="w-4 h-4" style={{ color: "#0c1929" }} />
+                  </button>
+                </div>
+              </div>
+
+              {/* Gallery */}
+              <div style={{ backgroundColor: "rgba(56,189,248,0.06)", border: "1px solid rgba(56,189,248,0.12)", borderRadius: "16px", padding: "12px 14px", marginBottom: "20px" }}>
+                <div className="flex items-center justify-between mb-3">
+                  <h2 style={{ fontFamily: "'Inter', sans-serif", fontSize: "13px", fontWeight: 700, color: "#ffffff" }}>Gallery</h2>
+                  <button onClick={() => photoInput.current?.click()} className="text-xs font-bold rounded-full px-3 py-1" style={{ backgroundColor: "rgb(56,189,248)", color: "#0c1929", fontFamily: "'Inter', sans-serif" }}>Add photo</button>
+                  <input ref={photoInput} type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} />
+                </div>
+                {uploadingPhoto && <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "12px", color: "rgb(56,189,248)", textAlign: "center", padding: "8px 0" }}>Uploading...</p>}
+                {photos.length === 0 && !uploadingPhoto ? (
+                  <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "12px", color: "rgba(56,189,248,0.35)", textAlign: "center", padding: "16px 0" }}>No photos yet — add the first one!</p>
                 ) : (
                   <div className="grid grid-cols-3 gap-1.5">
                     {photos.map((p) => (
