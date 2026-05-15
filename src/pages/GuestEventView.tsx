@@ -402,6 +402,8 @@ const GuestEventView = () => {
   const isBlush = ((event as any).template_name || "").toLowerCase() === "blush";
   const isForest = ((event as any).template_name || "").toLowerCase() === "forest";
   const isClassic = ((event as any).template_name || "").toLowerCase() === "planit-classic";
+  const isCustom = ((event as any).template_name || "").toLowerCase().startsWith("planit-custom");
+  const customLayout = ((event as any).template_name || "").includes("-centered") ? "centered" : ((event as any).template_name || "").includes("-editorial") ? "editorial" : "card-stack";
   const galaxyAccent = (event as any).bubble_color ? `hsl(${(event as any).bubble_color})` : "#a855f7";
   const vintageAccent = (event as any).gradient_color || "#8b7355";
   const containerBg = isSunny
@@ -2388,6 +2390,177 @@ const GuestEventView = () => {
             <div style={{ height: "100px" }} />
           </div>
         </>
+      ) : isCustom ? (
+        /* ═══ PLANIT CUSTOM LAYOUT ═══ */
+        <>
+          <div style={{ minHeight: "100vh", position: "relative", ...bgStyle }}>
+            {/* Scrim for photo backgrounds */}
+            {event.bg_photo && !event.bg_photo.startsWith("linear-gradient") && (
+              <div style={{ position: "absolute", inset: 0, backgroundColor: "rgba(0,0,0,0.38)", zIndex: 0 }} />
+            )}
+            {/* Nav */}
+            <div className="flex items-center justify-between px-5 pt-5 relative z-10">
+              <button onClick={() => navigate("/home")}>
+                <ArrowLeft className="w-6 h-6" style={{ color: bgTextColor }} />
+              </button>
+              <button onClick={() => setShowChat(true)} className="flex flex-col items-center gap-0.5">
+                <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ backgroundColor: `${accentColor}18`, border: `1px solid ${accentColor}40` }}>
+                  <MessageCircle className="w-4 h-4" style={{ color: accentColor }} />
+                </div>
+                <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 600, color: bgTextMuted }}>Message host</span>
+              </button>
+            </div>
+
+            {/* CENTERED layout */}
+            {customLayout === "centered" && (
+              <div className="flex flex-col items-center text-center px-5 pt-8 pb-6 relative z-10">
+                {event.vibe && (
+                  <div style={{ border: `1px solid ${accentColor}60`, borderRadius: "50px", padding: "4px 14px", backgroundColor: `${accentColor}18`, marginBottom: "12px", display: "inline-block" }}>
+                    <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "10px", fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase" as const, color: accentColor }}>{event.vibe}</span>
+                  </div>
+                )}
+                <h1 style={{ fontFamily: currentFontFamily, fontSize: noirFontSize, fontWeight: 800, color: bgTextColor, lineHeight: 1.05, marginBottom: "8px" }}>{event.title || "Untitled Event"}</h1>
+                <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "12px", color: bgTextMuted, marginBottom: "20px" }}>hosted by {hostName}</p>
+                <div style={{ display: "flex", gap: "8px", justifyContent: "center", flexWrap: "wrap" as const, marginBottom: "20px" }}>
+                  {eventDate && (
+                    <div style={{ borderRadius: "50px", border: `1px solid ${accentColor}50`, padding: "8px 14px", backgroundColor: `${accentColor}18` }}>
+                      <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "13px", fontWeight: 700, color: accentColor }}>{dayNum} {monthName}</span>
+                    </div>
+                  )}
+                  {eventDate && (
+                    <div style={{ borderRadius: "50px", border: `1px solid ${accentColor}50`, padding: "8px 14px", backgroundColor: `${accentColor}18` }}>
+                      <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "13px", fontWeight: 700, color: accentColor }}>{timeStr}</span>
+                    </div>
+                  )}
+                  <div style={{ borderRadius: "50px", border: `1px solid ${accentColor}50`, padding: "8px 14px", backgroundColor: `${accentColor}18` }}>
+                    <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "13px", fontWeight: 700, color: accentColor }}>{goingList.length} going</span>
+                  </div>
+                </div>
+                <div className="w-full flex flex-col gap-3">
+                  {event.location && (
+                    <div style={{ border: `1px solid ${bgTextColor}18`, borderRadius: "12px", padding: "14px 16px", backgroundColor: `${bgTextColor}08` }}>
+                      <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase" as const, color: accentColor, marginBottom: "6px" }}>Location</p>
+                      <p style={{ fontFamily: currentFontFamily, fontSize: "18px", fontWeight: 600, color: bgTextColor, lineHeight: 1.2 }}>{event.location}</p>
+                    </div>
+                  )}
+                  {event.dress_code && (
+                    <div style={{ border: `1px solid ${bgTextColor}18`, borderRadius: "12px", padding: "14px 16px", backgroundColor: `${bgTextColor}08` }}>
+                      <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase" as const, color: accentColor, marginBottom: "6px" }}>Dress Code</p>
+                      <p style={{ fontFamily: currentFontFamily, fontSize: "18px", fontWeight: 600, color: bgTextColor, lineHeight: 1.2 }}>{event.dress_code}</p>
+                    </div>
+                  )}
+                  {event.extra && (
+                    <div style={{ border: `1px solid ${accentColor}20`, borderRadius: "12px", padding: "14px 16px" }}>
+                      <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase" as const, color: accentColor, marginBottom: "6px" }}>From the host</p>
+                      <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "13px", color: bgTextSoft, lineHeight: 1.5, textAlign: "center" as const }}>{event.extra}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* EDITORIAL layout */}
+            {customLayout === "editorial" && (
+              <div className="px-5 pt-8 pb-6 relative z-10">
+                {event.vibe && (
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
+                    <div style={{ width: "3px", height: "16px", borderRadius: "2px", backgroundColor: accentColor, flexShrink: 0 }} />
+                    <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "11px", fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase" as const, color: accentColor }}>{event.vibe}</p>
+                  </div>
+                )}
+                <h1 style={{ fontFamily: currentFontFamily, fontSize: "52px", fontWeight: 900, color: bgTextColor, lineHeight: 0.95, marginBottom: "14px" }}>{event.title || "Untitled Event"}</h1>
+                <div style={{ height: "1px", backgroundColor: `${accentColor}30`, marginBottom: "14px" }} />
+                <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "14px", fontWeight: 500, color: bgTextSoft, marginBottom: "20px" }}>
+                  {dayNum ? `${dayNum} ${monthName}` : "—"}
+                  {dayNum && <span style={{ color: accentColor, margin: "0 8px" }}>·</span>}
+                  {timeStr || "—"}
+                  <span style={{ color: accentColor, margin: "0 8px" }}>·</span>
+                  {goingList.length} going
+                </p>
+                <div className="flex flex-col gap-3">
+                  {event.location && (
+                    <div style={{ border: `1px solid ${accentColor}25`, borderRadius: "12px", padding: "14px 16px", backgroundColor: `${bgTextColor}06` }}>
+                      <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase" as const, color: accentColor, marginBottom: "6px" }}>Location</p>
+                      <p style={{ fontFamily: currentFontFamily, fontSize: "20px", fontWeight: 700, color: bgTextColor, lineHeight: 1.2 }}>{event.location}</p>
+                    </div>
+                  )}
+                  {event.dress_code && (
+                    <div style={{ border: `1px solid ${accentColor}25`, borderRadius: "12px", padding: "14px 16px", backgroundColor: `${bgTextColor}06` }}>
+                      <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase" as const, color: accentColor, marginBottom: "6px" }}>Dress Code</p>
+                      <p style={{ fontFamily: currentFontFamily, fontSize: "20px", fontWeight: 700, color: bgTextColor, lineHeight: 1.2 }}>{event.dress_code}</p>
+                    </div>
+                  )}
+                  {event.extra && (
+                    <div style={{ border: `1px solid ${accentColor}18`, borderRadius: "12px", padding: "14px 16px" }}>
+                      <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase" as const, color: accentColor, marginBottom: "6px" }}>From the host</p>
+                      <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "13px", color: bgTextSoft, lineHeight: 1.5 }}>{event.extra}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* CARD STACK layout */}
+            {customLayout === "card-stack" && (
+              <div className="relative z-10">
+                <div className="px-5 pt-8 pb-3">
+                  {event.vibe && <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "10px", fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase" as const, color: accentColor, marginBottom: "6px" }}>{event.vibe}</p>}
+                  <h1 style={{ fontFamily: currentFontFamily, fontSize: noirFontSize, fontWeight: 800, color: bgTextColor, lineHeight: 1.05, marginBottom: "6px" }}>{event.title || "Untitled Event"}</h1>
+                  <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "12px", color: bgTextMuted }}>hosted by {hostName}</p>
+                </div>
+                {/* Stat bar — accent color bg */}
+                <div style={{ display: "flex", borderTop: `2px solid ${accentColor}`, borderBottom: `2px solid ${accentColor}` }}>
+                  <div style={{ flex: 1, backgroundColor: accentColor, padding: "14px 8px", textAlign: "center" as const, borderRight: "1px solid rgba(0,0,0,0.15)" }}>
+                    <span style={{ fontFamily: currentFontFamily, fontSize: "28px", fontWeight: 800, color: accentText, display: "block", lineHeight: 1 }}>{dayNum || "—"}</span>
+                    <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase" as const, color: `${accentText}99`, marginTop: "3px", display: "block" }}>{monthName || "TBD"}</span>
+                  </div>
+                  <div style={{ flex: 1, backgroundColor: accentColor, padding: "14px 8px", textAlign: "center" as const, borderRight: "1px solid rgba(0,0,0,0.15)" }}>
+                    <span style={{ fontFamily: currentFontFamily, fontSize: "28px", fontWeight: 800, color: accentText, display: "block", lineHeight: 1 }}>{timeStr || "—"}</span>
+                    <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase" as const, color: `${accentText}99`, marginTop: "3px", display: "block" }}>Start</span>
+                  </div>
+                  <div style={{ flex: 1, backgroundColor: accentColor, padding: "14px 8px", textAlign: "center" as const }}>
+                    <span style={{ fontFamily: currentFontFamily, fontSize: "28px", fontWeight: 800, color: accentText, display: "block", lineHeight: 1 }}>{goingList.length}</span>
+                    <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase" as const, color: `${accentText}99`, marginTop: "3px", display: "block" }}>Going</span>
+                  </div>
+                </div>
+                <div className="px-5 pt-4 pb-6 flex flex-col gap-3">
+                  {event.location && (
+                    <div style={{ border: `1px solid ${accentColor}25`, borderRadius: "12px", padding: "14px 16px", backgroundColor: `${bgTextColor}06` }}>
+                      <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, letterSpacing: "0.25em", textTransform: "uppercase" as const, color: accentColor, marginBottom: "6px" }}>Location</p>
+                      <p style={{ fontFamily: currentFontFamily, fontSize: "20px", fontWeight: 700, color: bgTextColor, lineHeight: 1.2 }}>{event.location}</p>
+                    </div>
+                  )}
+                  {event.dress_code && (
+                    <div style={{ border: `1px solid ${accentColor}25`, borderRadius: "12px", padding: "14px 16px", backgroundColor: `${bgTextColor}06` }}>
+                      <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, letterSpacing: "0.25em", textTransform: "uppercase" as const, color: accentColor, marginBottom: "6px" }}>Dress Code</p>
+                      <p style={{ fontFamily: currentFontFamily, fontSize: "20px", fontWeight: 700, color: bgTextColor, lineHeight: 1.2 }}>{event.dress_code}</p>
+                    </div>
+                  )}
+                  {event.extra && (
+                    <div style={{ border: `1px solid ${accentColor}18`, borderRadius: "12px", padding: "14px 16px" }}>
+                      <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, letterSpacing: "0.25em", textTransform: "uppercase" as const, color: accentColor, marginBottom: "6px" }}>From the host</p>
+                      <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "13px", color: bgTextSoft, lineHeight: 1.5 }}>{event.extra}</p>
+                    </div>
+                  )}
+                  {goingList.length > 0 && (
+                    <div style={{ backgroundColor: `${bgTextColor}04`, border: `1px solid ${bgTextColor}10`, borderRadius: "12px", padding: "14px 16px" }}>
+                      <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, letterSpacing: "0.25em", textTransform: "uppercase" as const, color: accentColor, marginBottom: "10px" }}>Who's going</p>
+                      <div style={{ display: "flex", flexWrap: "wrap" as const, gap: "8px" }}>
+                        {goingList.map((r) => (
+                          <div key={r.user_id} style={{ width: "28px", height: "28px", borderRadius: "50%", backgroundColor: accentColor, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                            <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "11px", fontWeight: 700, color: accentText }}>{getInitials(r.display_name)}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            <div style={{ height: "100px" }} />
+          </div>
+        </>
       ) : isSunny ? (
         /* ═══ SUNNY LAYOUT ═══ */
         <>
@@ -2798,7 +2971,7 @@ const GuestEventView = () => {
         </>
       ) : null}
 
-      {!isVintage && !isSunny && !isGalaxy && !isMidnight && !isOcean && !isBlush && !isForest && !isClassic && (
+      {!isVintage && !isSunny && !isGalaxy && !isMidnight && !isOcean && !isBlush && !isForest && !isClassic && !isCustom && (
         <div className="px-5">
           {/* Who's going section */}
           <div className="mt-4 rounded-2xl p-4" style={{ backgroundColor: "#1e1e1e" }}>

@@ -221,6 +221,10 @@ const isClassic = (templateName: string | null) => {
   if (!templateName) return false;
   return templateName.toLowerCase().trim() === "planit-classic";
 };
+const isCustomTemplate = (templateName: string | null) => {
+  if (!templateName) return false;
+  return templateName.toLowerCase().trim().startsWith("planit-custom");
+};
 /** Noir-styled title: second word in accent color + italic */
 const NoirCardTitle = ({
   title,
@@ -1362,6 +1366,88 @@ const ClassicUpcomingCard = ({ event, navigate }: { event: EventWithRole; naviga
   </div>
 );
 
+const CustomNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate: ReturnType<typeof useNavigate> }) => {
+  const accent = hslToColor(event.bubble_color, "#aaee44");
+  const accentTxt = textForBubble(event.bubble_color) || "#111";
+  const cardBg = event.bg_color ? `hsl(${event.bg_color})` : "#1a1a1a";
+  const parts = (event.bg_color || "0 0% 4%").trim().split(/[\s,]+/);
+  const textCol = parseFloat(parts[2]) > 55 ? "#111" : "#fff";
+  const textMuted = parseFloat(parts[2]) > 55 ? "rgba(17,17,17,0.6)" : "rgba(255,255,255,0.6)";
+  const fontFamily = FONT_MAP[event.font_style || "Bold"] || FONT_MAP.Bold;
+  const parsed = event.date_time ? parseISO(event.date_time) : null;
+  const dayNum = parsed ? format(parsed, "d") : "?";
+  const monthName = parsed ? format(parsed, "MMM").toUpperCase() : "TBD";
+  const timeStr = parsed ? format(parsed, "h:mm a") : "—";
+  const navPath = event.role === "host" ? `/event/${event.code}` : `/guest/${event.code}`;
+
+  return (
+    <div className="overflow-hidden relative cursor-pointer" style={{ backgroundColor: cardBg, border: `2px solid ${accent}` }} onClick={() => navigate(navPath)}>
+      {/* Rainbow indicator strip */}
+      <div style={{ height: "3px", background: "linear-gradient(90deg, #f857a6, #ff5858, #43e97b, #38f9d7, #4776e6)" }} />
+      <div className="p-3.5 pb-0">
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "4px" }}>
+          <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase" as const, color: accent }}>Custom ✦</span>
+          <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 700, color: accent, border: `1px solid ${accent}40`, borderRadius: "4px", padding: "2px 6px" }}>{event.role === "host" ? "Host" : event.role === "going" ? "Going" : "Maybe"}</span>
+        </div>
+        <h2 style={{ fontFamily, fontSize: "34px", fontWeight: 700, color: textCol, lineHeight: 1.0, marginBottom: "10px" }}>{event.title || "Untitled Event"}</h2>
+      </div>
+      {/* Stat bar */}
+      <div style={{ display: "flex", borderTop: `2px solid ${accent}`, borderBottom: `2px solid ${accent}` }}>
+        <div style={{ flex: 1, backgroundColor: accent, padding: "10px 8px", textAlign: "center" as const, borderRight: "1px solid rgba(0,0,0,0.15)" }}>
+          <span style={{ fontFamily, fontSize: "22px", fontWeight: 700, color: accentTxt, display: "block", lineHeight: 1 }}>{dayNum}</span>
+          <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase" as const, color: `${accentTxt}99` }}>{monthName}</span>
+        </div>
+        <div style={{ flex: 1, backgroundColor: accent, padding: "10px 8px", textAlign: "center" as const, borderRight: "1px solid rgba(0,0,0,0.15)" }}>
+          <span style={{ fontFamily, fontSize: "22px", fontWeight: 700, color: accentTxt, display: "block", lineHeight: 1 }}>{timeStr}</span>
+          <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase" as const, color: `${accentTxt}99` }}>Start</span>
+        </div>
+        <div style={{ flex: 1, backgroundColor: accent, padding: "10px 8px", textAlign: "center" as const }}>
+          <span style={{ fontFamily, fontSize: "22px", fontWeight: 700, color: accentTxt, display: "block", lineHeight: 1 }}>{event.guest_count}</span>
+          <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase" as const, color: `${accentTxt}99` }}>Going</span>
+        </div>
+      </div>
+      {event.location && (
+        <div className="px-3.5 py-3">
+          <div style={{ border: `1px solid ${accent}25`, borderRadius: "8px", padding: "10px 12px", backgroundColor: `${textCol === "#fff" ? "255,255,255" : "0,0,0"}08` }}>
+            <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "7px", fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase" as const, color: accent, marginBottom: "3px" }}>Location</p>
+            <p style={{ fontFamily, fontSize: "16px", fontWeight: 700, color: textCol, lineHeight: 1.1 }}>{event.location}</p>
+          </div>
+        </div>
+      )}
+      {!event.location && <div style={{ height: "14px" }} />}
+      <div style={{ height: "3px", background: "linear-gradient(90deg, #4776e6, #38f9d7, #43e97b, #ff5858, #f857a6)" }} />
+    </div>
+  );
+};
+
+const CustomUpcomingCard = ({ event, navigate }: { event: EventWithRole; navigate: ReturnType<typeof useNavigate> }) => {
+  const accent = hslToColor(event.bubble_color, "#aaee44");
+  const cardBg = event.bg_color ? `hsl(${event.bg_color})` : "#1a1a1a";
+  const parts = (event.bg_color || "0 0% 4%").trim().split(/[\s,]+/);
+  const textCol = parseFloat(parts[2]) > 55 ? "#111" : "#fff";
+  const textMuted = parseFloat(parts[2]) > 55 ? "rgba(17,17,17,0.5)" : "rgba(255,255,255,0.35)";
+  const fontFamily = FONT_MAP[event.font_style || "Bold"] || FONT_MAP.Bold;
+
+  return (
+    <div
+      className="px-3.5 py-3 cursor-pointer relative"
+      style={{ backgroundColor: cardBg, border: `1px solid ${accent}50`, borderLeft: `3px solid ${accent}` }}
+      onClick={() => { const p = event.role === "host" ? `/event/${event.code}` : `/guest/${event.code}`; navigate(p); }}
+    >
+      <div className="flex items-center justify-between">
+        <div className="flex-1 mr-3 min-w-0">
+          <div style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 700, color: accent, letterSpacing: "1.5px", textTransform: "uppercase" as const, marginBottom: "2px" }}>Custom ✦</div>
+          <h3 className="truncate" style={{ fontFamily, fontSize: "16px", fontWeight: 700, color: textCol }}>{event.title || "Untitled Event"}</h3>
+          <p className="truncate mt-0.5" style={{ fontFamily: "'Inter', sans-serif", fontSize: "11px", color: textMuted }}>{formatDate(event.date_time)} · {event.location || "Location TBD"}</p>
+        </div>
+        <div style={{ backgroundColor: `${accent}18`, border: `1px solid ${accent}40`, borderRadius: "4px", padding: "4px 10px", fontFamily: "'Inter', sans-serif", fontSize: "10px", fontWeight: 700, color: accent, whiteSpace: "nowrap" as const }}>
+          {event.role === "host" ? "Host" : event.role === "going" ? "Going" : "Maybe"}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const OceanNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate: ReturnType<typeof useNavigate> }) => {
   const accent = hslToColor(event.bubble_color, "#38bdf8");
   const parsed = event.date_time ? parseISO(event.date_time) : null;
@@ -1678,6 +1764,14 @@ const UpcomingSection = ({
       );
     }
 
+    if (isCustomTemplate(event.template_name)) {
+      return (
+        <div key={event.id} style={{ opacity: isFaded ? 0.45 : 1, transition: "opacity 0.3s" }}>
+          <CustomUpcomingCard event={event} navigate={navigate} />
+        </div>
+      );
+    }
+
     const gradientHex = event.gradient_color || "#aaee44";
     const fontFamily = FONT_MAP[event.font_style || "Bold"] || FONT_MAP.Bold;
 
@@ -1839,6 +1933,8 @@ const Home = () => {
             <ForestNextUpCard event={nextEvent} navigate={navigate} />
           ) : isClassic(nextEvent.template_name) ? (
             <ClassicNextUpCard event={nextEvent} navigate={navigate} />
+          ) : isCustomTemplate(nextEvent.template_name) ? (
+            <CustomNextUpCard event={nextEvent} navigate={navigate} />
           ) : (
             <div
               className="rounded-2xl p-3.5 cursor-pointer overflow-hidden"
