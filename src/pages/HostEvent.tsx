@@ -422,6 +422,7 @@ const HostEvent = () => {
   const isGalaxy = templateName === "galaxy";
   const isSunny = templateName === "sunny";
   const isMidnight = templateName === "midnight";
+  const isOcean = templateName === "ocean";
   const galaxyAccent = "#a78bfa";
 
   // Parsed date for calendar bubble preview
@@ -970,6 +971,257 @@ const HostEvent = () => {
                     fontFamily: "'Inter', sans-serif",
                     fontSize: "13px",
                     color: isLightBg ? "#333" : "#aaa",
+                    lineHeight: 1.5,
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        </>
+      ) : isOcean ? (
+        /* ═══ OCEAN LAYOUT ═══ */
+        <>
+          <div style={{ backgroundColor: "#0c1929", minHeight: "100vh", position: "relative", overflow: "hidden" }}>
+            {/* Depth glow */}
+            <div
+              style={{
+                position: "absolute",
+                top: "-60px",
+                right: "-60px",
+                width: "220px",
+                height: "220px",
+                borderRadius: "50%",
+                background: "radial-gradient(circle, rgba(56,189,248,0.07) 0%, transparent 70%)",
+                pointerEvents: "none",
+              }}
+            />
+            <div
+              style={{
+                position: "absolute",
+                top: "160px",
+                right: "-20px",
+                width: "100px",
+                height: "100px",
+                borderRadius: "50%",
+                background: "radial-gradient(circle, rgba(14,165,233,0.05) 0%, transparent 70%)",
+                pointerEvents: "none",
+              }}
+            />
+
+            <button
+              onClick={() => navigate(editCode ? `/event/${editCode}` : "/home")}
+              className="absolute top-5 left-5 z-20"
+            >
+              <ArrowLeft className="w-6 h-6" style={{ color: accentColor }} />
+            </button>
+
+            <div className="px-5 pt-16 pb-4 relative z-10">
+              <div className="flex gap-3">
+                <div style={{ width: "4px", borderRadius: "2px", backgroundColor: accentColor, flexShrink: 0 }} />
+                <div className="flex-1">
+                  <textarea
+                    value={vibe}
+                    onChange={(e) => setVibe(e.target.value)}
+                    placeholder="EVENT TYPE (e.g. Dinner Party)"
+                    rows={1}
+                    maxLength={60}
+                    className="w-full bg-transparent outline-none resize-none placeholder:opacity-20 uppercase"
+                    style={{
+                      fontFamily: "'Inter', sans-serif",
+                      fontSize: "10px",
+                      fontWeight: 700,
+                      letterSpacing: "0.18em",
+                      color: "rgba(56,189,248,0.5)",
+                    }}
+                  />
+                  <input
+                    type="text"
+                    value={title}
+                    onChange={(e) => {
+                      setTitle(e.target.value);
+                      setTitleError("");
+                    }}
+                    placeholder="Event name..."
+                    className="w-full bg-transparent outline-none placeholder:opacity-20"
+                    style={{
+                      fontFamily: "'Inter', sans-serif",
+                      fontSize: noirFontSize,
+                      fontWeight: 900,
+                      color: "#ffffff",
+                      lineHeight: 1.1,
+                    }}
+                  />
+                  {titleError && <p className="text-red-400 text-xs mt-1">{titleError}</p>}
+                  <p
+                    style={{
+                      fontFamily: "'Inter', sans-serif",
+                      fontSize: "11px",
+                      color: "rgba(56,189,248,0.4)",
+                      marginTop: "6px",
+                    }}
+                  >
+                    hosted by {hostName}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="px-5 pb-10 flex flex-col gap-3 relative z-10">
+              <div style={{ display: "grid", gridTemplateColumns: "80px 1fr", gap: "10px" }}>
+                <div
+                  style={{
+                    backgroundColor: "rgba(56,189,248,0.08)",
+                    border: "1px solid rgba(56,189,248,0.2)",
+                    borderRadius: "12px",
+                    padding: "10px 8px",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    position: "relative",
+                  }}
+                >
+                  <span
+                    style={{
+                      fontFamily: "'Inter', sans-serif",
+                      fontSize: "8px",
+                      fontWeight: 700,
+                      letterSpacing: "0.14em",
+                      textTransform: "uppercase" as const,
+                      color: accentColor,
+                    }}
+                  >
+                    {monthName || "DATE"}
+                  </span>
+                  <span
+                    style={{
+                      fontFamily: "'Inter', sans-serif",
+                      fontSize: "30px",
+                      fontWeight: 900,
+                      color: "#ffffff",
+                      lineHeight: 1,
+                    }}
+                  >
+                    {dayNum || "?"}
+                  </span>
+                  <span
+                    style={{
+                      fontFamily: "'Inter', sans-serif",
+                      fontSize: "9px",
+                      color: accentColor,
+                      opacity: 0.6,
+                      marginTop: "2px",
+                    }}
+                  >
+                    {timeStr}
+                  </span>
+                  <input
+                    type="datetime-local"
+                    value={dateTime}
+                    onChange={(e) => setDateTime(e.target.value)}
+                    style={{
+                      position: "absolute",
+                      inset: 0,
+                      width: "100%",
+                      height: "100%",
+                      opacity: 0,
+                      cursor: "pointer",
+                      zIndex: 10,
+                    }}
+                  />
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                  <div>
+                    <p
+                      style={{
+                        fontFamily: "'Inter', sans-serif",
+                        fontSize: "8px",
+                        fontWeight: 700,
+                        letterSpacing: "0.14em",
+                        textTransform: "uppercase" as const,
+                        color: accentColor,
+                      }}
+                    >
+                      📍 Location
+                    </p>
+                    <input
+                      type="text"
+                      value={location}
+                      onChange={(e) => setLocation(e.target.value)}
+                      placeholder="Where's the event?"
+                      className="w-full bg-transparent outline-none placeholder:opacity-20"
+                      style={{
+                        fontFamily: "'Inter', sans-serif",
+                        fontSize: "15px",
+                        fontWeight: 700,
+                        color: "#ffffff",
+                        marginTop: "2px",
+                      }}
+                    />
+                  </div>
+                  <div style={{ height: "1px", backgroundColor: "rgba(56,189,248,0.15)" }} />
+                  <div>
+                    <p
+                      style={{
+                        fontFamily: "'Inter', sans-serif",
+                        fontSize: "8px",
+                        fontWeight: 700,
+                        letterSpacing: "0.14em",
+                        textTransform: "uppercase" as const,
+                        color: accentColor,
+                      }}
+                    >
+                      🎭 Dress code
+                    </p>
+                    <input
+                      type="text"
+                      value={dressCode}
+                      onChange={(e) => setDressCode(e.target.value)}
+                      placeholder="Theme..."
+                      className="w-full bg-transparent outline-none placeholder:opacity-20"
+                      style={{
+                        fontFamily: "'Inter', sans-serif",
+                        fontSize: "15px",
+                        fontWeight: 700,
+                        color: "#ffffff",
+                        marginTop: "2px",
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div
+                style={{
+                  backgroundColor: "rgba(10,25,50,0.7)",
+                  border: "1px solid rgba(56,189,248,0.12)",
+                  borderRadius: "12px",
+                  padding: "12px 14px",
+                }}
+              >
+                <p
+                  style={{
+                    fontFamily: "'Inter', sans-serif",
+                    fontSize: "8px",
+                    fontWeight: 700,
+                    letterSpacing: "0.14em",
+                    textTransform: "uppercase" as const,
+                    color: "rgba(56,189,248,0.45)",
+                    marginBottom: "4px",
+                  }}
+                >
+                  From the host
+                </p>
+                <textarea
+                  value={extra}
+                  onChange={(e) => setExtra(e.target.value)}
+                  placeholder="Anything else your guests should know..."
+                  rows={2}
+                  className="w-full bg-transparent outline-none resize-none placeholder:opacity-20"
+                  style={{
+                    fontFamily: "'Inter', sans-serif",
+                    fontSize: "13px",
+                    color: "rgba(255,255,255,0.7)",
                     lineHeight: 1.5,
                   }}
                 />

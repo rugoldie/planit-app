@@ -205,6 +205,10 @@ const isSunny = (templateName: string | null) => {
   if (!templateName) return false;
   return templateName.toLowerCase().trim() === "sunny";
 };
+const isOcean = (templateName: string | null) => {
+  if (!templateName) return false;
+  return templateName.toLowerCase().trim() === "ocean";
+};
 /** Noir-styled title: second word in accent color + italic */
 const NoirCardTitle = ({
   title,
@@ -1160,6 +1164,244 @@ const VintageUpcomingCard = ({
   );
 };
 
+/** Ocean Next Up card */
+const OceanNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate: ReturnType<typeof useNavigate> }) => {
+  const accent = hslToColor(event.bubble_color, "#38bdf8");
+  const parsed = event.date_time ? parseISO(event.date_time) : null;
+  const dayNum = parsed ? format(parsed, "d") : "?";
+  const monthName = parsed ? format(parsed, "MMM").toUpperCase() : "TBD";
+  const timeStr = parsed ? format(parsed, "h:mm a") : "";
+  const navPath = event.role === "host" ? `/event/${event.code}` : `/guest/${event.code}`;
+
+  return (
+    <div
+      className="rounded-2xl overflow-hidden relative cursor-pointer"
+      style={{ backgroundColor: "#0c1929", border: "1px solid rgba(56,189,248,0.2)" }}
+      onClick={() => navigate(navPath)}
+    >
+      <div
+        style={{
+          position: "absolute",
+          top: "-30px",
+          right: "-30px",
+          width: "130px",
+          height: "130px",
+          borderRadius: "50%",
+          background: "radial-gradient(circle, rgba(56,189,248,0.08) 0%, transparent 70%)",
+          pointerEvents: "none",
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          bottom: "20px",
+          left: "-20px",
+          width: "70px",
+          height: "70px",
+          borderRadius: "50%",
+          background: "radial-gradient(circle, rgba(14,165,233,0.05) 0%, transparent 70%)",
+          pointerEvents: "none",
+        }}
+      />
+
+      <div className="relative z-10 p-3.5">
+        <p
+          style={{
+            fontFamily: "'Inter', sans-serif",
+            fontSize: "9px",
+            fontWeight: 700,
+            letterSpacing: "0.18em",
+            textTransform: "uppercase" as const,
+            color: accent,
+            opacity: 0.65,
+            marginBottom: "4px",
+          }}
+        >
+          you're invited to
+        </p>
+        <span
+          style={{
+            fontFamily: "'Inter', sans-serif",
+            fontWeight: 800,
+            fontSize: "1.15rem",
+            color: "#fff",
+            lineHeight: 1.2,
+          }}
+        >
+          {event.title || "Untitled Event"}
+        </span>
+
+        <div className="flex items-center gap-3 mt-2.5 mb-3">
+          <div className="flex-1 h-px" style={{ backgroundColor: "rgba(56,189,248,0.15)" }} />
+          <span style={{ color: accent, fontSize: "10px", opacity: 0.5 }}>— —</span>
+          <div className="flex-1 h-px" style={{ backgroundColor: "rgba(56,189,248,0.15)" }} />
+        </div>
+
+        <div className="flex gap-2 mb-3">
+          <div
+            className="flex-1 flex flex-col items-center justify-center rounded-lg py-2 px-2"
+            style={{ backgroundColor: "rgba(56,189,248,0.1)", border: "1px solid rgba(56,189,248,0.2)" }}
+          >
+            <span
+              style={{ fontFamily: "'Inter', sans-serif", fontSize: "22px", fontWeight: 900, color: "#fff", lineHeight: 1 }}
+            >
+              {dayNum}
+            </span>
+            <span
+              style={{
+                fontFamily: "'Inter', sans-serif",
+                fontSize: "8px",
+                fontWeight: 700,
+                color: accent,
+                textTransform: "uppercase" as const,
+                letterSpacing: "0.12em",
+                marginTop: "2px",
+              }}
+            >
+              {monthName}
+            </span>
+            {timeStr && (
+              <span
+                style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", color: accent, opacity: 0.55, marginTop: "1px" }}
+              >
+                {timeStr}
+              </span>
+            )}
+          </div>
+          <div
+            className="flex-1 flex flex-col justify-center rounded-lg py-2 px-2.5"
+            style={{ backgroundColor: "rgba(10,24,41,0.7)", border: "1px solid rgba(56,189,248,0.1)" }}
+          >
+            <span
+              style={{
+                fontFamily: "'Inter', sans-serif",
+                fontSize: "8px",
+                fontWeight: 600,
+                color: accent,
+                opacity: 0.55,
+                textTransform: "uppercase" as const,
+                letterSpacing: "0.15em",
+              }}
+            >
+              Location
+            </span>
+            <span
+              className="truncate mt-0.5"
+              style={{ fontFamily: "'Inter', sans-serif", fontSize: "13px", fontWeight: 700, color: "#fff" }}
+            >
+              {event.location || "TBD"}
+            </span>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between mb-3">
+          <span
+            style={{
+              fontFamily: "'Inter', sans-serif",
+              fontSize: "8px",
+              fontWeight: 600,
+              color: "rgba(255,255,255,0.3)",
+              textTransform: "uppercase" as const,
+              letterSpacing: "0.18em",
+            }}
+          >
+            {event.guest_count > 0 ? `${event.guest_count} going` : "No one yet"}
+          </span>
+        </div>
+
+        <button
+          className="w-full rounded-lg py-2 text-xs font-bold tracking-wide"
+          style={{
+            backgroundColor: accent,
+            color: "#0c1929",
+            fontFamily: "'Inter', sans-serif",
+            letterSpacing: "0.03em",
+          }}
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate(navPath);
+          }}
+        >
+          View event →
+        </button>
+      </div>
+    </div>
+  );
+};
+
+/** Ocean Upcoming card — compact row */
+const OceanUpcomingCard = ({ event, navigate }: { event: EventWithRole; navigate: ReturnType<typeof useNavigate> }) => {
+  const accent = hslToColor(event.bubble_color, "#38bdf8");
+  return (
+    <div
+      className="rounded-xl px-3.5 py-3 cursor-pointer overflow-hidden relative"
+      style={{ backgroundColor: "#0c1929", border: "1px solid rgba(56,189,248,0.18)" }}
+      onClick={() => {
+        const path = event.role === "host" ? `/event/${event.code}` : `/guest/${event.code}`;
+        navigate(path);
+      }}
+    >
+      <div
+        style={{
+          position: "absolute",
+          top: "-10px",
+          right: "-10px",
+          width: "45px",
+          height: "45px",
+          borderRadius: "50%",
+          background: "radial-gradient(circle, rgba(56,189,248,0.07) 0%, transparent 70%)",
+          pointerEvents: "none",
+        }}
+      />
+      <div className="relative z-10 flex items-center justify-between">
+        <div className="flex-1 mr-3 min-w-0">
+          <div
+            style={{
+              fontFamily: "'Inter', sans-serif",
+              fontSize: "9px",
+              fontWeight: 700,
+              color: accent,
+              opacity: 0.6,
+              letterSpacing: "1.5px",
+              textTransform: "uppercase" as const,
+              marginBottom: "2px",
+            }}
+          >
+            ◈ ocean
+          </div>
+          <h3
+            className="truncate"
+            style={{ fontFamily: "'Inter', sans-serif", fontSize: "14px", fontWeight: 700, color: "#fff" }}
+          >
+            {event.title || "Untitled Event"}
+          </h3>
+          <p
+            className="truncate mt-0.5"
+            style={{ fontFamily: "'Inter', sans-serif", fontSize: "11px", color: "rgba(255,255,255,0.35)" }}
+          >
+            {formatDate(event.date_time)} · {event.location || "Location TBD"}
+          </p>
+        </div>
+        <div
+          style={{
+            backgroundColor: "rgba(56,189,248,0.1)",
+            border: "1px solid rgba(56,189,248,0.3)",
+            borderRadius: "20px",
+            padding: "4px 10px",
+            fontFamily: "'Inter', sans-serif",
+            fontSize: "10px",
+            fontWeight: 700,
+            color: accent,
+            whiteSpace: "nowrap" as const,
+          }}
+        >
+          {event.role === "host" ? "Host" : event.role === "going" ? "Going" : "Maybe"}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 /** Upcoming section with max 3 visible, fade on 3rd, and "See all" toggle */
 const UpcomingSection = ({
   events,
@@ -1203,6 +1445,14 @@ const UpcomingSection = ({
       return (
         <div key={event.id} style={{ opacity: isFaded ? 0.45 : 1, transition: "opacity 0.3s" }}>
           <NoirUpcomingCard event={event} navigate={navigate} />
+        </div>
+      );
+    }
+
+    if (isOcean(event.template_name)) {
+      return (
+        <div key={event.id} style={{ opacity: isFaded ? 0.45 : 1, transition: "opacity 0.3s" }}>
+          <OceanUpcomingCard event={event} navigate={navigate} />
         </div>
       );
     }
@@ -1360,6 +1610,8 @@ const Home = () => {
             <VintageNextUpCard event={nextEvent} navigate={navigate} />
           ) : isNoir(nextEvent.template_name) ? (
             <NoirNextUpCard event={nextEvent} navigate={navigate} />
+          ) : isOcean(nextEvent.template_name) ? (
+            <OceanNextUpCard event={nextEvent} navigate={navigate} />
           ) : (
             <div
               className="rounded-2xl p-3.5 cursor-pointer overflow-hidden"

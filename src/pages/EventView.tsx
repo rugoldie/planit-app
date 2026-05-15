@@ -492,6 +492,7 @@ const EventView = () => {
   const isGalaxy = ((event as any).template_name || "").toLowerCase() === "galaxy";
   const isSunny = ((event as any).template_name || "").toLowerCase() === "sunny";
   const isMidnight = ((event as any).template_name || "").toLowerCase() === "midnight";
+  const isOcean = ((event as any).template_name || "").toLowerCase() === "ocean";
   const galaxyAccent = (event as any).bubble_color ? `hsl(${(event as any).bubble_color})` : "#a855f7";
   const isHost = !authLoading && !!user && !!event && user.id === event.host_id;
   const vintageAccent = (event as any).gradient_color || "#8b7355";
@@ -1602,8 +1603,8 @@ const EventView = () => {
             </div>
           </div>
         </>
-      ) : isMidnight ? (
-        /* ═══ MIDNIGHT LAYOUT ═══ */
+      ) : isMidnight || isOcean ? (
+        /* ═══ MIDNIGHT / OCEAN LAYOUT ═══ */
         <>
           <div style={{ backgroundColor: containerBg, minHeight: "100vh" }}>
             <div className="flex items-center justify-between px-5 pt-6 relative z-10">
@@ -2336,7 +2337,7 @@ const EventView = () => {
       )}
 
       {/* Shared content area */}
-      {!isVintage && !isGalaxy && !isSunny && !isMidnight && (
+      {!isVintage && !isGalaxy && !isSunny && !isMidnight && !isOcean && (
         <div className="px-5 pt-4">
           {/* Who's going section */}
           <div className="mt-4 rounded-2xl p-4" style={{ backgroundColor: "#1e1e1e" }}>
