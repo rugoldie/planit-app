@@ -1183,37 +1183,39 @@ const BlushNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate: 
 
   return (
     <div className="rounded-2xl overflow-hidden cursor-pointer" style={{ backgroundColor: "#1a0a10", border: "1px solid rgba(244,114,182,0.22)" }} onClick={() => navigate(navPath)}>
-      <div className="p-3.5">
+      {/* Header */}
+      <div className="p-3.5 pb-2">
         {event.vibe && (
           <div style={{ display: "inline-block", backgroundColor: "rgba(244,114,182,0.14)", border: "1px solid rgba(244,114,182,0.28)", borderRadius: "50px", padding: "3px 12px", marginBottom: "10px" }}>
             <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase" as const, color: "#f472b6" }}>{event.vibe}</span>
           </div>
         )}
-        <span style={{ fontFamily: "'Playfair Display', serif", fontWeight: 900, fontSize: "1.15rem", color: "#fff", lineHeight: 1.2, display: "block", marginBottom: "12px" }}>{event.title || "Untitled Event"}</span>
-
-        {/* Stat bar */}
-        <div style={{ borderRadius: "10px", overflow: "hidden", border: "1px solid rgba(244,114,182,0.2)", display: "flex", marginBottom: "12px" }}>
-          <div style={{ flex: 1, backgroundColor: "rgba(244,114,182,0.1)", padding: "10px 6px", textAlign: "center" as const, borderRight: "1px solid rgba(244,114,182,0.18)" }}>
-            <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "20px", fontWeight: 900, color: "#fff", display: "block", lineHeight: 1 }}>{dayNum}</span>
-            <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, color: "#f472b6", textTransform: "uppercase" as const }}>{monthName}</span>
-          </div>
-          <div style={{ flex: 1, backgroundColor: "rgba(244,114,182,0.1)", padding: "10px 6px", textAlign: "center" as const, borderRight: "1px solid rgba(244,114,182,0.18)" }}>
-            <span style={{ fontFamily: "'Inter', sans-serif", fontSize: timeStr ? "13px" : "20px", fontWeight: 900, color: timeStr ? "#fff" : "rgba(255,255,255,0.2)", display: "block", lineHeight: 1 }}>{timeStr || "—"}</span>
-            <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, color: "#f472b6", textTransform: "uppercase" as const }}>Time</span>
-          </div>
-          <div style={{ flex: 1, backgroundColor: "rgba(244,114,182,0.1)", padding: "10px 6px", textAlign: "center" as const }}>
-            <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "20px", fontWeight: 900, color: "#fff", display: "block", lineHeight: 1 }}>{event.guest_count}</span>
-            <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, color: "#f472b6", textTransform: "uppercase" as const }}>Going</span>
-          </div>
+        <span style={{ fontFamily: "'Playfair Display', serif", fontWeight: 900, fontSize: "1.15rem", color: "#fff", lineHeight: 1.2, display: "block", marginBottom: "4px" }}>{event.title || "Untitled Event"}</span>
+        <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "11px", color: "rgba(244,114,182,0.4)", display: "block", marginBottom: "0" }}>hosted by you</span>
+      </div>
+      {/* Striped stat bar — no rounded corners */}
+      <div style={{ display: "flex", borderTop: "1px solid rgba(244,114,182,0.18)", borderBottom: "1px solid rgba(244,114,182,0.18)" }}>
+        <div style={{ flex: 1, backgroundColor: "rgba(244,114,182,0.1)", padding: "10px 6px", textAlign: "center" as const, borderRight: "1px solid rgba(244,114,182,0.18)" }}>
+          <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "22px", fontWeight: 900, color: "#fff", display: "block", lineHeight: 1 }}>{dayNum}</span>
+          <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, color: "#f472b6", textTransform: "uppercase" as const, marginTop: "3px", display: "block" }}>{monthName}</span>
         </div>
-
+        <div style={{ flex: 1, backgroundColor: "rgba(244,114,182,0.1)", padding: "10px 6px", textAlign: "center" as const, borderRight: "1px solid rgba(244,114,182,0.18)" }}>
+          <span style={{ fontFamily: "'Playfair Display', serif", fontSize: timeStr ? "14px" : "22px", fontWeight: 900, color: timeStr ? "#fff" : "rgba(255,255,255,0.18)", display: "block", lineHeight: 1.1 }}>{timeStr || "—"}</span>
+          <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, color: "#f472b6", textTransform: "uppercase" as const, marginTop: "3px", display: "block" }}>Start</span>
+        </div>
+        <div style={{ flex: 1, backgroundColor: "rgba(244,114,182,0.1)", padding: "10px 6px", textAlign: "center" as const }}>
+          <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "22px", fontWeight: 900, color: "#fff", display: "block", lineHeight: 1 }}>{event.guest_count}</span>
+          <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, color: "#f472b6", textTransform: "uppercase" as const, marginTop: "3px", display: "block" }}>Going</span>
+        </div>
+      </div>
+      {/* Location + CTA */}
+      <div className="p-3.5 pt-3 flex flex-col gap-2">
         {event.location && (
-          <div style={{ backgroundColor: "rgba(244,114,182,0.06)", borderRadius: "8px", borderLeft: "3px solid #f472b6", padding: "6px 10px", marginBottom: "10px" }}>
-            <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 600, color: "rgba(244,114,182,0.6)", textTransform: "uppercase" as const, letterSpacing: "0.12em", display: "block" }}>Location</span>
-            <span className="truncate" style={{ fontFamily: "'Inter', sans-serif", fontSize: "12px", fontWeight: 700, color: "#fff", display: "block" }}>{event.location}</span>
+          <div style={{ backgroundColor: "rgba(244,114,182,0.08)", border: "1px solid rgba(244,114,182,0.18)", borderRadius: "10px", padding: "8px 12px" }}>
+            <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "7px", fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase" as const, color: "rgba(244,114,182,0.6)", display: "block", marginBottom: "2px" }}>Location</span>
+            <span className="truncate" style={{ fontFamily: "'Playfair Display', serif", fontSize: "15px", fontWeight: 700, color: "#fff", display: "block" }}>{event.location}</span>
           </div>
         )}
-
         <button className="w-full rounded-lg py-2 text-xs font-bold tracking-wide" style={{ backgroundColor: "#f472b6", color: "#1a0a10", fontFamily: "'Inter', sans-serif" }} onClick={(e) => { e.stopPropagation(); navigate(navPath); }}>
           View event →
         </button>
@@ -1241,51 +1243,38 @@ const BlushUpcomingCard = ({ event, navigate }: { event: EventWithRole; navigate
 /** Forest Next-Up card */
 const ForestNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate: ReturnType<typeof useNavigate> }) => {
   const parsed = event.date_time ? parseISO(event.date_time) : null;
-  const dayNum = parsed ? format(parsed, "d") : "?";
-  const monthName = parsed ? format(parsed, "MMM").toUpperCase() : "TBD";
-  const timeStr = parsed ? format(parsed, "h:mm a") : "";
+  const dayNum = parsed ? format(parsed, "d") : null;
+  const monthName = parsed ? format(parsed, "MMM").toUpperCase() : null;
+  const timeStr = parsed ? format(parsed, "h:mm a") : null;
   const navPath = event.role === "host" ? `/event/${event.code}` : `/guest/${event.code}`;
 
   return (
-    <div className="rounded-2xl overflow-hidden cursor-pointer relative" style={{ backgroundColor: "#0a1f0a", border: "1px solid rgba(74,222,128,0.2)" }} onClick={() => navigate(navPath)}>
-      <div style={{ position: "absolute", inset: "8px", border: "1px solid rgba(74,222,128,0.07)", borderRadius: "6px", pointerEvents: "none" }} />
+    <div className="rounded-2xl overflow-hidden cursor-pointer relative" style={{ backgroundColor: "#0a1f0a", border: "1px solid rgba(74,222,128,0.22)" }} onClick={() => navigate(navPath)}>
+      <div style={{ position: "absolute", inset: "7px", border: "1px solid rgba(74,222,128,0.08)", borderRadius: "5px", pointerEvents: "none" }} />
       <div className="relative z-10 p-3.5">
-        <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase" as const, color: "rgba(74,222,128,0.55)", marginBottom: "6px" }}>An Invitation</p>
-        <span style={{ fontFamily: "'Playfair Display', serif", fontWeight: 900, fontSize: "1.15rem", color: "#fff", lineHeight: 1.2, display: "block", marginBottom: "10px" }}>{event.title || "Untitled Event"}</span>
+        <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 700, letterSpacing: "0.25em", textTransform: "uppercase" as const, color: "rgba(74,222,128,0.55)", marginBottom: "6px" }}>An Invitation</p>
+        <span style={{ fontFamily: "'Playfair Display', serif", fontWeight: 900, fontSize: "1.15rem", color: "#fff", lineHeight: 1.2, display: "block", marginBottom: "12px" }}>{event.title || "Untitled Event"}</span>
 
         {/* Diamond divider */}
-        <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "10px" }}>
-          <div style={{ flex: 1, height: "1px", backgroundColor: "rgba(74,222,128,0.2)" }} />
-          <span style={{ color: "rgba(74,222,128,0.45)", fontSize: "10px" }}>◆</span>
-          <div style={{ flex: 1, height: "1px", backgroundColor: "rgba(74,222,128,0.2)" }} />
+        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "10px" }}>
+          <div style={{ flex: 1, height: "1px", backgroundColor: "rgba(74,222,128,0.25)" }} />
+          <span style={{ color: "rgba(74,222,128,0.5)", fontSize: "11px" }}>◆</span>
+          <div style={{ flex: 1, height: "1px", backgroundColor: "rgba(74,222,128,0.25)" }} />
         </div>
 
-        {/* Inline date · time · going */}
-        <div style={{ display: "flex", alignItems: "center", marginBottom: "12px" }}>
-          <div style={{ flex: 1, textAlign: "center" as const }}>
-            <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "20px", fontWeight: 900, color: "#fff", display: "block", lineHeight: 1 }}>{dayNum}</span>
-            <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, color: "#4ade80", textTransform: "uppercase" as const }}>{monthName}</span>
-          </div>
-          <div style={{ width: "1px", height: "28px", backgroundColor: "rgba(74,222,128,0.2)" }} />
-          <div style={{ flex: 1, textAlign: "center" as const }}>
-            <span style={{ fontFamily: "'Inter', sans-serif", fontSize: timeStr ? "11px" : "20px", fontWeight: 900, color: timeStr ? "#fff" : "rgba(255,255,255,0.2)", display: "block", lineHeight: 1.2 }}>{timeStr || "—"}</span>
-            <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, color: "#4ade80", textTransform: "uppercase" as const }}>Time</span>
-          </div>
-          <div style={{ width: "1px", height: "28px", backgroundColor: "rgba(74,222,128,0.2)" }} />
-          <div style={{ flex: 1, textAlign: "center" as const }}>
-            <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "20px", fontWeight: 900, color: "#fff", display: "block", lineHeight: 1 }}>{event.guest_count}</span>
-            <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, color: "#4ade80", textTransform: "uppercase" as const }}>Going</span>
-          </div>
-        </div>
+        {/* Single inline date · time · going */}
+        <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "13px", fontWeight: 500, color: "rgba(255,255,255,0.75)", marginBottom: "12px" }}>
+          {dayNum ? `${dayNum} ${monthName}` : "—"}
+          <span style={{ color: "rgba(74,222,128,0.45)", margin: "0 6px" }}>·</span>
+          {timeStr || "—"}
+          <span style={{ color: "rgba(74,222,128,0.45)", margin: "0 6px" }}>·</span>
+          {event.guest_count} going
+        </p>
 
         {event.location && (
-          <div style={{ border: "1px solid rgba(74,222,128,0.2)", borderRadius: "10px", overflow: "hidden", marginBottom: "10px" }}>
-            <div style={{ backgroundColor: "rgba(74,222,128,0.1)", padding: "4px 10px", borderBottom: "1px solid rgba(74,222,128,0.15)" }}>
-              <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "7px", fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase" as const, color: "rgba(74,222,128,0.7)" }}>Location</span>
-            </div>
-            <div style={{ padding: "6px 10px", backgroundColor: "rgba(74,222,128,0.04)" }}>
-              <span className="truncate" style={{ fontFamily: "'Inter', sans-serif", fontSize: "12px", fontWeight: 700, color: "#fff", display: "block" }}>{event.location}</span>
-            </div>
+          <div style={{ backgroundColor: "rgba(74,222,128,0.13)", border: "1px solid rgba(74,222,128,0.28)", borderRadius: "10px", padding: "8px 12px", marginBottom: "10px" }}>
+            <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "7px", fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase" as const, color: "rgba(74,222,128,0.7)", display: "block", marginBottom: "2px" }}>Location</span>
+            <span className="truncate" style={{ fontFamily: "'Playfair Display', serif", fontSize: "15px", fontWeight: 700, color: "#fff", display: "block" }}>{event.location}</span>
           </div>
         )}
 
