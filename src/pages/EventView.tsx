@@ -51,6 +51,13 @@ import { toast } from "sonner";
 type Comment = { id: string; user_name: string; text: string; created_at: string; avatar_url?: string };
 type RsvpEntry = { name: string; avatar_url?: string; status: string; user_id: string };
 type DM = { id: string; sender_id: string; text: string; created_at: string; sender_name?: string };
+type StickerItem = { id: string; emoji: string; x: number; y: number; size: number };
+
+const hexMuted = (hex: string) => {
+  const h = hex.replace("#", "");
+  const r = parseInt(h.slice(0, 2), 16), g = parseInt(h.slice(2, 4), 16), b = parseInt(h.slice(4, 6), 16);
+  return `rgba(${r},${g},${b},0.55)`;
+};
 
 const getPatternBgStyle = (key: string): React.CSSProperties => {
   switch (key) {
@@ -2710,16 +2717,22 @@ const EventView = () => {
                 ? { backgroundImage: `url(${bp})`, backgroundSize: "cover", backgroundPosition: "center" }
                 : { backgroundColor: "#111111" };
             const isLight = isPattern ? isLightPattern(bp!) : false;
-            const tCol = isLight ? "#111111" : "#ffffff";
-            const tMuted = isLight ? "rgba(17,17,17,0.55)" : "rgba(255,255,255,0.55)";
+            const storedFontColor = ((event as any).font_color as string | null) || "#ffffff";
+            const tCol = storedFontColor;
+            const tMuted = hexMuted(tCol);
             const frostBg = isLight ? "rgba(0,0,0,0.06)" : "rgba(255,255,255,0.09)";
             const frostBorder = isLight ? "rgba(0,0,0,0.12)" : "rgba(255,255,255,0.16)";
             const titleSz = event.text_size === "Small" ? "28px" : event.text_size === "Large" ? "44px" : "36px";
             const titleWt = event.font_style === "Bold" ? 400 : 800;
+            let stickerItems: StickerItem[] = [];
+            try { stickerItems = JSON.parse((event as any).stickers || "[]"); } catch {}
             return (
               <div style={{ minHeight: "100vh", position: "relative", overflow: "hidden", ...patStyle }}>
                 {isPattern && <PatternOverlay patternKey={bp!} />}
                 {!isPattern && bp && <div style={{ position: "absolute", inset: 0, backgroundColor: "rgba(0,0,0,0.4)", zIndex: 1, pointerEvents: "none" }} />}
+                {stickerItems.map(stk => (
+                  <div key={stk.id} style={{ position: "absolute", left: `${stk.x}%`, top: `${stk.y}%`, fontSize: `${stk.size}px`, zIndex: 30, pointerEvents: "none" }}>{stk.emoji}</div>
+                ))}
                 {/* Nav */}
                 <div className="flex items-center justify-between px-5 pt-5 relative z-10">
                   <button onClick={() => navigate("/home")}><ArrowLeft className="w-6 h-6" style={{ color: tCol }} /></button>

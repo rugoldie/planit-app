@@ -103,6 +103,21 @@ type StickerItem = { id: string; emoji: string; x: number; y: number; size: numb
 
 const STICKER_EMOJIS = ["🍷","🌟","😊","🎉","🎈","🌸","🔥","💫","🦋","🍾","💎","🌙","🎂","👑","🕺","💃","🍕","🎸"];
 
+const FONT_COLORS = [
+  { label: "White",    value: "#ffffff" },
+  { label: "Black",    value: "#111111" },
+  { label: "Cream",    value: "#fdf6e3" },
+  { label: "Hot Pink", value: "#ff70b0" },
+  { label: "Sky Blue", value: "#38bdf8" },
+  { label: "Lime",     value: "#aaee44" },
+];
+
+const hexMuted = (hex: string) => {
+  const h = hex.replace("#", "");
+  const r = parseInt(h.slice(0, 2), 16), g = parseInt(h.slice(2, 4), 16), b = parseInt(h.slice(4, 6), 16);
+  return `rgba(${r},${g},${b},0.55)`;
+};
+
 const CUSTOM_BG_PATTERNS = [
   { key: "planit-pattern:retro-stars",   name: "Retro Stars",   isLight: true  },
   { key: "planit-pattern:checkerboard",  name: "Checker",       isLight: false },
@@ -335,6 +350,7 @@ const HostEvent = () => {
   const [titleError, setTitleError] = useState("");
   const [stickers, setStickers] = useState<StickerItem[]>([]);
   const [selectedStickerId, setSelectedStickerId] = useState<string | null>(null);
+  const [fontColor, setFontColor] = useState<string>("#ffffff");
   const customContainerRef = useRef<HTMLDivElement>(null);
   const stickerDragRef = useRef<{ id: string; startX: number; startY: number; sx: number; sy: number } | null>(null);
   const stickerPinchRef = useRef<{ id: string; initDist: number; initSize: number } | null>(null);
@@ -378,6 +394,10 @@ const HostEvent = () => {
               setBgPhoto(data.bg_photo);
               setUploadedPhoto(data.bg_photo);
             }
+            setFontColor((data as any).font_color || "#ffffff");
+            if ((data as any).stickers) {
+              try { setStickers(JSON.parse((data as any).stickers)); } catch {}
+            }
           }
           setEditLoading(false);
         });
@@ -412,6 +432,8 @@ const HostEvent = () => {
       gradient_color: gradientColor,
       font_style: fontStyle,
       template_name: templateName,
+      font_color: fontColor,
+      stickers: stickers.length > 0 ? JSON.stringify(stickers) : null,
     } as any;
 
     if (editCode && eventId) {
@@ -575,11 +597,10 @@ const HostEvent = () => {
   const isClassic = templateName === "planit-classic";
   const isCustom = templateName === "planit-custom";
   const customPatternKey = bgPreset?.startsWith("planit-pattern:") ? bgPreset : null;
-  const customIsLight = customPatternKey ? isLightPattern(customPatternKey) : (!!(bgPhoto) ? false : false);
-  const customTextColor = customIsLight ? "#111111" : "#ffffff";
-  const customTextMuted = customIsLight ? "rgba(17,17,17,0.55)" : "rgba(255,255,255,0.55)";
+  const customIsLight = customPatternKey ? isLightPattern(customPatternKey) : false;
   const customFrostBg = customIsLight ? "rgba(0,0,0,0.06)" : "rgba(255,255,255,0.09)";
   const customFrostBorder = customIsLight ? "rgba(0,0,0,0.12)" : "rgba(255,255,255,0.16)";
+  const fontColorMuted = hexMuted(fontColor);
   const galaxyAccent = "#a78bfa";
 
   // Parsed date for calendar bubble preview
@@ -2039,7 +2060,7 @@ const HostEvent = () => {
                 ))}
                 {/* Back nav */}
                 <button onClick={() => navigate(editCode ? `/event/${editCode}` : "/home")} className="absolute top-5 left-5 z-20">
-                  <ArrowLeft className="w-6 h-6" style={{ color: customTextColor }} />
+                  <ArrowLeft className="w-6 h-6" style={{ color: fontColor }} />
                 </button>
                 {/* Content */}
                 <div className="flex flex-col items-center text-center px-5 pt-16 pb-6 relative z-10">
@@ -2051,16 +2072,16 @@ const HostEvent = () => {
                     <input type="text" value={vibe} onChange={(e) => setVibe(e.target.value)} maxLength={30} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", opacity: 0, cursor: "text", zIndex: 10 }} />
                   </div>
                   {/* Title */}
-                  <input type="text" value={title} onChange={(e) => { setTitle(e.target.value); setTitleError(""); }} placeholder="Event name..." className="w-full bg-transparent outline-none placeholder:opacity-20 text-center block" style={{ fontFamily: currentFontFamily, fontSize: noirFontSize, fontWeight: fontStyle === "Bold" ? 400 : 800, color: customTextColor, lineHeight: 1.05, marginBottom: "6px", textShadow: customIsLight ? "none" : "0 1px 8px rgba(0,0,0,0.5)" }} />
+                  <input type="text" value={title} onChange={(e) => { setTitle(e.target.value); setTitleError(""); }} placeholder="Event name..." className="w-full bg-transparent outline-none placeholder:opacity-20 text-center block" style={{ fontFamily: currentFontFamily, fontSize: noirFontSize, fontWeight: fontStyle === "Bold" ? 400 : 800, color: fontColor, lineHeight: 1.05, marginBottom: "6px", textShadow: customIsLight ? "none" : "0 1px 8px rgba(0,0,0,0.5)" }} />
                   {titleError && <p className="text-red-400 text-xs mb-2">{titleError}</p>}
-                  <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "12px", color: customTextMuted, marginBottom: "20px", textShadow: customIsLight ? "none" : "0 1px 6px rgba(0,0,0,0.4)" }}>hosted by {hostName}</p>
+                  <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "12px", color: fontColorMuted, marginBottom: "20px", textShadow: customIsLight ? "none" : "0 1px 6px rgba(0,0,0,0.4)" }}>hosted by {hostName}</p>
 
                   {/* Date/time picker — frosted pill */}
                   <div style={{ position: "relative", marginBottom: "20px" }}>
                     <div style={{ borderRadius: "50px", border: `1px solid ${customFrostBorder}`, padding: "10px 20px", backgroundColor: customFrostBg, backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", display: "inline-block" }}>
                       <span style={{ fontFamily: currentFontFamily, fontSize: "16px", fontWeight: fontStyle==="Bold"?400:700, color: accentColor, letterSpacing: fontStyle==="Bold"?"0.05em":0 }}>
                         {dayNum ? `${dayNum} ${monthName}` : "Date"}
-                        <span style={{ color: customTextMuted, margin: "0 8px" }}>·</span>
+                        <span style={{ color: fontColorMuted, margin: "0 8px" }}>·</span>
                         {timeStr || "Time"}
                       </span>
                     </div>
@@ -2072,19 +2093,19 @@ const HostEvent = () => {
                     {/* Location */}
                     <div style={{ borderRadius: "20px", border: `1px solid ${customFrostBorder}`, padding: "16px 18px", backgroundColor: customFrostBg, backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", position: "relative" }}>
                       <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase" as const, color: accentColor, marginBottom: "5px" }}>Location</p>
-                      <p style={{ fontFamily: currentFontFamily, fontSize: "18px", fontWeight: fontStyle==="Bold"?400:600, color: location ? customTextColor : `${customTextColor}40`, lineHeight: 1.2 }}>{location || "Where's the event?"}</p>
+                      <p style={{ fontFamily: currentFontFamily, fontSize: "18px", fontWeight: fontStyle==="Bold"?400:600, color: location ? fontColor : `${fontColor}40`, lineHeight: 1.2 }}>{location || "Where's the event?"}</p>
                       <input type="text" value={location} onChange={(e) => setLocation(e.target.value)} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", opacity: 0, cursor: "text", zIndex: 10 }} />
                     </div>
                     {/* Dress Code */}
                     <div style={{ borderRadius: "20px", border: `1px solid ${customFrostBorder}`, padding: "16px 18px", backgroundColor: customFrostBg, backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", position: "relative" }}>
                       <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase" as const, color: accentColor, marginBottom: "5px" }}>Dress Code</p>
-                      <p style={{ fontFamily: currentFontFamily, fontSize: "18px", fontWeight: fontStyle==="Bold"?400:600, color: dressCode ? customTextColor : `${customTextColor}40`, lineHeight: 1.2 }}>{dressCode || "Theme..."}</p>
+                      <p style={{ fontFamily: currentFontFamily, fontSize: "18px", fontWeight: fontStyle==="Bold"?400:600, color: dressCode ? fontColor : `${fontColor}40`, lineHeight: 1.2 }}>{dressCode || "Theme..."}</p>
                       <input type="text" value={dressCode} onChange={(e) => setDressCode(e.target.value)} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", opacity: 0, cursor: "text", zIndex: 10 }} />
                     </div>
                     {/* Notes */}
                     <div style={{ borderRadius: "20px", border: `1px solid ${customFrostBorder}`, padding: "16px 18px", backgroundColor: customFrostBg, backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)" }}>
                       <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase" as const, color: accentColor, marginBottom: "5px" }}>From the host</p>
-                      <textarea value={extra} onChange={(e) => setExtra(e.target.value)} placeholder="Anything else..." rows={2} className="w-full bg-transparent outline-none resize-none placeholder:opacity-20 text-center" style={{ fontFamily: "'Inter', sans-serif", fontSize: "13px", color: customTextColor, lineHeight: 1.5 }} />
+                      <textarea value={extra} onChange={(e) => setExtra(e.target.value)} placeholder="Anything else..." rows={2} className="w-full bg-transparent outline-none resize-none placeholder:opacity-20 text-center" style={{ fontFamily: "'Inter', sans-serif", fontSize: "13px", color: fontColor, lineHeight: 1.5 }} />
                     </div>
                   </div>
                 </div>
@@ -2566,6 +2587,13 @@ const HostEvent = () => {
                         <span className="text-white/40 text-lg">›</span>
                       </div>
                     </button>
+                    <button onClick={() => setCustomisePanel("custom-font-color")} className="flex items-center justify-between py-3.5 px-1">
+                      <span className="text-sm font-semibold text-white">Font colour</span>
+                      <div className="flex items-center gap-2">
+                        <div className="w-5 h-5 rounded-full border border-white/20" style={{ backgroundColor: fontColor }} />
+                        <span className="text-white/40 text-lg">›</span>
+                      </div>
+                    </button>
                     <button onClick={() => setCustomisePanel("custom-stickers")} className="flex items-center justify-between py-3.5 px-1">
                       <span className="text-sm font-semibold text-white">Stickers</span>
                       <div className="flex items-center gap-2">
@@ -2875,6 +2903,28 @@ const HostEvent = () => {
                       {(customPatternKey || bgPhoto) && (
                         <button onClick={() => { setBgPreset(null); setBgPhoto(null); setUploadedPhoto(null); setBgPresetIsImage(false); }} className="text-xs text-white/50 underline mb-2">Clear (use solid colour)</button>
                       )}
+                    </>
+                  )}
+
+                  {customisePanel === "custom-font-color" && (
+                    <>
+                      <p className="text-card-foreground font-bold text-sm mb-3">Font colour</p>
+                      <div className="grid grid-cols-3 gap-3">
+                        {FONT_COLORS.map((c) => (
+                          <button
+                            key={c.value}
+                            onClick={() => setFontColor(c.value)}
+                            className="flex flex-col items-center gap-1.5 py-3 rounded-xl"
+                            style={{
+                              backgroundColor: c.value === "#ffffff" ? "#2b2b2b" : c.value === "#111111" ? "#333" : "#1a1a1a",
+                              border: fontColor === c.value ? "2px solid #aaee44" : "2px solid transparent",
+                            }}
+                          >
+                            <div className="w-8 h-8 rounded-full border border-white/20" style={{ backgroundColor: c.value }} />
+                            <span className="text-xs text-white/70">{c.label}</span>
+                          </button>
+                        ))}
+                      </div>
                     </>
                   )}
 
