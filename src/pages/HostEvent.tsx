@@ -436,21 +436,40 @@ const HostEvent = () => {
       stickers: stickers.length > 0 ? JSON.stringify(stickers) : null,
     } as any;
 
+    // Helper: strip columns that may not exist yet if the DB schema is behind
+    const withFallback = (data: any, err: any) => {
+      if (!err) return null;
+      const msg: string = err?.message || "";
+      if (msg.includes("font_color") || msg.includes("stickers") || err?.code === "PGRST116") {
+        const { font_color, stickers: _s, ...safe } = data;
+        return safe;
+      }
+      return null;
+    };
+
     if (editCode && eventId) {
-      const { error: updateError } = await supabase.from("events").update(eventData).eq("id", eventId);
+      let { error: updateError } = await supabase.from("events").update(eventData).eq("id", eventId);
+      if (updateError) {
+        const fallback = withFallback(eventData, updateError);
+        if (fallback) ({ error: updateError } = await supabase.from("events").update(fallback).eq("id", eventId));
+      }
       if (!updateError) navigate("/event/" + code);
     } else {
-      const { error } = await supabase.from("events").insert(eventData);
+      let { error } = await supabase.from("events").insert(eventData);
+      if (error) {
+        const fallback = withFallback(eventData, error);
+        if (fallback) ({ error } = await supabase.from("events").insert(fallback));
+      }
       if (error) {
         if (error.code === "23505") {
           const newCode = generateCode();
-          const { error: retryError } = await supabase.from("events").insert({ ...eventData, code: newCode });
-          if (!retryError) {
-            setEventCode(newCode);
-            setShowCode(true);
+          let { error: retryError } = await supabase.from("events").insert({ ...eventData, code: newCode });
+          if (retryError) {
+            const fallback = withFallback({ ...eventData, code: newCode }, retryError);
+            if (fallback) ({ error: retryError } = await supabase.from("events").insert(fallback));
           }
+          if (!retryError) { setEventCode(newCode); setShowCode(true); }
         }
-        // Other errors (e.g. missing columns): don't show code screen with empty code
         return;
       }
       setEventCode(code);
