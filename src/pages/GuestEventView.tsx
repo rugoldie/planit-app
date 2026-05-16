@@ -32,13 +32,21 @@ const getPatternBgStyle = (key: string): React.CSSProperties => {
     case "planit-pattern:holographic":    return { background: "conic-gradient(from 0deg at 50% 50%, #ff9de2, #a78bfa, #67e8f9, #86efac, #fde68a, #ff9de2)" };
     case "planit-pattern:cherry-blossom": return { background: "linear-gradient(135deg, #fce4ec 0%, #f8bbd0 50%, #fce4ec 100%)" };
     case "planit-pattern:camo":           return { backgroundColor: "#4a5240" };
-    case "planit-pattern:blueprint":      return { backgroundColor: "#0a1628" };
+    case "planit-pattern:blueprint":      return { backgroundColor: "#0a1628", backgroundImage: "repeating-linear-gradient(rgba(56,189,248,0.12) 1px, transparent 1px), repeating-linear-gradient(90deg, rgba(56,189,248,0.12) 1px, transparent 1px)", backgroundSize: "20px 20px" };
+    case "solid-black":                   return { backgroundColor: "#000000" };
+    case "solid-white":                   return { backgroundColor: "#ffffff" };
+    case "solid-deepred":                 return { backgroundColor: "#7f1d1d" };
+    case "solid-navy":                    return { backgroundColor: "#1e3a5f" };
+    case "solid-forestgreen":             return { backgroundColor: "#14532d" };
+    case "solid-purple":                  return { backgroundColor: "#4a1d96" };
+    case "solid-burntorange":             return { backgroundColor: "#7c2d12" };
+    case "solid-hotpink":                 return { backgroundColor: "#831843" };
     default: return {};
   }
 };
 
 const isLightPattern = (key: string) =>
-  ["planit-pattern:retro-stars","planit-pattern:holographic","planit-pattern:cherry-blossom"].includes(key);
+  ["planit-pattern:retro-stars","planit-pattern:holographic","planit-pattern:cherry-blossom","solid-white"].includes(key);
 
 const PatternOverlay = ({ patternKey }: { patternKey: string }) => {
   if (patternKey === "planit-pattern:retro-stars") {
@@ -2478,7 +2486,7 @@ const GuestEventView = () => {
         <>
           {(() => {
             const bp = (event as any).bg_photo as string | null;
-            const isPattern = bp?.startsWith("planit-pattern:");
+            const isPattern = bp?.startsWith("planit-pattern:") || bp?.startsWith("solid-");
             const patStyle: React.CSSProperties = isPattern
               ? getPatternBgStyle(bp!)
               : bp && !bp.startsWith("planit-pattern:")
@@ -2497,7 +2505,7 @@ const GuestEventView = () => {
             try { stickerItems = JSON.parse((event as any).stickers || "[]"); } catch {}
             return (
               <div style={{ minHeight: "100vh", position: "relative", overflow: "hidden", ...patStyle }}>
-                {isPattern && <PatternOverlay patternKey={bp!} />}
+                {bp?.startsWith("planit-pattern:") && <PatternOverlay patternKey={bp!} />}
                 {!isPattern && bp && <div style={{ position: "absolute", inset: 0, backgroundColor: "rgba(0,0,0,0.4)", zIndex: 1, pointerEvents: "none" }} />}
                 {stickerItems.map(stk => (
                   <div key={stk.id} style={{ position: "absolute", left: `${stk.x}%`, top: `${stk.y}%`, fontSize: `${stk.size}px`, zIndex: 30, pointerEvents: "none" }}>{stk.emoji}</div>

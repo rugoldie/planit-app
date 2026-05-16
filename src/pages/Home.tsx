@@ -19,6 +19,7 @@ type EventWithRole = {
   gradient_color: string | null;
   bubble_color: string | null;
   bg_color: string | null;
+  bg_photo: string | null;
   font_style: string | null;
   template_name: string | null;
 };
@@ -40,7 +41,7 @@ const useUserEvents = (userId: string | undefined) => {
       const { data: hosted } = await supabase
         .from("events")
         .select(
-          "id, code, title, date_time, location, gradient_color, bubble_color, bg_color, font_style, template_name",
+          "id, code, title, date_time, location, gradient_color, bubble_color, bg_color, bg_photo, font_style, template_name",
         )
         .eq("host_id", userId);
 
@@ -59,7 +60,7 @@ const useUserEvents = (userId: string | undefined) => {
         const { data } = await supabase
           .from("events")
           .select(
-            "id, code, title, date_time, location, gradient_color, bubble_color, bg_color, font_style, template_name",
+            "id, code, title, date_time, location, gradient_color, bubble_color, bg_color, bg_photo, font_style, template_name",
           )
           .in("id", guestEventIds);
         guestEvents = data || [];
@@ -1366,13 +1367,39 @@ const ClassicUpcomingCard = ({ event, navigate }: { event: EventWithRole; naviga
   </div>
 );
 
+const CUSTOM_SOLID_COLOR_MAP: Record<string, string> = {
+  "solid-black": "#000000", "solid-white": "#ffffff", "solid-deepred": "#7f1d1d",
+  "solid-navy": "#1e3a5f", "solid-forestgreen": "#14532d", "solid-purple": "#4a1d96",
+  "solid-burntorange": "#7c2d12", "solid-hotpink": "#831843",
+};
+
+const getCustomCardBg = (bgPhoto: string | null): { style: React.CSSProperties; isLight: boolean; hasStars: boolean } => {
+  if (!bgPhoto) return { style: { backgroundColor: "#111111" }, isLight: false, hasStars: false };
+  if (bgPhoto.startsWith("solid-")) {
+    const color = CUSTOM_SOLID_COLOR_MAP[bgPhoto] || "#111111";
+    return { style: { backgroundColor: color }, isLight: bgPhoto === "solid-white", hasStars: false };
+  }
+  if (bgPhoto.startsWith("http") || bgPhoto.startsWith("blob:")) {
+    return { style: { backgroundImage: `url(${bgPhoto})`, backgroundSize: "cover", backgroundPosition: "center" }, isLight: false, hasStars: false };
+  }
+  switch (bgPhoto) {
+    case "planit-pattern:retro-stars":    return { style: { backgroundColor: "#ede8d8" }, isLight: true,  hasStars: true };
+    case "planit-pattern:checkerboard":   return { style: { backgroundImage: "repeating-linear-gradient(45deg,#000 25%,transparent 25%),repeating-linear-gradient(-45deg,#000 25%,transparent 25%),repeating-linear-gradient(45deg,transparent 75%,#000 75%),repeating-linear-gradient(-45deg,transparent 75%,#000 75%)", backgroundSize: "24px 24px", backgroundColor: "#fff" }, isLight: false, hasStars: false };
+    case "planit-pattern:tie-dye":        return { style: { background: "radial-gradient(circle at 40% 35%, #ff6b9d, #ffd93d, #6bcb77, #4d96ff)" }, isLight: false, hasStars: false };
+    case "planit-pattern:holographic":    return { style: { background: "conic-gradient(from 0deg at 50% 50%, #ff9de2, #a78bfa, #67e8f9, #86efac, #fde68a, #ff9de2)" }, isLight: true,  hasStars: false };
+    case "planit-pattern:cherry-blossom": return { style: { background: "linear-gradient(160deg, #fce4ec, #f8bbd0)" }, isLight: true,  hasStars: false };
+    case "planit-pattern:camo":           return { style: { backgroundColor: "#4a5240" }, isLight: false, hasStars: false };
+    case "planit-pattern:blueprint":      return { style: { backgroundColor: "#0a1628", backgroundImage: "repeating-linear-gradient(rgba(56,189,248,0.15) 1px,transparent 1px),repeating-linear-gradient(90deg,rgba(56,189,248,0.15) 1px,transparent 1px)", backgroundSize: "20px 20px" }, isLight: false, hasStars: false };
+    default:                              return { style: { backgroundColor: "#111111" }, isLight: false, hasStars: false };
+  }
+};
+
 const CustomNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate: ReturnType<typeof useNavigate> }) => {
   const accent = hslToColor(event.bubble_color, "#aaee44");
   const accentTxt = textForBubble(event.bubble_color) || "#111";
-  const cardBg = event.bg_color ? `hsl(${event.bg_color})` : "#1a1a1a";
-  const parts = (event.bg_color || "0 0% 4%").trim().split(/[\s,]+/);
-  const textCol = parseFloat(parts[2]) > 55 ? "#111" : "#fff";
-  const textMuted = parseFloat(parts[2]) > 55 ? "rgba(17,17,17,0.6)" : "rgba(255,255,255,0.6)";
+  const { style: bgStyle, isLight: bgIsLight, hasStars } = getCustomCardBg(event.bg_photo);
+  const textCol = bgIsLight ? "#111111" : "#ffffff";
+  const textMuted = bgIsLight ? "rgba(17,17,17,0.6)" : "rgba(255,255,255,0.6)";
   const fontFamily = FONT_MAP[event.font_style || "Bold"] || FONT_MAP.Bold;
   const parsed = event.date_time ? parseISO(event.date_time) : null;
   const dayNum = parsed ? format(parsed, "d") : "?";
@@ -1381,7 +1408,10 @@ const CustomNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate:
   const navPath = event.role === "host" ? `/event/${event.code}` : `/guest/${event.code}`;
 
   return (
-    <div className="overflow-hidden relative cursor-pointer" style={{ backgroundColor: cardBg, border: `2px solid ${accent}` }} onClick={() => navigate(navPath)}>
+    <div className="overflow-hidden relative cursor-pointer" style={{ ...bgStyle, border: `2px solid ${accent}` }} onClick={() => navigate(navPath)}>
+      {hasStars && [0,1,2,3,4].map(i => (
+        <span key={i} style={{ position: "absolute", left: `${[8,22,55,72,88][i]}%`, top: `${[15,55,25,70,40][i]}%`, fontSize: `${[18,13,22,15,11][i]}px`, color: "#b91c1c", opacity: 0.6, pointerEvents: "none" }}>★</span>
+      ))}
       {/* Rainbow indicator strip */}
       <div style={{ height: "3px", background: "linear-gradient(90deg, #f857a6, #ff5858, #43e97b, #38f9d7, #4776e6)" }} />
       <div className="p-3.5 pb-0">
@@ -1408,7 +1438,7 @@ const CustomNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate:
       </div>
       {event.location && (
         <div className="px-3.5 py-3">
-          <div style={{ border: `1px solid ${accent}25`, borderRadius: "8px", padding: "10px 12px", backgroundColor: `${textCol === "#fff" ? "255,255,255" : "0,0,0"}08` }}>
+          <div style={{ border: `1px solid ${accent}25`, borderRadius: "8px", padding: "10px 12px", backgroundColor: bgIsLight ? "rgba(0,0,0,0.05)" : "rgba(255,255,255,0.05)" }}>
             <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "7px", fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase" as const, color: accent, marginBottom: "3px" }}>Location</p>
             <p style={{ fontFamily, fontSize: "16px", fontWeight: 700, color: textCol, lineHeight: 1.1 }}>{event.location}</p>
           </div>
@@ -1422,16 +1452,15 @@ const CustomNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate:
 
 const CustomUpcomingCard = ({ event, navigate }: { event: EventWithRole; navigate: ReturnType<typeof useNavigate> }) => {
   const accent = hslToColor(event.bubble_color, "#aaee44");
-  const cardBg = event.bg_color ? `hsl(${event.bg_color})` : "#1a1a1a";
-  const parts = (event.bg_color || "0 0% 4%").trim().split(/[\s,]+/);
-  const textCol = parseFloat(parts[2]) > 55 ? "#111" : "#fff";
-  const textMuted = parseFloat(parts[2]) > 55 ? "rgba(17,17,17,0.5)" : "rgba(255,255,255,0.35)";
+  const { style: bgStyle, isLight: bgIsLight } = getCustomCardBg(event.bg_photo);
+  const textCol = bgIsLight ? "#111111" : "#ffffff";
+  const textMuted = bgIsLight ? "rgba(17,17,17,0.5)" : "rgba(255,255,255,0.35)";
   const fontFamily = FONT_MAP[event.font_style || "Bold"] || FONT_MAP.Bold;
 
   return (
     <div
       className="px-3.5 py-3 cursor-pointer relative"
-      style={{ backgroundColor: cardBg, border: `1px solid ${accent}50`, borderLeft: `3px solid ${accent}` }}
+      style={{ ...bgStyle, border: `1px solid ${accent}50`, borderLeft: `3px solid ${accent}` }}
       onClick={() => { const p = event.role === "host" ? `/event/${event.code}` : `/guest/${event.code}`; navigate(p); }}
     >
       <div className="flex items-center justify-between">

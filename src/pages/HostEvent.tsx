@@ -128,6 +128,17 @@ const CUSTOM_BG_PATTERNS = [
   { key: "planit-pattern:blueprint",     name: "Blueprint",     isLight: false },
 ];
 
+const CUSTOM_SOLID_COLORS = [
+  { key: "solid-black",        name: "Black",        color: "#000000" },
+  { key: "solid-white",        name: "White",        color: "#ffffff" },
+  { key: "solid-deepred",      name: "Deep Red",     color: "#7f1d1d" },
+  { key: "solid-navy",         name: "Navy",         color: "#1e3a5f" },
+  { key: "solid-forestgreen",  name: "Forest",       color: "#14532d" },
+  { key: "solid-purple",       name: "Purple",       color: "#4a1d96" },
+  { key: "solid-burntorange",  name: "Burnt Orange", color: "#7c2d12" },
+  { key: "solid-hotpink",      name: "Hot Pink",     color: "#831843" },
+];
+
 const getPatternBgStyle = (key: string): React.CSSProperties => {
   switch (key) {
     case "planit-pattern:retro-stars":    return { backgroundColor: "#ede8d8" };
@@ -136,13 +147,21 @@ const getPatternBgStyle = (key: string): React.CSSProperties => {
     case "planit-pattern:holographic":    return { background: "conic-gradient(from 0deg at 50% 50%, #ff9de2, #a78bfa, #67e8f9, #86efac, #fde68a, #ff9de2)" };
     case "planit-pattern:cherry-blossom": return { background: "linear-gradient(135deg, #fce4ec 0%, #f8bbd0 50%, #fce4ec 100%)" };
     case "planit-pattern:camo":           return { backgroundColor: "#4a5240" };
-    case "planit-pattern:blueprint":      return { backgroundColor: "#0a1628" };
+    case "planit-pattern:blueprint":      return { backgroundColor: "#0a1628", backgroundImage: "repeating-linear-gradient(rgba(56,189,248,0.12) 1px, transparent 1px), repeating-linear-gradient(90deg, rgba(56,189,248,0.12) 1px, transparent 1px)", backgroundSize: "20px 20px" };
+    case "solid-black":                   return { backgroundColor: "#000000" };
+    case "solid-white":                   return { backgroundColor: "#ffffff" };
+    case "solid-deepred":                 return { backgroundColor: "#7f1d1d" };
+    case "solid-navy":                    return { backgroundColor: "#1e3a5f" };
+    case "solid-forestgreen":             return { backgroundColor: "#14532d" };
+    case "solid-purple":                  return { backgroundColor: "#4a1d96" };
+    case "solid-burntorange":             return { backgroundColor: "#7c2d12" };
+    case "solid-hotpink":                 return { backgroundColor: "#831843" };
     default: return {};
   }
 };
 
 const isLightPattern = (key: string) =>
-  ["planit-pattern:retro-stars","planit-pattern:holographic","planit-pattern:cherry-blossom"].includes(key);
+  ["planit-pattern:retro-stars","planit-pattern:holographic","planit-pattern:cherry-blossom","solid-white"].includes(key);
 
 const PatternOverlay = ({ patternKey }: { patternKey: string }) => {
   if (patternKey === "planit-pattern:retro-stars") {
@@ -381,7 +400,7 @@ const HostEvent = () => {
             setTemplateName((data as any).template_name || "planit-noir");
             setEventCode(editCode);
             setEventId(data.id);
-            if (data.bg_photo?.startsWith("planit-pattern:")) {
+            if (data.bg_photo?.startsWith("planit-pattern:") || data.bg_photo?.startsWith("solid-")) {
               setBgPreset(data.bg_photo);
               setBgPresetIsImage(false);
             } else if (data.bg_photo?.startsWith("linear-gradient")) {
@@ -620,7 +639,8 @@ const HostEvent = () => {
   const isClassic = templateName === "planit-classic";
   const isCustom = templateName === "planit-custom";
   const customPatternKey = bgPreset?.startsWith("planit-pattern:") ? bgPreset : null;
-  const customIsLight = customPatternKey ? isLightPattern(customPatternKey) : false;
+  const customBgKey = (bgPreset?.startsWith("planit-pattern:") || bgPreset?.startsWith("solid-")) ? bgPreset : null;
+  const customIsLight = customBgKey ? isLightPattern(customBgKey) : false;
   const customFrostBg = customIsLight ? "rgba(0,0,0,0.06)" : "rgba(255,255,255,0.09)";
   const customFrostBorder = customIsLight ? "rgba(0,0,0,0.12)" : "rgba(255,255,255,0.16)";
   const fontColorMuted = hexMuted(fontColor);
@@ -2050,8 +2070,8 @@ const HostEvent = () => {
         /* ═══ PLANIT CUSTOM LAYOUT ═══ */
         <>
           {(() => {
-            const patternStyle: React.CSSProperties = customPatternKey
-              ? getPatternBgStyle(customPatternKey)
+            const patternStyle: React.CSSProperties = customBgKey
+              ? getPatternBgStyle(customBgKey)
               : bgPhoto
                 ? { backgroundImage: `url(${bgPhoto})`, backgroundSize: "cover", backgroundPosition: "center" }
                 : { backgroundColor: "#111111" };
@@ -2585,7 +2605,7 @@ const HostEvent = () => {
                     <button onClick={() => setCustomisePanel("custom-bg")} className="flex items-center justify-between py-3.5 px-1">
                       <span className="text-sm font-semibold text-white">Background</span>
                       <div className="flex items-center gap-2">
-                        <div className="w-5 h-5 rounded-full border border-white/20" style={customPatternKey ? getPatternBgStyle(customPatternKey) : bgPhoto ? { backgroundImage: `url(${bgPhoto})`, backgroundSize: "cover" } : { backgroundColor: `hsl(${bgColor})` }} />
+                        <div className="w-5 h-5 rounded-full border border-white/20" style={customBgKey ? getPatternBgStyle(customBgKey) : bgPhoto ? { backgroundImage: `url(${bgPhoto})`, backgroundSize: "cover" } : { backgroundColor: `hsl(${bgColor})` }} />
                         <span className="text-white/40 text-lg">›</span>
                       </div>
                     </button>
@@ -2915,7 +2935,7 @@ const HostEvent = () => {
                         <button
                           onClick={() => fileInputRef.current?.click()}
                           className="flex flex-col items-center gap-1"
-                          style={{ border: (bgPhoto && !customPatternKey) ? "2px solid #aaee44" : "2px solid transparent", borderRadius: "10px", overflow: "hidden", padding: "2px" }}
+                          style={{ border: (bgPhoto && !customBgKey) ? "2px solid #aaee44" : "2px solid transparent", borderRadius: "10px", overflow: "hidden", padding: "2px" }}
                         >
                           <div style={{ width: "100%", aspectRatio: "1", borderRadius: "8px", backgroundColor: "#2b2b2b", border: "1px dashed #555", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
                             {uploadedPhoto ? <img src={uploadedPhoto} style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <span style={{ fontSize: "22px" }}>📷</span>}
@@ -2923,9 +2943,23 @@ const HostEvent = () => {
                           <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 600, color: "#ccc" }}>Camera Roll</span>
                         </button>
                       </div>
-                      {(customPatternKey || bgPhoto) && (
+                      {(customBgKey || bgPhoto) && (
                         <button onClick={() => { setBgPreset(null); setBgPhoto(null); setUploadedPhoto(null); setBgPresetIsImage(false); }} className="text-xs text-white/50 underline mb-2">Clear (use solid colour)</button>
                       )}
+                      <p className="text-xs text-white/40 mb-2 mt-1">Solid colours</p>
+                      <div className="grid grid-cols-4 gap-2">
+                        {CUSTOM_SOLID_COLORS.map((c) => (
+                          <button
+                            key={c.key}
+                            onClick={() => { setBgPreset(c.key); setBgPresetIsImage(false); setBgPhoto(null); setUploadedPhoto(null); }}
+                            className="flex flex-col items-center gap-1"
+                            style={{ border: bgPreset === c.key ? "2px solid #aaee44" : "2px solid transparent", borderRadius: "10px", overflow: "hidden", padding: "2px" }}
+                          >
+                            <div style={{ width: "100%", aspectRatio: "1", borderRadius: "8px", backgroundColor: c.color, border: c.key === "solid-white" ? "1px solid #555" : "none" }} />
+                            <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 600, color: "#ccc", textAlign: "center" as const }}>{c.name}</span>
+                          </button>
+                        ))}
+                      </div>
                     </>
                   )}
 
