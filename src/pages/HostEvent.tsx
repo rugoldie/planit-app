@@ -437,19 +437,23 @@ const HostEvent = () => {
     } as any;
 
     if (editCode && eventId) {
-      await supabase.from("events").update(eventData).eq("id", eventId);
-      navigate("/event/" + code);
+      const { error: updateError } = await supabase.from("events").update(eventData).eq("id", eventId);
+      if (!updateError) navigate("/event/" + code);
     } else {
       const { error } = await supabase.from("events").insert(eventData);
       if (error) {
         if (error.code === "23505") {
           const newCode = generateCode();
-          await supabase.from("events").insert({ ...eventData, code: newCode });
-          setEventCode(newCode);
+          const { error: retryError } = await supabase.from("events").insert({ ...eventData, code: newCode });
+          if (!retryError) {
+            setEventCode(newCode);
+            setShowCode(true);
+          }
         }
-      } else {
-        setEventCode(code);
+        // Other errors (e.g. missing columns): don't show code screen with empty code
+        return;
       }
+      setEventCode(code);
       setShowCode(true);
     }
   };
