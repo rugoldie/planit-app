@@ -493,7 +493,6 @@ const GuestEventView = () => {
   const isOcean = ((event as any).template_name || "").toLowerCase() === "ocean";
   const isBlush = ((event as any).template_name || "").toLowerCase() === "blush";
   const isForest = ((event as any).template_name || "").toLowerCase() === "forest";
-  const isClassic = ((event as any).template_name || "").toLowerCase() === "planit-classic";
   const isCustom = ((event as any).template_name || "").toLowerCase() === "planit-custom";
   const galaxyAccent = (event as any).bubble_color ? `hsl(${(event as any).bubble_color})` : "#a855f7";
   const vintageAccent = (event as any).gradient_color || "#8b7355";
@@ -2400,87 +2399,6 @@ const GuestEventView = () => {
             </div>
           </div>
         </>
-      ) : isClassic ? (
-        /* ═══ PLANIT CLASSIC LAYOUT ═══ */
-        <>
-          <div style={{ backgroundColor: "#2b2b2b", minHeight: "100vh", position: "relative" }}>
-            {/* Nav */}
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "20px 20px 0" }}>
-              <button onClick={() => navigate("/home")} style={{ background: "none", border: "none", cursor: "pointer" }}>
-                <ArrowLeft className="w-6 h-6" style={{ color: "rgba(255,255,255,0.5)" }} />
-              </button>
-              <button onClick={() => setShowChat(true)} className="flex flex-col items-center gap-0.5">
-                <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ backgroundColor: "rgba(170,238,68,0.1)", border: "1px solid rgba(170,238,68,0.25)" }}>
-                  <MessageCircle className="w-4 h-4" style={{ color: "rgba(170,238,68,0.7)" }} />
-                </div>
-                <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 600, color: "rgba(170,238,68,0.5)" }}>Message host</span>
-              </button>
-            </div>
-
-            {/* Header */}
-            <div className="px-5 pt-6 pb-3">
-              <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 700, letterSpacing: "0.3em", textTransform: "uppercase" as const, color: "#aaee44", marginBottom: "8px" }}>Planit</p>
-              <h1 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "58px", fontWeight: 400, color: "#ffffff", lineHeight: 0.95, letterSpacing: "0.02em", marginBottom: "8px" }}>{event.title || "Untitled Event"}</h1>
-              <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "12px", color: "rgba(170,238,68,0.6)", fontWeight: 500 }}>hosted by {hostName}</p>
-            </div>
-
-            {/* Full-width stat bar — lime bg, dark text, no radius */}
-            <div style={{ display: "flex", borderTop: "2px solid #aaee44", borderBottom: "2px solid #aaee44" }}>
-              <div style={{ flex: 1, backgroundColor: "#aaee44", padding: "14px 8px", textAlign: "center" as const, borderRight: "1px solid rgba(0,0,0,0.2)" }}>
-                <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "32px", fontWeight: 400, color: "#111", display: "block", lineHeight: 1, letterSpacing: "0.02em" }}>{dayNum || "—"}</span>
-                <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase" as const, color: "rgba(0,0,0,0.55)", marginTop: "3px", display: "block" }}>{monthName || "TBD"}</span>
-              </div>
-              <div style={{ flex: 1, backgroundColor: "#aaee44", padding: "14px 8px", textAlign: "center" as const, borderRight: "1px solid rgba(0,0,0,0.2)" }}>
-                <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "32px", fontWeight: 400, color: "#111", display: "block", lineHeight: 1, letterSpacing: "0.02em" }}>{timeStr || "—"}</span>
-                <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase" as const, color: "rgba(0,0,0,0.55)", marginTop: "3px", display: "block" }}>Start</span>
-              </div>
-              <div style={{ flex: 1, backgroundColor: "#aaee44", padding: "14px 8px", textAlign: "center" as const }}>
-                <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "32px", fontWeight: 400, color: "#111", display: "block", lineHeight: 1, letterSpacing: "0.02em" }}>{goingList.length}</span>
-                <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase" as const, color: "rgba(0,0,0,0.55)", marginTop: "3px", display: "block" }}>Going</span>
-              </div>
-            </div>
-
-            {/* Cards */}
-            <div className="px-5 pt-4 pb-6 flex flex-col gap-3">
-              {event.location && (
-                <div style={{ backgroundColor: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "10px", padding: "14px 16px" }}>
-                  <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, letterSpacing: "0.25em", textTransform: "uppercase" as const, color: "#aaee44", marginBottom: "6px" }}>Location</p>
-                  <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "22px", fontWeight: 400, color: "#fff", lineHeight: 1.2, letterSpacing: "0.02em" }}>{event.location}</p>
-                </div>
-              )}
-              {event.dress_code && (
-                <div style={{ backgroundColor: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "10px", padding: "14px 16px" }}>
-                  <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, letterSpacing: "0.25em", textTransform: "uppercase" as const, color: "#aaee44", marginBottom: "6px" }}>Dress Code</p>
-                  <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "22px", fontWeight: 400, color: "#fff", lineHeight: 1.2, letterSpacing: "0.02em" }}>{event.dress_code}</p>
-                </div>
-              )}
-              {event.extra && (
-                <div style={{ border: "1px solid rgba(170,238,68,0.15)", borderRadius: "10px", padding: "14px 16px" }}>
-                  <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, letterSpacing: "0.25em", textTransform: "uppercase" as const, color: "rgba(170,238,68,0.5)", marginBottom: "6px" }}>From the host</p>
-                  <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "13px", color: "rgba(255,255,255,0.65)", lineHeight: 1.5 }}>{event.extra}</p>
-                </div>
-              )}
-
-              {/* Who's going */}
-              {goingList.length > 0 && (
-                <div style={{ backgroundColor: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "10px", padding: "14px 16px" }}>
-                  <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, letterSpacing: "0.25em", textTransform: "uppercase" as const, color: "#aaee44", marginBottom: "10px" }}>Who's going</p>
-                  <div style={{ display: "flex", flexWrap: "wrap" as const, gap: "8px" }}>
-                    {goingList.map((r) => (
-                      <div key={r.user_id} style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                        <div style={{ width: "28px", height: "28px", borderRadius: "50%", backgroundColor: "#aaee44", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                          <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "11px", fontWeight: 700, color: "#111" }}>{getInitials(r.name)}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div style={{ height: "100px" }} />
-          </div>
-        </>
       ) : isCustom ? (
         /* ═══ PLANIT CUSTOM LAYOUT ═══ */
         <>
@@ -2573,6 +2491,50 @@ const GuestEventView = () => {
                         </div>
                       </div>
                     )}
+                    {/* Chat */}
+                    <div style={{ borderRadius: "20px", border: `1px solid ${frostBorder}`, padding: "16px 18px", backgroundColor: frostBg, backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)" }}>
+                      <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase" as const, color: accentColor, marginBottom: "10px" }}>Chat</p>
+                      <div className="space-y-2 max-h-48 overflow-y-auto mb-3">
+                        {comments.length === 0 && (
+                          <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "12px", color: tMuted, textAlign: "center", padding: "12px 0" }}>No messages yet — be the first!</p>
+                        )}
+                        {comments.map((c, i) => (
+                          <div key={i} className="rounded-xl px-3 py-2" style={{ backgroundColor: isLight ? "rgba(0,0,0,0.06)" : "rgba(255,255,255,0.08)" }}>
+                            <div className="flex items-center gap-2">
+                              <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "11px", fontWeight: 700, color: accentColor }}>{c.user_name}</span>
+                              <span style={{ fontSize: "10px", color: tMuted }}>{formatTime(c.created_at)}</span>
+                            </div>
+                            <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "13px", color: tCol, marginTop: "2px" }}>{c.text}</p>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="flex gap-2">
+                        <input value={commentDraft} onChange={(e) => setCommentDraft(e.target.value)} onKeyDown={(e) => e.key === "Enter" && sendComment()} placeholder="Write a message..." className="flex-1 rounded-full px-4 py-2 text-sm outline-none" style={{ backgroundColor: isLight ? "rgba(0,0,0,0.06)" : "rgba(255,255,255,0.08)", color: tCol, border: `1px solid ${frostBorder}`, fontFamily: "'Inter', sans-serif" }} />
+                        <button onClick={sendComment} className="w-9 h-9 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: accentColor }}>
+                          <Send className="w-4 h-4" style={{ color: accentText }} />
+                        </button>
+                      </div>
+                    </div>
+                    {/* Gallery */}
+                    <div style={{ borderRadius: "20px", border: `1px solid ${frostBorder}`, padding: "16px 18px", backgroundColor: frostBg, backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)" }}>
+                      <div className="flex items-center justify-between mb-3">
+                        <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase" as const, color: accentColor }}>Gallery</p>
+                        <button onClick={() => photoInput.current?.click()} className="text-xs font-bold rounded-full px-3 py-1" style={{ backgroundColor: accentColor, color: accentText, fontFamily: "'Inter', sans-serif" }}>Add photo</button>
+                        <input ref={photoInput} type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} />
+                      </div>
+                      {uploadingPhoto && <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "12px", color: accentColor, textAlign: "center", padding: "8px 0" }}>Uploading...</p>}
+                      {photos.length === 0 && !uploadingPhoto ? (
+                        <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "12px", color: tMuted, textAlign: "center", padding: "16px 0" }}>No photos yet — add the first one!</p>
+                      ) : (
+                        <div className="grid grid-cols-3 gap-1.5">
+                          {photos.map((p) => (
+                            <div key={p.id} className="aspect-square rounded-xl overflow-hidden">
+                              <img src={p.photo_url} alt="" className="w-full h-full object-cover" />
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
                 <div style={{ height: "100px" }} />
@@ -2990,7 +2952,7 @@ const GuestEventView = () => {
         </>
       ) : null}
 
-      {!isVintage && !isSunny && !isGalaxy && !isMidnight && !isOcean && !isBlush && !isForest && !isClassic && !isCustom && (
+      {!isVintage && !isSunny && !isGalaxy && !isMidnight && !isOcean && !isBlush && !isForest && !isCustom && (
         <div className="px-5">
           {/* Who's going section */}
           <div className="mt-4 rounded-2xl p-4" style={{ backgroundColor: "#1e1e1e" }}>
