@@ -2581,17 +2581,17 @@ const HostEvent = () => {
                 /* ─── Tabbed drawer ─── */
                 <div>
                   {/* Tab row */}
-                  <div className="flex mb-5 rounded-xl overflow-hidden border border-[#333]">
+                  <div className="flex gap-2 mb-5 p-1.5 rounded-full" style={{ backgroundColor: "#1a1a1a" }}>
                     <button
                       onClick={() => setCustomizeTab("templates")}
-                      className="flex-1 py-2.5 text-sm font-bold transition-all"
+                      className="flex-1 py-2 text-sm font-bold transition-all rounded-full"
                       style={{ backgroundColor: customizeTab === "templates" ? "#aaee44" : "transparent", color: customizeTab === "templates" ? "#111" : "#666" }}
                     >
                       Templates
                     </button>
                     <button
                       onClick={() => { setCustomizeTab("customise"); setCustomisePanel(null); }}
-                      className="flex-1 py-2.5 text-sm font-bold transition-all"
+                      className="flex-1 py-2 text-sm font-bold transition-all rounded-full"
                       style={{ backgroundColor: customizeTab === "customise" ? "#aaee44" : "transparent", color: customizeTab === "customise" ? "#111" : "#666" }}
                     >
                       Customise
