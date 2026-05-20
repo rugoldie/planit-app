@@ -11,7 +11,9 @@ serve(async (req) => {
   }
 
   try {
-    const { prompt } = await req.json();
+    const body = await req.json().catch(() => ({}));
+    const { prompt } = body;
+
     if (!prompt?.trim()) {
       return new Response(JSON.stringify({ error: "Prompt is required" }), {
         status: 400,
@@ -21,15 +23,17 @@ serve(async (req) => {
 
     const falApiKey = Deno.env.get("FAL_API_KEY");
     if (!falApiKey) {
-      return new Response(JSON.stringify({ error: "API key not configured" }), {
+      console.error("[generate-cover-art] FAL_API_KEY secret is not set");
+      return new Response(JSON.stringify({ error: "FAL_API_KEY secret is not configured in Supabase" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
     const fullPrompt = `${prompt.trim()}, event invitation background, beautiful, vibrant, no text, no words, no letters`;
+    console.log("[generate-cover-art] Calling fal.ai with prompt:", fullPrompt.slice(0, 100));
 
-    const response = await fetch("https://fal.run/fal-ai/flux/schnell", {
+    const falResponse = await fetch("https://fal.run/fal-ai/flux/schnell", {
       method: "POST",
       headers: {
         "Authorization": `Key ${falApiKey}`,
@@ -40,27 +44,52 @@ serve(async (req) => {
         image_size: "portrait_4_3",
         num_inference_steps: 4,
         num_images: 1,
-        enable_safety_checker: true,
+        enable_safety_checker: false,
+        sync_mode: true,
       }),
     });
 
-    if (!response.ok) {
-      const text = await response.text();
-      throw new Error(`fal.ai error: ${text}`);
+    const falText = await falResponse.text();
+    console.log("[generate-cover-art] fal.ai status:", falResponse.status);
+
+    if (!falResponse.ok) {
+      console.error("[generate-cover-art] fal.ai error body:", falText);
+      return new Response(
+        JSON.stringify({ error: `fal.ai returned ${falResponse.status}: ${falText.slice(0, 300)}` }),
+        { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
-    const data = await response.json();
-    const imageUrl = data.images?.[0]?.url;
+    let falData: any;
+    try {
+      falData = JSON.parse(falText);
+    } catch {
+      console.error("[generate-cover-art] Could not parse fal.ai response:", falText.slice(0, 300));
+      return new Response(
+        JSON.stringify({ error: "Could not parse fal.ai response" }),
+        { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
-    if (!imageUrl) throw new Error("No image returned from fal.ai");
+    const imageUrl = falData.images?.[0]?.url;
+    if (!imageUrl) {
+      console.error("[generate-cover-art] No image URL in fal.ai response:", JSON.stringify(falData).slice(0, 300));
+      return new Response(
+        JSON.stringify({ error: "No image returned from fal.ai", detail: falData }),
+        { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
+    console.log("[generate-cover-art] Success, imageUrl:", imageUrl.slice(0, 80));
     return new Response(JSON.stringify({ imageUrl }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
-  } catch (err) {
-    return new Response(JSON.stringify({ error: err.message ?? "Generation failed" }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+
+  } catch (err: any) {
+    console.error("[generate-cover-art] Unhandled error:", err?.message ?? err);
+    return new Response(
+      JSON.stringify({ error: err?.message ?? "Internal server error" }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
   }
 });

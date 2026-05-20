@@ -539,11 +539,24 @@ const HostEvent = () => {
       const { data, error } = await supabase.functions.invoke("generate-cover-art", {
         body: { prompt: buildItPrompt },
       });
-      if (error) throw new Error(error.message);
-      if (!data?.imageUrl) throw new Error("No image returned");
+      if (error) {
+        // Extract actual error body from the edge function response
+        let detail = error.message;
+        try {
+          const body = await (error as any).context?.json?.();
+          if (body?.error) detail = body.error;
+        } catch {}
+        console.error("[BuildIt] Edge function error:", detail, error);
+        throw new Error(detail);
+      }
+      if (!data?.imageUrl) {
+        console.error("[BuildIt] No imageUrl in response:", data);
+        throw new Error("No image returned");
+      }
       setBuildItImageUrl(data.imageUrl);
     } catch (err: any) {
-      setBuildItError("Something went wrong. Please try again.");
+      console.error("[BuildIt] generateCoverArt failed:", err);
+      setBuildItError(err.message ?? "Something went wrong. Please try again.");
     } finally {
       setBuildItGenerating(false);
     }
