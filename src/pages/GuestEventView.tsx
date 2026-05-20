@@ -33,20 +33,22 @@ const getPatternBgStyle = (key: string): React.CSSProperties => {
     case "planit-pattern:cherry-blossom": return { background: "linear-gradient(135deg, #fce4ec 0%, #f8bbd0 50%, #fce4ec 100%)" };
     case "planit-pattern:camo":           return { backgroundColor: "#4a5240" };
     case "planit-pattern:blueprint":      return { backgroundColor: "#0a1628", backgroundImage: "repeating-linear-gradient(rgba(56,189,248,0.12) 1px, transparent 1px), repeating-linear-gradient(90deg, rgba(56,189,248,0.12) 1px, transparent 1px)", backgroundSize: "20px 20px" };
-    case "solid-black":                   return { backgroundColor: "#000000" };
-    case "solid-white":                   return { backgroundColor: "#ffffff" };
-    case "solid-deepred":                 return { backgroundColor: "#7f1d1d" };
-    case "solid-navy":                    return { backgroundColor: "#1e3a5f" };
-    case "solid-forestgreen":             return { backgroundColor: "#14532d" };
-    case "solid-purple":                  return { backgroundColor: "#4a1d96" };
-    case "solid-burntorange":             return { backgroundColor: "#7c2d12" };
-    case "solid-hotpink":                 return { backgroundColor: "#831843" };
+    case "planit-pattern:groovy":         return { backgroundColor: "#fdf6e3" };
+    case "solid-softwhite":               return { backgroundColor: "#fafafa" };
+    case "solid-cream":                   return { backgroundColor: "#fdf6e3" };
+    case "solid-blushpink":               return { backgroundColor: "#fde8f0" };
+    case "solid-lavender":                return { backgroundColor: "#ede9fe" };
+    case "solid-mint":                    return { backgroundColor: "#ecfdf5" };
+    case "solid-sky":                     return { backgroundColor: "#e0f2fe" };
+    case "solid-peach":                   return { backgroundColor: "#fff7ed" };
+    case "solid-lemon":                   return { backgroundColor: "#fefce8" };
     default: return {};
   }
 };
 
 const isLightPattern = (key: string) =>
-  ["planit-pattern:retro-stars","planit-pattern:holographic","planit-pattern:cherry-blossom","solid-white"].includes(key);
+  ["planit-pattern:retro-stars","planit-pattern:holographic","planit-pattern:cherry-blossom","planit-pattern:groovy",
+   "solid-softwhite","solid-cream","solid-blushpink","solid-lavender","solid-mint","solid-sky","solid-peach","solid-lemon"].includes(key);
 
 const PatternOverlay = ({ patternKey }: { patternKey: string }) => {
   if (patternKey === "planit-pattern:retro-stars") {
@@ -102,6 +104,28 @@ const PatternOverlay = ({ patternKey }: { patternKey: string }) => {
           <circle cx="50%" cy="38%" r="130" fill="none" stroke="#4da6ff" strokeWidth="0.5" opacity="0.25"/>
           <line x1="50%" y1="15%" x2="50%" y2="62%" stroke="#4da6ff" strokeWidth="0.6" opacity="0.35"/>
           <line x1="25%" y1="38%" x2="75%" y2="38%" stroke="#4da6ff" strokeWidth="0.6" opacity="0.35"/>
+        </svg>
+      </div>
+    );
+  }
+  if (patternKey === "planit-pattern:groovy") {
+    return (
+      <div style={{ position:"absolute", inset:0, pointerEvents:"none" as const }}>
+        <svg style={{ position:"absolute", inset:0, width:"100%", height:"100%" }} viewBox="0 0 400 800" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="80"  cy="180" r="110" fill="none" stroke="#c2410c" strokeWidth="6" opacity="0.28"/>
+          <circle cx="230" cy="140" r="140" fill="none" stroke="#d97706" strokeWidth="6" opacity="0.22"/>
+          <circle cx="340" cy="320" r="100" fill="none" stroke="#c2410c" strokeWidth="5" opacity="0.28"/>
+          <circle cx="100" cy="420" r="130" fill="none" stroke="#d97706" strokeWidth="6" opacity="0.22"/>
+          <circle cx="280" cy="510" r="120" fill="none" stroke="#c2410c" strokeWidth="5" opacity="0.28"/>
+          <circle cx="60"  cy="640" r="90"  fill="none" stroke="#d97706" strokeWidth="5" opacity="0.22"/>
+          <circle cx="350" cy="680" r="110" fill="none" stroke="#c2410c" strokeWidth="5" opacity="0.26"/>
+          <circle cx="170" cy="300" r="18"  fill="#d97706" opacity="0.18"/>
+          <circle cx="310" cy="200" r="12"  fill="#c2410c" opacity="0.18"/>
+          <circle cx="200" cy="650" r="20"  fill="#d97706" opacity="0.16"/>
+          <path d="M-20,80  Q60,50  120,80  Q180,110 240,80  Q300,50  360,80  Q420,110 480,80"  fill="none" stroke="#c2410c" strokeWidth="4" opacity="0.2"/>
+          <path d="M-20,220 Q60,190 120,220 Q180,250 240,220 Q300,190 360,220 Q420,250 480,220" fill="none" stroke="#d97706" strokeWidth="4" opacity="0.2"/>
+          <path d="M-20,560 Q60,530 120,560 Q180,590 240,560 Q300,530 360,560 Q420,590 480,560" fill="none" stroke="#c2410c" strokeWidth="4" opacity="0.2"/>
+          <path d="M-20,720 Q60,690 120,720 Q180,750 240,720 Q300,690 360,720 Q420,750 480,720" fill="none" stroke="#d97706" strokeWidth="4" opacity="0.2"/>
         </svg>
       </div>
     );

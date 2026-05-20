@@ -1308,16 +1308,17 @@ const ForestUpcomingCard = ({ event, navigate }: { event: EventWithRole; navigat
 );
 
 const CUSTOM_SOLID_COLOR_MAP: Record<string, string> = {
-  "solid-black": "#000000", "solid-white": "#ffffff", "solid-deepred": "#7f1d1d",
-  "solid-navy": "#1e3a5f", "solid-forestgreen": "#14532d", "solid-purple": "#4a1d96",
-  "solid-burntorange": "#7c2d12", "solid-hotpink": "#831843",
+  "solid-softwhite": "#fafafa", "solid-cream": "#fdf6e3", "solid-blushpink": "#fde8f0",
+  "solid-lavender": "#ede9fe", "solid-mint": "#ecfdf5", "solid-sky": "#e0f2fe",
+  "solid-peach": "#fff7ed", "solid-lemon": "#fefce8",
 };
+const CUSTOM_SOLID_LIGHT_KEYS = new Set(Object.keys(CUSTOM_SOLID_COLOR_MAP));
 
 const getCustomCardBg = (bgPhoto: string | null): { style: React.CSSProperties; isLight: boolean; hasStars: boolean } => {
   if (!bgPhoto) return { style: { backgroundColor: "#111111" }, isLight: false, hasStars: false };
   if (bgPhoto.startsWith("solid-")) {
     const color = CUSTOM_SOLID_COLOR_MAP[bgPhoto] || "#111111";
-    return { style: { backgroundColor: color }, isLight: bgPhoto === "solid-white", hasStars: false };
+    return { style: { backgroundColor: color }, isLight: CUSTOM_SOLID_LIGHT_KEYS.has(bgPhoto), hasStars: false };
   }
   if (bgPhoto.startsWith("http") || bgPhoto.startsWith("blob:")) {
     return { style: { backgroundImage: `url(${bgPhoto})`, backgroundSize: "cover", backgroundPosition: "center" }, isLight: false, hasStars: false };
@@ -1330,6 +1331,7 @@ const getCustomCardBg = (bgPhoto: string | null): { style: React.CSSProperties; 
     case "planit-pattern:cherry-blossom": return { style: { background: "linear-gradient(160deg, #fce4ec, #f8bbd0)" }, isLight: true,  hasStars: false };
     case "planit-pattern:camo":           return { style: { backgroundColor: "#4a5240" }, isLight: false, hasStars: false };
     case "planit-pattern:blueprint":      return { style: { backgroundColor: "#0a1628", backgroundImage: "repeating-linear-gradient(rgba(56,189,248,0.15) 1px,transparent 1px),repeating-linear-gradient(90deg,rgba(56,189,248,0.15) 1px,transparent 1px)", backgroundSize: "20px 20px" }, isLight: false, hasStars: false };
+    case "planit-pattern:groovy":         return { style: { backgroundColor: "#fdf6e3" }, isLight: true, hasStars: false };
     default:                              return { style: { backgroundColor: "#111111" }, isLight: false, hasStars: false };
   }
 };
