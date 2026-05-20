@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowLeft, Upload, Copy, Share2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
+import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import bgNeonCity from "@/assets/bg-neon-city.jpg";
@@ -380,6 +380,7 @@ const HostEvent = () => {
   const [fontStyle, setFontStyle] = useState<string>("Elegant");
   const [templateName, setTemplateName] = useState<string>("planit-noir");
   const [customizeTab, setCustomizeTab] = useState<"templates" | "customise">("templates");
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const { toast } = useToast();
   const [customisePanel, setCustomisePanel] = useState<string | null>(null);
   const [editLoading, setEditLoading] = useState(!!editCode);
@@ -2317,15 +2318,14 @@ const HostEvent = () => {
 
       <div className="px-5 pb-10 flex flex-col gap-3">
         {/* Make it yours + action buttons */}
-        <Drawer>
-          <DrawerTrigger asChild>
-            <button
-              className="rounded-2xl px-4 py-3.5 mb-4 w-full text-center text-sm font-bold border mt-2"
-              style={{ backgroundColor: accentColor, color: accentText, borderColor: "rgba(0,0,0,0.1)" }}
-            >
-              Make it yours ✦
-            </button>
-          </DrawerTrigger>
+        <button
+          onClick={() => setDrawerOpen(true)}
+          className="rounded-2xl px-4 py-3.5 mb-4 w-full text-center text-sm font-bold border mt-2"
+          style={{ backgroundColor: accentColor, color: accentText, borderColor: "rgba(0,0,0,0.1)" }}
+        >
+          Make it yours ✦
+        </button>
+        <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
           <DrawerContent className="bg-card px-5 pb-8 pt-2 border-t border-border max-h-[80vh]">
             <div className="mx-auto w-10 h-1 rounded-full bg-muted-foreground/30 mb-4" />
 
@@ -2654,7 +2654,14 @@ const HostEvent = () => {
                     <div className="flex flex-col gap-5">
                       {/* Build It button */}
                       <button
-                        onClick={() => { setShowBuildIt(true); setBuildItError(null); setBuildItImageUrl(null); }}
+                        onClick={() => {
+                          setDrawerOpen(false);
+                          setTimeout(() => {
+                            setShowBuildIt(true);
+                            setBuildItError(null);
+                            setBuildItImageUrl(null);
+                          }, 300);
+                        }}
                         className="w-full rounded-2xl py-4 px-4 flex items-center gap-3 text-left"
                         style={{ background: "linear-gradient(135deg, #7c3aed, #db2777)", border: "none" }}
                       >
@@ -2833,11 +2840,12 @@ const HostEvent = () => {
               className="hidden"
               onChange={handleFileUpload}
             />
-            <DrawerTrigger asChild>
-              <button className="w-full bg-secondary text-secondary-foreground rounded-[var(--radius)] py-4 text-base font-extrabold border border-border mt-4">
-                Done
-              </button>
-            </DrawerTrigger>
+            <button
+              onClick={() => setDrawerOpen(false)}
+              className="w-full bg-secondary text-secondary-foreground rounded-[var(--radius)] py-4 text-base font-extrabold border border-border mt-4"
+            >
+              Done
+            </button>
           </DrawerContent>
         </Drawer>
 
