@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { fal } from "@fal-ai/client";
+
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowLeft, Upload, Copy, Share2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
