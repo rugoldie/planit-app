@@ -379,7 +379,7 @@ const HostEvent = () => {
   const [gradientColor, setGradientColor] = useState(GRADIENT_COLORS[0].color);
   const [fontStyle, setFontStyle] = useState<string>("Elegant");
   const [templateName, setTemplateName] = useState<string>("planit-noir");
-  const [customizeTab, setCustomizeTab] = useState<"main" | "customise">("main");
+  const [customizeTab, setCustomizeTab] = useState<"templates" | "customise">("templates");
   const { toast } = useToast();
   const [customisePanel, setCustomisePanel] = useState<string | null>(null);
   const [editLoading, setEditLoading] = useState(!!editCode);
@@ -2577,200 +2577,200 @@ const HostEvent = () => {
                     </>
                   )}
                 </div>
-              ) : customizeTab === "customise" ? (
-                /* ─── Customise options list ─── */
-                <div>
-                  <button
-                    onClick={() => { setCustomizeTab("main"); setCustomisePanel(null); }}
-                    className="flex items-center gap-1 text-sm text-white/60 mb-4"
-                  >
-                    <ArrowLeft className="w-4 h-4" /> Back
-                  </button>
-                  {isCustom ? (
-                    <div className="flex flex-col gap-1">
-                      <button onClick={() => setCustomisePanel("custom-bg")} className="flex items-center justify-between py-3.5 px-1">
-                        <span className="text-sm font-semibold text-white">Background</span>
-                        <div className="flex items-center gap-2">
-                          <div className="w-5 h-5 rounded-full border border-white/20" style={customBgKey ? getPatternBgStyle(customBgKey) : bgPhoto ? { backgroundImage: `url(${bgPhoto})`, backgroundSize: "cover" } : { backgroundColor: `hsl(${bgColor})` }} />
-                          <span className="text-white/40 text-lg">›</span>
-                        </div>
-                      </button>
-                      <button onClick={() => setCustomisePanel("bubble")} className="flex items-center justify-between py-3.5 px-1">
-                        <span className="text-sm font-semibold text-white">Accent colour</span>
-                        <div className="flex items-center gap-2">
-                          <div className="w-5 h-5 rounded-full border border-white/20" style={{ backgroundColor: accentColor }} />
-                          <span className="text-white/40 text-lg">›</span>
-                        </div>
-                      </button>
-                      <button onClick={() => setCustomisePanel("font")} className="flex items-center justify-between py-3.5 px-1">
-                        <span className="text-sm font-semibold text-white">Font</span>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs text-white/60">{fontStyle}</span>
-                          <span className="text-white/40 text-lg">›</span>
-                        </div>
-                      </button>
-                      <button onClick={() => setCustomisePanel("size")} className="flex items-center justify-between py-3.5 px-1">
-                        <span className="text-sm font-semibold text-white">Text size</span>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs text-white/60">{textSize}</span>
-                          <span className="text-white/40 text-lg">›</span>
-                        </div>
-                      </button>
-                      <button onClick={() => setCustomisePanel("custom-font-color")} className="flex items-center justify-between py-3.5 px-1">
-                        <span className="text-sm font-semibold text-white">Font colour</span>
-                        <div className="flex items-center gap-2">
-                          <div className="w-5 h-5 rounded-full border border-white/20" style={{ backgroundColor: fontColor }} />
-                          <span className="text-white/40 text-lg">›</span>
-                        </div>
-                      </button>
-                      <button onClick={() => setCustomisePanel("custom-stickers")} className="flex items-center justify-between py-3.5 px-1">
-                        <span className="text-sm font-semibold text-white">Stickers</span>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs text-white/60">{stickers.length > 0 ? `${stickers.length} placed` : "None"}</span>
-                          <span className="text-white/40 text-lg">›</span>
-                        </div>
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="flex flex-col gap-1">
-                      <button onClick={() => setCustomisePanel("bg")} className="flex items-center justify-between py-3.5 px-1">
-                        <span className="text-sm font-semibold text-white">Background colour</span>
-                        <div className="flex items-center gap-2">
-                          <div className="w-5 h-5 rounded-full border border-white/20" style={{ backgroundColor: `hsl(${bgColor})` }} />
-                          <span className="text-white/40 text-lg">›</span>
-                        </div>
-                      </button>
-                      <button onClick={() => setCustomisePanel("bubble")} className="flex items-center justify-between py-3.5 px-1">
-                        <span className="text-sm font-semibold text-white">Bubble colour</span>
-                        <div className="flex items-center gap-2">
-                          <div className="w-5 h-5 rounded-full border border-white/20" style={{ backgroundColor: accentColor }} />
-                          <span className="text-white/40 text-lg">›</span>
-                        </div>
-                      </button>
-                      <button onClick={() => setCustomisePanel("font")} className="flex items-center justify-between py-3.5 px-1">
-                        <span className="text-sm font-semibold text-white">Font</span>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs text-white/60">{fontStyle}</span>
-                          <span className="text-white/40 text-lg">›</span>
-                        </div>
-                      </button>
-                      <button onClick={() => setCustomisePanel("size")} className="flex items-center justify-between py-3.5 px-1">
-                        <span className="text-sm font-semibold text-white">Text size</span>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs text-white/60">{textSize}</span>
-                          <span className="text-white/40 text-lg">›</span>
-                        </div>
-                      </button>
-                    </div>
-                  )}
-                </div>
               ) : (
-                /* ─── Main drawer screen ─── */
-                <div className="flex flex-col gap-5">
-                  {/* AI Cover Art button */}
-                  <button
-                    onClick={() => toast({ title: "Coming soon!", description: "AI cover art generation is on the way." })}
-                    className="w-full rounded-2xl py-4 px-4 flex items-center gap-3 text-left"
-                    style={{ background: "linear-gradient(135deg, #7c3aed, #db2777)", border: "none" }}
-                  >
-                    <span style={{ fontSize: "22px" }}>🪄</span>
-                    <div>
-                      <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "14px", fontWeight: 700, color: "#fff", lineHeight: 1.2 }}>✦ Build It</p>
-                      <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "11px", color: "rgba(255,255,255,0.7)", marginTop: "2px" }}>Describe your event, we'll create the art</p>
-                    </div>
-                  </button>
-
-                  {/* Templates section */}
-                  <div>
-                    <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "16px", fontWeight: 700, color: "#fff", marginBottom: "10px" }}>Templates</p>
-                    <div className="flex gap-2.5 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
-                      {TEMPLATES.map((t) => {
-                        const isSelected = templateName === t.templateName;
-                        const tn = t.templateName;
-                        const cfg: Record<string, { bg: string; bgGrad?: string; titleColor: string; accentColor: string; accentStyle?: React.CSSProperties; font: string; barColor: string; barText: string }> = {
-                          "planit-noir":    { bg: "#0a0a0a", titleColor: "#fff", accentColor: "#aaee44", accentStyle: { fontStyle: "italic" }, font: "'Playfair Display', serif", barColor: "#aaee44", barText: "#111" },
-                          vintage:          { bg: "#f5f0e8", titleColor: "#2c1810", accentColor: "#8b7355", font: "'Playfair Display', serif", barColor: "#8b7355", barText: "#f5f0e8" },
-                          galaxy:           { bg: "#0d0d2b", titleColor: "#fff", accentColor: "#7c3aed", font: "'Bebas Neue', sans-serif", barColor: "#7c3aed", barText: "#fff" },
-                          sunny:            { bg: "#ff6b35", bgGrad: "linear-gradient(135deg, #ff6b35, #ff8c00)", titleColor: "#fff", accentColor: "#fff", font: "'Caveat', cursive", barColor: "#ff6b35", barText: "#fff" },
-                          midnight:         { bg: "#ffffff", titleColor: "#000", accentColor: "#000", font: "'Bebas Neue', sans-serif", barColor: "#000", barText: "#fff" },
-                          ocean:            { bg: "#0d1b2a", titleColor: "#fff", accentColor: "#1e90ff", font: "'Bebas Neue', sans-serif", barColor: "#1e90ff", barText: "#fff" },
-                          blush:            { bg: "#1a0a10", titleColor: "#fff", accentColor: "#e91e8c", font: "'Playfair Display', serif", barColor: "#e91e8c", barText: "#fff" },
-                          forest:           { bg: "#0a1f0a", titleColor: "#fff", accentColor: "#2e7d32", font: "'Playfair Display', serif", barColor: "#2e7d32", barText: "#fff" },
-                          "planit-custom":  { bg: "linear-gradient(135deg, #f857a6, #ff5858, #43e97b, #38f9d7, #4776e6)", titleColor: "#fff", accentColor: "#fff", font: "'Bebas Neue', sans-serif", barColor: "#fff", barText: "#111" },
-                        };
-                        const c = cfg[tn] || { bg: "#2b2b2b", titleColor: "#fff", accentColor: "#aaee44", font: "sans-serif", barColor: "#aaee44", barText: "#111" };
-
-                        return (
-                          <button
-                            key={t.name}
-                            onClick={() => {
-                              setBgColor(t.bgColor);
-                              setBubbleColor(t.bubbleColor);
-                              setBubbleTextColor(t.bubbleTextColor);
-                              setGradientColor(t.gradientColor);
-                              setFontStyle(t.fontStyle);
-                              setTemplateName(t.templateName);
-                              setBgPhoto(null);
-                              setBgPreset(null);
-                              setBgPresetIsImage(false);
-                            }}
-                            className="flex flex-col rounded-xl overflow-hidden shrink-0 transition-all"
-                            style={{ width: "60px", border: isSelected ? "2px solid #aaee44" : "2px solid transparent" }}
-                          >
-                            <div
-                              style={{
-                                width: "100%",
-                                height: "62px",
-                                background: c.bgGrad || c.bg,
-                                backgroundColor: c.bgGrad ? undefined : c.bg,
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                position: "relative",
-                                overflow: "hidden",
-                              }}
-                            >
-                              {tn === "galaxy" && (
-                                <div style={{ position: "absolute", top: "40%", left: "50%", transform: "translate(-50%,-50%)", width: 28, height: 28, borderRadius: "50%", background: "radial-gradient(circle, rgba(124,58,237,0.5) 0%, transparent 70%)" }} />
-                              )}
-                              {tn === "planit-custom" ? (
-                                <span style={{ fontSize: 16, filter: "drop-shadow(0 0 4px rgba(255,255,255,0.6))" }}>✦</span>
-                              ) : tn === "midnight" ? (
-                                <div style={{ borderLeft: "2px solid #000", paddingLeft: 3 }}>
-                                  <span style={{ fontFamily: c.font, fontSize: 7, fontWeight: 800, color: c.titleColor, textTransform: "uppercase" as const, letterSpacing: "0.05em" }}>EVENT</span>
-                                </div>
-                              ) : (
-                                <span style={{ fontFamily: c.font, fontSize: 7, fontWeight: 700, color: c.titleColor, lineHeight: 1.2, textAlign: "center", position: "relative", zIndex: 1 }}>
-                                  Your <span style={{ color: c.accentColor, ...c.accentStyle }}>event</span>
-                                </span>
-                              )}
-                            </div>
-                            <div
-                              className="py-1 text-center"
-                              style={tn === "planit-custom" ? { background: "linear-gradient(90deg, #f857a6, #ff5858, #43e97b, #38f9d7, #4776e6)" } : { backgroundColor: c.barColor }}
-                            >
-                              <span style={{ fontSize: 6, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" as const, color: tn === "planit-custom" ? "#fff" : c.barText, display: "block", lineHeight: 1.4 }}>
-                                {t.name}
-                              </span>
-                            </div>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Customise section */}
-                  <div>
-                    <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "16px", fontWeight: 700, color: "#fff", marginBottom: "10px" }}>Customise</p>
+                /* ─── Tabbed drawer ─── */
+                <div>
+                  {/* Tab row */}
+                  <div className="flex mb-5 rounded-xl overflow-hidden border border-[#333]">
+                    <button
+                      onClick={() => setCustomizeTab("templates")}
+                      className="flex-1 py-2.5 text-sm font-bold transition-all"
+                      style={{ backgroundColor: customizeTab === "templates" ? "#aaee44" : "transparent", color: customizeTab === "templates" ? "#111" : "#666" }}
+                    >
+                      Templates
+                    </button>
                     <button
                       onClick={() => { setCustomizeTab("customise"); setCustomisePanel(null); }}
-                      className="w-full flex items-center justify-between py-4 px-4 rounded-2xl"
-                      style={{ backgroundColor: "#1e1e1e", border: "1px solid #333" }}
+                      className="flex-1 py-2.5 text-sm font-bold transition-all"
+                      style={{ backgroundColor: customizeTab === "customise" ? "#aaee44" : "transparent", color: customizeTab === "customise" ? "#111" : "#666" }}
                     >
-                      <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "14px", fontWeight: 600, color: "#fff" }}>Customise</span>
-                      <span style={{ color: "#666", fontSize: "18px" }}>›</span>
+                      Customise
                     </button>
                   </div>
+
+                  {customizeTab === "templates" ? (
+                    /* ─── Templates tab ─── */
+                    <div className="flex flex-col gap-5">
+                      {/* Build It button */}
+                      <button
+                        onClick={() => toast({ title: "Coming soon!", description: "AI cover art generation is on the way." })}
+                        className="w-full rounded-2xl py-4 px-4 flex items-center gap-3 text-left"
+                        style={{ background: "linear-gradient(135deg, #7c3aed, #db2777)", border: "none" }}
+                      >
+                        <span style={{ fontSize: "22px" }}>🪄</span>
+                        <div>
+                          <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "14px", fontWeight: 700, color: "#fff", lineHeight: 1.2 }}>✦ Build It</p>
+                          <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "11px", color: "rgba(255,255,255,0.7)", marginTop: "2px" }}>Describe your event, we'll create the art</p>
+                        </div>
+                      </button>
+                      {/* Horizontal template scroll */}
+                      <div className="flex gap-2.5 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
+                        {TEMPLATES.map((t) => {
+                          const isSelected = templateName === t.templateName;
+                          const tn = t.templateName;
+                          const cfg: Record<string, { bg: string; bgGrad?: string; titleColor: string; accentColor: string; accentStyle?: React.CSSProperties; font: string; barColor: string; barText: string }> = {
+                            "planit-noir":    { bg: "#0a0a0a", titleColor: "#fff", accentColor: "#aaee44", accentStyle: { fontStyle: "italic" }, font: "'Playfair Display', serif", barColor: "#aaee44", barText: "#111" },
+                            vintage:          { bg: "#f5f0e8", titleColor: "#2c1810", accentColor: "#8b7355", font: "'Playfair Display', serif", barColor: "#8b7355", barText: "#f5f0e8" },
+                            galaxy:           { bg: "#0d0d2b", titleColor: "#fff", accentColor: "#7c3aed", font: "'Bebas Neue', sans-serif", barColor: "#7c3aed", barText: "#fff" },
+                            sunny:            { bg: "#ff6b35", bgGrad: "linear-gradient(135deg, #ff6b35, #ff8c00)", titleColor: "#fff", accentColor: "#fff", font: "'Caveat', cursive", barColor: "#ff6b35", barText: "#fff" },
+                            midnight:         { bg: "#ffffff", titleColor: "#000", accentColor: "#000", font: "'Bebas Neue', sans-serif", barColor: "#000", barText: "#fff" },
+                            ocean:            { bg: "#0d1b2a", titleColor: "#fff", accentColor: "#1e90ff", font: "'Bebas Neue', sans-serif", barColor: "#1e90ff", barText: "#fff" },
+                            blush:            { bg: "#1a0a10", titleColor: "#fff", accentColor: "#e91e8c", font: "'Playfair Display', serif", barColor: "#e91e8c", barText: "#fff" },
+                            forest:           { bg: "#0a1f0a", titleColor: "#fff", accentColor: "#2e7d32", font: "'Playfair Display', serif", barColor: "#2e7d32", barText: "#fff" },
+                            "planit-custom":  { bg: "linear-gradient(135deg, #f857a6, #ff5858, #43e97b, #38f9d7, #4776e6)", titleColor: "#fff", accentColor: "#fff", font: "'Bebas Neue', sans-serif", barColor: "#fff", barText: "#111" },
+                          };
+                          const c = cfg[tn] || { bg: "#2b2b2b", titleColor: "#fff", accentColor: "#aaee44", font: "sans-serif", barColor: "#aaee44", barText: "#111" };
+
+                          return (
+                            <button
+                              key={t.name}
+                              onClick={() => {
+                                setBgColor(t.bgColor);
+                                setBubbleColor(t.bubbleColor);
+                                setBubbleTextColor(t.bubbleTextColor);
+                                setGradientColor(t.gradientColor);
+                                setFontStyle(t.fontStyle);
+                                setTemplateName(t.templateName);
+                                setBgPhoto(null);
+                                setBgPreset(null);
+                                setBgPresetIsImage(false);
+                              }}
+                              className="flex flex-col rounded-xl overflow-hidden shrink-0 transition-all"
+                              style={{ width: "60px", border: isSelected ? "2px solid #aaee44" : "2px solid transparent" }}
+                            >
+                              <div
+                                style={{
+                                  width: "100%",
+                                  height: "62px",
+                                  background: c.bgGrad || c.bg,
+                                  backgroundColor: c.bgGrad ? undefined : c.bg,
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  position: "relative",
+                                  overflow: "hidden",
+                                }}
+                              >
+                                {tn === "galaxy" && (
+                                  <div style={{ position: "absolute", top: "40%", left: "50%", transform: "translate(-50%,-50%)", width: 28, height: 28, borderRadius: "50%", background: "radial-gradient(circle, rgba(124,58,237,0.5) 0%, transparent 70%)" }} />
+                                )}
+                                {tn === "planit-custom" ? (
+                                  <span style={{ fontSize: 16, filter: "drop-shadow(0 0 4px rgba(255,255,255,0.6))" }}>✦</span>
+                                ) : tn === "midnight" ? (
+                                  <div style={{ borderLeft: "2px solid #000", paddingLeft: 3 }}>
+                                    <span style={{ fontFamily: c.font, fontSize: 7, fontWeight: 800, color: c.titleColor, textTransform: "uppercase" as const, letterSpacing: "0.05em" }}>EVENT</span>
+                                  </div>
+                                ) : (
+                                  <span style={{ fontFamily: c.font, fontSize: 7, fontWeight: 700, color: c.titleColor, lineHeight: 1.2, textAlign: "center", position: "relative", zIndex: 1 }}>
+                                    Your <span style={{ color: c.accentColor, ...c.accentStyle }}>event</span>
+                                  </span>
+                                )}
+                              </div>
+                              <div
+                                className="py-1 text-center"
+                                style={tn === "planit-custom" ? { background: "linear-gradient(90deg, #f857a6, #ff5858, #43e97b, #38f9d7, #4776e6)" } : { backgroundColor: c.barColor }}
+                              >
+                                <span style={{ fontSize: 6, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" as const, color: tn === "planit-custom" ? "#fff" : c.barText, display: "block", lineHeight: 1.4 }}>
+                                  {t.name}
+                                </span>
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ) : (
+                    /* ─── Customise tab ─── */
+                    <div>
+                      {isCustom ? (
+                        <div className="flex flex-col gap-1">
+                          <button onClick={() => setCustomisePanel("custom-bg")} className="flex items-center justify-between py-3.5 px-1">
+                            <span className="text-sm font-semibold text-white">Background</span>
+                            <div className="flex items-center gap-2">
+                              <div className="w-5 h-5 rounded-full border border-white/20" style={customBgKey ? getPatternBgStyle(customBgKey) : bgPhoto ? { backgroundImage: `url(${bgPhoto})`, backgroundSize: "cover" } : { backgroundColor: `hsl(${bgColor})` }} />
+                              <span className="text-white/40 text-lg">›</span>
+                            </div>
+                          </button>
+                          <button onClick={() => setCustomisePanel("bubble")} className="flex items-center justify-between py-3.5 px-1">
+                            <span className="text-sm font-semibold text-white">Accent colour</span>
+                            <div className="flex items-center gap-2">
+                              <div className="w-5 h-5 rounded-full border border-white/20" style={{ backgroundColor: accentColor }} />
+                              <span className="text-white/40 text-lg">›</span>
+                            </div>
+                          </button>
+                          <button onClick={() => setCustomisePanel("font")} className="flex items-center justify-between py-3.5 px-1">
+                            <span className="text-sm font-semibold text-white">Font</span>
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs text-white/60">{fontStyle}</span>
+                              <span className="text-white/40 text-lg">›</span>
+                            </div>
+                          </button>
+                          <button onClick={() => setCustomisePanel("size")} className="flex items-center justify-between py-3.5 px-1">
+                            <span className="text-sm font-semibold text-white">Text size</span>
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs text-white/60">{textSize}</span>
+                              <span className="text-white/40 text-lg">›</span>
+                            </div>
+                          </button>
+                          <button onClick={() => setCustomisePanel("custom-font-color")} className="flex items-center justify-between py-3.5 px-1">
+                            <span className="text-sm font-semibold text-white">Font colour</span>
+                            <div className="flex items-center gap-2">
+                              <div className="w-5 h-5 rounded-full border border-white/20" style={{ backgroundColor: fontColor }} />
+                              <span className="text-white/40 text-lg">›</span>
+                            </div>
+                          </button>
+                          <button onClick={() => setCustomisePanel("custom-stickers")} className="flex items-center justify-between py-3.5 px-1">
+                            <span className="text-sm font-semibold text-white">Stickers</span>
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs text-white/60">{stickers.length > 0 ? `${stickers.length} placed` : "None"}</span>
+                              <span className="text-white/40 text-lg">›</span>
+                            </div>
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col gap-1">
+                          <button onClick={() => setCustomisePanel("bg")} className="flex items-center justify-between py-3.5 px-1">
+                            <span className="text-sm font-semibold text-white">Background colour</span>
+                            <div className="flex items-center gap-2">
+                              <div className="w-5 h-5 rounded-full border border-white/20" style={{ backgroundColor: `hsl(${bgColor})` }} />
+                              <span className="text-white/40 text-lg">›</span>
+                            </div>
+                          </button>
+                          <button onClick={() => setCustomisePanel("bubble")} className="flex items-center justify-between py-3.5 px-1">
+                            <span className="text-sm font-semibold text-white">Bubble colour</span>
+                            <div className="flex items-center gap-2">
+                              <div className="w-5 h-5 rounded-full border border-white/20" style={{ backgroundColor: accentColor }} />
+                              <span className="text-white/40 text-lg">›</span>
+                            </div>
+                          </button>
+                          <button onClick={() => setCustomisePanel("font")} className="flex items-center justify-between py-3.5 px-1">
+                            <span className="text-sm font-semibold text-white">Font</span>
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs text-white/60">{fontStyle}</span>
+                              <span className="text-white/40 text-lg">›</span>
+                            </div>
+                          </button>
+                          <button onClick={() => setCustomisePanel("size")} className="flex items-center justify-between py-3.5 px-1">
+                            <span className="text-sm font-semibold text-white">Text size</span>
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs text-white/60">{textSize}</span>
+                              <span className="text-white/40 text-lg">›</span>
+                            </div>
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
