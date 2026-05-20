@@ -537,28 +537,14 @@ const HostEvent = () => {
     setBuildItError(null);
     setBuildItImageUrl(null);
     try {
-      const apiKey = import.meta.env.FAL_API_KEY;
-      if (!apiKey) throw new Error("FAL_API_KEY is not set");
-
-      fal.config({ credentials: apiKey });
-
-      const fullPrompt = `${buildItPrompt.trim()}, event invitation background, beautiful, vibrant, no text, no words, no letters`;
-
-      const result = await fal.run("fal-ai/flux/schnell", {
-        input: {
-          prompt: fullPrompt,
-          image_size: "portrait_4_3",
-          num_inference_steps: 4,
-          num_images: 1,
-          enable_safety_checker: false,
-          sync_mode: true,
-        },
+      const { data, error } = await supabase.functions.invoke("generate-cover-art", {
+        body: { prompt: buildItPrompt.trim() },
       });
-
-      const imageUrl = (result as any).images?.[0]?.url;
+      if (error) throw error;
+      const imageUrl = (data as any)?.imageUrl;
       if (!imageUrl) {
-        console.error("[BuildIt] No imageUrl in fal.ai response:", result);
-        throw new Error("No image returned from fal.ai");
+        console.error("[BuildIt] No imageUrl in response:", data);
+        throw new Error("No image returned");
       }
       setBuildItImageUrl(imageUrl);
     } catch (err: any) {
