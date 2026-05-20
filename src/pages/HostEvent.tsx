@@ -537,8 +537,8 @@ const HostEvent = () => {
     setBuildItError(null);
     setBuildItImageUrl(null);
     try {
-      const apiKey = import.meta.env.VITE_FAL_API_KEY;
-      if (!apiKey) throw new Error("VITE_FAL_API_KEY is not set in your .env file");
+      const apiKey = import.meta.env.FAL_API_KEY;
+      if (!apiKey) throw new Error("FAL_API_KEY is not set");
 
       fal.config({ credentials: apiKey });
 
