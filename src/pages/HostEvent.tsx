@@ -555,49 +555,16 @@ const HostEvent = () => {
     }
   };
 
-  const useCoverArt = async () => {
+  const useCoverArt = () => {
     if (!buildItImageUrl) return;
-    setBuildItGenerating(true);
-    setBuildItError(null);
-    try {
-      let finalUrl = buildItImageUrl;
-      // Try to persist the image into our own storage so it survives
-      // beyond fal.ai's temporary URL lifetime. If that fails (e.g. CORS),
-      // fall back to using the fal URL directly.
-      try {
-        const resp = await fetch(buildItImageUrl);
-        if (resp.ok) {
-          const blob = await resp.blob();
-          const path = `ai-covers/${Date.now()}.jpg`;
-          const { error: uploadError } = await supabase.storage
-            .from("event-photos")
-            .upload(path, blob, { contentType: blob.type || "image/jpeg" });
-          if (!uploadError) {
-            const { data: { publicUrl } } = supabase.storage
-              .from("event-photos")
-              .getPublicUrl(path);
-            finalUrl = publicUrl;
-          } else {
-            console.warn("[BuildIt] storage upload failed, using fal URL:", uploadError);
-          }
-        }
-      } catch (uploadErr) {
-        console.warn("[BuildIt] could not re-upload fal image, using direct URL:", uploadErr);
-      }
-
-      setBgPhoto(finalUrl);
-      setUploadedPhoto(finalUrl);
-      setBgPreset(null);
-      setBgPresetIsImage(false);
-      setShowBuildIt(false);
-      setBuildItImageUrl(null);
-      setBuildItPrompt("");
-    } catch (err: any) {
-      console.error("[BuildIt] useCoverArt failed:", err);
-      setBuildItError("Failed to apply image. Please try again.");
-    } finally {
-      setBuildItGenerating(false);
-    }
+    // fal.ai returns stable CDN URLs — store directly as bgPhoto, no re-upload needed
+    setBgPhoto(buildItImageUrl);
+    setUploadedPhoto(buildItImageUrl);
+    setBgPreset(null);
+    setBgPresetIsImage(false);
+    setShowBuildIt(false);
+    setBuildItImageUrl(null);
+    setBuildItPrompt("");
   };
 
   const handleCopy = () => {
@@ -2945,7 +2912,7 @@ const HostEvent = () => {
                   style={{ borderColor: "#7c3aed", borderTopColor: "transparent" }}
                 />
                 <p style={{ color: "#999", fontSize: "13px" }}>
-                  {buildItImageUrl ? "Saving…" : "Generating your cover art…"}
+                  Generating your cover art…
                 </p>
               </div>
             )}
