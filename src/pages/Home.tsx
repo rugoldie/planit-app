@@ -1190,9 +1190,9 @@ const BlushNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate: 
     <div className="rounded-2xl overflow-hidden cursor-pointer" style={{ backgroundColor: "#1a0a10", border: "1px solid rgba(244,114,182,0.22)" }} onClick={() => navigate(navPath)}>
       {/* Header */}
       <div className="p-3.5 pb-2">
-        {event.vibe && (
+        {(event as any).vibe && (
           <div style={{ display: "inline-block", backgroundColor: "rgba(244,114,182,0.14)", border: "1px solid rgba(244,114,182,0.28)", borderRadius: "50px", padding: "3px 12px", marginBottom: "10px" }}>
-            <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase" as const, color: "#f472b6" }}>{event.vibe}</span>
+            <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase" as const, color: "#f472b6" }}>{(event as any).vibe}</span>
           </div>
         )}
         <span style={{ fontFamily: "'Playfair Display', serif", fontWeight: 900, fontSize: "1.15rem", color: "#fff", lineHeight: 1.2, display: "block", marginBottom: "4px" }}>{event.title || "Untitled Event"}</span>
