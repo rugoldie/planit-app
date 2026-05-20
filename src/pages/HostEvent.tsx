@@ -385,6 +385,11 @@ const HostEvent = () => {
   const [editLoading, setEditLoading] = useState(!!editCode);
   const [titleError, setTitleError] = useState("");
   const [stickers, setStickers] = useState<StickerItem[]>([]);
+  const [showBuildIt, setShowBuildIt] = useState(false);
+  const [buildItPrompt, setBuildItPrompt] = useState("");
+  const [buildItGenerating, setBuildItGenerating] = useState(false);
+  const [buildItImageUrl, setBuildItImageUrl] = useState<string | null>(null);
+  const [buildItError, setBuildItError] = useState<string | null>(null);
   const [selectedStickerId, setSelectedStickerId] = useState<string | null>(null);
   const [fontColor, setFontColor] = useState<string>("#ffffff");
   const customContainerRef = useRef<HTMLDivElement>(null);
@@ -521,6 +526,52 @@ const HostEvent = () => {
       setBgPhoto(url);
       setBgPreset(null);
       setBgPresetIsImage(false);
+    }
+  };
+
+  const generateCoverArt = async () => {
+    if (!buildItPrompt.trim()) return;
+    setBuildItGenerating(true);
+    setBuildItError(null);
+    setBuildItImageUrl(null);
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-cover-art", {
+        body: { prompt: buildItPrompt },
+      });
+      if (error) throw new Error(error.message);
+      if (!data?.imageUrl) throw new Error("No image returned");
+      setBuildItImageUrl(data.imageUrl);
+    } catch (err: any) {
+      setBuildItError("Something went wrong. Please try again.");
+    } finally {
+      setBuildItGenerating(false);
+    }
+  };
+
+  const useCoverArt = async () => {
+    if (!buildItImageUrl) return;
+    setBuildItGenerating(true);
+    setBuildItError(null);
+    try {
+      const resp = await fetch(buildItImageUrl);
+      const blob = await resp.blob();
+      const path = `ai-covers/${Date.now()}.jpg`;
+      const { error: uploadError } = await supabase.storage
+        .from("event-photos")
+        .upload(path, blob, { contentType: "image/jpeg" });
+      if (uploadError) throw uploadError;
+      const { data: { publicUrl } } = supabase.storage.from("event-photos").getPublicUrl(path);
+      setBgPhoto(publicUrl);
+      setUploadedPhoto(publicUrl);
+      setBgPreset(null);
+      setBgPresetIsImage(false);
+      setShowBuildIt(false);
+      setBuildItImageUrl(null);
+      setBuildItPrompt("");
+    } catch (err: any) {
+      setBuildItError("Failed to save image. Please try again.");
+    } finally {
+      setBuildItGenerating(false);
     }
   };
 
@@ -2603,7 +2654,7 @@ const HostEvent = () => {
                     <div className="flex flex-col gap-5">
                       {/* Build It button */}
                       <button
-                        onClick={() => toast({ title: "Coming soon!", description: "AI cover art generation is on the way." })}
+                        onClick={() => { setShowBuildIt(true); setBuildItError(null); setBuildItImageUrl(null); }}
                         className="w-full rounded-2xl py-4 px-4 flex items-center gap-3 text-left"
                         style={{ background: "linear-gradient(135deg, #7c3aed, #db2777)", border: "none" }}
                       >
@@ -2798,6 +2849,114 @@ const HostEvent = () => {
           {editCode ? "Update Event" : "Create Event"}
         </button>
       </div>
+
+      {/* ─── Build It modal ─── */}
+      {showBuildIt && (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center"
+          style={{ backgroundColor: "rgba(0,0,0,0.7)" }}
+          onClick={(e) => { if (e.target === e.currentTarget) { setShowBuildIt(false); } }}
+        >
+          <div
+            className="w-full rounded-t-3xl px-5 pt-5 pb-10"
+            style={{ backgroundColor: "#141414", maxHeight: "90vh", overflowY: "auto" }}
+          >
+            {/* Handle */}
+            <div className="mx-auto w-10 h-1 rounded-full mb-5" style={{ backgroundColor: "#333" }} />
+
+            {/* Header */}
+            <div className="flex items-center justify-between mb-5">
+              <div>
+                <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "18px", fontWeight: 700, color: "#fff" }}>✦ Build It</p>
+                <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "12px", color: "#666", marginTop: "2px" }}>Describe your event, we'll generate the art</p>
+              </div>
+              <button
+                onClick={() => setShowBuildIt(false)}
+                style={{ color: "#666", fontSize: "22px", lineHeight: 1, background: "none", border: "none", padding: "4px" }}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Prompt input */}
+            <textarea
+              value={buildItPrompt}
+              onChange={(e) => setBuildItPrompt(e.target.value)}
+              placeholder="e.g. a tropical birthday party on the beach at sunset with palm trees and fairy lights"
+              rows={3}
+              className="w-full rounded-2xl px-4 py-3 text-sm resize-none outline-none"
+              style={{
+                backgroundColor: "#1e1e1e",
+                border: "1px solid #333",
+                color: "#fff",
+                fontFamily: "'Inter', sans-serif",
+              }}
+            />
+
+            {/* Error */}
+            {buildItError && (
+              <p className="text-sm mt-3" style={{ color: "#f87171" }}>{buildItError}</p>
+            )}
+
+            {/* Generated image preview */}
+            {buildItImageUrl && !buildItGenerating && (
+              <div className="mt-4 rounded-2xl overflow-hidden" style={{ aspectRatio: "4/3" }}>
+                <img src={buildItImageUrl} alt="Generated cover art" className="w-full h-full object-cover" />
+              </div>
+            )}
+
+            {/* Loading spinner */}
+            {buildItGenerating && (
+              <div className="flex flex-col items-center justify-center py-10 gap-3">
+                <div
+                  className="w-10 h-10 rounded-full border-4 border-t-transparent animate-spin"
+                  style={{ borderColor: "#7c3aed", borderTopColor: "transparent" }}
+                />
+                <p style={{ color: "#999", fontSize: "13px" }}>
+                  {buildItImageUrl ? "Saving…" : "Generating your cover art…"}
+                </p>
+              </div>
+            )}
+
+            {/* Action buttons */}
+            {!buildItGenerating && (
+              <div className="flex gap-3 mt-4">
+                {!buildItImageUrl ? (
+                  <button
+                    onClick={generateCoverArt}
+                    disabled={!buildItPrompt.trim()}
+                    className="flex-1 rounded-2xl py-3.5 text-sm font-bold"
+                    style={{
+                      background: buildItPrompt.trim() ? "linear-gradient(135deg, #7c3aed, #db2777)" : "#2b2b2b",
+                      color: buildItPrompt.trim() ? "#fff" : "#555",
+                      border: "none",
+                    }}
+                  >
+                    Generate
+                  </button>
+                ) : (
+                  <>
+                    <button
+                      onClick={generateCoverArt}
+                      className="flex-1 rounded-2xl py-3.5 text-sm font-bold"
+                      style={{ backgroundColor: "#1e1e1e", border: "1px solid #333", color: "#ccc" }}
+                    >
+                      Regenerate
+                    </button>
+                    <button
+                      onClick={useCoverArt}
+                      className="flex-1 rounded-2xl py-3.5 text-sm font-bold"
+                      style={{ background: "linear-gradient(135deg, #7c3aed, #db2777)", color: "#fff", border: "none" }}
+                    >
+                      Use this ✓
+                    </button>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
