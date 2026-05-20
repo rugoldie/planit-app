@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { fal } from "@fal-ai/client";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowLeft, Upload, Copy, Share2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -536,24 +537,30 @@ const HostEvent = () => {
     setBuildItError(null);
     setBuildItImageUrl(null);
     try {
-      const { data, error } = await supabase.functions.invoke("generate-cover-art", {
-        body: { prompt: buildItPrompt },
+      const apiKey = import.meta.env.VITE_FAL_API_KEY;
+      if (!apiKey) throw new Error("VITE_FAL_API_KEY is not set in your .env file");
+
+      fal.config({ credentials: apiKey });
+
+      const fullPrompt = `${buildItPrompt.trim()}, event invitation background, beautiful, vibrant, no text, no words, no letters`;
+
+      const result = await fal.run("fal-ai/flux/schnell", {
+        input: {
+          prompt: fullPrompt,
+          image_size: "portrait_4_3",
+          num_inference_steps: 4,
+          num_images: 1,
+          enable_safety_checker: false,
+          sync_mode: true,
+        },
       });
-      if (error) {
-        // Extract actual error body from the edge function response
-        let detail = error.message;
-        try {
-          const body = await (error as any).context?.json?.();
-          if (body?.error) detail = body.error;
-        } catch {}
-        console.error("[BuildIt] Edge function error:", detail, error);
-        throw new Error(detail);
+
+      const imageUrl = (result as any).images?.[0]?.url;
+      if (!imageUrl) {
+        console.error("[BuildIt] No imageUrl in fal.ai response:", result);
+        throw new Error("No image returned from fal.ai");
       }
-      if (!data?.imageUrl) {
-        console.error("[BuildIt] No imageUrl in response:", data);
-        throw new Error("No image returned");
-      }
-      setBuildItImageUrl(data.imageUrl);
+      setBuildItImageUrl(imageUrl);
     } catch (err: any) {
       console.error("[BuildIt] generateCoverArt failed:", err);
       setBuildItError(err.message ?? "Something went wrong. Please try again.");
