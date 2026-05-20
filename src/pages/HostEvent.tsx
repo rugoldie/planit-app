@@ -2675,14 +2675,14 @@ const HostEvent = () => {
                   >
                     <span style={{ fontSize: "22px" }}>🪄</span>
                     <div>
-                      <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "14px", fontWeight: 700, color: "#fff", lineHeight: 1.2 }}>AI Cover Art</p>
-                      <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "11px", color: "rgba(255,255,255,0.7)", marginTop: "2px" }}>Describe your event, generate art</p>
+                      <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "14px", fontWeight: 700, color: "#fff", lineHeight: 1.2 }}>✦ Build It</p>
+                      <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "11px", color: "rgba(255,255,255,0.7)", marginTop: "2px" }}>Describe your event, we'll create the art</p>
                     </div>
                   </button>
 
                   {/* Templates section */}
                   <div>
-                    <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "11px", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase" as const, color: "#666", marginBottom: "10px" }}>Templates</p>
+                    <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "16px", fontWeight: 700, color: "#fff", marginBottom: "10px" }}>Templates</p>
                     <div className="flex gap-2.5 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
                       {TEMPLATES.map((t) => {
                         const isSelected = templateName === t.templateName;
@@ -2761,7 +2761,7 @@ const HostEvent = () => {
 
                   {/* Customise section */}
                   <div>
-                    <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "11px", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase" as const, color: "#666", marginBottom: "10px" }}>Customise</p>
+                    <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "16px", fontWeight: 700, color: "#fff", marginBottom: "10px" }}>Customise</p>
                     <button
                       onClick={() => { setCustomizeTab("customise"); setCustomisePanel(null); }}
                       className="w-full flex items-center justify-between py-4 px-4 rounded-2xl"
