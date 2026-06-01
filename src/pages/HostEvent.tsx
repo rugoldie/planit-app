@@ -397,6 +397,7 @@ const HostEvent = () => {
     bgColor: string;
     fontStyle: string;
     gradientColor: string;
+    bgPattern: string | null;
   } | null>(null);
   const [buildItError, setBuildItError] = useState<string | null>(null);
   const [selectedStickerId, setSelectedStickerId] = useState<string | null>(null);
@@ -564,15 +565,20 @@ const HostEvent = () => {
 
   const applyStyle = () => {
     if (!buildItResult) return;
-    setTemplateName(buildItResult.template);
+    setTemplateName("planit-custom");
     setBubbleColor(buildItResult.bubbleColor);
     setBubbleTextColor(buildItResult.bubbleTextColor);
     setBgColor(buildItResult.bgColor);
     setFontStyle(buildItResult.fontStyle);
     setGradientColor(buildItResult.gradientColor);
     setBgPhoto(null);
-    setBgPreset(null);
-    setBgPresetIsImage(false);
+    if (buildItResult.bgPattern) {
+      setBgPreset(buildItResult.bgPattern);
+      setBgPresetIsImage(false);
+    } else {
+      setBgPreset(null);
+      setBgPresetIsImage(false);
+    }
     setShowBuildIt(false);
     setBuildItResult(null);
     setBuildItPrompt("");
@@ -2914,36 +2920,49 @@ const HostEvent = () => {
                 {/* Background swatch */}
                 <div
                   style={{
-                    height: "90px",
+                    height: "100px",
                     backgroundColor: `hsl(${buildItResult.bgColor})`,
+                    ...(buildItResult.bgPattern ? getPatternBgStyle(buildItResult.bgPattern) : {}),
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
+                    position: "relative",
+                    overflow: "hidden",
                   }}
                 >
+                  {buildItResult.bgPattern && (
+                    <div style={{ position: "absolute", inset: 0, overflow: "hidden" }}>
+                      <PatternOverlay patternKey={buildItResult.bgPattern} />
+                    </div>
+                  )}
                   <span
                     style={{
                       fontFamily: FONT_MAP[buildItResult.fontStyle] || FONT_MAP["Bold"],
                       fontSize: "20px",
                       color: `hsl(${buildItResult.bubbleColor})`,
+                      position: "relative",
+                      zIndex: 1,
                     }}
                   >
                     Your Event
                   </span>
                 </div>
                 {/* Details row */}
-                <div className="flex items-center gap-3 px-4 py-3" style={{ backgroundColor: "#1a1a1a" }}>
+                <div className="flex items-center gap-2 px-4 py-3" style={{ backgroundColor: "#1a1a1a" }}>
                   <div
                     className="w-5 h-5 rounded-full shrink-0"
                     style={{ backgroundColor: `hsl(${buildItResult.bubbleColor})`, border: "1px solid rgba(255,255,255,0.15)" }}
                   />
-                  <span style={{ color: "#ccc", fontSize: "13px" }}>
-                    {buildItResult.template.replace("planit-", "")} · {buildItResult.fontStyle}
-                  </span>
                   <div
-                    className="w-4 h-4 rounded-full shrink-0 ml-auto"
+                    className="w-4 h-4 rounded-full shrink-0"
                     style={{ backgroundColor: buildItResult.gradientColor, border: "1px solid rgba(255,255,255,0.15)" }}
                   />
+                  <span style={{ color: "#ccc", fontSize: "12px", marginLeft: "2px" }}>
+                    {buildItResult.fontStyle}
+                    {buildItResult.bgPattern
+                      ? ` · ${CUSTOM_BG_PATTERNS.find(p => p.key === buildItResult.bgPattern)?.name ?? ""}`
+                      : ""}
+                  </span>
                 </div>
               </div>
             )}
