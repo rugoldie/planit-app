@@ -143,24 +143,25 @@ const CUSTOM_SOLID_COLORS = [
 ];
 
 const getPatternBgStyle = (key: string): React.CSSProperties => {
+  // Always return both backgroundColor and backgroundImage so React clears stale values on each render.
   switch (key) {
-    case "planit-pattern:retro-stars":    return { backgroundColor: "#ede8d8" };
-    case "planit-pattern:checkerboard":   return { backgroundImage: "repeating-conic-gradient(#000 0% 25%, #fff 0% 50%)", backgroundSize: "24px 24px" };
-    case "planit-pattern:tie-dye":        return { background: "radial-gradient(circle at 50% 50%, #ff6b6b, #ffd93d 30%, #6bcb77 55%, #4d96ff 75%, #c77dff)" };
-    case "planit-pattern:holographic":    return { background: "conic-gradient(from 0deg at 50% 50%, #ff9de2, #a78bfa, #67e8f9, #86efac, #fde68a, #ff9de2)" };
-    case "planit-pattern:cherry-blossom": return { background: "linear-gradient(135deg, #fce4ec 0%, #f8bbd0 50%, #fce4ec 100%)" };
-    case "planit-pattern:camo":           return { backgroundColor: "#4a5240" };
+    case "planit-pattern:retro-stars":    return { backgroundColor: "#ede8d8", backgroundImage: "none", backgroundSize: "auto" };
+    case "planit-pattern:checkerboard":   return { backgroundColor: "", backgroundImage: "repeating-conic-gradient(#000 0% 25%, #fff 0% 50%)", backgroundSize: "24px 24px" };
+    case "planit-pattern:tie-dye":        return { backgroundColor: "", backgroundImage: "radial-gradient(circle at 50% 50%, #ff6b6b, #ffd93d 30%, #6bcb77 55%, #4d96ff 75%, #c77dff)", backgroundSize: "auto" };
+    case "planit-pattern:holographic":    return { backgroundColor: "", backgroundImage: "conic-gradient(from 0deg at 50% 50%, #ff9de2, #a78bfa, #67e8f9, #86efac, #fde68a, #ff9de2)", backgroundSize: "auto" };
+    case "planit-pattern:cherry-blossom": return { backgroundColor: "", backgroundImage: "linear-gradient(135deg, #fce4ec 0%, #f8bbd0 50%, #fce4ec 100%)", backgroundSize: "auto" };
+    case "planit-pattern:camo":           return { backgroundColor: "#4a5240", backgroundImage: "none", backgroundSize: "auto" };
     case "planit-pattern:blueprint":      return { backgroundColor: "#0a1628", backgroundImage: "repeating-linear-gradient(rgba(56,189,248,0.12) 1px, transparent 1px), repeating-linear-gradient(90deg, rgba(56,189,248,0.12) 1px, transparent 1px)", backgroundSize: "20px 20px" };
-    case "planit-pattern:groovy":         return { backgroundColor: "#fdf6e3" };
-    case "solid-softwhite":               return { backgroundColor: "#fafafa" };
-    case "solid-cream":                   return { backgroundColor: "#fdf6e3" };
-    case "solid-blushpink":               return { backgroundColor: "#fde8f0" };
-    case "solid-lavender":                return { backgroundColor: "#ede9fe" };
-    case "solid-mint":                    return { backgroundColor: "#ecfdf5" };
-    case "solid-sky":                     return { backgroundColor: "#e0f2fe" };
-    case "solid-peach":                   return { backgroundColor: "#fff7ed" };
-    case "solid-lemon":                   return { backgroundColor: "#fefce8" };
-    default: return {};
+    case "planit-pattern:groovy":         return { backgroundColor: "#fdf6e3", backgroundImage: "none", backgroundSize: "auto" };
+    case "solid-softwhite":               return { backgroundColor: "#fafafa", backgroundImage: "none", backgroundSize: "auto" };
+    case "solid-cream":                   return { backgroundColor: "#fdf6e3", backgroundImage: "none", backgroundSize: "auto" };
+    case "solid-blushpink":               return { backgroundColor: "#fde8f0", backgroundImage: "none", backgroundSize: "auto" };
+    case "solid-lavender":                return { backgroundColor: "#ede9fe", backgroundImage: "none", backgroundSize: "auto" };
+    case "solid-mint":                    return { backgroundColor: "#ecfdf5", backgroundImage: "none", backgroundSize: "auto" };
+    case "solid-sky":                     return { backgroundColor: "#e0f2fe", backgroundImage: "none", backgroundSize: "auto" };
+    case "solid-peach":                   return { backgroundColor: "#fff7ed", backgroundImage: "none", backgroundSize: "auto" };
+    case "solid-lemon":                   return { backgroundColor: "#fefce8", backgroundImage: "none", backgroundSize: "auto" };
+    default: return { backgroundColor: "", backgroundImage: "none", backgroundSize: "auto" };
   }
 };
 
@@ -771,8 +772,8 @@ const HostEvent = () => {
     <div
       className="flex flex-col min-h-screen transition-all duration-300"
       style={{
-        backgroundColor: containerBg,
-        background: isSunny ? "linear-gradient(180deg, #ff6b35 0%, #ff8c00 40%, #2a0e00 100%)" : undefined,
+        backgroundColor: isSunny ? "transparent" : containerBg,
+        backgroundImage: isSunny ? "linear-gradient(180deg, #ff6b35 0%, #ff8c00 40%, #2a0e00 100%)" : "none",
       }}
     >
       {isNoir ? (
@@ -2114,8 +2115,8 @@ const HostEvent = () => {
             const patternStyle: React.CSSProperties = customBgKey
               ? getPatternBgStyle(customBgKey)
               : bgPhoto
-                ? { backgroundImage: `url(${bgPhoto})`, backgroundSize: "cover", backgroundPosition: "center" }
-                : { backgroundColor: `hsl(${bgColor})` };
+                ? { backgroundColor: "", backgroundImage: `url(${bgPhoto})`, backgroundSize: "cover", backgroundPosition: "center" }
+                : { backgroundColor: `hsl(${bgColor})`, backgroundImage: "none", backgroundSize: "auto" };
             const hasPhotoScrim = !!bgPhoto;
             return (
               <div ref={customContainerRef} style={{ minHeight: "100vh", position: "relative", overflow: "hidden", ...patternStyle }} onClick={() => setSelectedStickerId(null)}>
