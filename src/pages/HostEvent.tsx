@@ -570,29 +570,35 @@ const HostEvent = () => {
     }
   };
 
+  // Log whenever Build It style state actually changes after a render
+  useEffect(() => {
+    console.log("[BuildIt] ★ STATE RENDER — templateName:", templateName, "| bgColor:", bgColor, "| bubbleColor:", bubbleColor, "| fontStyle:", fontStyle, "| bgPreset:", bgPreset);
+  }, [templateName, bgColor, bubbleColor, fontStyle, bgPreset]);
+
   const applyStyle = () => {
     if (!buildItResult) return;
-    console.log("[BuildIt] applyStyle — applying:", JSON.stringify(buildItResult));
+    console.log("[BuildIt] applyStyle CALLED with:", JSON.stringify(buildItResult));
+    console.log("[BuildIt] → setTemplateName('planit-custom')");
     setTemplateName("planit-custom");
+    console.log("[BuildIt] → setBubbleColor:", buildItResult.bubbleColor);
     setBubbleColor(buildItResult.bubbleColor);
+    console.log("[BuildIt] → setBubbleTextColor:", buildItResult.bubbleTextColor);
     setBubbleTextColor(buildItResult.bubbleTextColor);
+    console.log("[BuildIt] → setBgColor:", buildItResult.bgColor);
     setBgColor(buildItResult.bgColor);
+    console.log("[BuildIt] → setFontStyle:", buildItResult.fontStyle);
     setFontStyle(buildItResult.fontStyle);
+    console.log("[BuildIt] → setGradientColor:", buildItResult.gradientColor);
     setGradientColor(buildItResult.gradientColor);
+    console.log("[BuildIt] → setBgPhoto(null), setBgPreset:", buildItResult.bgPattern ?? "null");
     setBgPhoto(null);
-    if (buildItResult.bgPattern) {
-      setBgPreset(buildItResult.bgPattern);
-      setBgPresetIsImage(false);
-      console.log("[BuildIt] bgPattern set to:", buildItResult.bgPattern);
-    } else {
-      setBgPreset(null);
-      setBgPresetIsImage(false);
-      console.log("[BuildIt] bgColor set to:", buildItResult.bgColor, "→ hsl(" + buildItResult.bgColor + ")");
-    }
+    setBgPreset(buildItResult.bgPattern ?? null);
+    setBgPresetIsImage(false);
+    console.log("[BuildIt] → setShowBuildIt(false) — closing modal");
     setShowBuildIt(false);
     setBuildItResult(null);
     setBuildItPrompt("");
-    console.log("[BuildIt] applyStyle complete");
+    console.log("[BuildIt] applyStyle dispatched — waiting for React re-render (see ★ STATE RENDER log)");
   };
 
   const handleCopy = () => {
