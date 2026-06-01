@@ -545,18 +545,25 @@ const HostEvent = () => {
     setBuildItError(null);
     setBuildItResult(null);
     try {
+      console.log("[BuildIt] Invoking build-it edge function with prompt:", buildItPrompt.trim());
       const { data, error } = await supabase.functions.invoke("build-it", {
         body: { prompt: buildItPrompt.trim() },
       });
+      console.log("[BuildIt] Edge function response — data:", JSON.stringify(data), "error:", error);
       if (error) {
         let detail = error.message;
         try { const body = await (error as any).context?.json?.(); if (body?.error) detail = body.error; } catch {}
+        console.error("[BuildIt] Edge function returned error:", detail);
         throw new Error(detail);
       }
-      if (!data?.style) throw new Error("No style returned");
+      if (!data?.style) {
+        console.error("[BuildIt] No style in response. Full data:", JSON.stringify(data));
+        throw new Error("No style returned from edge function");
+      }
+      console.log("[BuildIt] Style received:", JSON.stringify(data.style));
       setBuildItResult(data.style);
     } catch (err: any) {
-      console.error("[BuildIt] generateStyle failed:", err);
+      console.error("[BuildIt] generateStyle failed:", err?.message ?? err);
       setBuildItError(err.message ?? "Something went wrong. Please try again.");
     } finally {
       setBuildItGenerating(false);
@@ -2911,7 +2918,10 @@ const HostEvent = () => {
 
             {/* Error */}
             {buildItError && (
-              <p className="text-sm mt-3" style={{ color: "#f87171" }}>{buildItError}</p>
+              <div className="mt-3 rounded-xl px-4 py-3" style={{ backgroundColor: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.35)" }}>
+                <p className="text-sm font-semibold mb-1" style={{ color: "#f87171" }}>Generation failed</p>
+                <p className="text-xs" style={{ color: "rgba(248,113,113,0.8)", wordBreak: "break-word" }}>{buildItError}</p>
+              </div>
             )}
 
             {/* Style preview */}

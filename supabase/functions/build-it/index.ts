@@ -37,14 +37,14 @@ Fields to return:
 
 CREATIVE GUIDELINES — think boldly:
 
-Masquerade / Black Tie / Opera:
-→ bgColor "0 0% 5%", bubbleColor "47 80% 55%" (gold), Elegant font, gradientColor "#c9a84c", bgPattern null
+Masquerade / Black Tie / Opera / Glitter:
+→ bgColor "0 0% 4%", bubbleColor "45 80% 55%" (gold), bubbleTextColor "0 0% 0%", Elegant font, gradientColor "#c9a84c", bgPattern null
 
 Beach / Tropical / Summer:
 → bgColor "195 60% 85%", bubbleColor "15 90% 60%" (coral), Handwritten font, gradientColor "#ff6b35", bgPattern null
 
 Rave / Club / Electronic / Underground:
-→ bgColor "270 20% 5%", bubbleColor "280 100% 65%" (electric purple) or "180 100% 50%" (cyan), Bold font, gradientColor "#9333ea", bgPattern null
+→ bgColor "270 20% 5%", bubbleColor "280 100% 65%" (electric purple), Bold font, gradientColor "#9333ea", bgPattern null
 
 Garden Party / Floral / Afternoon Tea:
 → bgColor "120 15% 90%", bubbleColor "150 40% 45%" (sage green), Elegant font, bgPattern "planit-pattern:cherry-blossom"
@@ -59,7 +59,7 @@ Festival / Coachella / Boho:
 → bgColor "270 30% 15%", bubbleColor "320 80% 65%", Bold font, bgPattern "planit-pattern:tie-dye"
 
 Neon / Y2K / Cyber:
-→ bgColor "220 30% 8%", bubbleColor "160 100% 50%" or "300 100% 60%", Bold font, bgPattern "planit-pattern:holographic"
+→ bgColor "220 30% 8%", bubbleColor "160 100% 50%", Bold font, bgPattern "planit-pattern:holographic"
 
 Industrial / Art Show / Gallery:
 → bgColor "0 0% 8%", bubbleColor "0 0% 85%", Bold font, bgPattern "planit-pattern:blueprint"
@@ -76,11 +76,20 @@ serve(async (req) => {
     return new Response("ok", { headers: corsHeaders });
   }
 
+  console.log("[build-it] ===== REQUEST START =====");
+  console.log("[build-it] Method:", req.method);
+
   try {
-    const body = await req.json().catch(() => ({}));
+    const body = await req.json().catch((e) => {
+      console.error("[build-it] Failed to parse request body:", e.message);
+      return {};
+    });
     const { prompt } = body;
 
+    console.log("[build-it] Prompt received:", JSON.stringify(prompt));
+
     if (!prompt?.trim()) {
+      console.error("[build-it] No prompt provided");
       return new Response(JSON.stringify({ error: "Prompt is required" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -88,17 +97,22 @@ serve(async (req) => {
     }
 
     const apiKey = Deno.env.get("ANTHROPIC_API_KEY");
+    console.log("[build-it] ANTHROPIC_API_KEY present:", !!apiKey);
+    console.log("[build-it] ANTHROPIC_API_KEY length:", apiKey?.length ?? 0);
+
     if (!apiKey) {
-      console.error("[build-it] ANTHROPIC_API_KEY is not set");
-      return new Response(JSON.stringify({ error: "ANTHROPIC_API_KEY is not configured" }), {
+      console.error("[build-it] ANTHROPIC_API_KEY secret is missing — set it in Supabase Dashboard > Edge Functions > Secrets");
+      return new Response(JSON.stringify({ error: "ANTHROPIC_API_KEY is not configured. Add it as a secret in Supabase Dashboard > Edge Functions > Secrets." }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    console.log("[build-it] Generating style for:", prompt.trim().slice(0, 100));
+    const fullPrompt = `Design the perfect visual style for this event: ${prompt.trim()}`;
+    console.log("[build-it] Sending to Anthropic. Full user prompt:", fullPrompt.slice(0, 150));
+    console.log("[build-it] Model: claude-sonnet-4-20250514");
 
-    const aiRes = await fetch("https://api.anthropic.com/v1/messages", {
+    const anthropicRes = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
         "x-api-key": apiKey,
@@ -110,25 +124,54 @@ serve(async (req) => {
         max_tokens: 512,
         system: SYSTEM_PROMPT,
         messages: [
-          { role: "user", content: `Design the perfect visual style for this event: ${prompt.trim()}` },
+          { role: "user", content: fullPrompt },
         ],
       }),
     });
 
-    if (!aiRes.ok) {
-      const text = await aiRes.text();
-      console.error("[build-it] Anthropic API error:", aiRes.status, text.slice(0, 300));
-      throw new Error(`Anthropic API error ${aiRes.status}: ${text.slice(0, 200)}`);
+    console.log("[build-it] Anthropic HTTP status:", anthropicRes.status);
+
+    const rawText = await anthropicRes.text();
+    console.log("[build-it] Anthropic raw response (first 500 chars):", rawText.slice(0, 500));
+
+    if (!anthropicRes.ok) {
+      console.error("[build-it] Anthropic API call failed. Status:", anthropicRes.status, "Body:", rawText.slice(0, 400));
+      throw new Error(`Anthropic API error ${anthropicRes.status}: ${rawText.slice(0, 200)}`);
     }
 
-    const aiData = await aiRes.json();
-    const text = aiData.content?.[0]?.text ?? "";
-    console.log("[build-it] Claude response:", text.slice(0, 300));
+    let anthropicData: any;
+    try {
+      anthropicData = JSON.parse(rawText);
+    } catch (e) {
+      console.error("[build-it] Failed to parse Anthropic JSON response:", rawText.slice(0, 300));
+      throw new Error("Could not parse Anthropic response as JSON");
+    }
 
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) throw new Error("Could not extract JSON from AI response");
+    const claudeText = anthropicData.content?.[0]?.text ?? "";
+    console.log("[build-it] Claude text content:", claudeText.slice(0, 400));
 
-    const style = JSON.parse(jsonMatch[0]);
+    if (!claudeText) {
+      console.error("[build-it] Claude returned empty content. Full response:", JSON.stringify(anthropicData).slice(0, 400));
+      throw new Error("Claude returned empty content");
+    }
+
+    const jsonMatch = claudeText.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      console.error("[build-it] Could not find JSON in Claude response:", claudeText.slice(0, 300));
+      throw new Error("Could not extract JSON from Claude response");
+    }
+
+    console.log("[build-it] Extracted JSON string:", jsonMatch[0].slice(0, 300));
+
+    let style: any;
+    try {
+      style = JSON.parse(jsonMatch[0]);
+    } catch (e) {
+      console.error("[build-it] JSON.parse failed:", jsonMatch[0].slice(0, 300));
+      throw new Error("Could not parse style JSON from Claude");
+    }
+
+    console.log("[build-it] Parsed style:", JSON.stringify(style));
 
     // Enforce planit-custom always
     style.template = "planit-custom";
@@ -136,28 +179,41 @@ serve(async (req) => {
     // Validate required fields
     const required = ["bgColor", "bubbleColor", "bubbleTextColor", "fontStyle", "gradientColor"];
     for (const field of required) {
-      if (!style[field]) throw new Error(`Missing field: ${field}`);
+      if (!style[field]) {
+        console.error(`[build-it] Missing required field: ${field}. Full style:`, JSON.stringify(style));
+        throw new Error(`Missing field in Claude response: ${field}`);
+      }
     }
 
     // Validate fontStyle
-    if (!["Bold", "Handwritten", "Elegant"].includes(style.fontStyle)) style.fontStyle = "Bold";
+    if (!["Bold", "Handwritten", "Elegant"].includes(style.fontStyle)) {
+      console.warn("[build-it] Invalid fontStyle:", style.fontStyle, "— defaulting to Bold");
+      style.fontStyle = "Bold";
+    }
 
-    // Validate bgPattern — must be a known key or null
+    // Validate bgPattern
     const validPatterns = [
       "planit-pattern:retro-stars", "planit-pattern:checkerboard", "planit-pattern:tie-dye",
       "planit-pattern:holographic", "planit-pattern:cherry-blossom", "planit-pattern:camo",
       "planit-pattern:blueprint", "planit-pattern:groovy",
     ];
-    if (style.bgPattern && !validPatterns.includes(style.bgPattern)) style.bgPattern = null;
+    if (style.bgPattern && !validPatterns.includes(style.bgPattern)) {
+      console.warn("[build-it] Invalid bgPattern:", style.bgPattern, "— setting to null");
+      style.bgPattern = null;
+    }
     if (!("bgPattern" in style)) style.bgPattern = null;
 
-    console.log("[build-it] Result:", JSON.stringify(style));
+    console.log("[build-it] Final style to return:", JSON.stringify(style));
+    console.log("[build-it] ===== REQUEST END (success) =====");
 
     return new Response(JSON.stringify({ style }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
+
   } catch (err: any) {
-    console.error("[build-it] Error:", err?.message ?? err);
+    console.error("[build-it] ===== REQUEST END (error) =====");
+    console.error("[build-it] Error message:", err?.message ?? String(err));
+    console.error("[build-it] Error stack:", err?.stack ?? "no stack");
     return new Response(
       JSON.stringify({ error: err?.message ?? "Generation failed" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
