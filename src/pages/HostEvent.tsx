@@ -390,7 +390,14 @@ const HostEvent = () => {
   const [showBuildIt, setShowBuildIt] = useState(false);
   const [buildItPrompt, setBuildItPrompt] = useState("");
   const [buildItGenerating, setBuildItGenerating] = useState(false);
-  const [buildItImageUrl, setBuildItImageUrl] = useState<string | null>(null);
+  const [buildItResult, setBuildItResult] = useState<{
+    template: string;
+    bubbleColor: string;
+    bubbleTextColor: string;
+    bgColor: string;
+    fontStyle: string;
+    gradientColor: string;
+  } | null>(null);
   const [buildItError, setBuildItError] = useState<string | null>(null);
   const [selectedStickerId, setSelectedStickerId] = useState<string | null>(null);
   const [fontColor, setFontColor] = useState<string>("#ffffff");
@@ -531,39 +538,43 @@ const HostEvent = () => {
     }
   };
 
-  const generateCoverArt = async () => {
+  const generateStyle = async () => {
     if (!buildItPrompt.trim()) return;
     setBuildItGenerating(true);
     setBuildItError(null);
-    setBuildItImageUrl(null);
+    setBuildItResult(null);
     try {
-      const { data, error } = await supabase.functions.invoke("generate-cover-art", {
+      const { data, error } = await supabase.functions.invoke("build-it", {
         body: { prompt: buildItPrompt.trim() },
       });
-      if (error) throw error;
-      const imageUrl = (data as any)?.imageUrl;
-      if (!imageUrl) {
-        console.error("[BuildIt] No imageUrl in response:", data);
-        throw new Error("No image returned");
+      if (error) {
+        let detail = error.message;
+        try { const body = await (error as any).context?.json?.(); if (body?.error) detail = body.error; } catch {}
+        throw new Error(detail);
       }
-      setBuildItImageUrl(imageUrl);
+      if (!data?.style) throw new Error("No style returned");
+      setBuildItResult(data.style);
     } catch (err: any) {
-      console.error("[BuildIt] generateCoverArt failed:", err);
+      console.error("[BuildIt] generateStyle failed:", err);
       setBuildItError(err.message ?? "Something went wrong. Please try again.");
     } finally {
       setBuildItGenerating(false);
     }
   };
 
-  const useCoverArt = () => {
-    if (!buildItImageUrl) return;
-    // fal.ai returns stable CDN URLs — store directly as bgPhoto, no re-upload needed
-    setBgPhoto(buildItImageUrl);
-    setUploadedPhoto(buildItImageUrl);
+  const applyStyle = () => {
+    if (!buildItResult) return;
+    setTemplateName(buildItResult.template);
+    setBubbleColor(buildItResult.bubbleColor);
+    setBubbleTextColor(buildItResult.bubbleTextColor);
+    setBgColor(buildItResult.bgColor);
+    setFontStyle(buildItResult.fontStyle);
+    setGradientColor(buildItResult.gradientColor);
+    setBgPhoto(null);
     setBgPreset(null);
     setBgPresetIsImage(false);
     setShowBuildIt(false);
-    setBuildItImageUrl(null);
+    setBuildItResult(null);
     setBuildItPrompt("");
   };
 
@@ -2897,10 +2908,43 @@ const HostEvent = () => {
               <p className="text-sm mt-3" style={{ color: "#f87171" }}>{buildItError}</p>
             )}
 
-            {/* Generated image preview */}
-            {buildItImageUrl && !buildItGenerating && (
-              <div className="mt-4 rounded-2xl overflow-hidden" style={{ aspectRatio: "4/3" }}>
-                <img src={buildItImageUrl} alt="Generated cover art" className="w-full h-full object-cover" />
+            {/* Style preview */}
+            {buildItResult && !buildItGenerating && (
+              <div className="mt-4 rounded-2xl overflow-hidden" style={{ border: "1px solid #333" }}>
+                {/* Background swatch */}
+                <div
+                  style={{
+                    height: "90px",
+                    backgroundColor: `hsl(${buildItResult.bgColor})`,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <span
+                    style={{
+                      fontFamily: FONT_MAP[buildItResult.fontStyle] || FONT_MAP["Bold"],
+                      fontSize: "20px",
+                      color: `hsl(${buildItResult.bubbleColor})`,
+                    }}
+                  >
+                    Your Event
+                  </span>
+                </div>
+                {/* Details row */}
+                <div className="flex items-center gap-3 px-4 py-3" style={{ backgroundColor: "#1a1a1a" }}>
+                  <div
+                    className="w-5 h-5 rounded-full shrink-0"
+                    style={{ backgroundColor: `hsl(${buildItResult.bubbleColor})`, border: "1px solid rgba(255,255,255,0.15)" }}
+                  />
+                  <span style={{ color: "#ccc", fontSize: "13px" }}>
+                    {buildItResult.template.replace("planit-", "")} · {buildItResult.fontStyle}
+                  </span>
+                  <div
+                    className="w-4 h-4 rounded-full shrink-0 ml-auto"
+                    style={{ backgroundColor: buildItResult.gradientColor, border: "1px solid rgba(255,255,255,0.15)" }}
+                  />
+                </div>
               </div>
             )}
 
@@ -2908,21 +2952,19 @@ const HostEvent = () => {
             {buildItGenerating && (
               <div className="flex flex-col items-center justify-center py-10 gap-3">
                 <div
-                  className="w-10 h-10 rounded-full border-4 border-t-transparent animate-spin"
-                  style={{ borderColor: "#7c3aed", borderTopColor: "transparent" }}
+                  className="w-10 h-10 rounded-full border-4 animate-spin"
+                  style={{ borderColor: "#333", borderTopColor: "#7c3aed" }}
                 />
-                <p style={{ color: "#999", fontSize: "13px" }}>
-                  Generating your cover art…
-                </p>
+                <p style={{ color: "#999", fontSize: "13px" }}>Styling your event…</p>
               </div>
             )}
 
             {/* Action buttons */}
             {!buildItGenerating && (
               <div className="flex gap-3 mt-4">
-                {!buildItImageUrl ? (
+                {!buildItResult ? (
                   <button
-                    onClick={generateCoverArt}
+                    onClick={generateStyle}
                     disabled={!buildItPrompt.trim()}
                     className="flex-1 rounded-2xl py-3.5 text-sm font-bold"
                     style={{
@@ -2936,14 +2978,14 @@ const HostEvent = () => {
                 ) : (
                   <>
                     <button
-                      onClick={generateCoverArt}
+                      onClick={generateStyle}
                       className="flex-1 rounded-2xl py-3.5 text-sm font-bold"
                       style={{ backgroundColor: "#1e1e1e", border: "1px solid #333", color: "#ccc" }}
                     >
-                      Regenerate
+                      Try again
                     </button>
                     <button
-                      onClick={useCoverArt}
+                      onClick={applyStyle}
                       className="flex-1 rounded-2xl py-3.5 text-sm font-bold"
                       style={{ background: "linear-gradient(135deg, #7c3aed, #db2777)", color: "#fff", border: "none" }}
                     >
