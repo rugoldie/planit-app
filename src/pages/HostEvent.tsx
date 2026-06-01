@@ -586,6 +586,12 @@ const HostEvent = () => {
     setBubbleTextColor(buildItResult.bubbleTextColor);
     console.log("[BuildIt] → setBgColor:", buildItResult.bgColor);
     setBgColor(buildItResult.bgColor);
+    // Compute font color based on whether bgColor is light or dark
+    const bgLParts = buildItResult.bgColor.trim().split(/[\s,]+/);
+    const bgL = parseFloat(bgLParts[2] ?? "0");
+    const computedFontColor = bgL > 55 ? "#111111" : "#ffffff";
+    console.log("[BuildIt] → setFontColor:", computedFontColor, "(bgL:", bgL, ")");
+    setFontColor(computedFontColor);
     console.log("[BuildIt] → setFontStyle:", buildItResult.fontStyle);
     setFontStyle(buildItResult.fontStyle);
     console.log("[BuildIt] → setGradientColor:", buildItResult.gradientColor);
@@ -598,6 +604,8 @@ const HostEvent = () => {
     setShowBuildIt(false);
     setBuildItResult(null);
     setBuildItPrompt("");
+    // Scroll to top so the user sees the updated layout
+    window.scrollTo({ top: 0, behavior: "smooth" });
     console.log("[BuildIt] applyStyle dispatched — waiting for React re-render (see ★ STATE RENDER log)");
   };
 
