@@ -87,10 +87,10 @@ serve(async (req) => {
       });
     }
 
-    const apiKey = Deno.env.get("LOVABLE_API_KEY");
+    const apiKey = Deno.env.get("ANTHROPIC_API_KEY");
     if (!apiKey) {
-      console.error("[build-it] LOVABLE_API_KEY is not set");
-      return new Response(JSON.stringify({ error: "LOVABLE_API_KEY is not configured" }), {
+      console.error("[build-it] ANTHROPIC_API_KEY is not set");
+      return new Response(JSON.stringify({ error: "ANTHROPIC_API_KEY is not configured" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -98,16 +98,18 @@ serve(async (req) => {
 
     console.log("[build-it] Generating style for:", prompt.trim().slice(0, 100));
 
-    const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const aiRes = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+        "content-type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 512,
+        system: SYSTEM_PROMPT,
         messages: [
-          { role: "system", content: SYSTEM_PROMPT },
           { role: "user", content: `Design the perfect visual style for this event: ${prompt.trim()}` },
         ],
       }),
@@ -115,15 +117,13 @@ serve(async (req) => {
 
     if (!aiRes.ok) {
       const text = await aiRes.text();
-      console.error("[build-it] Lovable AI error:", aiRes.status, text.slice(0, 300));
-      if (aiRes.status === 429) throw new Error("Rate limit exceeded. Please try again shortly.");
-      if (aiRes.status === 402) throw new Error("AI credits exhausted. Please add credits in workspace settings.");
-      throw new Error(`AI gateway error ${aiRes.status}: ${text.slice(0, 200)}`);
+      console.error("[build-it] Anthropic API error:", aiRes.status, text.slice(0, 300));
+      throw new Error(`Anthropic API error ${aiRes.status}: ${text.slice(0, 200)}`);
     }
 
     const aiData = await aiRes.json();
-    const text = aiData.choices?.[0]?.message?.content ?? "";
-    console.log("[build-it] AI raw response:", text.slice(0, 300));
+    const text = aiData.content?.[0]?.text ?? "";
+    console.log("[build-it] Claude response:", text.slice(0, 300));
 
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) throw new Error("Could not extract JSON from AI response");
