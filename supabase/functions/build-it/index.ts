@@ -45,43 +45,43 @@ serve(async (req) => {
       });
     }
 
-    const apiKey = Deno.env.get("ANTHROPIC_API_KEY");
+    const apiKey = Deno.env.get("LOVABLE_API_KEY");
     if (!apiKey) {
-      console.error("[build-it] ANTHROPIC_API_KEY is not set");
-      return new Response(JSON.stringify({ error: "ANTHROPIC_API_KEY is not configured" }), {
+      console.error("[build-it] LOVABLE_API_KEY is not set");
+      return new Response(JSON.stringify({ error: "LOVABLE_API_KEY is not configured" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    console.log("[build-it] Calling Claude for prompt:", prompt.trim().slice(0, 80));
+    console.log("[build-it] Calling Lovable AI for prompt:", prompt.trim().slice(0, 80));
 
-    const anthropicRes = await fetch("https://api.anthropic.com/v1/messages", {
+    const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
-        "content-type": "application/json",
+        "Authorization": `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
-        max_tokens: 256,
-        system: SYSTEM_PROMPT,
+        model: "google/gemini-2.5-flash",
         messages: [
+          { role: "system", content: SYSTEM_PROMPT },
           { role: "user", content: `Event description: ${prompt.trim()}` },
         ],
       }),
     });
 
-    if (!anthropicRes.ok) {
-      const text = await anthropicRes.text();
-      console.error("[build-it] Anthropic API error:", anthropicRes.status, text.slice(0, 300));
-      throw new Error(`Anthropic API error ${anthropicRes.status}: ${text.slice(0, 200)}`);
+    if (!aiRes.ok) {
+      const text = await aiRes.text();
+      console.error("[build-it] Lovable AI error:", aiRes.status, text.slice(0, 300));
+      if (aiRes.status === 429) throw new Error("Rate limit exceeded. Please try again shortly.");
+      if (aiRes.status === 402) throw new Error("AI credits exhausted. Please add credits in workspace settings.");
+      throw new Error(`AI gateway error ${aiRes.status}: ${text.slice(0, 200)}`);
     }
 
-    const anthropicData = await anthropicRes.json();
-    const text = anthropicData.content?.[0]?.text ?? "";
-    console.log("[build-it] Claude raw response:", text.slice(0, 200));
+    const aiData = await aiRes.json();
+    const text = aiData.choices?.[0]?.message?.content ?? "";
+    console.log("[build-it] AI raw response:", text.slice(0, 200));
 
     // Extract JSON — Claude sometimes wraps in markdown fences
     const jsonMatch = text.match(/\{[\s\S]*\}/);
