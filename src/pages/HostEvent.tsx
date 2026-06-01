@@ -572,6 +572,7 @@ const HostEvent = () => {
 
   const applyStyle = () => {
     if (!buildItResult) return;
+    console.log("[BuildIt] applyStyle — applying:", JSON.stringify(buildItResult));
     setTemplateName("planit-custom");
     setBubbleColor(buildItResult.bubbleColor);
     setBubbleTextColor(buildItResult.bubbleTextColor);
@@ -582,13 +583,16 @@ const HostEvent = () => {
     if (buildItResult.bgPattern) {
       setBgPreset(buildItResult.bgPattern);
       setBgPresetIsImage(false);
+      console.log("[BuildIt] bgPattern set to:", buildItResult.bgPattern);
     } else {
       setBgPreset(null);
       setBgPresetIsImage(false);
+      console.log("[BuildIt] bgColor set to:", buildItResult.bgColor, "→ hsl(" + buildItResult.bgColor + ")");
     }
     setShowBuildIt(false);
     setBuildItResult(null);
     setBuildItPrompt("");
+    console.log("[BuildIt] applyStyle complete");
   };
 
   const handleCopy = () => {
@@ -2097,7 +2101,7 @@ const HostEvent = () => {
               ? getPatternBgStyle(customBgKey)
               : bgPhoto
                 ? { backgroundImage: `url(${bgPhoto})`, backgroundSize: "cover", backgroundPosition: "center" }
-                : { backgroundColor: "#111111" };
+                : { backgroundColor: `hsl(${bgColor})` };
             const hasPhotoScrim = !!bgPhoto;
             return (
               <div ref={customContainerRef} style={{ minHeight: "100vh", position: "relative", overflow: "hidden", ...patternStyle }} onClick={() => setSelectedStickerId(null)}>
