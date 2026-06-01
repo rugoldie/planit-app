@@ -2661,7 +2661,7 @@ const HostEvent = () => {
                           setTimeout(() => {
                             setShowBuildIt(true);
                             setBuildItError(null);
-                            setBuildItImageUrl(null);
+                            
                           }, 300);
                         }}
                         className="w-full rounded-2xl py-4 px-4 flex items-center gap-3 text-left"
