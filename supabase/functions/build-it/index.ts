@@ -96,70 +96,55 @@ serve(async (req) => {
       });
     }
 
-    const apiKey = Deno.env.get("ANTHROPIC_API_KEY");
-    console.log("[build-it] ANTHROPIC_API_KEY present:", !!apiKey);
-    console.log("[build-it] ANTHROPIC_API_KEY length:", apiKey?.length ?? 0);
-
+    const apiKey = Deno.env.get("LOVABLE_API_KEY");
     if (!apiKey) {
-      console.error("[build-it] ANTHROPIC_API_KEY secret is missing — set it in Supabase Dashboard > Edge Functions > Secrets");
-      return new Response(JSON.stringify({ error: "ANTHROPIC_API_KEY is not configured. Add it as a secret in Supabase Dashboard > Edge Functions > Secrets." }), {
+      return new Response(JSON.stringify({ error: "LOVABLE_API_KEY is not configured." }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
     const fullPrompt = `Design the perfect visual style for this event: ${prompt.trim()}`;
-    console.log("[build-it] Sending to Anthropic. Full user prompt:", fullPrompt.slice(0, 150));
-    console.log("[build-it] Model: claude-sonnet-4-20250514");
+    console.log("[build-it] Sending to Lovable AI Gateway.");
 
-    const anthropicRes = await fetch("https://api.anthropic.com/v1/messages", {
+    const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
-        "content-type": "application/json",
+        "Authorization": `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
-        max_tokens: 512,
-        system: SYSTEM_PROMPT,
+        model: "google/gemini-2.5-flash",
         messages: [
+          { role: "system", content: SYSTEM_PROMPT },
           { role: "user", content: fullPrompt },
         ],
       }),
     });
 
-    console.log("[build-it] Anthropic HTTP status:", anthropicRes.status);
+    console.log("[build-it] AI Gateway HTTP status:", aiRes.status);
+    const rawText = await aiRes.text();
 
-    const rawText = await anthropicRes.text();
-    console.log("[build-it] Anthropic raw response (first 500 chars):", rawText.slice(0, 500));
-
-    if (!anthropicRes.ok) {
-      console.error("[build-it] Anthropic API call failed. Status:", anthropicRes.status, "Body:", rawText.slice(0, 400));
-      throw new Error(`Anthropic API error ${anthropicRes.status}: ${rawText.slice(0, 200)}`);
+    if (!aiRes.ok) {
+      if (aiRes.status === 429) {
+        return new Response(JSON.stringify({ error: "Rate limit exceeded. Please try again shortly." }), {
+          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      if (aiRes.status === 402) {
+        return new Response(JSON.stringify({ error: "AI credits exhausted. Please add credits to your workspace." }), {
+          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      throw new Error(`AI Gateway error ${aiRes.status}: ${rawText.slice(0, 200)}`);
     }
 
-    let anthropicData: any;
-    try {
-      anthropicData = JSON.parse(rawText);
-    } catch (e) {
-      console.error("[build-it] Failed to parse Anthropic JSON response:", rawText.slice(0, 300));
-      throw new Error("Could not parse Anthropic response as JSON");
-    }
+    const aiData = JSON.parse(rawText);
+    const content = aiData.choices?.[0]?.message?.content ?? "";
+    if (!content) throw new Error("AI returned empty content");
 
-    const claudeText = anthropicData.content?.[0]?.text ?? "";
-    console.log("[build-it] Claude text content:", claudeText.slice(0, 400));
-
-    if (!claudeText) {
-      console.error("[build-it] Claude returned empty content. Full response:", JSON.stringify(anthropicData).slice(0, 400));
-      throw new Error("Claude returned empty content");
-    }
-
-    const jsonMatch = claudeText.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      console.error("[build-it] Could not find JSON in Claude response:", claudeText.slice(0, 300));
-      throw new Error("Could not extract JSON from Claude response");
-    }
+    const jsonMatch = content.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error("Could not extract JSON from AI response");
 
     console.log("[build-it] Extracted JSON string:", jsonMatch[0].slice(0, 300));
 
