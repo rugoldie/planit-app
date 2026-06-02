@@ -347,6 +347,72 @@ const TEMPLATES = [
 
 const TEXT_SIZES = ["Small", "Medium", "Large"] as const;
 
+const BUILD_IT_SYSTEM_PROMPT = `You are a world-class event designer and creative director with deep expertise in colour theory, typography, and visual mood-setting. You create bespoke visual identities for events.
+
+When given an event description, you will design a complete visual style by returning a JSON object. You must think carefully about:
+- The emotional tone and energy of the event
+- Colour psychology (deep blacks for drama, warm creams for romance, electric neons for energy)
+- Typographic personality (Elegant = serif/refined, Handwritten = casual/warm, Bold = strong/modern)
+- How pattern, colour, and font work together as a cohesive whole
+
+ALWAYS return template as "planit-custom" — you are creating something fully bespoke, not picking a preset.
+
+Available background patterns (choose one that fits, or null for a pure solid colour):
+- "planit-pattern:retro-stars" — light cream base, illustrated stars; great for retro, nostalgic, cinema, Hollywood events
+- "planit-pattern:checkerboard" — black and white checks; great for race days, ska, 60s mod, diner parties
+- "planit-pattern:tie-dye" — psychedelic rainbow swirl; great for festivals, hippie, Woodstock, Coachella vibes
+- "planit-pattern:holographic" — iridescent rainbow conic; great for futuristic, Y2K, holographic, fashion events
+- "planit-pattern:cherry-blossom" — soft pink gradient; great for Japanese-inspired, spring, floral, garden events
+- "planit-pattern:camo" — dark olive/green; great for military themed, outdoors, hunting, army events
+- "planit-pattern:blueprint" — dark navy with grid lines; great for architecture, industrial, technical, art events
+- "planit-pattern:groovy" — warm cream with 70s circles and wavy lines; great for retro 70s, disco, soul, funk events
+- null — use a pure solid bgColor; best for sleek minimal, editorial, or when a custom colour tells the whole story
+
+Fields to return:
+- template: always "planit-custom"
+- bgColor: HSL string WITHOUT "hsl()" wrapper e.g. "240 15% 8%" — the solid background colour. Even if a pattern is chosen, pick a bgColor that would work as a fallback.
+- bubbleColor: HSL string — the primary accent/highlight colour. This appears on buttons, date bubbles, and key UI elements. Make it pop against the background.
+- bubbleTextColor: HSL string — text that sits ON TOP of bubbleColor. Must contrast strongly. Use dark for light accents, light for dark accents.
+- fontStyle: one of "Bold", "Handwritten", "Elegant"
+- gradientColor: hex colour string e.g. "#c9a84c" — used for gradient headers and decorative accents
+- bgPattern: one of the pattern keys above, or null
+
+CREATIVE GUIDELINES — think boldly:
+
+Masquerade / Black Tie / Opera / Glitter:
+→ bgColor "0 0% 4%", bubbleColor "45 80% 55%" (gold), bubbleTextColor "0 0% 0%", Elegant font, gradientColor "#c9a84c", bgPattern null
+
+Beach / Tropical / Summer:
+→ bgColor "195 60% 85%", bubbleColor "15 90% 60%" (coral), Handwritten font, gradientColor "#ff6b35", bgPattern null
+
+Rave / Club / Electronic / Underground:
+→ bgColor "270 20% 5%", bubbleColor "280 100% 65%" (electric purple), Bold font, gradientColor "#9333ea", bgPattern null
+
+Garden Party / Floral / Afternoon Tea:
+→ bgColor "120 15% 90%", bubbleColor "150 40% 45%" (sage green), Elegant font, bgPattern "planit-pattern:cherry-blossom"
+
+Disco / 70s / Funk / Soul:
+→ bgColor "35 60% 15%", bubbleColor "45 95% 60%" (mustard), Bold font, bgPattern "planit-pattern:groovy"
+
+Retro / Vintage Cinema / Hollywood:
+→ bgColor "30 25% 12%", bubbleColor "47 80% 55%", Elegant font, bgPattern "planit-pattern:retro-stars"
+
+Festival / Coachella / Boho:
+→ bgColor "270 30% 15%", bubbleColor "320 80% 65%", Bold font, bgPattern "planit-pattern:tie-dye"
+
+Neon / Y2K / Cyber:
+→ bgColor "220 30% 8%", bubbleColor "160 100% 50%", Bold font, bgPattern "planit-pattern:holographic"
+
+Industrial / Art Show / Gallery:
+→ bgColor "0 0% 8%", bubbleColor "0 0% 85%", Bold font, bgPattern "planit-pattern:blueprint"
+
+Kids Birthday / Playful / Rainbow:
+→ bgColor "200 80% 92%", bubbleColor "340 90% 55%", Handwritten font, bgPattern "planit-pattern:tie-dye"
+
+DO NOT pick boring or generic choices. Every event deserves a unique, considered, beautiful result. Think like a creative director pitching to a client — make them say "wow".
+
+Return ONLY a valid JSON object. No markdown, no code fences, no explanation. Just the JSON.`;
+
 const generateCode = () => {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
   let code = "";
@@ -546,23 +612,58 @@ const HostEvent = () => {
     setBuildItError(null);
     setBuildItResult(null);
     try {
-      console.log("[BuildIt] Invoking build-it edge function with prompt:", buildItPrompt.trim());
-      const { data, error } = await supabase.functions.invoke("build-it", {
-        body: { prompt: buildItPrompt.trim() },
+      const apiKey = import.meta.env.VITE_ANTHROPIC_API_KEY;
+      if (!apiKey) throw new Error("VITE_ANTHROPIC_API_KEY is not set in .env");
+
+      console.log("[BuildIt] Calling Anthropic API directly. Prompt:", buildItPrompt.trim());
+
+      const res = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "x-api-key": apiKey,
+          "anthropic-version": "2023-06-01",
+          "content-type": "application/json",
+          "anthropic-dangerous-direct-browser-access": "true",
+        },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 512,
+          system: BUILD_IT_SYSTEM_PROMPT,
+          messages: [{ role: "user", content: `Design the perfect visual style for this event: ${buildItPrompt.trim()}` }],
+        }),
       });
-      console.log("[BuildIt] Edge function response — data:", JSON.stringify(data), "error:", error);
-      if (error) {
-        let detail = error.message;
-        try { const body = await (error as any).context?.json?.(); if (body?.error) detail = body.error; } catch {}
-        console.error("[BuildIt] Edge function returned error:", detail);
-        throw new Error(detail);
+
+      const rawText = await res.text();
+      console.log("[BuildIt] Anthropic status:", res.status, "| response (first 300):", rawText.slice(0, 300));
+
+      if (!res.ok) throw new Error(`Anthropic API error ${res.status}: ${rawText.slice(0, 200)}`);
+
+      const anthropicData = JSON.parse(rawText);
+      const claudeText: string = anthropicData.content?.[0]?.text ?? "";
+      if (!claudeText) throw new Error("Claude returned empty content");
+
+      const jsonMatch = claudeText.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) throw new Error("Could not extract JSON from Claude response");
+
+      const style = JSON.parse(jsonMatch[0]);
+      style.template = "planit-custom";
+
+      const required = ["bgColor", "bubbleColor", "bubbleTextColor", "fontStyle", "gradientColor"];
+      for (const field of required) {
+        if (!style[field]) throw new Error(`Missing field in Claude response: ${field}`);
       }
-      if (!data?.style) {
-        console.error("[BuildIt] No style in response. Full data:", JSON.stringify(data));
-        throw new Error("No style returned from edge function");
-      }
-      console.log("[BuildIt] Style received:", JSON.stringify(data.style));
-      setBuildItResult(data.style);
+      if (!["Bold", "Handwritten", "Elegant"].includes(style.fontStyle)) style.fontStyle = "Bold";
+
+      const validPatterns = [
+        "planit-pattern:retro-stars", "planit-pattern:checkerboard", "planit-pattern:tie-dye",
+        "planit-pattern:holographic", "planit-pattern:cherry-blossom", "planit-pattern:camo",
+        "planit-pattern:blueprint", "planit-pattern:groovy",
+      ];
+      if (style.bgPattern && !validPatterns.includes(style.bgPattern)) style.bgPattern = null;
+      if (!("bgPattern" in style)) style.bgPattern = null;
+
+      console.log("[BuildIt] Style received:", JSON.stringify(style));
+      setBuildItResult(style);
     } catch (err: any) {
       console.error("[BuildIt] generateStyle failed:", err?.message ?? err);
       setBuildItError(err.message ?? "Something went wrong. Please try again.");
