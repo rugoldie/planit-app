@@ -271,7 +271,9 @@ const GuestEventView = () => {
           fetchComments();
         },
       )
-      .subscribe();
+      .subscribe((status, err) => {
+        console.log("comments realtime status:", status, err ? JSON.stringify(err) : "");
+      });
 
     // Re-fetch when app returns to foreground — mobile browsers kill websockets in background
     const handleVisibility = () => {
@@ -462,8 +464,9 @@ const GuestEventView = () => {
     const text = commentDraft.trim();
     const payload = { event_id: event.id, user_id: user.id, user_name: userName, text };
     console.log("sendComment payload:", payload);
+    const optimisticId = crypto.randomUUID();
     const optimistic: Comment = {
-      id: crypto.randomUUID(),
+      id: optimisticId,
       user_name: userName,
       text,
       created_at: new Date().toISOString(),
@@ -471,12 +474,19 @@ const GuestEventView = () => {
     };
     setComments((prev) => [...prev, optimistic]);
     setCommentDraft("");
-    const { error, data } = await supabase.from("comments").insert(payload).select();
-    console.log("sendComment result:", { error: error ? JSON.stringify(error) : null, data });
+    const result = await supabase.from("comments").insert(payload).select();
+    console.log("sendComment full result:", JSON.stringify(result));
+    const { error, data } = result;
     if (error) {
       console.error("sendComment error code:", error.code, "message:", error.message, "details:", error.details, "hint:", error.hint);
       toast.error(`Message failed: ${error.message}`);
-      setComments((prev) => prev.filter((c) => c.id !== optimistic.id));
+      setComments((prev) => prev.filter((c) => c.id !== optimisticId));
+    } else if (data && data[0]) {
+      // Replace the optimistic entry with the real server row so the message
+      // persists even when the realtime subscription is dead (common on mobile).
+      setComments((prev) =>
+        prev.map((c) => c.id === optimisticId ? { ...data[0], avatar_url: optimistic.avatar_url } : c)
+      );
     }
   };
 
