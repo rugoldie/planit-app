@@ -371,8 +371,8 @@ Available background patterns (choose one that fits, or null for a pure solid co
 Fields to return:
 - template: always "planit-custom"
 - bgColor: HSL string WITHOUT "hsl()" wrapper e.g. "240 15% 8%" — the solid background colour. Even if a pattern is chosen, pick a bgColor that would work as a fallback.
-- bubbleColor: HSL string — the primary accent/highlight colour. This appears on buttons, date bubbles, and key UI elements. Make it pop against the background.
-- bubbleTextColor: HSL string — text that sits ON TOP of bubbleColor. Must contrast strongly. Use dark for light accents, light for dark accents.
+- bubbleColor: HSL string WITHOUT "hsl()" wrapper e.g. "45 80% 55%" — the primary accent/highlight colour. This is used as the BACKGROUND of the date bubble and key UI elements. Make it vivid and dramatically different per theme — this is the most visible colour on the card.
+- bubbleTextColor: HSL string WITHOUT "hsl()" wrapper e.g. "0 0% 0%" — text rendered ON TOP of the bubbleColor background. Use "0 0% 0%" for light/bright accents, "0 0% 100%" for dark accents. Must contrast strongly.
 - fontStyle: one of "Bold", "Handwritten", "Elegant"
 - gradientColor: hex colour string e.g. "#c9a84c" — used for gradient headers and decorative accents
 - bgPattern: one of the pattern keys above, or null
@@ -872,10 +872,14 @@ const HostEvent = () => {
   return (
     <div
       className="flex flex-col min-h-screen transition-all duration-300"
-      style={{
-        backgroundColor: isSunny ? "transparent" : containerBg,
-        backgroundImage: isSunny ? "linear-gradient(180deg, #ff6b35 0%, #ff8c00 40%, #2a0e00 100%)" : "none",
-      }}
+      style={
+        isCustom && customBgKey
+          ? getPatternBgStyle(customBgKey)
+          : {
+              backgroundColor: isSunny ? "transparent" : containerBg,
+              backgroundImage: isSunny ? "linear-gradient(180deg, #ff6b35 0%, #ff8c00 40%, #2a0e00 100%)" : "none",
+            }
+      }
     >
       {isNoir ? (
         /* ═══ PLANIT NOIR LAYOUT ═══ */
@@ -2262,12 +2266,12 @@ const HostEvent = () => {
                   {titleError && <p className="text-red-400 text-xs mb-2">{titleError}</p>}
                   <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "12px", color: fontColorMuted, marginBottom: "20px", textShadow: customIsLight ? "none" : "0 1px 6px rgba(0,0,0,0.4)" }}>hosted by {hostName}</p>
 
-                  {/* Date/time picker — frosted pill */}
+                  {/* Date/time picker — accent colour pill */}
                   <div style={{ position: "relative", marginBottom: "20px" }}>
-                    <div style={{ borderRadius: "50px", border: `1px solid ${customFrostBorder}`, padding: "10px 20px", backgroundColor: customFrostBg, backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", display: "inline-block" }}>
-                      <span style={{ fontFamily: currentFontFamily, fontSize: "16px", fontWeight: fontStyle==="Bold"?400:700, color: accentColor, letterSpacing: fontStyle==="Bold"?"0.05em":0 }}>
+                    <div style={{ borderRadius: "50px", padding: "10px 22px", backgroundColor: `hsl(${bubbleColor})`, display: "inline-block", boxShadow: "0 2px 14px rgba(0,0,0,0.28)" }}>
+                      <span style={{ fontFamily: currentFontFamily, fontSize: "16px", fontWeight: fontStyle==="Bold"?400:700, color: `hsl(${bubbleTextColor})`, letterSpacing: fontStyle==="Bold"?"0.05em":0 }}>
                         {dayNum ? `${dayNum} ${monthName}` : "Date"}
-                        <span style={{ color: fontColorMuted, margin: "0 8px" }}>·</span>
+                        <span style={{ color: `hsl(${bubbleTextColor})`, opacity: 0.6, margin: "0 8px" }}>·</span>
                         {timeStr || "Time"}
                       </span>
                     </div>
