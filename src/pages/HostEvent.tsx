@@ -553,7 +553,7 @@ const HostEvent = () => {
       dress_code: dressCode || null,
       extra: extra || null,
       bg_color: bgColor,
-      bg_photo: bgPhoto || bgPreset || null,
+      bg_photo: bgPreset || bgPhoto || null,
       text_size: textSize,
       bubble_color: bubbleColor,
       bubble_text_color: bubbleTextColor,
@@ -564,18 +564,26 @@ const HostEvent = () => {
       stickers: stickers.length > 0 ? JSON.stringify(stickers) : null,
     } as any;
 
-    // Helper: strip columns that may not exist yet if the DB schema is behind.
-    // Strips all recently-added optional columns so the retry only sends core fields.
+    // Helper: strip optional/new columns so the retry only sends core fields.
+    // On ANY column error (PGRST116 or message mentioning a specific column)
+    // we strip every field that might not exist in older DB schemas, keeping
+    // all core style fields (bg_color, bg_photo, bubble_color, font_style,
+    // gradient_color, template_name) so the Build It style is always saved.
     const withFallback = (data: any, err: any) => {
       if (!err) return null;
       const msg: string = err?.message || "";
       const isColError =
+        err?.code === "PGRST116" ||
+        msg.includes("column") ||
         msg.includes("font_color") ||
         msg.includes("stickers") ||
         msg.includes("bubble_text_color") ||
-        err?.code === "PGRST116";
+        msg.includes("text_size") ||
+        msg.includes("font_color");
       if (isColError) {
-        const { font_color, stickers: _s, bubble_text_color, ...safe } = data;
+        // Strip all columns that may be absent in an older schema
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { font_color, stickers: _s, bubble_text_color, text_size, ...safe } = data;
         return safe;
       }
       return null;

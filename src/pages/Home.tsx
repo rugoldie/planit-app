@@ -1369,8 +1369,8 @@ const CustomNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate:
       {hasStars && [0,1,2,3,4].map(i => (
         <span key={i} style={{ position: "absolute", left: `${[8,22,55,72,88][i]}%`, top: `${[15,55,25,70,40][i]}%`, fontSize: `${[18,13,22,15,11][i]}px`, color: "#b91c1c", opacity: 0.6, pointerEvents: "none" }}>★</span>
       ))}
-      {/* Rainbow indicator strip */}
-      <div style={{ height: "3px", background: "linear-gradient(90deg, #f857a6, #ff5858, #43e97b, #38f9d7, #4776e6)" }} />
+      {/* Accent top strip */}
+      <div style={{ height: "2px", backgroundColor: accent, opacity: 0.7 }} />
       <div className="p-3.5 pb-0">
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "4px" }}>
           <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase" as const, color: accent }}>Custom ✦</span>
@@ -1378,19 +1378,19 @@ const CustomNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate:
         </div>
         <h2 style={{ fontFamily, fontSize: "34px", fontWeight: 700, color: textCol, lineHeight: 1.0, marginBottom: "10px" }}>{event.title || "Untitled Event"}</h2>
       </div>
-      {/* Stat bar */}
-      <div style={{ display: "flex", borderTop: `2px solid ${accent}`, borderBottom: `2px solid ${accent}` }}>
-        <div style={{ flex: 1, backgroundColor: accent, padding: "10px 8px", textAlign: "center" as const, borderRight: "1px solid rgba(0,0,0,0.15)" }}>
-          <span style={{ fontFamily, fontSize: "22px", fontWeight: 700, color: accentTxt, display: "block", lineHeight: 1 }}>{dayNum}</span>
-          <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase" as const, color: `${accentTxt}99` }}>{monthName}</span>
+      {/* Stat bar — semi-transparent overlay so background colour flows through */}
+      <div style={{ display: "flex", borderTop: `1px solid ${accent}40`, borderBottom: `1px solid ${accent}40` }}>
+        <div style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.2)", padding: "10px 8px", textAlign: "center" as const, borderRight: `1px solid ${accent}25` }}>
+          <span style={{ fontFamily, fontSize: "22px", fontWeight: 700, color: accent, display: "block", lineHeight: 1 }}>{dayNum}</span>
+          <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase" as const, color: textMuted }}>{monthName}</span>
         </div>
-        <div style={{ flex: 1, backgroundColor: accent, padding: "10px 8px", textAlign: "center" as const, borderRight: "1px solid rgba(0,0,0,0.15)" }}>
-          <span style={{ fontFamily, fontSize: "22px", fontWeight: 700, color: accentTxt, display: "block", lineHeight: 1 }}>{timeStr}</span>
-          <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase" as const, color: `${accentTxt}99` }}>Start</span>
+        <div style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.2)", padding: "10px 8px", textAlign: "center" as const, borderRight: `1px solid ${accent}25` }}>
+          <span style={{ fontFamily, fontSize: "22px", fontWeight: 700, color: accent, display: "block", lineHeight: 1 }}>{timeStr}</span>
+          <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase" as const, color: textMuted }}>Start</span>
         </div>
-        <div style={{ flex: 1, backgroundColor: accent, padding: "10px 8px", textAlign: "center" as const }}>
-          <span style={{ fontFamily, fontSize: "22px", fontWeight: 700, color: accentTxt, display: "block", lineHeight: 1 }}>{event.guest_count}</span>
-          <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase" as const, color: `${accentTxt}99` }}>Going</span>
+        <div style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.2)", padding: "10px 8px", textAlign: "center" as const }}>
+          <span style={{ fontFamily, fontSize: "22px", fontWeight: 700, color: accent, display: "block", lineHeight: 1 }}>{event.guest_count}</span>
+          <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase" as const, color: textMuted }}>Going</span>
         </div>
       </div>
       {event.location && (
@@ -1402,7 +1402,6 @@ const CustomNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate:
         </div>
       )}
       {!event.location && <div style={{ height: "14px" }} />}
-      <div style={{ height: "3px", background: "linear-gradient(90deg, #4776e6, #38f9d7, #43e97b, #ff5858, #f857a6)" }} />
     </div>
   );
 };
