@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, MessageCircle, X, Send, Maximize2, ChevronDown, ChevronUp, Download } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -234,32 +234,34 @@ const GuestEventView = () => {
     };
   }, [event, user]);
 
-  // Fetch comments
+  // Fetch comments — defined at component scope so sendComment can call it directly
+  const fetchComments = useCallback(async () => {
+    if (!event) return;
+    const { data, error } = await supabase
+      .from("comments")
+      .select("*")
+      .eq("event_id", event.id)
+      .order("created_at", { ascending: true });
+    if (error) {
+      console.error("fetchComments error:", error);
+      return;
+    }
+    if (data) {
+      const userIds = [...new Set(data.map((c: any) => c.user_id))];
+      const avatarMap = new Map<string, string>();
+      if (userIds.length > 0) {
+        const { data: profiles } = await supabase
+          .from("profiles")
+          .select("user_id, avatar_url")
+          .in("user_id", userIds);
+        (profiles || []).forEach((p: any) => avatarMap.set(p.user_id, p.avatar_url));
+      }
+      setComments(data.map((c: any) => ({ ...c, avatar_url: avatarMap.get(c.user_id) })));
+    }
+  }, [event]);
+
   useEffect(() => {
     if (!event) return;
-    const fetchComments = async () => {
-      const { data, error } = await supabase
-        .from("comments")
-        .select("*")
-        .eq("event_id", event.id)
-        .order("created_at", { ascending: true });
-      if (error) {
-        console.error("fetchComments error:", error);
-        return;
-      }
-      if (data) {
-        const userIds = [...new Set(data.map((c: any) => c.user_id))];
-        const avatarMap = new Map<string, string>();
-        if (userIds.length > 0) {
-          const { data: profiles } = await supabase
-            .from("profiles")
-            .select("user_id, avatar_url")
-            .in("user_id", userIds);
-          (profiles || []).forEach((p: any) => avatarMap.set(p.user_id, p.avatar_url));
-        }
-        setComments(data.map((c: any) => ({ ...c, avatar_url: avatarMap.get(c.user_id) })));
-      }
-    };
     fetchComments();
 
     const channel = supabase
@@ -267,9 +269,7 @@ const GuestEventView = () => {
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "comments", filter: `event_id=eq.${event.id}` },
-        () => {
-          fetchComments();
-        },
+        () => fetchComments(),
       )
       .subscribe((status, err) => {
         console.log("comments realtime status:", status, err ? JSON.stringify(err) : "");
@@ -285,7 +285,7 @@ const GuestEventView = () => {
       document.removeEventListener("visibilitychange", handleVisibility);
       supabase.removeChannel(channel);
     };
-  }, [event]);
+  }, [event, fetchComments]);
 
   // Fetch photos
   useEffect(() => {
@@ -481,12 +481,11 @@ const GuestEventView = () => {
       console.error("sendComment error code:", error.code, "message:", error.message, "details:", error.details, "hint:", error.hint);
       toast.error(`Message failed: ${error.message}`);
       setComments((prev) => prev.filter((c) => c.id !== optimisticId));
-    } else if (data && data[0]) {
-      // Replace the optimistic entry with the real server row so the message
-      // persists even when the realtime subscription is dead (common on mobile).
-      setComments((prev) =>
-        prev.map((c) => c.id === optimisticId ? { ...data[0], avatar_url: optimistic.avatar_url } : c)
-      );
+    } else {
+      // Manual refetch after successful insert — do not rely on realtime which
+      // is unreliable on mobile browsers. This ensures the sender always sees
+      // their message immediately via a direct Supabase select.
+      await fetchComments();
     }
   };
 
