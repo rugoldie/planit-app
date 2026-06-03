@@ -284,7 +284,7 @@ export const VintageSharedSections = ({
             className="flex-1 rounded-full px-4 py-2 text-sm outline-none"
             style={{ fontFamily: FF, backgroundColor: "#3d2a1a", color: CREAM, border: `1px solid ${color}33` }}
           />
-          <button type="button" onClick={sendComment} onTouchEnd={(e) => { e.preventDefault(); sendComment(); }} className="w-9 h-9 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: color }}>
+          <button type="button" onPointerDown={(e) => { e.preventDefault(); sendComment(); }} className="w-11 h-11 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: color }}>
             <SendIcon className="w-4 h-4" style={{ color: CREAM }} />
           </button>
         </div>
