@@ -472,54 +472,58 @@ const HostEvent = () => {
   const customContainerRef = useRef<HTMLDivElement>(null);
   const stickerDragRef = useRef<{ id: string; startX: number; startY: number; sx: number; sy: number } | null>(null);
   const stickerPinchRef = useRef<{ id: string; initDist: number; initSize: number } | null>(null);
+  // Prevents a stale Supabase load callback from overwriting state after the user applies a Build It style
+  const buildItAppliedRef = useRef(false);
 
   // Load event data if editing
   useEffect(() => {
-    if (editCode) {
-      setEditLoading(true);
-      supabase
-        .from("events")
-        .select("*")
-        .eq("code", editCode)
-        .single()
-        .then(({ data }) => {
-          if (data) {
-            setTitle(data.title || "");
-            setVibe(data.vibe || "");
-            setLocation(data.location || "");
-            setDateTime(data.date_time ? new Date(data.date_time).toISOString().slice(0, 16) : "");
-            setDressCode(data.dress_code || "");
-            setExtra(data.extra || "");
-            setBgColor(data.bg_color || PALETTE_COLORS[0].hsl);
-            setTextSize((data.text_size as (typeof TEXT_SIZES)[number]) || "Medium");
-            setBubbleColor(data.bubble_color || BUBBLE_COLORS[0].hsl);
-            setBubbleTextColor(data.bubble_text_color || BUBBLE_COLORS[0].text);
-            setGradientColor(data.gradient_color || GRADIENT_COLORS[0].color);
-            setFontStyle(data.font_style || "Elegant");
-            setTemplateName((data as any).template_name || "planit-noir");
-            setEventCode(editCode);
-            setEventId(data.id);
-            if (data.bg_photo?.startsWith("planit-pattern:") || data.bg_photo?.startsWith("solid-")) {
-              setBgPreset(data.bg_photo);
-              setBgPresetIsImage(false);
-            } else if (data.bg_photo?.startsWith("linear-gradient")) {
-              setBgPreset(data.bg_photo);
-              setBgPresetIsImage(false);
-            } else if (data.bg_photo?.startsWith("url(")) {
-              setBgPreset(data.bg_photo);
-              setBgPresetIsImage(true);
-            } else if (data.bg_photo) {
-              setBgPhoto(data.bg_photo);
-              setUploadedPhoto(data.bg_photo);
-            }
-            setFontColor((data as any).font_color || "#ffffff");
-            if ((data as any).stickers) {
-              try { setStickers(JSON.parse((data as any).stickers)); } catch {}
-            }
+    if (!editCode) return;
+    let cancelled = false;
+    setEditLoading(true);
+    supabase
+      .from("events")
+      .select("*")
+      .eq("code", editCode)
+      .single()
+      .then(({ data }) => {
+        if (cancelled || buildItAppliedRef.current) return;
+        if (data) {
+          setTitle(data.title || "");
+          setVibe(data.vibe || "");
+          setLocation(data.location || "");
+          setDateTime(data.date_time ? new Date(data.date_time).toISOString().slice(0, 16) : "");
+          setDressCode(data.dress_code || "");
+          setExtra(data.extra || "");
+          setBgColor(data.bg_color || PALETTE_COLORS[0].hsl);
+          setTextSize((data.text_size as (typeof TEXT_SIZES)[number]) || "Medium");
+          setBubbleColor(data.bubble_color || BUBBLE_COLORS[0].hsl);
+          setBubbleTextColor(data.bubble_text_color || BUBBLE_COLORS[0].text);
+          setGradientColor(data.gradient_color || GRADIENT_COLORS[0].color);
+          setFontStyle(data.font_style || "Elegant");
+          setTemplateName((data as any).template_name || "planit-noir");
+          setEventCode(editCode);
+          setEventId(data.id);
+          if (data.bg_photo?.startsWith("planit-pattern:") || data.bg_photo?.startsWith("solid-")) {
+            setBgPreset(data.bg_photo);
+            setBgPresetIsImage(false);
+          } else if (data.bg_photo?.startsWith("linear-gradient")) {
+            setBgPreset(data.bg_photo);
+            setBgPresetIsImage(false);
+          } else if (data.bg_photo?.startsWith("url(")) {
+            setBgPreset(data.bg_photo);
+            setBgPresetIsImage(true);
+          } else if (data.bg_photo) {
+            setBgPhoto(data.bg_photo);
+            setUploadedPhoto(data.bg_photo);
           }
-          setEditLoading(false);
-        });
-    }
+          setFontColor((data as any).font_color || "#ffffff");
+          if ((data as any).stickers) {
+            try { setStickers(JSON.parse((data as any).stickers)); } catch {}
+          }
+        }
+        setEditLoading(false);
+      });
+    return () => { cancelled = true; };
   }, [editCode]);
 
   const handleCreate = async () => {
@@ -679,6 +683,8 @@ const HostEvent = () => {
 
   const applyStyle = () => {
     if (!buildItResult) return;
+    // Mark that the user has applied a Build It style so any in-flight DB load callback won't overwrite it
+    buildItAppliedRef.current = true;
     console.log("[BuildIt] applyStyle CALLED with:", JSON.stringify(buildItResult));
     console.log("[BuildIt] → setTemplateName('planit-custom')");
     setTemplateName("planit-custom");
