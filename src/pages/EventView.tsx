@@ -460,6 +460,13 @@ const EventView = () => {
   const goingList = useMemo(() => rsvpList.filter((r) => r.status === "yes"), [rsvpList]);
   const maybeList = useMemo(() => rsvpList.filter((r) => r.status === "maybe"), [rsvpList]);
 
+  // Fullscreen — must be before any early returns to satisfy rules of hooks
+  useEffect(() => {
+    const handler = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener("fullscreenchange", handler);
+    return () => document.removeEventListener("fullscreenchange", handler);
+  }, []);
+
   if (loading)
     return (
       <div className="flex items-center justify-center min-h-screen bg-background">
@@ -580,12 +587,6 @@ const EventView = () => {
       document.exitFullscreen?.().catch(() => {});
     }
   };
-
-  useEffect(() => {
-    const handler = () => setIsFullscreen(!!document.fullscreenElement);
-    document.addEventListener("fullscreenchange", handler);
-    return () => document.removeEventListener("fullscreenchange", handler);
-  }, []);
 
   const downloadPhoto = async (url: string) => {
     try {
