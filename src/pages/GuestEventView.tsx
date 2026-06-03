@@ -2428,13 +2428,21 @@ const GuestEventView = () => {
         <>
           {(() => {
             const bp = (event as any).bg_photo as string | null;
-            const isPattern = bp?.startsWith("planit-pattern:") || bp?.startsWith("solid-");
+            const isCssGradient = !!(bp && (
+              bp.startsWith("linear-gradient") || bp.startsWith("radial-gradient") ||
+              bp.startsWith("conic-gradient") || bp.startsWith("repeating-")
+            ));
+            const isPattern = !isCssGradient && !!(bp?.startsWith("planit-pattern:") || bp?.startsWith("solid-"));
+            const bgColorHsl = (event as any).bg_color as string | null;
             const patStyle: React.CSSProperties = isPattern
               ? getPatternBgStyle(bp!)
-              : bp && !bp.startsWith("planit-pattern:")
-                ? { backgroundImage: `url(${bp})`, backgroundSize: "cover", backgroundPosition: "center" }
-                : { backgroundColor: "#111111" };
-            const isLight = isPattern ? isLightPattern(bp!) : false;
+              : isCssGradient
+                ? { backgroundImage: bp!, backgroundSize: "auto", backgroundColor: bgColorHsl ? `hsl(${bgColorHsl})` : "" }
+                : bp && (bp.startsWith("http") || bp.startsWith("blob:"))
+                  ? { backgroundImage: `url(${bp})`, backgroundSize: "cover", backgroundPosition: "center" }
+                  : { backgroundColor: bgColorHsl ? `hsl(${bgColorHsl})` : "#111111" };
+            const bgL = bgColorHsl ? parseFloat(bgColorHsl.trim().split(/[\s,]+/)[2] ?? "0") : 0;
+            const isLight = isPattern ? isLightPattern(bp!) : isCssGradient ? bgL > 55 : false;
             const storedFontColor = ((event as any).font_color as string | null) || "#ffffff";
             const tCol = storedFontColor;
             const tMuted = hexMuted(tCol);
@@ -2447,8 +2455,9 @@ const GuestEventView = () => {
             try { stickerItems = JSON.parse((event as any).stickers || "[]"); } catch {}
             return (
               <div style={{ minHeight: "100vh", position: "relative", overflow: "hidden", ...patStyle }}>
-                {bp?.startsWith("planit-pattern:") && <PatternOverlay patternKey={bp!} />}
-                {!isPattern && bp && <div style={{ position: "absolute", inset: 0, backgroundColor: "rgba(0,0,0,0.4)", zIndex: 1, pointerEvents: "none" }} />}
+                {isPattern && bp?.startsWith("planit-pattern:") && <PatternOverlay patternKey={bp!} />}
+                {/* Photo scrim — only for real images, not CSS gradients */}
+                {!isPattern && !isCssGradient && bp && <div style={{ position: "absolute", inset: 0, backgroundColor: "rgba(0,0,0,0.4)", zIndex: 1, pointerEvents: "none" }} />}
                 {stickerItems.map(stk => (
                   <div key={stk.id} style={{ position: "absolute", left: `${stk.x}%`, top: `${stk.y}%`, fontSize: `${stk.size}px`, zIndex: 30, pointerEvents: "none" }}>{stk.emoji}</div>
                 ))}

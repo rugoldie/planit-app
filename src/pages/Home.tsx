@@ -1380,15 +1380,15 @@ const CustomNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate:
       </div>
       {/* Stat bar — semi-transparent overlay so background colour flows through */}
       <div style={{ display: "flex", borderTop: `1px solid ${accent}40`, borderBottom: `1px solid ${accent}40` }}>
-        <div style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.2)", padding: "10px 8px", textAlign: "center" as const, borderRight: `1px solid ${accent}25` }}>
+        <div style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.15)", padding: "10px 8px", textAlign: "center" as const, borderRight: `1px solid ${accent}25` }}>
           <span style={{ fontFamily, fontSize: "22px", fontWeight: 700, color: accent, display: "block", lineHeight: 1 }}>{dayNum}</span>
           <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase" as const, color: textMuted }}>{monthName}</span>
         </div>
-        <div style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.2)", padding: "10px 8px", textAlign: "center" as const, borderRight: `1px solid ${accent}25` }}>
+        <div style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.15)", padding: "10px 8px", textAlign: "center" as const, borderRight: `1px solid ${accent}25` }}>
           <span style={{ fontFamily, fontSize: "22px", fontWeight: 700, color: accent, display: "block", lineHeight: 1 }}>{timeStr}</span>
           <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase" as const, color: textMuted }}>Start</span>
         </div>
-        <div style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.2)", padding: "10px 8px", textAlign: "center" as const }}>
+        <div style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.15)", padding: "10px 8px", textAlign: "center" as const }}>
           <span style={{ fontFamily, fontSize: "22px", fontWeight: 700, color: accent, display: "block", lineHeight: 1 }}>{event.guest_count}</span>
           <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase" as const, color: textMuted }}>Going</span>
         </div>
