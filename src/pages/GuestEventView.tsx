@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, MessageCircle, X, Send, Maximize2, ChevronDown, ChevronUp, Download } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import {
   ConcentricCircles,
   StyledTitle,
@@ -237,19 +238,25 @@ const GuestEventView = () => {
   useEffect(() => {
     if (!event) return;
     const fetchComments = async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("comments")
         .select("*")
         .eq("event_id", event.id)
         .order("created_at", { ascending: true });
+      if (error) {
+        console.error("fetchComments error:", error);
+        return;
+      }
       if (data) {
-        // Get avatar urls
         const userIds = [...new Set(data.map((c: any) => c.user_id))];
-        const { data: profiles } = await supabase
-          .from("profiles")
-          .select("user_id, avatar_url")
-          .in("user_id", userIds);
-        const avatarMap = new Map((profiles || []).map((p: any) => [p.user_id, p.avatar_url]));
+        const avatarMap = new Map<string, string>();
+        if (userIds.length > 0) {
+          const { data: profiles } = await supabase
+            .from("profiles")
+            .select("user_id, avatar_url")
+            .in("user_id", userIds);
+          (profiles || []).forEach((p: any) => avatarMap.set(p.user_id, p.avatar_url));
+        }
         setComments(data.map((c: any) => ({ ...c, avatar_url: avatarMap.get(c.user_id) })));
       }
     };
@@ -457,7 +464,8 @@ const GuestEventView = () => {
       text,
     });
     if (error) {
-      // Roll back optimistic update on failure
+      console.error("sendComment error:", error);
+      toast.error(`Failed to send message: ${error.message}`);
       setComments((prev) => prev.filter((c) => c.id !== optimistic.id));
     }
   };
@@ -608,15 +616,23 @@ const GuestEventView = () => {
               <button onClick={() => navigate("/home")}>
                 <ArrowLeft className="w-6 h-6 text-white/40" />
               </button>
-              <button onClick={() => setShowChat(true)} className="flex flex-col items-center gap-0.5">
-                <div
-                  className="w-9 h-9 rounded-full flex items-center justify-center"
-                  style={{ backgroundColor: "rgba(255,255,255,0.08)" }}
-                >
-                  <MessageCircle className="w-4 h-4 text-white/40" />
-                </div>
-                <span className="text-[9px] font-semibold text-white/40">Message host</span>
-              </button>
+              <div className="flex items-center gap-2">
+                <button onClick={() => setShowChat(true)} className="flex flex-col items-center gap-0.5">
+                  <div
+                    className="w-9 h-9 rounded-full flex items-center justify-center"
+                    style={{ backgroundColor: "rgba(255,255,255,0.08)" }}
+                  >
+                    <MessageCircle className="w-4 h-4 text-white/40" />
+                  </div>
+                  <span className="text-[9px] font-semibold text-white/40">Message host</span>
+                </button>
+                <button onClick={toggleFullscreen} className="flex flex-col items-center gap-0.5">
+                  <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ backgroundColor: "rgba(255,255,255,0.08)" }}>
+                    {isFullscreen ? <X className="w-4 h-4 text-white/40" /> : <Maximize2 className="w-4 h-4 text-white/40" />}
+                  </div>
+                  <span className="text-[9px] font-semibold text-white/40">{isFullscreen ? "Exit" : "Full"}</span>
+                </button>
+              </div>
             </div>
             <div className="relative z-10 px-6 pt-4 pb-4">
               <p
@@ -683,17 +699,25 @@ const GuestEventView = () => {
               <button onClick={() => navigate("/home")}>
                 <ArrowLeft className="w-6 h-6" style={{ color: vintageAccent }} />
               </button>
-              <button onClick={() => setShowChat(true)} className="flex flex-col items-center gap-0.5">
-                <div
-                  className="w-9 h-9 rounded-full flex items-center justify-center border"
-                  style={{ borderColor: vintageAccent, backgroundColor: `${vintageAccent}1a` }}
-                >
-                  <MessageCircle className="w-4 h-4" style={{ color: vintageAccent }} />
-                </div>
-                <span className="text-[9px] font-semibold" style={{ color: vintageAccent }}>
-                  Message host
-                </span>
-              </button>
+              <div className="flex items-center gap-2">
+                <button onClick={() => setShowChat(true)} className="flex flex-col items-center gap-0.5">
+                  <div
+                    className="w-9 h-9 rounded-full flex items-center justify-center border"
+                    style={{ borderColor: vintageAccent, backgroundColor: `${vintageAccent}1a` }}
+                  >
+                    <MessageCircle className="w-4 h-4" style={{ color: vintageAccent }} />
+                  </div>
+                  <span className="text-[9px] font-semibold" style={{ color: vintageAccent }}>
+                    Message host
+                  </span>
+                </button>
+                <button onClick={toggleFullscreen} className="flex flex-col items-center gap-0.5">
+                  <div className="w-9 h-9 rounded-full flex items-center justify-center border" style={{ borderColor: vintageAccent, backgroundColor: `${vintageAccent}1a` }}>
+                    {isFullscreen ? <X className="w-4 h-4" style={{ color: vintageAccent }} /> : <Maximize2 className="w-4 h-4" style={{ color: vintageAccent }} />}
+                  </div>
+                  <span className="text-[9px] font-semibold" style={{ color: vintageAccent }}>{isFullscreen ? "Exit" : "Full"}</span>
+                </button>
+              </div>
             </div>
             <div className="text-center px-6 pt-6 pb-4">
               <p
@@ -1201,17 +1225,25 @@ const GuestEventView = () => {
               <button onClick={() => navigate("/home")}>
                 <ArrowLeft className="w-6 h-6" style={{ color: "rgba(255,255,255,0.4)" }} />
               </button>
-              <button onClick={() => setShowChat(true)} className="flex flex-col items-center gap-0.5">
-                <div
-                  className="w-9 h-9 rounded-full flex items-center justify-center"
-                  style={{ backgroundColor: "rgba(168,85,247,0.15)", border: "1px solid rgba(168,85,247,0.3)" }}
-                >
-                  <MessageCircle className="w-4 h-4" style={{ color: galaxyAccent }} />
-                </div>
-                <span className="text-[9px] font-semibold" style={{ color: galaxyAccent }}>
-                  Message host
-                </span>
-              </button>
+              <div className="flex items-center gap-2">
+                <button onClick={() => setShowChat(true)} className="flex flex-col items-center gap-0.5">
+                  <div
+                    className="w-9 h-9 rounded-full flex items-center justify-center"
+                    style={{ backgroundColor: "rgba(168,85,247,0.15)", border: "1px solid rgba(168,85,247,0.3)" }}
+                  >
+                    <MessageCircle className="w-4 h-4" style={{ color: galaxyAccent }} />
+                  </div>
+                  <span className="text-[9px] font-semibold" style={{ color: galaxyAccent }}>
+                    Message host
+                  </span>
+                </button>
+                <button onClick={toggleFullscreen} className="flex flex-col items-center gap-0.5">
+                  <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ backgroundColor: "rgba(168,85,247,0.15)", border: "1px solid rgba(168,85,247,0.3)" }}>
+                    {isFullscreen ? <X className="w-4 h-4" style={{ color: galaxyAccent }} /> : <Maximize2 className="w-4 h-4" style={{ color: galaxyAccent }} />}
+                  </div>
+                  <span className="text-[9px] font-semibold" style={{ color: galaxyAccent }}>{isFullscreen ? "Exit" : "Full"}</span>
+                </button>
+              </div>
             </div>
 
             {/* Header */}
@@ -1603,17 +1635,25 @@ const GuestEventView = () => {
               <button onClick={() => navigate("/home")}>
                 <ArrowLeft className="w-6 h-6" style={{ color: accentColor }} />
               </button>
-              <button onClick={() => setShowChat(true)} className="flex flex-col items-center gap-0.5">
-                <div
-                  className="w-9 h-9 rounded-full flex items-center justify-center"
-                  style={{ backgroundColor: `${accentColor}18`, border: `1px solid ${accentColor}40` }}
-                >
-                  <MessageCircle className="w-4 h-4" style={{ color: accentColor }} />
-                </div>
-                <span className="text-[9px] font-semibold" style={{ color: accentColor }}>
-                  Message host
-                </span>
-              </button>
+              <div className="flex items-center gap-2">
+                <button onClick={() => setShowChat(true)} className="flex flex-col items-center gap-0.5">
+                  <div
+                    className="w-9 h-9 rounded-full flex items-center justify-center"
+                    style={{ backgroundColor: `${accentColor}18`, border: `1px solid ${accentColor}40` }}
+                  >
+                    <MessageCircle className="w-4 h-4" style={{ color: accentColor }} />
+                  </div>
+                  <span className="text-[9px] font-semibold" style={{ color: accentColor }}>
+                    Message host
+                  </span>
+                </button>
+                <button onClick={toggleFullscreen} className="flex flex-col items-center gap-0.5">
+                  <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ backgroundColor: `${accentColor}18`, border: `1px solid ${accentColor}40` }}>
+                    {isFullscreen ? <X className="w-4 h-4" style={{ color: accentColor }} /> : <Maximize2 className="w-4 h-4" style={{ color: accentColor }} />}
+                  </div>
+                  <span className="text-[9px] font-semibold" style={{ color: accentColor }}>{isFullscreen ? "Exit" : "Full"}</span>
+                </button>
+              </div>
             </div>
 
             <div className="px-5 pt-6 pb-4">
@@ -2067,12 +2107,20 @@ const GuestEventView = () => {
               <button onClick={() => navigate("/home")}>
                 <ArrowLeft className="w-6 h-6" style={{ color: "rgba(56,189,248,0.6)" }} />
               </button>
-              <button onClick={() => setShowChat(true)} className="flex flex-col items-center gap-0.5">
-                <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ backgroundColor: "rgba(56,189,248,0.08)", border: "1px solid rgba(56,189,248,0.2)" }}>
-                  <MessageCircle className="w-4 h-4" style={{ color: "rgba(56,189,248,0.7)" }} />
-                </div>
-                <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 600, color: "rgba(56,189,248,0.5)" }}>Message host</span>
-              </button>
+              <div className="flex items-center gap-2">
+                <button onClick={() => setShowChat(true)} className="flex flex-col items-center gap-0.5">
+                  <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ backgroundColor: "rgba(56,189,248,0.08)", border: "1px solid rgba(56,189,248,0.2)" }}>
+                    <MessageCircle className="w-4 h-4" style={{ color: "rgba(56,189,248,0.7)" }} />
+                  </div>
+                  <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 600, color: "rgba(56,189,248,0.5)" }}>Message host</span>
+                </button>
+                <button onClick={toggleFullscreen} className="flex flex-col items-center gap-0.5">
+                  <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ backgroundColor: "rgba(56,189,248,0.08)", border: "1px solid rgba(56,189,248,0.2)" }}>
+                    {isFullscreen ? <X className="w-4 h-4" style={{ color: "rgba(56,189,248,0.7)" }} /> : <Maximize2 className="w-4 h-4" style={{ color: "rgba(56,189,248,0.7)" }} />}
+                  </div>
+                  <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 600, color: "rgba(56,189,248,0.5)" }}>{isFullscreen ? "Exit" : "Full"}</span>
+                </button>
+              </div>
             </div>
 
             {/* Header */}
@@ -2213,12 +2261,20 @@ const GuestEventView = () => {
               <button onClick={() => navigate("/home")}>
                 <ArrowLeft className="w-6 h-6" style={{ color: "rgba(244,114,182,0.6)" }} />
               </button>
-              <button onClick={() => setShowChat(true)} className="flex flex-col items-center gap-0.5">
-                <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ backgroundColor: "rgba(244,114,182,0.1)", border: "1px solid rgba(244,114,182,0.25)" }}>
-                  <MessageCircle className="w-4 h-4" style={{ color: "rgba(244,114,182,0.7)" }} />
-                </div>
-                <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 600, color: "rgba(244,114,182,0.5)" }}>Message host</span>
-              </button>
+              <div className="flex items-center gap-2">
+                <button onClick={() => setShowChat(true)} className="flex flex-col items-center gap-0.5">
+                  <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ backgroundColor: "rgba(244,114,182,0.1)", border: "1px solid rgba(244,114,182,0.25)" }}>
+                    <MessageCircle className="w-4 h-4" style={{ color: "rgba(244,114,182,0.7)" }} />
+                  </div>
+                  <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 600, color: "rgba(244,114,182,0.5)" }}>Message host</span>
+                </button>
+                <button onClick={toggleFullscreen} className="flex flex-col items-center gap-0.5">
+                  <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ backgroundColor: "rgba(244,114,182,0.1)", border: "1px solid rgba(244,114,182,0.25)" }}>
+                    {isFullscreen ? <X className="w-4 h-4" style={{ color: "rgba(244,114,182,0.7)" }} /> : <Maximize2 className="w-4 h-4" style={{ color: "rgba(244,114,182,0.7)" }} />}
+                  </div>
+                  <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 600, color: "rgba(244,114,182,0.5)" }}>{isFullscreen ? "Exit" : "Full"}</span>
+                </button>
+              </div>
             </div>
 
             {/* Header: pill badge top-left, title, hosted by */}
@@ -2350,12 +2406,20 @@ const GuestEventView = () => {
               <button onClick={() => navigate("/home")}>
                 <ArrowLeft className="w-6 h-6" style={{ color: "rgba(74,222,128,0.6)" }} />
               </button>
-              <button onClick={() => setShowChat(true)} className="flex flex-col items-center gap-0.5">
-                <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ backgroundColor: "rgba(74,222,128,0.08)", border: "1px solid rgba(74,222,128,0.2)" }}>
-                  <MessageCircle className="w-4 h-4" style={{ color: "rgba(74,222,128,0.7)" }} />
-                </div>
-                <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 600, color: "rgba(74,222,128,0.5)" }}>Message host</span>
-              </button>
+              <div className="flex items-center gap-2">
+                <button onClick={() => setShowChat(true)} className="flex flex-col items-center gap-0.5">
+                  <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ backgroundColor: "rgba(74,222,128,0.08)", border: "1px solid rgba(74,222,128,0.2)" }}>
+                    <MessageCircle className="w-4 h-4" style={{ color: "rgba(74,222,128,0.7)" }} />
+                  </div>
+                  <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 600, color: "rgba(74,222,128,0.5)" }}>Message host</span>
+                </button>
+                <button onClick={toggleFullscreen} className="flex flex-col items-center gap-0.5">
+                  <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ backgroundColor: "rgba(74,222,128,0.08)", border: "1px solid rgba(74,222,128,0.2)" }}>
+                    {isFullscreen ? <X className="w-4 h-4" style={{ color: "rgba(74,222,128,0.7)" }} /> : <Maximize2 className="w-4 h-4" style={{ color: "rgba(74,222,128,0.7)" }} />}
+                  </div>
+                  <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 600, color: "rgba(74,222,128,0.5)" }}>{isFullscreen ? "Exit" : "Full"}</span>
+                </button>
+              </div>
             </div>
 
             {/* Header */}
@@ -2674,17 +2738,25 @@ const GuestEventView = () => {
               <button onClick={() => navigate("/home")}>
                 <ArrowLeft className="w-6 h-6 text-white/60" />
               </button>
-              <button onClick={() => setShowChat(true)} className="flex flex-col items-center gap-0.5">
-                <div
-                  className="w-9 h-9 rounded-full flex items-center justify-center"
-                  style={{ backgroundColor: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.25)" }}
-                >
-                  <MessageCircle className="w-4 h-4 text-white" />
-                </div>
-                <span className="text-[9px] font-semibold text-white/70" style={{ fontFamily: SUNNY_FF }}>
-                  Message host
-                </span>
-              </button>
+              <div className="flex items-center gap-2">
+                <button onClick={() => setShowChat(true)} className="flex flex-col items-center gap-0.5">
+                  <div
+                    className="w-9 h-9 rounded-full flex items-center justify-center"
+                    style={{ backgroundColor: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.25)" }}
+                  >
+                    <MessageCircle className="w-4 h-4 text-white" />
+                  </div>
+                  <span className="text-[9px] font-semibold text-white/70" style={{ fontFamily: SUNNY_FF }}>
+                    Message host
+                  </span>
+                </button>
+                <button onClick={toggleFullscreen} className="flex flex-col items-center gap-0.5">
+                  <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ backgroundColor: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.25)" }}>
+                    {isFullscreen ? <X className="w-4 h-4 text-white" /> : <Maximize2 className="w-4 h-4 text-white" />}
+                  </div>
+                  <span className="text-[9px] font-semibold text-white/70" style={{ fontFamily: SUNNY_FF }}>{isFullscreen ? "Exit" : "Full"}</span>
+                </button>
+              </div>
             </div>
 
             {/* Header */}

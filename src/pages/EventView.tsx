@@ -305,18 +305,25 @@ const EventView = () => {
   useEffect(() => {
     if (!event) return;
     const fetchComments = async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("comments")
         .select("*")
         .eq("event_id", event.id)
         .order("created_at", { ascending: true });
+      if (error) {
+        console.error("fetchComments error:", error);
+        return;
+      }
       if (data) {
         const userIds = [...new Set(data.map((c: any) => c.user_id))];
-        const { data: profiles } = await supabase
-          .from("profiles")
-          .select("user_id, avatar_url")
-          .in("user_id", userIds);
-        const avatarMap = new Map((profiles || []).map((p: any) => [p.user_id, p.avatar_url]));
+        const avatarMap = new Map<string, string>();
+        if (userIds.length > 0) {
+          const { data: profiles } = await supabase
+            .from("profiles")
+            .select("user_id, avatar_url")
+            .in("user_id", userIds);
+          (profiles || []).forEach((p: any) => avatarMap.set(p.user_id, p.avatar_url));
+        }
         setComments(data.map((c: any) => ({ ...c, avatar_url: avatarMap.get(c.user_id) })));
       }
     };
@@ -546,6 +553,8 @@ const EventView = () => {
       .from("comments")
       .insert({ event_id: event.id, user_id: user.id, user_name: profile?.name || "Host", text });
     if (commentError) {
+      console.error("sendComment error:", commentError);
+      toast.error(`Failed to send message: ${commentError.message}`);
       setComments((prev) => prev.filter((c) => c.id !== optimistic.id));
     }
   };
@@ -711,6 +720,12 @@ const EventView = () => {
                     <MessageCircle className="w-4 h-4" style={{ color: vintageAccent }} />
                   </div>
                   <span style={{ fontSize: "9px", fontWeight: 600, color: vintageAccent }}>Messages</span>
+                </button>
+                <button onClick={toggleFullscreen} className="flex flex-col items-center gap-0.5">
+                  <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ backgroundColor: `${vintageAccent}1f` }}>
+                    {isFullscreen ? <X className="w-4 h-4" style={{ color: vintageAccent }} /> : <Maximize2 className="w-4 h-4" style={{ color: vintageAccent }} />}
+                  </div>
+                  <span style={{ fontSize: "9px", fontWeight: 600, color: vintageAccent }}>{isFullscreen ? "Exit" : "Full"}</span>
                 </button>
                 {isHost && (
                   <div className="relative">
@@ -884,6 +899,12 @@ const EventView = () => {
                   <span className="text-[9px] font-semibold" style={{ color: galaxyAccent }}>
                     Messages
                   </span>
+                </button>
+                <button onClick={toggleFullscreen} className="flex flex-col items-center gap-0.5">
+                  <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ backgroundColor: "rgba(168,85,247,0.15)", border: "1px solid rgba(168,85,247,0.3)" }}>
+                    {isFullscreen ? <X className="w-4 h-4" style={{ color: galaxyAccent }} /> : <Maximize2 className="w-4 h-4" style={{ color: galaxyAccent }} />}
+                  </div>
+                  <span className="text-[9px] font-semibold" style={{ color: galaxyAccent }}>{isFullscreen ? "Exit" : "Full"}</span>
                 </button>
                 {isHost && (
                   <button
@@ -1408,6 +1429,12 @@ const EventView = () => {
                   </div>
                   <span className="text-[9px] font-semibold text-white/70">Messages</span>
                 </button>
+                <button onClick={toggleFullscreen} className="flex flex-col items-center gap-0.5">
+                  <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ backgroundColor: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.25)" }}>
+                    {isFullscreen ? <X className="w-4 h-4 text-white" /> : <Maximize2 className="w-4 h-4 text-white" />}
+                  </div>
+                  <span className="text-[9px] font-semibold text-white/70">{isFullscreen ? "Exit" : "Full"}</span>
+                </button>
                 {isHost && (
                   <button
                     onClick={() => setShowMenu(!showMenu)}
@@ -1804,6 +1831,12 @@ const EventView = () => {
                   <span className="text-[9px] font-semibold" style={{ color: accentColor }}>
                     Messages
                   </span>
+                </button>
+                <button onClick={toggleFullscreen} className="flex flex-col items-center gap-0.5">
+                  <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ backgroundColor: `${accentColor}18`, border: `1px solid ${accentColor}40` }}>
+                    {isFullscreen ? <X className="w-4 h-4" style={{ color: accentColor }} /> : <Maximize2 className="w-4 h-4" style={{ color: accentColor }} />}
+                  </div>
+                  <span className="text-[9px] font-semibold" style={{ color: accentColor }}>{isFullscreen ? "Exit" : "Full"}</span>
                 </button>
                 {isHost && (
                   <button
@@ -2267,6 +2300,12 @@ const EventView = () => {
                   </div>
                   <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 600, color: "rgba(56,189,248,0.5)" }}>Messages</span>
                 </button>
+                <button onClick={toggleFullscreen} className="flex flex-col items-center gap-0.5">
+                  <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ backgroundColor: "rgba(56,189,248,0.08)", border: "1px solid rgba(56,189,248,0.2)" }}>
+                    {isFullscreen ? <X className="w-4 h-4" style={{ color: "rgba(56,189,248,0.7)" }} /> : <Maximize2 className="w-4 h-4" style={{ color: "rgba(56,189,248,0.7)" }} />}
+                  </div>
+                  <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 600, color: "rgba(56,189,248,0.5)" }}>{isFullscreen ? "Exit" : "Full"}</span>
+                </button>
                 {isHost && (
                   <button onClick={() => setShowMenu(!showMenu)} className="w-9 h-9 rounded-full flex items-center justify-center" style={{ backgroundColor: "rgba(56,189,248,0.08)", border: "1px solid rgba(56,189,248,0.2)" }}>
                     <MoreVertical className="w-4 h-4" style={{ color: "rgba(56,189,248,0.7)" }} />
@@ -2424,6 +2463,12 @@ const EventView = () => {
                   </div>
                   <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 600, color: "rgba(244,114,182,0.5)" }}>Messages</span>
                 </button>
+                <button onClick={toggleFullscreen} className="flex flex-col items-center gap-0.5">
+                  <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ backgroundColor: "rgba(244,114,182,0.1)", border: "1px solid rgba(244,114,182,0.25)" }}>
+                    {isFullscreen ? <X className="w-4 h-4" style={{ color: "rgba(244,114,182,0.7)" }} /> : <Maximize2 className="w-4 h-4" style={{ color: "rgba(244,114,182,0.7)" }} />}
+                  </div>
+                  <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 600, color: "rgba(244,114,182,0.5)" }}>{isFullscreen ? "Exit" : "Full"}</span>
+                </button>
                 {isHost && (
                   <button onClick={() => setShowMenu(!showMenu)} className="w-9 h-9 rounded-full flex items-center justify-center" style={{ backgroundColor: "rgba(244,114,182,0.1)", border: "1px solid rgba(244,114,182,0.25)" }}>
                     <MoreVertical className="w-4 h-4" style={{ color: "rgba(244,114,182,0.7)" }} />
@@ -2571,6 +2616,12 @@ const EventView = () => {
                     <MessageCircle className="w-4 h-4" style={{ color: "rgba(74,222,128,0.7)" }} />
                   </div>
                   <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 600, color: "rgba(74,222,128,0.5)" }}>Messages</span>
+                </button>
+                <button onClick={toggleFullscreen} className="flex flex-col items-center gap-0.5">
+                  <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ backgroundColor: "rgba(74,222,128,0.08)", border: "1px solid rgba(74,222,128,0.2)" }}>
+                    {isFullscreen ? <X className="w-4 h-4" style={{ color: "rgba(74,222,128,0.7)" }} /> : <Maximize2 className="w-4 h-4" style={{ color: "rgba(74,222,128,0.7)" }} />}
+                  </div>
+                  <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 600, color: "rgba(74,222,128,0.5)" }}>{isFullscreen ? "Exit" : "Full"}</span>
                 </button>
                 {isHost && (
                   <button onClick={() => setShowMenu(!showMenu)} className="w-9 h-9 rounded-full flex items-center justify-center" style={{ backgroundColor: "rgba(74,222,128,0.08)", border: "1px solid rgba(74,222,128,0.2)" }}>
@@ -2890,6 +2941,12 @@ const EventView = () => {
                     <MessageCircle className="w-4 h-4 text-white/40" />
                   </div>
                   <span className="text-[9px] font-semibold text-white/40">Messages</span>
+                </button>
+                <button onClick={toggleFullscreen} className="flex flex-col items-center gap-0.5">
+                  <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ backgroundColor: "rgba(255,255,255,0.08)" }}>
+                    {isFullscreen ? <X className="w-4 h-4 text-white/40" /> : <Maximize2 className="w-4 h-4 text-white/40" />}
+                  </div>
+                  <span className="text-[9px] font-semibold text-white/40">{isFullscreen ? "Exit" : "Full"}</span>
                 </button>
                 {isHost && (
                   <div className="relative">
