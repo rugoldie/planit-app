@@ -365,8 +365,8 @@ CUSTOMCSS TECHNIQUE — think richly:
 For SHIMMER / GLITTER / GOLD — layer radial gradients to create light scatter:
 "radial-gradient(ellipse at 20% 30%, #c9a84c44 0%, transparent 50%), radial-gradient(ellipse at 80% 70%, #ffd70033 0%, transparent 45%), radial-gradient(ellipse at 60% 20%, #c9a84c22 0%, transparent 40%), linear-gradient(135deg, #0a0800 0%, #1a1200 40%, #0d0900 100%)"
 
-For BEACH / COASTAL / SUMMER — blend sky into sand:
-"linear-gradient(180deg, #87ceeb 0%, #b8d4e8 25%, #f5deb3 60%, #c4a882 85%, #8b7355 100%)"
+For BEACH / COASTAL / SUMMER — bold sky-to-sand sweep, vivid and warm:
+"linear-gradient(180deg, #1e90ff 0%, #87ceeb 20%, #fffacd 50%, #f5deb3 70%, #c4a882 88%, #8b6914 100%)"
 
 For DEEP SPACE / COSMIC — dark with nebula glow:
 "radial-gradient(ellipse at 30% 40%, #1a0a3e 0%, transparent 60%), radial-gradient(ellipse at 70% 60%, #0a1a3e 0%, transparent 55%), linear-gradient(135deg, #020008 0%, #05001a 50%, #020008 100%)"
@@ -386,10 +386,16 @@ For MIDNIGHT / NOIR / MOODY — atmospheric dark:
 For RETRO / 70S / GROOVY — warm earthy psychedelia:
 "radial-gradient(ellipse at 30% 70%, #d4650022 0%, transparent 50%), radial-gradient(ellipse at 70% 30%, #8b450022 0%, transparent 50%), linear-gradient(135deg, #2d1b00 0%, #3d2800 50%, #1a1000 100%)"
 
-CREATIVE GUIDELINES:
-- bubbleColor must be VIVID and contrast strongly with the background
-- Layer at least 2 gradients for richness
-- Think about light source, depth, and atmosphere
+CREATIVE GUIDELINES — MAKE IT DRAMATIC:
+- NEVER produce subtle, washed-out, or near-monochrome gradients. Every result must be VISUALLY STRIKING.
+- A beach event should LOOK LIKE a beach — vivid sky blue, warm sand, golden sunlight.
+- A neon/rave event should GLOW — near-black base with electric colour bleeds that pulse.
+- A gold masquerade should SHIMMER — deep black with layered gold radial glows.
+- A garden party should feel LUSH — rich greens, soft pinks, unmistakably floral.
+- Use STRONG colour contrast between the darkest and lightest stops — at least 40% lightness difference.
+- bubbleColor must be VIVID and pop dramatically against the background — if background is dark, bubble must be bright; if background is light, bubble must be saturated.
+- Layer at least 2-3 gradients. A single flat gradient is never enough.
+- Think directionally: where is the horizon? Where is the light source? Make the gradient tell a story.
 
 EXAMPLES:
 
@@ -398,8 +404,8 @@ Golden Masquerade / Black Tie:
 → customCSS: "radial-gradient(ellipse at 20% 30%, #c9a84c33 0%, transparent 50%), radial-gradient(ellipse at 80% 70%, #ffd70022 0%, transparent 45%), radial-gradient(ellipse at 50% 50%, #c9a84c11 0%, transparent 60%), linear-gradient(135deg, #0a0800 0%, #1c1400 45%, #0a0800 100%)"
 
 Norfolk Countryside Beach Summer:
-→ bgColor "200 45% 70%", bubbleColor "15 90% 60%", bubbleTextColor "0 0% 0%", Handwritten, gradientColor "#ff6b35"
-→ customCSS: "linear-gradient(180deg, #87ceeb 0%, #a8d8ea 20%, #f5f0dc 55%, #d4b896 75%, #b89a7a 100%)"
+→ bgColor "200 60% 55%", bubbleColor "15 90% 60%", bubbleTextColor "0 0% 0%", Handwritten, gradientColor "#ff6b35"
+→ customCSS: "linear-gradient(180deg, #1e90ff 0%, #87ceeb 18%, #fffacd 48%, #f5deb3 68%, #c4a882 85%, #8b6914 100%)"
 
 Neon Tokyo Cyberpunk:
 → bgColor "270 60% 6%", bubbleColor "180 100% 50%", bubbleTextColor "0 0% 0%", Bold, gradientColor "#00ffff"
@@ -558,12 +564,18 @@ const HostEvent = () => {
       stickers: stickers.length > 0 ? JSON.stringify(stickers) : null,
     } as any;
 
-    // Helper: strip columns that may not exist yet if the DB schema is behind
+    // Helper: strip columns that may not exist yet if the DB schema is behind.
+    // Strips all recently-added optional columns so the retry only sends core fields.
     const withFallback = (data: any, err: any) => {
       if (!err) return null;
       const msg: string = err?.message || "";
-      if (msg.includes("font_color") || msg.includes("stickers") || err?.code === "PGRST116") {
-        const { font_color, stickers: _s, ...safe } = data;
+      const isColError =
+        msg.includes("font_color") ||
+        msg.includes("stickers") ||
+        msg.includes("bubble_text_color") ||
+        err?.code === "PGRST116";
+      if (isColError) {
+        const { font_color, stickers: _s, bubble_text_color, ...safe } = data;
         return safe;
       }
       return null;

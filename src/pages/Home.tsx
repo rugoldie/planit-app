@@ -1314,14 +1314,29 @@ const CUSTOM_SOLID_COLOR_MAP: Record<string, string> = {
 };
 const CUSTOM_SOLID_LIGHT_KEYS = new Set(Object.keys(CUSTOM_SOLID_COLOR_MAP));
 
-const getCustomCardBg = (bgPhoto: string | null): { style: React.CSSProperties; isLight: boolean; hasStars: boolean } => {
-  if (!bgPhoto) return { style: { backgroundColor: "#111111" }, isLight: false, hasStars: false };
+const getCustomCardBg = (bgPhoto: string | null, bgColor?: string | null): { style: React.CSSProperties; isLight: boolean; hasStars: boolean } => {
+  if (!bgPhoto) {
+    const solidBg = bgColor ? `hsl(${bgColor})` : "#111111";
+    const solidLight = bgColor ? parseFloat(bgColor.trim().split(/[\s,]+/)[2] ?? "0") > 55 : false;
+    return { style: { backgroundColor: solidBg }, isLight: solidLight, hasStars: false };
+  }
   if (bgPhoto.startsWith("solid-")) {
     const color = CUSTOM_SOLID_COLOR_MAP[bgPhoto] || "#111111";
     return { style: { backgroundColor: color }, isLight: CUSTOM_SOLID_LIGHT_KEYS.has(bgPhoto), hasStars: false };
   }
   if (bgPhoto.startsWith("http") || bgPhoto.startsWith("blob:")) {
     return { style: { backgroundImage: `url(${bgPhoto})`, backgroundSize: "cover", backgroundPosition: "center" }, isLight: false, hasStars: false };
+  }
+  // CSS gradient from Build It — use bg_color as the solid card background so it reads clearly at card size
+  if (
+    bgPhoto.startsWith("linear-gradient") ||
+    bgPhoto.startsWith("radial-gradient") ||
+    bgPhoto.startsWith("conic-gradient") ||
+    bgPhoto.startsWith("repeating-")
+  ) {
+    const solidBg = bgColor ? `hsl(${bgColor})` : "#111111";
+    const isLight = bgColor ? parseFloat(bgColor.trim().split(/[\s,]+/)[2] ?? "0") > 55 : false;
+    return { style: { backgroundColor: solidBg }, isLight, hasStars: false };
   }
   switch (bgPhoto) {
     case "planit-pattern:retro-stars":    return { style: { backgroundColor: "#ede8d8" }, isLight: true,  hasStars: true };
@@ -1332,14 +1347,14 @@ const getCustomCardBg = (bgPhoto: string | null): { style: React.CSSProperties; 
     case "planit-pattern:camo":           return { style: { backgroundColor: "#4a5240" }, isLight: false, hasStars: false };
     case "planit-pattern:blueprint":      return { style: { backgroundColor: "#0a1628", backgroundImage: "repeating-linear-gradient(rgba(56,189,248,0.15) 1px,transparent 1px),repeating-linear-gradient(90deg,rgba(56,189,248,0.15) 1px,transparent 1px)", backgroundSize: "20px 20px" }, isLight: false, hasStars: false };
     case "planit-pattern:groovy":         return { style: { backgroundColor: "#fdf6e3" }, isLight: true, hasStars: false };
-    default:                              return { style: { backgroundColor: "#111111" }, isLight: false, hasStars: false };
+    default:                              return { style: { backgroundColor: bgColor ? `hsl(${bgColor})` : "#111111" }, isLight: bgColor ? parseFloat(bgColor.trim().split(/[\s,]+/)[2] ?? "0") > 55 : false, hasStars: false };
   }
 };
 
 const CustomNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate: ReturnType<typeof useNavigate> }) => {
   const accent = hslToColor(event.bubble_color, "#aaee44");
   const accentTxt = textForBubble(event.bubble_color) || "#111";
-  const { style: bgStyle, isLight: bgIsLight, hasStars } = getCustomCardBg(event.bg_photo);
+  const { style: bgStyle, isLight: bgIsLight, hasStars } = getCustomCardBg(event.bg_photo, event.bg_color);
   const textCol = bgIsLight ? "#111111" : "#ffffff";
   const textMuted = bgIsLight ? "rgba(17,17,17,0.6)" : "rgba(255,255,255,0.6)";
   const fontFamily = FONT_MAP[event.font_style || "Bold"] || FONT_MAP.Bold;
@@ -1394,7 +1409,7 @@ const CustomNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate:
 
 const CustomUpcomingCard = ({ event, navigate }: { event: EventWithRole; navigate: ReturnType<typeof useNavigate> }) => {
   const accent = hslToColor(event.bubble_color, "#aaee44");
-  const { style: bgStyle, isLight: bgIsLight } = getCustomCardBg(event.bg_photo);
+  const { style: bgStyle, isLight: bgIsLight } = getCustomCardBg(event.bg_photo, event.bg_color);
   const textCol = bgIsLight ? "#111111" : "#ffffff";
   const textMuted = bgIsLight ? "rgba(17,17,17,0.5)" : "rgba(255,255,255,0.35)";
   const fontFamily = FONT_MAP[event.font_style || "Bold"] || FONT_MAP.Bold;
