@@ -626,7 +626,7 @@ const HostEvent = () => {
           "anthropic-dangerous-direct-browser-access": "true",
         },
         body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
+          model: "claude-sonnet-4-5",
           max_tokens: 512,
           system: BUILD_IT_SYSTEM_PROMPT,
           messages: [{ role: "user", content: `Design the perfect visual style for this event: ${buildItPrompt.trim()}` }],
