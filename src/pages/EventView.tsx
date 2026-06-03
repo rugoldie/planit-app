@@ -10,6 +10,7 @@ import {
   MessageCircle,
   Copy,
   Check,
+  Download,
 } from "lucide-react";
 import React, { useEffect, useState, useRef, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -203,9 +204,11 @@ const EventView = () => {
   const [dmDraft, setDmDraft] = useState("");
 
   // Gallery
-  const [photos, setPhotos] = useState<{ id: string; photo_url: string }[]>([]);
+  const [photos, setPhotos] = useState<{ id: string; photo_url: string; user_name?: string; avatar_url?: string }[]>([]);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const photoInput = useRef<HTMLInputElement>(null);
+  const [selectedPhoto, setSelectedPhoto] = useState<{ photo_url: string; user_name?: string; avatar_url?: string } | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -219,7 +222,7 @@ const EventView = () => {
     }
     const { data: urlData } = supabase.storage.from("event-photos").getPublicUrl(filePath);
     const photoUrl = urlData.publicUrl;
-    setPhotos((prev) => [...prev, { id: crypto.randomUUID(), photo_url: photoUrl }]);
+    setPhotos((prev) => [...prev, { id: crypto.randomUUID(), photo_url: photoUrl, user_name: profile?.name || "You", avatar_url: profile?.avatar_url || undefined }]);
     await supabase.from("event_photos").insert({ event_id: event.id, user_id: user.id, photo_url: photoUrl });
     setUploadingPhoto(false);
     e.target.value = "";
@@ -310,7 +313,7 @@ const EventView = () => {
       if (data) {
         const userIds = [...new Set(data.map((c: any) => c.user_id))];
         const { data: profiles } = await supabase
-          .from("profiles_public" as any)
+          .from("profiles")
           .select("user_id, avatar_url")
           .in("user_id", userIds);
         const avatarMap = new Map((profiles || []).map((p: any) => [p.user_id, p.avatar_url]));
@@ -337,10 +340,23 @@ const EventView = () => {
     const fetchPhotos = async () => {
       const { data } = await supabase
         .from("event_photos")
-        .select("id, photo_url")
+        .select("id, photo_url, user_id")
         .eq("event_id", event.id)
         .order("created_at", { ascending: true });
-      if (data) setPhotos(data);
+      if (data) {
+        const uids = [...new Set(data.map((p: any) => p.user_id).filter(Boolean))];
+        let profMap = new Map<string, { name: string; avatar_url: string | null }>();
+        if (uids.length > 0) {
+          const { data: profs } = await supabase.from("profiles").select("user_id, name, avatar_url").in("user_id", uids);
+          if (profs) profMap = new Map(profs.map((p: any) => [p.user_id, p]));
+        }
+        setPhotos(data.map((p: any) => ({
+          id: p.id,
+          photo_url: p.photo_url,
+          user_name: profMap.get(p.user_id)?.name || "Guest",
+          avatar_url: profMap.get(p.user_id)?.avatar_url || undefined,
+        })));
+      }
     };
     fetchPhotos();
     const channel = supabase
@@ -519,9 +535,12 @@ const EventView = () => {
     };
     setComments((prev) => [...prev, optimistic]);
     setCommentDraft("");
-    await supabase
+    const { error: commentError } = await supabase
       .from("comments")
       .insert({ event_id: event.id, user_id: user.id, user_name: profile?.name || "Host", text });
+    if (commentError) {
+      setComments((prev) => prev.filter((c) => c.id !== optimistic.id));
+    }
   };
 
   const sendDM = async () => {
@@ -553,6 +572,37 @@ const EventView = () => {
   const rsvpLabel = rsvp === "yes" ? "You're going! 🎉" : rsvp === "no" ? "You're not going 👎" : "You're a maybe 🤷";
   const getInitials = (name: string) => name.charAt(0).toUpperCase();
   const formatTime = (ts: string) => new Date(ts).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen?.().catch(() => {});
+    } else {
+      document.exitFullscreen?.().catch(() => {});
+    }
+  };
+
+  useEffect(() => {
+    const handler = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener("fullscreenchange", handler);
+    return () => document.removeEventListener("fullscreenchange", handler);
+  }, []);
+
+  const downloadPhoto = async (url: string) => {
+    try {
+      const res = await fetch(url);
+      const blob = await res.blob();
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "planit-photo.jpg";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(a.href);
+    } catch {
+      window.open(url, "_blank");
+    }
+  };
+
   const statusBadge = (status: string) => {
     if (status === "yes")
       return (
@@ -2695,6 +2745,12 @@ const EventView = () => {
                       </div>
                       <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 600, color: tMuted }}>Messages</span>
                     </button>
+                    <button onClick={toggleFullscreen} className="flex flex-col items-center gap-0.5">
+                      <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ backgroundColor: frostBg, border: `1px solid ${frostBorder}`, backdropFilter: "blur(8px)" }}>
+                        {isFullscreen ? <X className="w-4 h-4" style={{ color: accentColor }} /> : <Maximize2 className="w-4 h-4" style={{ color: accentColor }} />}
+                      </div>
+                      <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 600, color: tMuted }}>{isFullscreen ? "Exit" : "Full"}</span>
+                    </button>
                     {isHost && (
                       <button onClick={() => setShowMenu(!showMenu)} className="w-9 h-9 rounded-full flex items-center justify-center" style={{ backgroundColor: frostBg, border: `1px solid ${frostBorder}`, backdropFilter: "blur(8px)" }}>
                         <MoreVertical className="w-4 h-4" style={{ color: accentColor }} />
@@ -2792,7 +2848,7 @@ const EventView = () => {
                       ) : (
                         <div className="grid grid-cols-3 gap-1.5">
                           {photos.map((p) => (
-                            <div key={p.id} className="aspect-square rounded-xl overflow-hidden">
+                            <div key={p.id} className="aspect-square rounded-xl overflow-hidden cursor-pointer" onClick={() => setSelectedPhoto(p)}>
                               <img src={p.photo_url} alt="" className="w-full h-full object-cover" />
                             </div>
                           ))}
@@ -3465,6 +3521,46 @@ const EventView = () => {
             </button>
           </div>
         </>
+      )}
+
+      {/* ─── Photo lightbox ─── */}
+      {selectedPhoto && (
+        <div
+          style={{ position: "fixed", inset: 0, zIndex: 200, backgroundColor: "rgba(0,0,0,0.95)", display: "flex", flexDirection: "column" }}
+          onClick={(e) => { if (e.target === e.currentTarget) setSelectedPhoto(null); }}
+        >
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", flexShrink: 0 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              {selectedPhoto.avatar_url ? (
+                <img src={selectedPhoto.avatar_url} alt="" style={{ width: "32px", height: "32px", borderRadius: "50%", objectFit: "cover" }} />
+              ) : (
+                <div style={{ width: "32px", height: "32px", borderRadius: "50%", backgroundColor: "rgba(255,255,255,0.15)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "13px", fontWeight: 700, color: "#fff" }}>
+                    {(selectedPhoto.user_name || "G").charAt(0).toUpperCase()}
+                  </span>
+                </div>
+              )}
+              <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "14px", fontWeight: 600, color: "#fff" }}>
+                {selectedPhoto.user_name || "Guest"}
+              </span>
+            </div>
+            <button onClick={() => setSelectedPhoto(null)} style={{ background: "none", border: "none", cursor: "pointer", padding: "4px" }}>
+              <X className="w-6 h-6" style={{ color: "#fff" }} />
+            </button>
+          </div>
+          <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", padding: "0 16px" }}>
+            <img src={selectedPhoto.photo_url} alt="" style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain", borderRadius: "8px" }} />
+          </div>
+          <div style={{ padding: "24px 20px", flexShrink: 0, display: "flex", justifyContent: "center" }}>
+            <button
+              onClick={() => downloadPhoto(selectedPhoto.photo_url)}
+              style={{ display: "flex", alignItems: "center", gap: "8px", backgroundColor: "#fff", color: "#000", border: "none", borderRadius: "50px", padding: "13px 28px", fontFamily: "'Inter', sans-serif", fontSize: "14px", fontWeight: 700, cursor: "pointer" }}
+            >
+              <Download className="w-4 h-4" />
+              Save to Camera Roll
+            </button>
+          </div>
+        </div>
       )}
 
       {/* Delete confirmation - all templates */}
