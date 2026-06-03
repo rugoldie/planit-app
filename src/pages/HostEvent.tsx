@@ -347,69 +347,69 @@ const TEMPLATES = [
 
 const TEXT_SIZES = ["Small", "Medium", "Large"] as const;
 
-const BUILD_IT_SYSTEM_PROMPT = `You are a world-class event designer and creative director with deep expertise in colour theory, typography, and visual mood-setting. You create bespoke visual identities for events.
+const BUILD_IT_SYSTEM_PROMPT = `You are a world-class event designer and creative director. You create completely unique, bespoke visual identities for events using CSS gradients as backgrounds.
 
-When given an event description, you will design a complete visual style by returning a JSON object. You must think carefully about:
-- The emotional tone and energy of the event
-- Colour psychology (deep blacks for drama, warm creams for romance, electric neons for energy)
-- Typographic personality (Elegant = serif/refined, Handwritten = casual/warm, Bold = strong/modern)
-- How pattern, colour, and font work together as a cohesive whole
-
-ALWAYS return template as "planit-custom" — you are creating something fully bespoke, not picking a preset.
-
-Available background patterns (choose one that fits, or null for a pure solid colour):
-- "planit-pattern:retro-stars" — light cream base, illustrated stars; great for retro, nostalgic, cinema, Hollywood events
-- "planit-pattern:checkerboard" — black and white checks; great for race days, ska, 60s mod, diner parties
-- "planit-pattern:tie-dye" — psychedelic rainbow swirl; great for festivals, hippie, Woodstock, Coachella vibes
-- "planit-pattern:holographic" — iridescent rainbow conic; great for futuristic, Y2K, holographic, fashion events
-- "planit-pattern:cherry-blossom" — soft pink gradient; great for Japanese-inspired, spring, floral, garden events
-- "planit-pattern:camo" — dark olive/green; great for military themed, outdoors, hunting, army events
-- "planit-pattern:blueprint" — dark navy with grid lines; great for architecture, industrial, technical, art events
-- "planit-pattern:groovy" — warm cream with 70s circles and wavy lines; great for retro 70s, disco, soul, funk events
-- null — use a pure solid bgColor; best for sleek minimal, editorial, or when a custom colour tells the whole story
+For each event description, generate a one-of-a-kind CSS background — never a flat colour, always a gradient or layered gradients that evoke the exact mood. Think like a top designer crafting a poster: use depth, atmosphere, and colour story.
 
 Fields to return:
 - template: always "planit-custom"
-- bgColor: HSL string WITHOUT "hsl()" wrapper e.g. "240 15% 8%" — the solid background colour. Even if a pattern is chosen, pick a bgColor that would work as a fallback.
-- bubbleColor: HSL string WITHOUT "hsl()" wrapper e.g. "45 80% 55%" — the primary accent/highlight colour. This is used as the BACKGROUND of the date bubble and key UI elements. Make it vivid and dramatically different per theme — this is the most visible colour on the card.
-- bubbleTextColor: HSL string WITHOUT "hsl()" wrapper e.g. "0 0% 0%" — text rendered ON TOP of the bubbleColor background. Use "0 0% 0%" for light/bright accents, "0 0% 100%" for dark accents. Must contrast strongly.
+- bgColor: HSL string WITHOUT "hsl()" wrapper e.g. "240 15% 8%" — a solid fallback colour matching the theme's dominant tone
+- bubbleColor: HSL string WITHOUT "hsl()" wrapper e.g. "45 80% 55%" — vivid accent used as the date bubble background. Must pop dramatically against the customCSS background.
+- bubbleTextColor: HSL string WITHOUT "hsl()" wrapper e.g. "0 0% 0%" — text ON TOP of bubbleColor. "0 0% 0%" for bright accents, "0 0% 100%" for dark accents.
 - fontStyle: one of "Bold", "Handwritten", "Elegant"
-- gradientColor: hex colour string e.g. "#c9a84c" — used for gradient headers and decorative accents
-- bgPattern: one of the pattern keys above, or null
+- gradientColor: hex colour e.g. "#c9a84c" — for decorative accents
+- customCSS: a valid CSS background-image value using gradients — this IS the full-page background of the event card. Can be a single gradient or multiple layered with commas. NEVER use a flat colour here.
 
-CREATIVE GUIDELINES — think boldly:
+CUSTOMCSS TECHNIQUE — think richly:
 
-Masquerade / Black Tie / Opera / Glitter:
-→ bgColor "0 0% 4%", bubbleColor "45 80% 55%" (gold), bubbleTextColor "0 0% 0%", Elegant font, gradientColor "#c9a84c", bgPattern null
+For SHIMMER / GLITTER / GOLD — layer radial gradients to create light scatter:
+"radial-gradient(ellipse at 20% 30%, #c9a84c44 0%, transparent 50%), radial-gradient(ellipse at 80% 70%, #ffd70033 0%, transparent 45%), radial-gradient(ellipse at 60% 20%, #c9a84c22 0%, transparent 40%), linear-gradient(135deg, #0a0800 0%, #1a1200 40%, #0d0900 100%)"
 
-Beach / Tropical / Summer:
-→ bgColor "195 60% 85%", bubbleColor "15 90% 60%" (coral), Handwritten font, gradientColor "#ff6b35", bgPattern null
+For BEACH / COASTAL / SUMMER — blend sky into sand:
+"linear-gradient(180deg, #87ceeb 0%, #b8d4e8 25%, #f5deb3 60%, #c4a882 85%, #8b7355 100%)"
 
-Rave / Club / Electronic / Underground:
-→ bgColor "270 20% 5%", bubbleColor "280 100% 65%" (electric purple), Bold font, gradientColor "#9333ea", bgPattern null
+For DEEP SPACE / COSMIC — dark with nebula glow:
+"radial-gradient(ellipse at 30% 40%, #1a0a3e 0%, transparent 60%), radial-gradient(ellipse at 70% 60%, #0a1a3e 0%, transparent 55%), linear-gradient(135deg, #020008 0%, #05001a 50%, #020008 100%)"
 
-Garden Party / Floral / Afternoon Tea:
-→ bgColor "120 15% 90%", bubbleColor "150 40% 45%" (sage green), Elegant font, bgPattern "planit-pattern:cherry-blossom"
+For NEON / CYBERPUNK / RAVE — dark with electric colour bleeds:
+"radial-gradient(ellipse at 25% 50%, #ff00ff22 0%, transparent 50%), radial-gradient(ellipse at 75% 50%, #00ffff22 0%, transparent 50%), linear-gradient(135deg, #0a0014 0%, #12002a 50%, #0a0014 100%)"
 
-Disco / 70s / Funk / Soul:
-→ bgColor "35 60% 15%", bubbleColor "45 95% 60%" (mustard), Bold font, bgPattern "planit-pattern:groovy"
+For SUNSET / WARM / GOLDEN HOUR — rich warm sweep:
+"linear-gradient(160deg, #ff6b35 0%, #f7c59f 30%, #ffd700 55%, #ff8c00 75%, #c0392b 100%)"
 
-Retro / Vintage Cinema / Hollywood:
-→ bgColor "30 25% 12%", bubbleColor "47 80% 55%", Elegant font, bgPattern "planit-pattern:retro-stars"
+For GARDEN / FLORAL / SPRING — soft layered botanical:
+"radial-gradient(ellipse at 40% 60%, #f8e8f522 0%, transparent 55%), radial-gradient(ellipse at 70% 30%, #e8f5e922 0%, transparent 50%), linear-gradient(160deg, #f0fff4 0%, #e8f5e9 40%, #fce4ec 100%)"
 
-Festival / Coachella / Boho:
-→ bgColor "270 30% 15%", bubbleColor "320 80% 65%", Bold font, bgPattern "planit-pattern:tie-dye"
+For MIDNIGHT / NOIR / MOODY — atmospheric dark:
+"radial-gradient(ellipse at 50% 0%, #1a1a2e 0%, transparent 70%), linear-gradient(180deg, #0a0a0a 0%, #111116 50%, #0a0a0a 100%)"
 
-Neon / Y2K / Cyber:
-→ bgColor "220 30% 8%", bubbleColor "160 100% 50%", Bold font, bgPattern "planit-pattern:holographic"
+For RETRO / 70S / GROOVY — warm earthy psychedelia:
+"radial-gradient(ellipse at 30% 70%, #d4650022 0%, transparent 50%), radial-gradient(ellipse at 70% 30%, #8b450022 0%, transparent 50%), linear-gradient(135deg, #2d1b00 0%, #3d2800 50%, #1a1000 100%)"
 
-Industrial / Art Show / Gallery:
-→ bgColor "0 0% 8%", bubbleColor "0 0% 85%", Bold font, bgPattern "planit-pattern:blueprint"
+CREATIVE GUIDELINES:
+- bubbleColor must be VIVID and contrast strongly with the background
+- Layer at least 2 gradients for richness
+- Think about light source, depth, and atmosphere
 
-Kids Birthday / Playful / Rainbow:
-→ bgColor "200 80% 92%", bubbleColor "340 90% 55%", Handwritten font, bgPattern "planit-pattern:tie-dye"
+EXAMPLES:
 
-DO NOT pick boring or generic choices. Every event deserves a unique, considered, beautiful result. Think like a creative director pitching to a client — make them say "wow".
+Golden Masquerade / Black Tie:
+→ bgColor "28 15% 5%", bubbleColor "45 85% 55%", bubbleTextColor "0 0% 0%", Elegant, gradientColor "#c9a84c"
+→ customCSS: "radial-gradient(ellipse at 20% 30%, #c9a84c33 0%, transparent 50%), radial-gradient(ellipse at 80% 70%, #ffd70022 0%, transparent 45%), radial-gradient(ellipse at 50% 50%, #c9a84c11 0%, transparent 60%), linear-gradient(135deg, #0a0800 0%, #1c1400 45%, #0a0800 100%)"
+
+Norfolk Countryside Beach Summer:
+→ bgColor "200 45% 70%", bubbleColor "15 90% 60%", bubbleTextColor "0 0% 0%", Handwritten, gradientColor "#ff6b35"
+→ customCSS: "linear-gradient(180deg, #87ceeb 0%, #a8d8ea 20%, #f5f0dc 55%, #d4b896 75%, #b89a7a 100%)"
+
+Neon Tokyo Cyberpunk:
+→ bgColor "270 60% 6%", bubbleColor "180 100% 50%", bubbleTextColor "0 0% 0%", Bold, gradientColor "#00ffff"
+→ customCSS: "radial-gradient(ellipse at 20% 60%, #ff00ff1a 0%, transparent 45%), radial-gradient(ellipse at 80% 40%, #00ffff1a 0%, transparent 45%), linear-gradient(135deg, #0a0014 0%, #150028 50%, #0a0014 100%)"
+
+Garden Party Floral:
+→ bgColor "120 25% 92%", bubbleColor "150 45% 42%", bubbleTextColor "0 0% 100%", Elegant, gradientColor "#66bb6a"
+→ customCSS: "radial-gradient(ellipse at 30% 70%, #fce4ec44 0%, transparent 50%), radial-gradient(ellipse at 75% 25%, #e8f5e944 0%, transparent 50%), linear-gradient(160deg, #f1f8e9 0%, #e8f5e9 40%, #fce4ec 100%)"
+
+DO NOT return boring results. Make every output feel like a real design decision.
 
 Return ONLY a valid JSON object. No markdown, no code fences, no explanation. Just the JSON.`;
 
@@ -464,7 +464,7 @@ const HostEvent = () => {
     bgColor: string;
     fontStyle: string;
     gradientColor: string;
-    bgPattern: string | null;
+    customCSS: string;
   } | null>(null);
   const [buildItError, setBuildItError] = useState<string | null>(null);
   const [selectedStickerId, setSelectedStickerId] = useState<string | null>(null);
@@ -652,19 +652,15 @@ const HostEvent = () => {
       const style = JSON.parse(jsonMatch[0]);
       style.template = "planit-custom";
 
-      const required = ["bgColor", "bubbleColor", "bubbleTextColor", "fontStyle", "gradientColor"];
+      const required = ["bgColor", "bubbleColor", "bubbleTextColor", "fontStyle", "gradientColor", "customCSS"];
       for (const field of required) {
         if (!style[field]) throw new Error(`Missing field in Claude response: ${field}`);
       }
       if (!["Bold", "Handwritten", "Elegant"].includes(style.fontStyle)) style.fontStyle = "Bold";
-
-      const validPatterns = [
-        "planit-pattern:retro-stars", "planit-pattern:checkerboard", "planit-pattern:tie-dye",
-        "planit-pattern:holographic", "planit-pattern:cherry-blossom", "planit-pattern:camo",
-        "planit-pattern:blueprint", "planit-pattern:groovy",
-      ];
-      if (style.bgPattern && !validPatterns.includes(style.bgPattern)) style.bgPattern = null;
-      if (!("bgPattern" in style)) style.bgPattern = null;
+      // Ensure customCSS is a non-empty string containing a gradient keyword
+      if (typeof style.customCSS !== "string" || style.customCSS.trim() === "") {
+        style.customCSS = `linear-gradient(135deg, hsl(${style.bgColor}) 0%, hsl(${style.bgColor}) 100%)`;
+      }
 
       console.log("[BuildIt] Style received:", JSON.stringify(style));
       setBuildItResult(style);
@@ -704,9 +700,9 @@ const HostEvent = () => {
     setFontStyle(buildItResult.fontStyle);
     console.log("[BuildIt] → setGradientColor:", buildItResult.gradientColor);
     setGradientColor(buildItResult.gradientColor);
-    console.log("[BuildIt] → setBgPhoto(null), setBgPreset:", buildItResult.bgPattern ?? "null");
+    console.log("[BuildIt] → setBgPhoto(null), setBgPreset (customCSS):", buildItResult.customCSS.slice(0, 60));
     setBgPhoto(null);
-    setBgPreset(buildItResult.bgPattern ?? null);
+    setBgPreset(buildItResult.customCSS);
     setBgPresetIsImage(false);
     console.log("[BuildIt] → setShowBuildIt(false) — closing modal");
     setShowBuildIt(false);
@@ -849,7 +845,9 @@ const HostEvent = () => {
   const isCustom = templateName === "planit-custom";
   const customPatternKey = bgPreset?.startsWith("planit-pattern:") ? bgPreset : null;
   const customBgKey = (bgPreset?.startsWith("planit-pattern:") || bgPreset?.startsWith("solid-")) ? bgPreset : null;
-  const customIsLight = customBgKey ? isLightPattern(customBgKey) : false;
+  const customCssGradient = bgPreset && !bgPreset.startsWith("planit-pattern:") && !bgPreset.startsWith("solid-") && !bgPreset.startsWith("url(") ? bgPreset : null;
+  const bgLForCustom = parseFloat(bgColor.trim().split(/[\s,]+/)[2] ?? "0");
+  const customIsLight = customBgKey ? isLightPattern(customBgKey) : customCssGradient ? bgLForCustom > 55 : false;
   const customFrostBg = customIsLight ? "rgba(0,0,0,0.06)" : "rgba(255,255,255,0.09)";
   const customFrostBorder = customIsLight ? "rgba(0,0,0,0.12)" : "rgba(255,255,255,0.16)";
   const fontColorMuted = hexMuted(fontColor);
@@ -881,10 +879,12 @@ const HostEvent = () => {
       style={
         isCustom && customBgKey
           ? getPatternBgStyle(customBgKey)
-          : {
-              backgroundColor: isSunny ? "transparent" : containerBg,
-              backgroundImage: isSunny ? "linear-gradient(180deg, #ff6b35 0%, #ff8c00 40%, #2a0e00 100%)" : "none",
-            }
+          : isCustom && customCssGradient
+            ? { backgroundImage: customCssGradient, backgroundSize: "auto", backgroundColor: "" }
+            : {
+                backgroundColor: isSunny ? "transparent" : containerBg,
+                backgroundImage: isSunny ? "linear-gradient(180deg, #ff6b35 0%, #ff8c00 40%, #2a0e00 100%)" : "none",
+              }
       }
     >
       {isNoir ? (
@@ -2225,9 +2225,11 @@ const HostEvent = () => {
           {(() => {
             const patternStyle: React.CSSProperties = customBgKey
               ? getPatternBgStyle(customBgKey)
-              : bgPhoto
-                ? { backgroundColor: "", backgroundImage: `url(${bgPhoto})`, backgroundSize: "cover", backgroundPosition: "center" }
-                : { backgroundColor: `hsl(${bgColor})`, backgroundImage: "none", backgroundSize: "auto" };
+              : customCssGradient
+                ? { backgroundImage: customCssGradient, backgroundSize: "auto", backgroundColor: "" }
+                : bgPhoto
+                  ? { backgroundColor: "", backgroundImage: `url(${bgPhoto})`, backgroundSize: "cover", backgroundPosition: "center" }
+                  : { backgroundColor: `hsl(${bgColor})`, backgroundImage: "none", backgroundSize: "auto" };
             const hasPhotoScrim = !!bgPhoto;
             return (
               <div ref={customContainerRef} style={{ minHeight: "100vh", position: "relative", overflow: "hidden", ...patternStyle }} onClick={() => setSelectedStickerId(null)}>
@@ -3061,8 +3063,8 @@ const HostEvent = () => {
                 <div
                   style={{
                     height: "100px",
-                    backgroundColor: `hsl(${buildItResult.bgColor})`,
-                    ...(buildItResult.bgPattern ? getPatternBgStyle(buildItResult.bgPattern) : {}),
+                    backgroundImage: buildItResult.customCSS,
+                    backgroundSize: "auto",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -3070,11 +3072,6 @@ const HostEvent = () => {
                     overflow: "hidden",
                   }}
                 >
-                  {buildItResult.bgPattern && (
-                    <div style={{ position: "absolute", inset: 0, overflow: "hidden" }}>
-                      <PatternOverlay patternKey={buildItResult.bgPattern} />
-                    </div>
-                  )}
                   <span
                     style={{
                       fontFamily: FONT_MAP[buildItResult.fontStyle] || FONT_MAP["Bold"],
@@ -3082,6 +3079,7 @@ const HostEvent = () => {
                       color: `hsl(${buildItResult.bubbleColor})`,
                       position: "relative",
                       zIndex: 1,
+                      textShadow: "0 1px 6px rgba(0,0,0,0.5)",
                     }}
                   >
                     Your Event
@@ -3099,9 +3097,6 @@ const HostEvent = () => {
                   />
                   <span style={{ color: "#ccc", fontSize: "12px", marginLeft: "2px" }}>
                     {buildItResult.fontStyle}
-                    {buildItResult.bgPattern
-                      ? ` · ${CUSTOM_BG_PATTERNS.find(p => p.key === buildItResult.bgPattern)?.name ?? ""}`
-                      : ""}
                   </span>
                 </div>
               </div>
