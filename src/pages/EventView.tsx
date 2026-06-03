@@ -336,7 +336,13 @@ const EventView = () => {
         () => fetchComments(),
       )
       .subscribe();
+    // Re-fetch when app returns to foreground — mobile browsers kill websockets in background
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") fetchComments();
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
     return () => {
+      document.removeEventListener("visibilitychange", handleVisibility);
       supabase.removeChannel(channel);
     };
   }, [event]);
@@ -1273,7 +1279,7 @@ const EventView = () => {
                   <input
                     value={commentDraft}
                     onChange={(e) => setCommentDraft(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && sendComment()}
+                    enterKeyHint="send" onKeyDown={(e) => e.key === "Enter" && sendComment()}
                     placeholder="Write a message..."
                     className="flex-1 rounded-full px-4 py-2 text-sm outline-none"
                     style={{
@@ -1283,7 +1289,7 @@ const EventView = () => {
                     }}
                   />
                   <button
-                    onClick={sendComment}
+                    type="button" onClick={sendComment} onTouchEnd={(e) => { e.preventDefault(); sendComment(); }}
                     className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
                     style={{ background: `linear-gradient(135deg, ${galaxyAccent}, #ec4899)` }}
                   >
@@ -1698,7 +1704,7 @@ const EventView = () => {
                   <input
                     value={commentDraft}
                     onChange={(e) => setCommentDraft(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && sendComment()}
+                    enterKeyHint="send" onKeyDown={(e) => e.key === "Enter" && sendComment()}
                     placeholder="Write a message..."
                     className="flex-1 rounded-full px-4 py-2 text-sm outline-none"
                     style={{
@@ -1709,7 +1715,7 @@ const EventView = () => {
                     }}
                   />
                   <button
-                    onClick={sendComment}
+                    type="button" onClick={sendComment} onTouchEnd={(e) => { e.preventDefault(); sendComment(); }}
                     className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
                     style={{ backgroundColor: "rgba(255,255,255,0.9)" }}
                   >
@@ -2168,7 +2174,7 @@ const EventView = () => {
                   <input
                     value={commentDraft}
                     onChange={(e) => setCommentDraft(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && sendComment()}
+                    enterKeyHint="send" onKeyDown={(e) => e.key === "Enter" && sendComment()}
                     placeholder="Write a message..."
                     className="flex-1 rounded-full px-4 py-2 text-sm outline-none"
                     style={{
@@ -2178,7 +2184,7 @@ const EventView = () => {
                     }}
                   />
                   <button
-                    onClick={sendComment}
+                    type="button" onClick={sendComment} onTouchEnd={(e) => { e.preventDefault(); sendComment(); }}
                     className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
                     style={{ backgroundColor: accentColor }}
                   >
@@ -2389,8 +2395,8 @@ const EventView = () => {
                   ))}
                 </div>
                 <div className="flex gap-2">
-                  <input value={commentDraft} onChange={(e) => setCommentDraft(e.target.value)} onKeyDown={(e) => e.key === "Enter" && sendComment()} placeholder="Write a message..." className="flex-1 rounded-full px-4 py-2 text-sm outline-none" style={{ backgroundColor: "rgba(56,189,248,0.07)", color: "#ffffff", border: "1px solid rgba(56,189,248,0.2)", fontFamily: "'Inter', sans-serif" }} />
-                  <button onClick={sendComment} className="w-9 h-9 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: "rgb(56,189,248)" }}>
+                  <input value={commentDraft} onChange={(e) => setCommentDraft(e.target.value)} enterKeyHint="send" onKeyDown={(e) => e.key === "Enter" && sendComment()} placeholder="Write a message..." className="flex-1 rounded-full px-4 py-2 text-sm outline-none" style={{ backgroundColor: "rgba(56,189,248,0.07)", color: "#ffffff", border: "1px solid rgba(56,189,248,0.2)", fontFamily: "'Inter', sans-serif" }} />
+                  <button type="button" onClick={sendComment} onTouchEnd={(e) => { e.preventDefault(); sendComment(); }} className="w-9 h-9 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: "rgb(56,189,248)" }}>
                     <Send className="w-4 h-4" style={{ color: "#0c1929" }} />
                   </button>
                 </div>
@@ -2535,8 +2541,8 @@ const EventView = () => {
                   ))}
                 </div>
                 <div className="flex gap-2">
-                  <input value={commentDraft} onChange={(e) => setCommentDraft(e.target.value)} onKeyDown={(e) => e.key === "Enter" && sendComment()} placeholder="Write a message..." className="flex-1 rounded-full px-4 py-2 text-sm outline-none" style={{ backgroundColor: "rgba(244,114,182,0.07)", color: "#fff", border: "1px solid rgba(244,114,182,0.2)", fontFamily: "'Inter', sans-serif" }} />
-                  <button onClick={sendComment} className="w-9 h-9 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: "#f472b6" }}>
+                  <input value={commentDraft} onChange={(e) => setCommentDraft(e.target.value)} enterKeyHint="send" onKeyDown={(e) => e.key === "Enter" && sendComment()} placeholder="Write a message..." className="flex-1 rounded-full px-4 py-2 text-sm outline-none" style={{ backgroundColor: "rgba(244,114,182,0.07)", color: "#fff", border: "1px solid rgba(244,114,182,0.2)", fontFamily: "'Inter', sans-serif" }} />
+                  <button type="button" onClick={sendComment} onTouchEnd={(e) => { e.preventDefault(); sendComment(); }} className="w-9 h-9 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: "#f472b6" }}>
                     <Send className="w-4 h-4" style={{ color: "#1a0a10" }} />
                   </button>
                 </div>
@@ -2680,8 +2686,8 @@ const EventView = () => {
                   ))}
                 </div>
                 <div className="flex gap-2">
-                  <input value={commentDraft} onChange={(e) => setCommentDraft(e.target.value)} onKeyDown={(e) => e.key === "Enter" && sendComment()} placeholder="Write a message..." className="flex-1 rounded-full px-4 py-2 text-sm outline-none" style={{ backgroundColor: "rgba(74,222,128,0.06)", color: "#fff", border: "1px solid rgba(74,222,128,0.2)", fontFamily: "'Inter', sans-serif" }} />
-                  <button onClick={sendComment} className="w-9 h-9 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: "#4ade80" }}>
+                  <input value={commentDraft} onChange={(e) => setCommentDraft(e.target.value)} enterKeyHint="send" onKeyDown={(e) => e.key === "Enter" && sendComment()} placeholder="Write a message..." className="flex-1 rounded-full px-4 py-2 text-sm outline-none" style={{ backgroundColor: "rgba(74,222,128,0.06)", color: "#fff", border: "1px solid rgba(74,222,128,0.2)", fontFamily: "'Inter', sans-serif" }} />
+                  <button type="button" onClick={sendComment} onTouchEnd={(e) => { e.preventDefault(); sendComment(); }} className="w-9 h-9 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: "#4ade80" }}>
                     <Send className="w-4 h-4" style={{ color: "#0a1f0a" }} />
                   </button>
                 </div>
@@ -2842,8 +2848,8 @@ const EventView = () => {
                         ))}
                       </div>
                       <div className="flex gap-2">
-                        <input value={commentDraft} onChange={(e) => setCommentDraft(e.target.value)} onKeyDown={(e) => e.key === "Enter" && sendComment()} placeholder="Write a message..." className="flex-1 rounded-full px-4 py-2 text-sm outline-none" style={{ backgroundColor: isLight ? "rgba(0,0,0,0.06)" : "rgba(255,255,255,0.08)", color: tCol, border: `1px solid ${frostBorder}`, fontFamily: "'Inter', sans-serif" }} />
-                        <button onClick={sendComment} className="w-9 h-9 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: accentColor }}>
+                        <input value={commentDraft} onChange={(e) => setCommentDraft(e.target.value)} enterKeyHint="send" onKeyDown={(e) => e.key === "Enter" && sendComment()} placeholder="Write a message..." className="flex-1 rounded-full px-4 py-2 text-sm outline-none" style={{ backgroundColor: isLight ? "rgba(0,0,0,0.06)" : "rgba(255,255,255,0.08)", color: tCol, border: `1px solid ${frostBorder}`, fontFamily: "'Inter', sans-serif" }} />
+                        <button type="button" onClick={sendComment} onTouchEnd={(e) => { e.preventDefault(); sendComment(); }} className="w-9 h-9 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: accentColor }}>
                           <Send className="w-4 h-4" style={{ color: accentText }} />
                         </button>
                       </div>
@@ -3266,13 +3272,13 @@ const EventView = () => {
               <input
                 value={commentDraft}
                 onChange={(e) => setCommentDraft(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && sendComment()}
+                enterKeyHint="send" onKeyDown={(e) => e.key === "Enter" && sendComment()}
                 placeholder="Write a message..."
                 className="flex-1 rounded-full px-4 py-2 text-sm text-white placeholder:text-muted-foreground outline-none"
                 style={{ backgroundColor: "#2a2a2a" }}
               />
               <button
-                onClick={sendComment}
+                type="button" onClick={sendComment} onTouchEnd={(e) => { e.preventDefault(); sendComment(); }}
                 className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
                 style={{ backgroundColor: "#b8f55a" }}
               >
@@ -3393,18 +3399,19 @@ const EventView = () => {
               </div>
             ))}
           </div>
-          <div className="px-4 py-3 border-t border-border flex gap-2">
+          <div className="px-4 py-3 border-t border-border flex gap-2" style={{ paddingBottom: "max(12px, env(safe-area-inset-bottom))" }}>
             <input
               ref={fullCommentInputRef}
               value={commentDraft}
               onChange={(e) => setCommentDraft(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && sendComment()}
+              enterKeyHint="send" onKeyDown={(e) => e.key === "Enter" && sendComment()}
+              onFocus={() => setTimeout(() => fullCommentInputRef.current?.scrollIntoView({ block: "nearest", behavior: "smooth" }), 300)}
               placeholder="Write a message..."
               className="flex-1 rounded-full px-4 py-2.5 text-sm text-white placeholder:text-muted-foreground outline-none border border-border"
               style={{ backgroundColor: "#383838" }}
             />
             <button
-              onClick={sendComment}
+              type="button" onClick={sendComment} onTouchEnd={(e) => { e.preventDefault(); sendComment(); }}
               className="w-10 h-10 rounded-full bg-primary flex items-center justify-center shrink-0"
             >
               <Send className="w-4 h-4 text-primary-foreground" />
@@ -3492,12 +3499,12 @@ const EventView = () => {
                 <input
                   value={dmDraft}
                   onChange={(e) => setDmDraft(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && sendDM()}
+                  enterKeyHint="send" onKeyDown={(e) => e.key === "Enter" && sendDM()}
                   placeholder="Type a reply..."
                   className="flex-1 rounded-full px-4 py-2.5 text-sm text-white placeholder:text-muted-foreground outline-none border border-border"
                   style={{ backgroundColor: "#383838" }}
                 />
-                <button onClick={sendDM} className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
+                <button type="button" onClick={sendDM} onTouchEnd={(e) => { e.preventDefault(); sendDM(); }} className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
                   <Send className="w-4 h-4 text-primary-foreground" />
                 </button>
               </div>
