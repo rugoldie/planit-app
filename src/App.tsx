@@ -16,6 +16,7 @@ import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import Onboarding from "./pages/Onboarding";
 import Friends from "./pages/Friends";
+import EventsList from "./pages/EventsList";
 
 const queryClient = new QueryClient();
 
@@ -38,6 +39,7 @@ const App = () => (
             <Route path="/profile" element={<Profile />} />
             <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/friends" element={<Friends />} />
+            <Route path="/events" element={<EventsList />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

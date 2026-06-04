@@ -74,17 +74,12 @@ const Profile = () => {
   const joinedCount = allEvents.filter(e => e.role !== "Host").length;
   const now = new Date();
 
-  const [showAllUpcoming, setShowAllUpcoming] = useState(false);
-  const [showAllPast, setShowAllPast] = useState(false);
-
   const upcoming = allEvents
     .filter(e => !e.date || new Date(e.date) >= now)
     .sort((a, b) => new Date(a.date || 0).getTime() - new Date(b.date || 0).getTime());
   const past = allEvents
     .filter(e => !!e.date && new Date(e.date) < now)
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  const upcomingSlice = showAllUpcoming ? upcoming : upcoming.slice(0, 3);
-  const pastSlice = showAllPast ? past : past.slice(0, 3);
 
   const firstDay = new Date(calYear, calMonth, 1).getDay();
   const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
@@ -232,7 +227,7 @@ const Profile = () => {
             </div>
 
             <h2 className="text-xl font-bold text-white mb-0.5">{displayName}</h2>
-            {username && <p className="text-sm mb-4" style={{ color: ACCENT }}>@{username}</p>}
+            {username && <p className="text-sm mb-4" style={{ color: "#aaaaaa" }}>@{username}</p>}
             {!username && <div className="mb-4" />}
 
             {/* Stat pills */}
@@ -301,8 +296,14 @@ const Profile = () => {
         {upcoming.length > 0 && (
           <div className="mx-4 mb-4">
             <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-2 px-1">Upcoming</p>
-            <div className="bg-card rounded-2xl border border-border overflow-hidden">
-              {upcomingSlice.map((ev, i) => (
+            <div
+              className="bg-card rounded-2xl border border-border overflow-hidden"
+              style={upcoming.length > 3 ? {
+                maskImage: "linear-gradient(to bottom, black 0%, black 60%, transparent 100%)",
+                WebkitMaskImage: "linear-gradient(to bottom, black 0%, black 60%, transparent 100%)",
+              } : {}}
+            >
+              {upcoming.slice(0, 3).map((ev, i) => (
                 <button
                   key={i}
                   type="button"
@@ -310,30 +311,30 @@ const Profile = () => {
                   className="w-full flex items-center gap-3 px-4 py-3 border-b border-border last:border-0 text-left"
                 >
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-foreground truncate">{ev.name}</p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-sm font-semibold truncate" style={{ color: "#ffffff" }}>{ev.name}</p>
+                    <p className="text-xs" style={{ color: "#888888" }}>
                       {ev.date ? new Date(ev.date).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }) : "No date"}
                     </p>
                   </div>
                   <span
                     className="text-[11px] font-bold px-2.5 py-1 rounded-full shrink-0"
-                    style={{ backgroundColor: ev.role === "Host" ? ACCENT : "#2a2a2a", color: ev.role === "Host" ? "#111" : "#aaa" }}
+                    style={{ backgroundColor: ev.role === "Host" ? ACCENT : "#2a2a2a", color: ev.role === "Host" ? "#111" : "#888" }}
                   >
                     {ev.role}
                   </span>
                 </button>
               ))}
-              {upcoming.length > 3 && !showAllUpcoming && (
-                <button
-                  type="button"
-                  onClick={() => setShowAllUpcoming(true)}
-                  className="w-full px-4 py-3 text-xs font-semibold text-left"
-                  style={{ color: ACCENT }}
-                >
-                  See all {upcoming.length} →
-                </button>
-              )}
             </div>
+            {upcoming.length > 3 && (
+              <button
+                type="button"
+                onClick={() => navigate("/events?tab=upcoming")}
+                className="mt-2 px-1 text-xs font-medium"
+                style={{ color: "#666666" }}
+              >
+                See all →
+              </button>
+            )}
           </div>
         )}
 
@@ -341,8 +342,14 @@ const Profile = () => {
         {past.length > 0 && (
           <div className="mx-4 mb-4">
             <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-2 px-1">Past</p>
-            <div className="bg-card rounded-2xl border border-border overflow-hidden">
-              {pastSlice.map((ev, i) => (
+            <div
+              className="bg-card rounded-2xl border border-border overflow-hidden"
+              style={past.length > 3 ? {
+                maskImage: "linear-gradient(to bottom, black 0%, black 60%, transparent 100%)",
+                WebkitMaskImage: "linear-gradient(to bottom, black 0%, black 60%, transparent 100%)",
+              } : {}}
+            >
+              {past.slice(0, 3).map((ev, i) => (
                 <button
                   key={i}
                   type="button"
@@ -350,30 +357,30 @@ const Profile = () => {
                   className="w-full flex items-center gap-3 px-4 py-3 border-b border-border last:border-0 text-left"
                 >
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-foreground truncate">{ev.name}</p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-sm font-semibold truncate" style={{ color: "#ffffff" }}>{ev.name}</p>
+                    <p className="text-xs" style={{ color: "#888888" }}>
                       {ev.date ? new Date(ev.date).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }) : "No date"}
                     </p>
                   </div>
                   <span
                     className="text-[11px] font-bold px-2.5 py-1 rounded-full shrink-0"
-                    style={{ backgroundColor: ev.role === "Host" ? ACCENT : "#2a2a2a", color: ev.role === "Host" ? "#111" : "#aaa" }}
+                    style={{ backgroundColor: ev.role === "Host" ? ACCENT : "#2a2a2a", color: ev.role === "Host" ? "#111" : "#888" }}
                   >
                     {ev.role}
                   </span>
                 </button>
               ))}
-              {past.length > 3 && !showAllPast && (
-                <button
-                  type="button"
-                  onClick={() => setShowAllPast(true)}
-                  className="w-full px-4 py-3 text-xs font-semibold text-left"
-                  style={{ color: ACCENT }}
-                >
-                  See all {past.length} →
-                </button>
-              )}
             </div>
+            {past.length > 3 && (
+              <button
+                type="button"
+                onClick={() => navigate("/events?tab=past")}
+                className="mt-2 px-1 text-xs font-medium"
+                style={{ color: "#666666" }}
+              >
+                See all →
+              </button>
+            )}
           </div>
         )}
 
