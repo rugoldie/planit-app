@@ -1845,10 +1845,13 @@ const Home = () => {
   });
   const pendingCount = pendingRequests || 0;
 
-  // Redirect to onboarding if username not set
+  // Redirect to onboarding only if username is missing AND the user hasn't
+  // completed onboarding before (localStorage flag). This prevents an infinite
+  // redirect loop when the username column doesn't exist in the database yet.
   useEffect(() => {
     if (!loading && user && profile && !(profile as any).username) {
-      navigate("/onboarding");
+      const done = localStorage.getItem(`planit_onboarding_${user.id}`);
+      if (!done) navigate("/onboarding");
     }
   }, [loading, user, profile, navigate]);
 

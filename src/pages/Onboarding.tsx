@@ -26,10 +26,13 @@ const Onboarding = () => {
     if (profile?.name) setFullName(profile.name);
   }, [profile]);
 
-  // If already onboarded, go home
+  // If already onboarded (username set in DB), mark complete and go home
   useEffect(() => {
-    if (!loading && profile?.username) navigate("/home", { replace: true });
-  }, [loading, profile, navigate]);
+    if (!loading && profile?.username && user) {
+      localStorage.setItem(`planit_onboarding_${user.id}`, "1");
+      navigate("/home", { replace: true });
+    }
+  }, [loading, profile, user, navigate]);
 
   // Username availability check with debounce
   useEffect(() => {
@@ -134,6 +137,9 @@ const Onboarding = () => {
         console.warn("refreshProfile failed (non-fatal):", e);
       }
 
+      // Mark onboarding complete so Home.tsx never redirects back here,
+      // even if the username column is missing and username wasn't saved.
+      localStorage.setItem(`planit_onboarding_${user.id}`, "1");
       setSaving(false);
       navigate("/home", { replace: true });
     } catch (e: any) {
