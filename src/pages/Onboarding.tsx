@@ -18,6 +18,7 @@ const Onboarding = () => {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const photoRef = useRef<HTMLInputElement>(null);
 
   // Pre-fill name from existing profile
@@ -56,8 +57,10 @@ const Onboarding = () => {
     if (!error) {
       const { data } = supabase.storage.from("avatars").getPublicUrl(path);
       setAvatarUrl(data.publicUrl);
+      console.log("Avatar uploaded:", data.publicUrl);
     } else {
-      toast.error("Photo upload failed");
+      console.error("Avatar upload error:", JSON.stringify(error));
+      toast.error(`Photo upload failed: ${error.message} — check that the "avatars" storage bucket exists in Supabase`);
     }
     setUploading(false);
   };
@@ -69,24 +72,75 @@ const Onboarding = () => {
   };
 
   const handleNext = async () => {
+    setSaveError(null);
     if (step < 2) { setStep(step + 1); return; }
     await save(true);
   };
 
   const save = async (withAvatar: boolean) => {
-    if (!user) return;
-    setSaving(true);
-    const update: any = { name: fullName.trim(), username };
-    if (withAvatar && avatarUrl) update.avatar_url = avatarUrl;
-    const { error } = await supabase.from("profiles").update(update).eq("user_id", user.id);
-    if (error) {
-      toast.error("Failed to save profile");
-      setSaving(false);
+    if (!user) {
+      setSaveError("Not logged in — please restart the app.");
       return;
     }
-    await refreshProfile();
-    setSaving(false);
-    navigate("/home", { replace: true });
+    setSaving(true);
+    setSaveError(null);
+
+    try {
+      // Build update payload — avatar only if upload succeeded
+      const update: Record<string, any> = { name: fullName.trim() };
+      if (username) update.username = username;
+      if (withAvatar && avatarUrl) update.avatar_url = avatarUrl;
+
+      console.log("Onboarding save: payload", update, "user_id", user.id);
+
+      const { error, data } = await supabase
+        .from("profiles")
+        .update(update)
+        .eq("user_id", user.id)
+        .select();
+
+      console.log("Onboarding save: result", { error: error ? JSON.stringify(error) : null, data });
+
+      if (error) {
+        console.error("Onboarding save error:", error.code, error.message, error.details, error.hint);
+
+        if (error.code === "PGRST204") {
+          // username column doesn't exist yet — retry without it so the user isn't blocked
+          console.warn("username column missing, retrying without it");
+          const fallback: Record<string, any> = { name: fullName.trim() };
+          if (withAvatar && avatarUrl) fallback.avatar_url = avatarUrl;
+          const { error: err2 } = await supabase
+            .from("profiles")
+            .update(fallback)
+            .eq("user_id", user.id);
+          if (err2) {
+            setSaveError(`Save failed: ${err2.message} (run the Supabase migrations)`);
+            setSaving(false);
+            return;
+          }
+          // Warn but still proceed so user isn't stuck
+          toast.error("Username could not be saved — run the Supabase migration (ALTER TABLE profiles ADD COLUMN username text UNIQUE)");
+        } else {
+          setSaveError(`Save failed: ${error.message}`);
+          setSaving(false);
+          return;
+        }
+      }
+
+      // Refresh profile — best-effort, don't let it block navigation
+      try {
+        await refreshProfile();
+      } catch (e) {
+        console.warn("refreshProfile failed (non-fatal):", e);
+      }
+
+      setSaving(false);
+      navigate("/home", { replace: true });
+    } catch (e: any) {
+      console.error("Onboarding save threw:", e);
+      setSaveError(e?.message ?? "Unexpected error — check the console.");
+      setSaving(false);
+    }
   };
 
   return (
@@ -191,6 +245,12 @@ const Onboarding = () => {
           </div>
         )}
       </div>
+
+      {saveError && (
+        <div className="mt-4 mx-auto w-full max-w-xs rounded-xl border border-red-500/40 bg-red-500/10 px-4 py-3">
+          <p className="text-sm font-semibold text-red-400">{saveError}</p>
+        </div>
+      )}
 
       <div className="flex flex-col gap-3 mt-6 max-w-xs mx-auto w-full">
         <button
