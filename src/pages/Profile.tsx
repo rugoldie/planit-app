@@ -70,6 +70,8 @@ const Profile = () => {
     fetch();
   }, [user]);
 
+  const [eventsTab, setEventsTab] = useState<"upcoming" | "past">("upcoming");
+
   const hostedCount = allEvents.filter(e => e.role === "Host").length;
   const joinedCount = allEvents.filter(e => e.role !== "Host").length;
   const now = new Date();
@@ -292,97 +294,87 @@ const Profile = () => {
           </div>
         </div>
 
-        {/* Upcoming events */}
-        {upcoming.length > 0 && (
-          <div className="mx-4 mb-4">
-            <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-2 px-1">Upcoming</p>
-            <div
-              className="bg-card rounded-2xl border border-border overflow-hidden"
-              style={upcoming.length > 3 ? {
-                maskImage: "linear-gradient(to bottom, black 0%, black 60%, transparent 100%)",
-                WebkitMaskImage: "linear-gradient(to bottom, black 0%, black 60%, transparent 100%)",
-              } : {}}
-            >
-              {upcoming.slice(0, 3).map((ev, i) => (
+        {/* Events — tabbed Upcoming / Past */}
+        {(upcoming.length > 0 || past.length > 0) && (() => {
+          const list = eventsTab === "upcoming" ? upcoming : past;
+          const rows = list.slice(0, 3);
+          const applyFade = rows.length >= 3;
+          return (
+            <div className="mx-4 mb-4">
+              {/* Pill toggles */}
+              <div className="flex gap-2 mb-3">
                 <button
-                  key={i}
                   type="button"
-                  onClick={() => navigate(ev.role === "Host" ? `/event/${ev.code}` : `/guest/${ev.code}`)}
-                  className="w-full flex items-center gap-3 px-4 py-3 border-b border-border last:border-0 text-left"
+                  onClick={() => setEventsTab("upcoming")}
+                  className="flex-1 py-2.5 rounded-full text-sm font-semibold transition-colors"
+                  style={eventsTab === "upcoming"
+                    ? { backgroundColor: ACCENT, color: "#111" }
+                    : { backgroundColor: "transparent", border: "1px solid #333", color: "#888" }}
                 >
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold truncate" style={{ color: "#ffffff" }}>{ev.name}</p>
-                    <p className="text-xs" style={{ color: "#888888" }}>
-                      {ev.date ? new Date(ev.date).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }) : "No date"}
-                    </p>
-                  </div>
-                  <span
-                    className="text-[11px] font-bold px-2.5 py-1 rounded-full shrink-0"
-                    style={{ backgroundColor: ev.role === "Host" ? ACCENT : "#2a2a2a", color: ev.role === "Host" ? "#111" : "#888" }}
-                  >
-                    {ev.role}
-                  </span>
+                  Upcoming
                 </button>
-              ))}
-            </div>
-            {upcoming.length > 3 && (
-              <button
-                type="button"
-                onClick={() => navigate("/events?tab=upcoming")}
-                className="mt-2 px-1 text-xs font-medium"
-                style={{ color: "#666666" }}
-              >
-                See all →
-              </button>
-            )}
-          </div>
-        )}
+                <button
+                  type="button"
+                  onClick={() => setEventsTab("past")}
+                  className="flex-1 py-2.5 rounded-full text-sm font-semibold transition-colors"
+                  style={eventsTab === "past"
+                    ? { backgroundColor: ACCENT, color: "#111" }
+                    : { backgroundColor: "transparent", border: "1px solid #333", color: "#888" }}
+                >
+                  Past
+                </button>
+              </div>
 
-        {/* Past events */}
-        {past.length > 0 && (
-          <div className="mx-4 mb-4">
-            <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-2 px-1">Past</p>
-            <div
-              className="bg-card rounded-2xl border border-border overflow-hidden"
-              style={past.length > 3 ? {
-                maskImage: "linear-gradient(to bottom, black 0%, black 60%, transparent 100%)",
-                WebkitMaskImage: "linear-gradient(to bottom, black 0%, black 60%, transparent 100%)",
-              } : {}}
-            >
-              {past.slice(0, 3).map((ev, i) => (
-                <button
-                  key={i}
-                  type="button"
-                  onClick={() => navigate(ev.role === "Host" ? `/event/${ev.code}` : `/guest/${ev.code}`)}
-                  className="w-full flex items-center gap-3 px-4 py-3 border-b border-border last:border-0 text-left"
-                >
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold truncate" style={{ color: "#ffffff" }}>{ev.name}</p>
-                    <p className="text-xs" style={{ color: "#888888" }}>
-                      {ev.date ? new Date(ev.date).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }) : "No date"}
-                    </p>
-                  </div>
-                  <span
-                    className="text-[11px] font-bold px-2.5 py-1 rounded-full shrink-0"
-                    style={{ backgroundColor: ev.role === "Host" ? ACCENT : "#2a2a2a", color: ev.role === "Host" ? "#111" : "#888" }}
+              {rows.length === 0 ? (
+                <p className="text-sm text-center py-6" style={{ color: "#555" }}>
+                  No {eventsTab} events
+                </p>
+              ) : (
+                <>
+                  <div
+                    className="bg-card rounded-2xl border border-border overflow-hidden"
+                    style={applyFade ? {
+                      maskImage: "linear-gradient(to bottom, black 0%, black 55%, transparent 95%)",
+                      WebkitMaskImage: "linear-gradient(to bottom, black 0%, black 55%, transparent 95%)",
+                    } : {}}
                   >
-                    {ev.role}
-                  </span>
-                </button>
-              ))}
+                    {rows.map((ev, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        onClick={() => navigate(ev.role === "Host" ? `/event/${ev.code}` : `/guest/${ev.code}`)}
+                        className="w-full flex items-center gap-3 px-4 py-3 border-b border-border last:border-0 text-left"
+                      >
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold truncate" style={{ color: "#ffffff" }}>{ev.name}</p>
+                          <p className="text-xs mt-0.5" style={{ color: "#888888" }}>
+                            {ev.date ? new Date(ev.date).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }) : "No date"}
+                          </p>
+                        </div>
+                        <span
+                          className="text-[11px] font-bold px-2.5 py-1 rounded-full shrink-0"
+                          style={{ backgroundColor: ev.role === "Host" ? ACCENT : "#2a2a2a", color: ev.role === "Host" ? "#111" : "#888" }}
+                        >
+                          {ev.role}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                  {list.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => navigate(`/events?tab=${eventsTab}`)}
+                      className="mt-2 px-1 text-xs font-medium"
+                      style={{ color: "#666666" }}
+                    >
+                      See all →
+                    </button>
+                  )}
+                </>
+              )}
             </div>
-            {past.length > 3 && (
-              <button
-                type="button"
-                onClick={() => navigate("/events?tab=past")}
-                className="mt-2 px-1 text-xs font-medium"
-                style={{ color: "#666666" }}
-              >
-                See all →
-              </button>
-            )}
-          </div>
-        )}
+          );
+        })()}
 
         {/* Menu */}
         <div className="mx-4 bg-card rounded-2xl border border-border overflow-hidden">
