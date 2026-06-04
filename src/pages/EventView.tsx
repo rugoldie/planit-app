@@ -557,28 +557,15 @@ const EventView = () => {
     const text = commentDraft.trim();
     const payload = { event_id: event.id, user_id: user.id, user_name: profile?.name || "Host", text };
     console.log("sendComment payload:", payload);
-    const optimisticId = crypto.randomUUID();
-    const optimistic: Comment = {
-      id: optimisticId,
-      user_name: profile?.name || "Host",
-      text,
-      created_at: new Date().toISOString(),
-      avatar_url: profile?.avatar_url || undefined,
-    };
-    setComments((prev) => [...prev, optimistic]);
-    setCommentDraft("");
     const result = await supabase.from("comments").insert(payload).select();
     console.log("sendComment full result:", JSON.stringify(result));
-    const { error: commentError, data } = result;
+    const { error: commentError } = result;
     if (commentError) {
       console.error("sendComment error code:", commentError.code, "message:", commentError.message, "details:", commentError.details, "hint:", commentError.hint);
       toast.error(`Message failed: ${commentError.message}`);
-      setComments((prev) => prev.filter((c) => c.id !== optimisticId));
     } else {
-      // Manual refetch after successful insert — do not rely on realtime which
-      // is unreliable on mobile browsers. This ensures the sender always sees
-      // their message immediately via a direct Supabase select.
       await fetchComments();
+      setCommentDraft("");
     }
   };
 
