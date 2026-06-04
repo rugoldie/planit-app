@@ -209,6 +209,12 @@ export type Database = {
         }
         Relationships: []
       }
+      friendships: {
+        Row: { id: string; requester_id: string; recipient_id: string; status: string; created_at: string }
+        Insert: { id?: string; requester_id: string; recipient_id: string; status?: string; created_at?: string }
+        Update: { id?: string; requester_id?: string; recipient_id?: string; status?: string; created_at?: string }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -219,6 +225,7 @@ export type Database = {
           phone: string | null
           updated_at: string
           user_id: string
+          username: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -229,6 +236,7 @@ export type Database = {
           phone?: string | null
           updated_at?: string
           user_id: string
+          username?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -239,6 +247,7 @@ export type Database = {
           phone?: string | null
           updated_at?: string
           user_id?: string
+          username?: string | null
         }
         Relationships: []
       }

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { User, Users } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -1811,7 +1811,7 @@ const UpcomingSection = ({
 
 const Home = () => {
   const navigate = useNavigate();
-  const { user, profile } = useAuth();
+  const { user, profile, loading } = useAuth();
   const queryClient = useQueryClient();
   const { data: events, isLoading } = useUserEvents(user?.id);
 
@@ -1828,6 +1828,30 @@ const Home = () => {
     };
   }, [user?.id, queryClient]);
 
+  // Pending friend requests badge
+  const { data: pendingRequests } = useQuery({
+    queryKey: ["pending-friends", user?.id],
+    enabled: !!user?.id,
+    refetchInterval: 30000,
+    queryFn: async () => {
+      if (!user?.id) return 0;
+      const { data } = await (supabase as any)
+        .from("friendships")
+        .select("id")
+        .eq("recipient_id", user.id)
+        .eq("status", "pending");
+      return (data || []).length;
+    },
+  });
+  const pendingCount = pendingRequests || 0;
+
+  // Redirect to onboarding if username not set
+  useEffect(() => {
+    if (!loading && user && profile && !(profile as any).username) {
+      navigate("/onboarding");
+    }
+  }, [loading, user, profile, navigate]);
+
   const hasEvents = events && events.length > 0;
   const nextEvent = hasEvents ? events[0] : null;
   const firstName = profile?.name?.split(" ")[0] || "there";
@@ -1836,12 +1860,29 @@ const Home = () => {
   if (!hasEvents && !isLoading) {
     return (
       <div className="flex flex-col min-h-screen bg-background px-6 py-8">
-        <button
-          onClick={() => navigate("/profile")}
-          className="self-start bg-secondary rounded-full w-11 h-11 flex items-center justify-center border border-border"
-        >
-          <User className="w-5 h-5 text-muted-foreground" />
-        </button>
+        <div className="flex items-center gap-2">
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => navigate("/friends")}
+              className="bg-secondary rounded-full w-11 h-11 flex items-center justify-center border border-border"
+            >
+              <Users className="w-5 h-5 text-muted-foreground" />
+            </button>
+            {pendingCount > 0 && (
+              <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold" style={{ backgroundColor: "#ef4444", color: "#fff" }}>
+                {pendingCount > 9 ? "9+" : pendingCount}
+              </span>
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={() => navigate("/profile")}
+            className="bg-secondary rounded-full w-11 h-11 flex items-center justify-center border border-border"
+          >
+            <User className="w-5 h-5 text-muted-foreground" />
+          </button>
+        </div>
         <div className="flex flex-col items-center mt-8">
           <h1 className="text-7xl font-extrabold text-foreground tracking-tight">planit</h1>
         </div>
@@ -1881,13 +1922,30 @@ const Home = () => {
             {firstName}
           </h1>
         </div>
-        <button
-          onClick={() => navigate("/profile")}
-          className="rounded-full w-11 h-11 flex items-center justify-center border-2"
-          style={{ borderColor: "#aaee44" }}
-        >
-          <User className="w-5 h-5 text-muted-foreground" />
-        </button>
+        <div className="flex items-center gap-2">
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => navigate("/friends")}
+              className="rounded-full w-11 h-11 flex items-center justify-center border-2 border-border bg-secondary"
+            >
+              <Users className="w-5 h-5 text-muted-foreground" />
+            </button>
+            {pendingCount > 0 && (
+              <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold" style={{ backgroundColor: "#ef4444", color: "#fff" }}>
+                {pendingCount > 9 ? "9+" : pendingCount}
+              </span>
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={() => navigate("/profile")}
+            className="rounded-full w-11 h-11 flex items-center justify-center border-2"
+            style={{ borderColor: "#aaee44" }}
+          >
+            <User className="w-5 h-5 text-muted-foreground" />
+          </button>
+        </div>
       </div>
 
       {/* Next up card */}

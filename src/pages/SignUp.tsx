@@ -80,7 +80,7 @@ const SignUp = () => {
           .eq("user_id", data.user.id);
       }
       setLoading(false);
-      navigate("/home");
+      navigate("/onboarding");
     }
   };
 

@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { ArrowLeft, Upload, Copy, Share2 } from "lucide-react";
+import { ArrowLeft, Upload, Copy, Share2, Users, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { supabase } from "@/integrations/supabase/client";
@@ -475,6 +475,11 @@ const HostEvent = () => {
   const [buildItError, setBuildItError] = useState<string | null>(null);
   const [selectedStickerId, setSelectedStickerId] = useState<string | null>(null);
   const [fontColor, setFontColor] = useState<string>("#ffffff");
+  const [showInviteDrawer, setShowInviteDrawer] = useState(false);
+  const [inviteFriends, setInviteFriends] = useState<{user_id: string; name: string; avatar_url: string | null}[]>([]);
+  const [inviteSelected, setInviteSelected] = useState<Set<string>>(new Set());
+  const [inviting, setInviting] = useState(false);
+  const [loadingFriends, setLoadingFriends] = useState(false);
   const customContainerRef = useRef<HTMLDivElement>(null);
   const stickerDragRef = useRef<{ id: string; startX: number; startY: number; sx: number; sy: number } | null>(null);
   const stickerPinchRef = useRef<{ id: string; initDist: number; initSize: number } | null>(null);
@@ -531,6 +536,47 @@ const HostEvent = () => {
       });
     return () => { cancelled = true; };
   }, [editCode]);
+
+  const loadFriendsForInvite = async () => {
+    if (!user) return;
+    setLoadingFriends(true);
+    const { data: friendships } = await (supabase as any)
+      .from("friendships")
+      .select("*")
+      .or(`requester_id.eq.${user.id},recipient_id.eq.${user.id}`)
+      .eq("status", "accepted");
+    if (friendships?.length) {
+      const otherIds = friendships.map((f: any) =>
+        f.requester_id === user.id ? f.recipient_id : f.requester_id
+      );
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("user_id, name, avatar_url")
+        .in("user_id", otherIds);
+      setInviteFriends(profiles || []);
+    } else {
+      setInviteFriends([]);
+    }
+    setLoadingFriends(false);
+  };
+
+  const sendInvites = async () => {
+    if (!eventCode || inviteSelected.size === 0) return;
+    setInviting(true);
+    // Get the event id from eventCode
+    const { data: evData } = await supabase.from("events").select("id").eq("code", eventCode).single();
+    if (evData) {
+      const rows = [...inviteSelected].map((uid) => ({
+        event_id: evData.id,
+        user_id: uid,
+        rsvp_status: "invited",
+      }));
+      await supabase.from("event_guests").upsert(rows, { onConflict: "event_id,user_id" });
+    }
+    setInviting(false);
+    setShowInviteDrawer(false);
+    setInviteSelected(new Set());
+  };
 
   const handleCreate = async () => {
     if (!title.trim()) {
@@ -826,11 +872,82 @@ const HostEvent = () => {
         </div>
 
         <button
+          type="button"
+          onClick={() => { setShowInviteDrawer(true); loadFriendsForInvite(); }}
+          className="w-full max-w-sm mt-2 bg-secondary text-secondary-foreground rounded-[var(--radius)] py-4 text-base font-bold flex items-center justify-center gap-2 border border-border"
+        >
+          <Users className="w-4 h-4" /> Invite friends
+        </button>
+
+        <button
           onClick={() => navigate("/event/" + eventCode)}
           className="mt-6 text-foreground text-sm font-semibold underline underline-offset-4"
         >
           View my event
         </button>
+
+        <Drawer open={showInviteDrawer} onOpenChange={setShowInviteDrawer}>
+          <DrawerContent className="bg-background border-t border-border max-h-[80vh] flex flex-col">
+            <div className="flex items-center justify-between px-5 pt-5 pb-3 border-b border-border">
+              <h2 className="text-lg font-bold text-foreground">Invite friends</h2>
+              {inviteSelected.size > 0 && (
+                <button
+                  type="button"
+                  onClick={sendInvites}
+                  disabled={inviting}
+                  className="text-sm font-bold px-4 py-1.5 rounded-full disabled:opacity-50"
+                  style={{ backgroundColor: "#aaee44", color: "#111" }}
+                >
+                  {inviting ? "Sending..." : `Invite ${inviteSelected.size}`}
+                </button>
+              )}
+            </div>
+            <div className="flex-1 overflow-y-auto px-5 py-4">
+              {loadingFriends ? (
+                <p className="text-sm text-muted-foreground text-center py-8">Loading friends...</p>
+              ) : inviteFriends.length === 0 ? (
+                <div className="text-center py-10">
+                  <p className="text-sm text-muted-foreground">No friends to invite yet</p>
+                  <p className="text-xs text-muted-foreground mt-1">Add friends from the Friends page first</p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {inviteFriends.map((f) => {
+                    const selected = inviteSelected.has(f.user_id);
+                    return (
+                      <button
+                        type="button"
+                        key={f.user_id}
+                        onClick={() => setInviteSelected(prev => {
+                          const next = new Set(prev);
+                          if (next.has(f.user_id)) next.delete(f.user_id); else next.add(f.user_id);
+                          return next;
+                        })}
+                        className="w-full flex items-center gap-3 bg-card rounded-2xl px-4 py-3 border transition-colors"
+                        style={{ borderColor: selected ? "#aaee44" : "hsl(var(--border))" }}
+                      >
+                        <div className="w-10 h-10 rounded-full overflow-hidden bg-secondary flex items-center justify-center shrink-0">
+                          {f.avatar_url ? (
+                            <img src={f.avatar_url} alt="" className="w-full h-full object-cover" />
+                          ) : (
+                            <span className="font-bold text-foreground text-sm">{f.name.charAt(0).toUpperCase()}</span>
+                          )}
+                        </div>
+                        <span className="flex-1 text-left font-semibold text-foreground text-sm">{f.name}</span>
+                        <div
+                          className="w-5 h-5 rounded-full border-2 flex items-center justify-center"
+                          style={{ borderColor: selected ? "#aaee44" : "#555", backgroundColor: selected ? "#aaee44" : "transparent" }}
+                        >
+                          {selected && <Check className="w-3 h-3" style={{ color: "#111" }} />}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </DrawerContent>
+        </Drawer>
       </div>
     );
   }

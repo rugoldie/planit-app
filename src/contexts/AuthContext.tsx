@@ -9,6 +9,7 @@ type Profile = {
   email: string | null;
   phone: string | null;
   avatar_url: string | null;
+  username: string | null;
 };
 
 type AuthContextType = {
