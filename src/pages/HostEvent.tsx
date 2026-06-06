@@ -514,18 +514,28 @@ const HostEvent = () => {
           setTemplateName((data as any).template_name || "planit-noir");
           setEventCode(editCode);
           setEventId(data.id);
-          if (data.bg_photo?.startsWith("planit-pattern:") || data.bg_photo?.startsWith("solid-")) {
-            setBgPreset(data.bg_photo);
+          const bp = data.bg_photo;
+          const isCssGradient = !!(bp && (
+            bp.startsWith("linear-gradient") ||
+            bp.startsWith("radial-gradient") ||
+            bp.startsWith("conic-gradient") ||
+            bp.startsWith("repeating-")
+          ));
+          if (bp?.startsWith("planit-pattern:") || bp?.startsWith("solid-")) {
+            setBgPreset(bp);
             setBgPresetIsImage(false);
-          } else if (data.bg_photo?.startsWith("linear-gradient")) {
-            setBgPreset(data.bg_photo);
+          } else if (isCssGradient) {
+            // Any CSS gradient — linear, radial, conic, repeating — produced by
+            // Build It or the preset picker must be restored as bgPreset so the
+            // planit-custom template preview renders identically to the guest view.
+            setBgPreset(bp!);
             setBgPresetIsImage(false);
-          } else if (data.bg_photo?.startsWith("url(")) {
-            setBgPreset(data.bg_photo);
+          } else if (bp?.startsWith("url(")) {
+            setBgPreset(bp);
             setBgPresetIsImage(true);
-          } else if (data.bg_photo) {
-            setBgPhoto(data.bg_photo);
-            setUploadedPhoto(data.bg_photo);
+          } else if (bp) {
+            setBgPhoto(bp);
+            setUploadedPhoto(bp);
           }
           setFontColor((data as any).font_color || "#ffffff");
           if ((data as any).stickers) {
