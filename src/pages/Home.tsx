@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { User, Users } from "lucide-react";
+import { User, Users, MessageCircle, Bell } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -1845,6 +1845,22 @@ const Home = () => {
   });
   const pendingCount = pendingRequests || 0;
 
+  const { data: unreadNotifs } = useQuery({
+    queryKey: ["unread-notifs", user?.id],
+    enabled: !!user?.id,
+    refetchInterval: 30000,
+    queryFn: async () => {
+      if (!user?.id) return 0;
+      const { data } = await (supabase as any)
+        .from("notifications")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("read", false);
+      return (data || []).length;
+    },
+  });
+  const unreadNotifCount = unreadNotifs || 0;
+
   // Redirect to onboarding only if username is missing AND the user hasn't
   // completed onboarding before (localStorage flag). This prevents an infinite
   // redirect loop when the username column doesn't exist in the database yet.
@@ -1867,6 +1883,27 @@ const Home = () => {
           <div className="relative">
             <button
               type="button"
+              onClick={() => navigate("/notifications")}
+              className="bg-secondary rounded-full w-11 h-11 flex items-center justify-center border border-border"
+            >
+              <Bell className="w-5 h-5 text-muted-foreground" />
+            </button>
+            {unreadNotifCount > 0 && (
+              <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold" style={{ backgroundColor: "#ef4444", color: "#fff" }}>
+                {unreadNotifCount > 9 ? "9+" : unreadNotifCount}
+              </span>
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={() => navigate("/messages")}
+            className="bg-secondary rounded-full w-11 h-11 flex items-center justify-center border border-border"
+          >
+            <MessageCircle className="w-5 h-5 text-muted-foreground" />
+          </button>
+          <div className="relative">
+            <button
+              type="button"
               onClick={() => navigate("/friends")}
               className="bg-secondary rounded-full w-11 h-11 flex items-center justify-center border border-border"
             >
@@ -1881,9 +1918,16 @@ const Home = () => {
           <button
             type="button"
             onClick={() => navigate("/profile")}
-            className="bg-secondary rounded-full w-11 h-11 flex items-center justify-center border border-border"
+            className="rounded-full w-11 h-11 overflow-hidden border-2 shrink-0"
+            style={{ borderColor: "#aaee44" }}
           >
-            <User className="w-5 h-5 text-muted-foreground" />
+            {profile?.avatar_url ? (
+              <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
+            ) : (
+              <div className="w-full h-full bg-secondary flex items-center justify-center">
+                <span className="text-sm font-bold text-foreground">{profile?.name?.charAt(0)?.toUpperCase() || "?"}</span>
+              </div>
+            )}
           </button>
         </div>
         <div className="flex flex-col items-center mt-8">
@@ -1929,6 +1973,27 @@ const Home = () => {
           <div className="relative">
             <button
               type="button"
+              onClick={() => navigate("/notifications")}
+              className="rounded-full w-11 h-11 flex items-center justify-center border-2 border-border bg-secondary"
+            >
+              <Bell className="w-5 h-5 text-muted-foreground" />
+            </button>
+            {unreadNotifCount > 0 && (
+              <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold" style={{ backgroundColor: "#ef4444", color: "#fff" }}>
+                {unreadNotifCount > 9 ? "9+" : unreadNotifCount}
+              </span>
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={() => navigate("/messages")}
+            className="rounded-full w-11 h-11 flex items-center justify-center border-2 border-border bg-secondary"
+          >
+            <MessageCircle className="w-5 h-5 text-muted-foreground" />
+          </button>
+          <div className="relative">
+            <button
+              type="button"
               onClick={() => navigate("/friends")}
               className="rounded-full w-11 h-11 flex items-center justify-center border-2 border-border bg-secondary"
             >
@@ -1943,10 +2008,16 @@ const Home = () => {
           <button
             type="button"
             onClick={() => navigate("/profile")}
-            className="rounded-full w-11 h-11 flex items-center justify-center border-2"
+            className="rounded-full w-11 h-11 overflow-hidden border-2 shrink-0"
             style={{ borderColor: "#aaee44" }}
           >
-            <User className="w-5 h-5 text-muted-foreground" />
+            {profile?.avatar_url ? (
+              <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
+            ) : (
+              <div className="w-full h-full bg-secondary flex items-center justify-center">
+                <span className="text-sm font-bold text-foreground">{profile?.name?.charAt(0)?.toUpperCase() || "?"}</span>
+              </div>
+            )}
           </button>
         </div>
       </div>

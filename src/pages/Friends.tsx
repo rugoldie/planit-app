@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Search, Check, X, UserPlus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { createNotification } from "@/lib/notifications";
 
 const ACCENT = "#aaee44";
 
@@ -117,12 +118,24 @@ const Friends = () => {
 
   const sendRequest = async (recipientUserId: string) => {
     if (!user) return;
-    await (supabase as any).from("friendships").insert({
+    const { data: inserted } = await (supabase as any).from("friendships").insert({
       requester_id: user.id,
       recipient_id: recipientUserId,
       status: "pending",
-    });
+    }).select().single();
     setSentIds((prev) => new Set([...prev, recipientUserId]));
+    // Notify recipient
+    try {
+      const { data: myProfile } = await supabase.from("profiles").select("name").eq("user_id", user.id).single();
+      const senderName = myProfile?.name || "Someone";
+      await createNotification(
+        recipientUserId,
+        "friend_request",
+        "New friend request",
+        `${senderName} sent you a friend request`,
+        { requester_id: user.id, friendship_id: inserted?.id }
+      );
+    } catch {}
   };
 
   const accept = async (friendshipId: string) => {

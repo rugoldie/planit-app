@@ -14,6 +14,7 @@ import {
   NoirAttendeeStrip,
 } from "@/components/layouts/PlanitNoirLayout";
 import { useAuth } from "@/contexts/AuthContext";
+import { createNotification } from "@/lib/notifications";
 
 type Comment = { id: string; user_name: string; text: string; created_at: string; avatar_url?: string };
 type RsvpEntry = { name: string; avatar_url?: string; status: string; user_id: string };
@@ -438,6 +439,19 @@ const GuestEventView = () => {
     } else {
       await supabase.from("event_guests").insert({ event_id: event.id, user_id: user.id, rsvp_status: response });
     }
+
+    // Notify host of RSVP
+    try {
+      const userName = profile?.name || "A guest";
+      const statusLabel = response === "yes" ? "is going" : response === "maybe" ? "is a maybe" : "can't make it";
+      await createNotification(
+        event.host_id,
+        "rsvp",
+        `${userName} ${statusLabel}`,
+        `${userName} has RSVP'd to ${event.title || "your event"}`,
+        { event_code: event.code, event_id: event.id }
+      );
+    } catch {}
 
     setTimeout(() => setBarMinimised(true), 1500);
   };

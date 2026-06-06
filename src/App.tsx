@@ -17,6 +17,7 @@ import NotFound from "./pages/NotFound";
 import Onboarding from "./pages/Onboarding";
 import Friends from "./pages/Friends";
 import EventsList from "./pages/EventsList";
+import Notifications from "./pages/Notifications";
 
 const queryClient = new QueryClient();
 
@@ -40,6 +41,7 @@ const App = () => (
             <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/friends" element={<Friends />} />
             <Route path="/events" element={<EventsList />} />
+            <Route path="/notifications" element={<Notifications />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

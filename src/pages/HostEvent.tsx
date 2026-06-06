@@ -475,6 +475,7 @@ const HostEvent = () => {
   const [buildItError, setBuildItError] = useState<string | null>(null);
   const [selectedStickerId, setSelectedStickerId] = useState<string | null>(null);
   const [fontColor, setFontColor] = useState<string>("#ffffff");
+  const [rsvpDeadline, setRsvpDeadline] = useState("");
   const [showInviteDrawer, setShowInviteDrawer] = useState(false);
   const [inviteFriends, setInviteFriends] = useState<{user_id: string; name: string; avatar_url: string | null}[]>([]);
   const [inviteSelected, setInviteSelected] = useState<Set<string>>(new Set());
@@ -503,6 +504,7 @@ const HostEvent = () => {
           setVibe(data.vibe || "");
           setLocation(data.location || "");
           setDateTime(data.date_time ? new Date(data.date_time).toISOString().slice(0, 16) : "");
+          setRsvpDeadline(data.rsvp_deadline ? new Date(data.rsvp_deadline).toISOString().slice(0, 16) : "");
           setDressCode(data.dress_code || "");
           setExtra(data.extra || "");
           setBgColor(data.bg_color || PALETTE_COLORS[0].hsl);
@@ -618,6 +620,7 @@ const HostEvent = () => {
       template_name: templateName,
       font_color: fontColor,
       stickers: stickers.length > 0 ? JSON.stringify(stickers) : null,
+      rsvp_deadline: rsvpDeadline ? new Date(rsvpDeadline).toISOString() : null,
     } as any;
 
     // Helper: strip optional/new columns so the retry only sends core fields.
@@ -895,6 +898,49 @@ const HostEvent = () => {
         >
           View my event
         </button>
+
+        {/* RSVP Deadline */}
+        <div className="w-full max-w-sm mt-4 bg-card border border-border rounded-[var(--radius)] p-4">
+          <p className="text-muted-foreground text-sm font-semibold mb-2">RSVP deadline (optional)</p>
+          <div className="flex gap-2 items-center">
+            <input
+              type="datetime-local"
+              value={rsvpDeadline}
+              onChange={(e) => setRsvpDeadline(e.target.value)}
+              className="flex-1 bg-muted text-foreground rounded-[var(--radius)] px-3 py-2 text-sm outline-none border border-border"
+            />
+            {rsvpDeadline && (
+              <button
+                type="button"
+                onClick={async () => {
+                  if (!eventCode) return;
+                  await supabase.from("events").update({ rsvp_deadline: new Date(rsvpDeadline).toISOString() } as any).eq("code", eventCode);
+                }}
+                className="text-sm font-bold px-4 py-2 rounded-[var(--radius)]"
+                style={{ backgroundColor: "#aaee44", color: "#111" }}
+              >
+                Set
+              </button>
+            )}
+            {rsvpDeadline && (
+              <button
+                type="button"
+                onClick={async () => {
+                  setRsvpDeadline("");
+                  if (eventCode) await supabase.from("events").update({ rsvp_deadline: null } as any).eq("code", eventCode);
+                }}
+                className="text-sm text-muted-foreground px-2"
+              >
+                Clear
+              </button>
+            )}
+          </div>
+          {rsvpDeadline && (
+            <p className="text-xs text-muted-foreground mt-2">
+              Guests will be reminded to RSVP before {new Date(rsvpDeadline).toLocaleDateString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+            </p>
+          )}
+        </div>
 
         <Drawer open={showInviteDrawer} onOpenChange={setShowInviteDrawer}>
           <DrawerContent className="bg-background border-t border-border max-h-[80vh] flex flex-col">

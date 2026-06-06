@@ -476,6 +476,9 @@ const EventView = () => {
 
   const goingList = useMemo(() => rsvpList.filter((r) => r.status === "yes"), [rsvpList]);
   const maybeList = useMemo(() => rsvpList.filter((r) => r.status === "maybe"), [rsvpList]);
+  const rsvpDeadline = (event as any)?.rsvp_deadline ? new Date((event as any).rsvp_deadline) : null;
+  const noReplyCount = rsvpList.filter(r => r.status !== "yes" && r.status !== "no").length;
+  const deadlinePassed = rsvpDeadline && rsvpDeadline < new Date();
 
   // Fullscreen — must be before any early returns to satisfy rules of hooks
   useEffect(() => {
@@ -796,6 +799,23 @@ const EventView = () => {
               <VintageAttendeeStrip goingList={goingList} getInitials={getInitials} accentColor={vintageAccent} />
             </div>
           </div>
+
+          {/* RSVP deadline banner */}
+          {isHost && rsvpDeadline && (
+            <div className="mx-5 mb-3 rounded-xl px-4 py-3 flex items-start gap-2" style={{ backgroundColor: "rgba(249,115,22,0.12)", border: "1px solid rgba(249,115,22,0.3)" }}>
+              <span style={{ color: "#f97316", fontSize: "16px" }}>⏰</span>
+              <div>
+                <p className="text-sm font-semibold" style={{ color: "#f97316" }}>
+                  {deadlinePassed ? "RSVP deadline has passed" : `RSVP deadline: ${rsvpDeadline.toLocaleDateString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}`}
+                </p>
+                {noReplyCount > 0 && (
+                  <p className="text-xs mt-0.5" style={{ color: "rgba(249,115,22,0.7)" }}>
+                    {noReplyCount} guest{noReplyCount > 1 ? "s" : ""} {deadlinePassed ? "didn't reply" : "haven't replied"}
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Vintage shared sections */}
           <div className="px-5">
@@ -2781,6 +2801,22 @@ const EventView = () => {
                   )}
                   <h1 style={{ fontFamily: eventFontFamily, fontSize: titleSz, fontWeight: titleWt, color: tCol, lineHeight: 1.05, marginBottom: "6px", textShadow: isLight ? "none" : "0 1px 8px rgba(0,0,0,0.5)" }}>{event.title || "Untitled Event"}</h1>
                   <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "12px", color: tMuted, marginBottom: "18px" }}>hosted by {profile?.name || "Host"}</p>
+                  {/* RSVP deadline banner */}
+                  {isHost && rsvpDeadline && (
+                    <div className="w-full mb-3 rounded-xl px-4 py-3 flex items-start gap-2 text-left" style={{ backgroundColor: "rgba(249,115,22,0.12)", border: "1px solid rgba(249,115,22,0.3)" }}>
+                      <span style={{ color: "#f97316", fontSize: "16px" }}>⏰</span>
+                      <div>
+                        <p className="text-sm font-semibold" style={{ color: "#f97316" }}>
+                          {deadlinePassed ? "RSVP deadline has passed" : `RSVP deadline: ${rsvpDeadline.toLocaleDateString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}`}
+                        </p>
+                        {noReplyCount > 0 && (
+                          <p className="text-xs mt-0.5" style={{ color: "rgba(249,115,22,0.7)" }}>
+                            {noReplyCount} guest{noReplyCount > 1 ? "s" : ""} {deadlinePassed ? "didn't reply" : "haven't replied"}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  )}
                   {/* Date pill */}
                   {eventDate && (
                     <div style={{ borderRadius: "50px", border: `1px solid ${frostBorder}`, padding: "8px 18px", backgroundColor: frostBg, backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", marginBottom: "18px", display: "inline-block" }}>
