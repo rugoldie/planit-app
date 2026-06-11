@@ -2490,7 +2490,7 @@ const HostEvent = () => {
           <div
             className="relative"
             style={{
-              background: `linear-gradient(to bottom, ${gradientColor} 0%, ${containerBg} 100%)`,
+              background: customCssGradient ? bgPreset! : `linear-gradient(to bottom, ${gradientColor} 0%, ${containerBg} 100%)`,
               minHeight: "220px",
             }}
           >
