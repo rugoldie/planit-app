@@ -684,76 +684,42 @@ const HostEvent = () => {
     setBuildItError(null);
     setBuildItResult(null);
     try {
-      const apiKey = import.meta.env.VITE_ANTHROPIC_API_KEY;
-      if (!apiKey) throw new Error("VITE_ANTHROPIC_API_KEY is not set in .env");
+      console.log("[BuildIt] Invoking build-it edge function. Prompt:", buildItPrompt.trim());
 
-      console.log("[BuildIt] Calling Anthropic API directly. Prompt:", buildItPrompt.trim());
-
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: {
-          "x-api-key": apiKey,
-          "anthropic-version": "2023-06-01",
-          "content-type": "application/json",
-          "anthropic-dangerous-direct-browser-access": "true",
-        },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-5",
-          max_tokens: 1024,
-          system: BUILD_IT_SYSTEM_PROMPT,
-          messages: [{ role: "user", content: `Design the perfect visual style for this event: ${buildItPrompt.trim()}` }],
-        }),
+      const { data, error } = await supabase.functions.invoke("build-it", {
+        body: { prompt: buildItPrompt.trim() },
       });
 
-      const rawText = await res.text();
-      console.log("[BuildIt] Anthropic status:", res.status, "| response (first 300):", rawText.slice(0, 300));
+      if (error) throw new Error(error.message ?? "Edge function error");
+      if (data?.error) throw new Error(data.error);
+      if (!data?.style) throw new Error("No style returned from edge function");
 
-      if (!res.ok) throw new Error(`Anthropic API error ${res.status}: ${rawText.slice(0, 200)}`);
+      const style = { ...data.style };
 
-      const anthropicData = JSON.parse(rawText);
-      const claudeText: string = anthropicData.content?.[0]?.text ?? "";
-      if (!claudeText) throw new Error("Claude returned empty content");
-
-      // Robust JSON extraction: strip code fences, find object boundaries,
-      // then fix any literal newlines inside string values before parsing.
-      const extractJSON = (raw: string): any => {
-        let s = raw.replace(/```(?:json)?/g, "").trim();
-        const start = s.indexOf("{");
-        const end = s.lastIndexOf("}");
-        if (start < 0 || end < 0) throw new Error("Could not extract JSON from Claude response");
-        s = s.slice(start, end + 1);
-        // Try as-is first
-        try { return JSON.parse(s); } catch {}
-        // Walk character-by-character to escape bare newlines inside string values
-        let out = "";
-        let inStr = false;
-        let esc = false;
-        for (let i = 0; i < s.length; i++) {
-          const ch = s[i];
-          if (esc) { out += ch; esc = false; continue; }
-          if (ch === "\\") { out += ch; esc = true; continue; }
-          if (ch === '"') { out += ch; inStr = !inStr; continue; }
-          if (inStr && ch === "\n") { out += "\\n"; continue; }
-          if (inStr && ch === "\r") continue;
-          out += ch;
+      // Decode the base64-encoded customCSS that the edge function returns.
+      // Base64 encoding is done server-side so the JSON is always clean.
+      if (style.customCSSB64) {
+        try {
+          style.customCSS = atob(style.customCSSB64);
+        } catch {
+          style.customCSS = `linear-gradient(135deg, hsl(${style.bgColor}) 0%, hsl(${style.bgColor}) 100%)`;
         }
-        return JSON.parse(out);
-      };
-
-      const style = extractJSON(claudeText);
-      style.template = "planit-custom";
-
-      const required = ["bgColor", "bubbleColor", "bubbleTextColor", "fontStyle", "gradientColor", "customCSS"];
-      for (const field of required) {
-        if (!style[field]) throw new Error(`Missing field in Claude response: ${field}`);
+        delete style.customCSSB64;
       }
-      if (!["Bold", "Handwritten", "Elegant"].includes(style.fontStyle)) style.fontStyle = "Bold";
-      // Ensure customCSS is a non-empty string containing a gradient keyword
-      if (typeof style.customCSS !== "string" || style.customCSS.trim() === "") {
+
+      if (typeof style.customCSS !== "string" || !style.customCSS.trim()) {
         style.customCSS = `linear-gradient(135deg, hsl(${style.bgColor}) 0%, hsl(${style.bgColor}) 100%)`;
       }
 
-      console.log("[BuildIt] Style received:", JSON.stringify(style));
+      style.template = "planit-custom";
+      if (!["Bold", "Handwritten", "Elegant"].includes(style.fontStyle)) style.fontStyle = "Bold";
+
+      const required = ["bgColor", "bubbleColor", "bubbleTextColor", "fontStyle", "gradientColor", "customCSS"];
+      for (const field of required) {
+        if (!style[field]) throw new Error(`Missing field in response: ${field}`);
+      }
+
+      console.log("[BuildIt] Style ready — templateName will be planit-custom, customCSS length:", style.customCSS.length);
       setBuildItResult(style);
     } catch (err: any) {
       console.error("[BuildIt] generateStyle failed:", err?.message ?? err);
