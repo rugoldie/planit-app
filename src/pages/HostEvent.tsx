@@ -1051,7 +1051,7 @@ const HostEvent = () => {
         isCustom && customBgKey
           ? getPatternBgStyle(customBgKey)
           : isCustom && customCssGradient
-            ? { backgroundImage: customCssGradient, backgroundSize: "auto", backgroundColor: "" }
+            ? { background: customCssGradient, backgroundSize: "cover" }
             : {
                 backgroundColor: isSunny ? "transparent" : containerBg,
                 backgroundImage: isSunny ? "linear-gradient(180deg, #ff6b35 0%, #ff8c00 40%, #2a0e00 100%)" : "none",
@@ -2397,9 +2397,9 @@ const HostEvent = () => {
             const patternStyle: React.CSSProperties = customBgKey
               ? getPatternBgStyle(customBgKey)
               : customCssGradient
-                ? { backgroundImage: customCssGradient, backgroundSize: "auto", backgroundColor: "" }
+                ? { background: customCssGradient, backgroundSize: "cover" }
                 : bgPhoto
-                  ? { backgroundColor: "", backgroundImage: `url(${bgPhoto})`, backgroundSize: "cover", backgroundPosition: "center" }
+                  ? { backgroundColor: "transparent", backgroundImage: `url(${bgPhoto})`, backgroundSize: "cover", backgroundPosition: "center" }
                   : { backgroundColor: `hsl(${bgColor})`, backgroundImage: "none", backgroundSize: "auto" };
             const hasPhotoScrim = !!bgPhoto;
             return (
