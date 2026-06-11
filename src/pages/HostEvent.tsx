@@ -398,7 +398,8 @@ RULES:
 - bubbleColor must be VIVID and contrast strongly against the background
 - Make every result feel genuinely unique and atmospheric for the specific event type
 
-Return ONLY a valid JSON object. No markdown, no code fences, no explanation. Just the JSON.`;
+Return ONLY a valid JSON object. No markdown, no code fences, no explanation. Just the JSON.
+The customCSS value must be a single-line string with no unescaped quotes and no newline characters inside it. Do not break string values across multiple lines.`;
 
 const generateCode = () => {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -698,7 +699,7 @@ const HostEvent = () => {
         },
         body: JSON.stringify({
           model: "claude-sonnet-4-5",
-          max_tokens: 512,
+          max_tokens: 1024,
           system: BUILD_IT_SYSTEM_PROMPT,
           messages: [{ role: "user", content: `Design the perfect visual style for this event: ${buildItPrompt.trim()}` }],
         }),
@@ -713,10 +714,33 @@ const HostEvent = () => {
       const claudeText: string = anthropicData.content?.[0]?.text ?? "";
       if (!claudeText) throw new Error("Claude returned empty content");
 
-      const jsonMatch = claudeText.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) throw new Error("Could not extract JSON from Claude response");
+      // Robust JSON extraction: strip code fences, find object boundaries,
+      // then fix any literal newlines inside string values before parsing.
+      const extractJSON = (raw: string): any => {
+        let s = raw.replace(/```(?:json)?/g, "").trim();
+        const start = s.indexOf("{");
+        const end = s.lastIndexOf("}");
+        if (start < 0 || end < 0) throw new Error("Could not extract JSON from Claude response");
+        s = s.slice(start, end + 1);
+        // Try as-is first
+        try { return JSON.parse(s); } catch {}
+        // Walk character-by-character to escape bare newlines inside string values
+        let out = "";
+        let inStr = false;
+        let esc = false;
+        for (let i = 0; i < s.length; i++) {
+          const ch = s[i];
+          if (esc) { out += ch; esc = false; continue; }
+          if (ch === "\\") { out += ch; esc = true; continue; }
+          if (ch === '"') { out += ch; inStr = !inStr; continue; }
+          if (inStr && ch === "\n") { out += "\\n"; continue; }
+          if (inStr && ch === "\r") continue;
+          out += ch;
+        }
+        return JSON.parse(out);
+      };
 
-      const style = JSON.parse(jsonMatch[0]);
+      const style = extractJSON(claudeText);
       style.template = "planit-custom";
 
       const required = ["bgColor", "bubbleColor", "bubbleTextColor", "fontStyle", "gradientColor", "customCSS"];
