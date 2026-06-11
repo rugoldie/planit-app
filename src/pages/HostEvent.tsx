@@ -696,34 +696,70 @@ const HostEvent = () => {
     setBuildItError(null);
     setBuildItResult(null);
     try {
-      console.log("[BuildIt] Invoking build-it edge function. Prompt:", buildItPrompt.trim());
+      console.log("[BuildIt] Calling Anthropic API directly. Prompt:", buildItPrompt.trim());
 
-      const { data, error } = await supabase.functions.invoke("build-it", {
-        body: { prompt: buildItPrompt.trim() },
+      const apiKey = import.meta.env.VITE_ANTHROPIC_API_KEY;
+      if (!apiKey) throw new Error("VITE_ANTHROPIC_API_KEY is not configured");
+
+      const res = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "x-api-key": apiKey,
+          "anthropic-version": "2023-06-01",
+          "content-type": "application/json",
+          "anthropic-dangerous-direct-browser-access": "true",
+        },
+        body: JSON.stringify({
+          model: "claude-opus-4-8",
+          max_tokens: 2048,
+          system: BUILD_IT_SYSTEM_PROMPT,
+          messages: [
+            { role: "user", content: `Design the perfect visual style for this event: ${buildItPrompt.trim()}` },
+          ],
+        }),
       });
 
-      if (error) throw new Error(error.message ?? "Edge function error");
-      if (data?.error) throw new Error(data.error);
-      if (!data?.style) throw new Error("No style returned from edge function");
-
-      const style = { ...data.style };
-
-      // Decode the base64-encoded customCSS that the edge function returns.
-      // Base64 encoding is done server-side so the JSON is always clean.
-      if (style.customCSSB64) {
-        try {
-          style.customCSS = atob(style.customCSSB64);
-        } catch {
-          style.customCSS = `linear-gradient(135deg, hsl(${style.bgColor}) 0%, hsl(${style.bgColor}) 100%)`;
-        }
-        delete style.customCSSB64;
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(`Anthropic API error ${res.status}: ${errText.slice(0, 200)}`);
       }
+
+      const aiData = await res.json();
+      const content: string = aiData.content?.[0]?.text ?? "";
+      if (!content) throw new Error("Empty response from Anthropic");
+
+      console.log("[BuildIt] Raw response (first 400):", content.slice(0, 400));
+
+      // Robust JSON extraction with char-by-char newline sanitizer
+      const extractJSON = (raw: string) => {
+        let s = raw.replace(/```(?:json)?/g, "").trim();
+        const start = s.indexOf("{");
+        const end = s.lastIndexOf("}");
+        if (start < 0 || end < 0) throw new Error("Could not extract JSON from response");
+        s = s.slice(start, end + 1);
+        try { return JSON.parse(s); } catch {}
+        let out = "";
+        let inStr = false;
+        let esc = false;
+        for (let i = 0; i < s.length; i++) {
+          const ch = s[i];
+          if (esc) { out += ch; esc = false; continue; }
+          if (ch === "\\") { out += ch; esc = true; continue; }
+          if (ch === '"') { out += ch; inStr = !inStr; continue; }
+          if (inStr && ch === "\n") { out += "\\n"; continue; }
+          if (inStr && ch === "\r") continue;
+          out += ch;
+        }
+        return JSON.parse(out);
+      };
+
+      const style = extractJSON(content);
+      style.template = "planit-custom";
 
       if (typeof style.customCSS !== "string" || !style.customCSS.trim()) {
         style.customCSS = `linear-gradient(135deg, hsl(${style.bgColor}) 0%, hsl(${style.bgColor}) 100%)`;
       }
 
-      style.template = "planit-custom";
       if (!["Bold", "Handwritten", "Elegant"].includes(style.fontStyle)) style.fontStyle = "Bold";
 
       const required = ["bgColor", "bubbleColor", "bubbleTextColor", "fontStyle", "gradientColor", "customCSS"];
@@ -731,7 +767,7 @@ const HostEvent = () => {
         if (!style[field]) throw new Error(`Missing field in response: ${field}`);
       }
 
-      console.log("[BuildIt] Style ready — templateName will be planit-custom, customCSS length:", style.customCSS.length);
+      console.log("[BuildIt] Style ready — customCSS length:", style.customCSS.length);
       setBuildItResult(style);
     } catch (err: any) {
       console.error("[BuildIt] generateStyle failed:", err?.message ?? err);
