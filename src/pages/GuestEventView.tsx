@@ -408,17 +408,13 @@ const GuestEventView = () => {
       : event.text_size === "Large"
         ? "text-base font-bold"
         : "text-sm font-semibold";
-  const hasBgImage =
-    event.bg_photo &&
-    (event.bg_photo.startsWith("blob:") ||
-      event.bg_photo.startsWith("linear-gradient") ||
-      event.bg_photo.startsWith("http"));
-  const bgStyle: React.CSSProperties =
-    hasBgImage && !event.bg_photo.startsWith("linear-gradient")
-      ? { backgroundImage: `url(${event.bg_photo})`, backgroundSize: "cover", backgroundPosition: "center" }
-      : hasBgImage
-        ? { background: event.bg_photo }
-        : { backgroundColor: `hsl(${event.bg_color})` };
+  const isBgCssGradient = !!event.bg_photo && event.bg_photo.includes("gradient");
+  const isBgUrl = !!event.bg_photo && (event.bg_photo.startsWith("blob:") || event.bg_photo.startsWith("http"));
+  const bgStyle: React.CSSProperties = isBgUrl
+    ? { backgroundImage: `url(${event.bg_photo})`, backgroundSize: "cover", backgroundPosition: "center" }
+    : isBgCssGradient
+      ? { background: event.bg_photo }
+      : { backgroundColor: `hsl(${event.bg_color})` };
 
   const bubbleBg = event.bubble_color ? `hsl(${event.bubble_color})` : undefined;
   const bubbleText = event.bubble_text_color ? `hsl(${event.bubble_text_color})` : undefined;

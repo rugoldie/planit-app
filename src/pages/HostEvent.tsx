@@ -1016,7 +1016,7 @@ const HostEvent = () => {
   const isCustom = templateName === "planit-custom";
   const customPatternKey = bgPreset?.startsWith("planit-pattern:") ? bgPreset : null;
   const customBgKey = (bgPreset?.startsWith("planit-pattern:") || bgPreset?.startsWith("solid-")) ? bgPreset : null;
-  const customCssGradient = bgPreset && !bgPreset.startsWith("planit-pattern:") && !bgPreset.startsWith("solid-") && !bgPreset.startsWith("url(") ? bgPreset : null;
+  const customCssGradient = bgPreset && (bgPreset.includes("gradient") || bgPreset.startsWith("radial")) ? bgPreset : null;
   const bgLForCustom = parseFloat(bgColor.trim().split(/[\s,]+/)[2] ?? "0");
   const customIsLight = customBgKey ? isLightPattern(customBgKey) : customCssGradient ? bgLForCustom > 55 : false;
   const customFrostBg = customIsLight ? "rgba(0,0,0,0.06)" : "rgba(255,255,255,0.09)";
@@ -1051,7 +1051,7 @@ const HostEvent = () => {
         isCustom && customBgKey
           ? getPatternBgStyle(customBgKey)
           : isCustom && customCssGradient
-            ? { background: customCssGradient, backgroundSize: "cover" }
+            ? { background: bgPreset! }
             : {
                 backgroundColor: isSunny ? "transparent" : containerBg,
                 backgroundImage: isSunny ? "linear-gradient(180deg, #ff6b35 0%, #ff8c00 40%, #2a0e00 100%)" : "none",
@@ -2397,7 +2397,7 @@ const HostEvent = () => {
             const patternStyle: React.CSSProperties = customBgKey
               ? getPatternBgStyle(customBgKey)
               : customCssGradient
-                ? { background: customCssGradient, backgroundSize: "cover" }
+                ? { background: bgPreset! }
                 : bgPhoto
                   ? { backgroundColor: "transparent", backgroundImage: `url(${bgPhoto})`, backgroundSize: "cover", backgroundPosition: "center" }
                   : { backgroundColor: `hsl(${bgColor})`, backgroundImage: "none", backgroundSize: "auto" };
