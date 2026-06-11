@@ -356,46 +356,44 @@ Fields to return:
 - bubbleTextColor: HSL string WITHOUT "hsl()" wrapper e.g. "0 0% 0%" — text ON TOP of bubbleColor. "0 0% 0%" for bright accents, "0 0% 100%" for dark accents.
 - fontStyle: one of "Bold", "Handwritten", "Elegant"
 - gradientColor: hex colour e.g. "#c9a84c" — for decorative accents
-- customCSS: the full value for the CSS background property (not background-color). Layer 4-8 gradient values separated by commas. NEVER use SVG, url(), or image references.
+- customCSS: the full value for the CSS background property (not background-color). Layer MANY gradient values separated by commas. NEVER use SVG, url(), or image references. The value should be 500+ characters long with 20+ layers.
 
 CUSTOMCSS TECHNIQUES:
 
 Layer these techniques to build depth:
 1. Large soft elliptical radial-gradient blobs for atmospheric colour and light sources (e.g. radial-gradient(ellipse 80% 60% at 20% 30%, #c9a84c55 0%, transparent 100%))
 2. repeating-linear-gradient for subtle textures — fine crosshatch for glitter (45deg and -45deg at very low opacity ~0.06), horizontal lines for retro, diagonal for silk/satin
-3. Small tight radial-gradient circles (2-6px radius as "circle 3px at X% Y%") scattered at 15-25 different positions — these create glitter, bokeh, stars, wildflowers, fireflies
+3. Small tight radial-gradient circles (2-6px radius as "circle 2px at X% Y%") scattered at 25+ different positions — these create glitter, bokeh, stars, wildflowers, fireflies. USE MANY OF THESE.
 4. A rich linear-gradient base sweep (not flat — always at least 3 colour stops spanning light to dark or horizon to sky)
 5. Always end with a solid base colour as the final background-color via bgColor
 
-EXAMPLE PATTERNS:
+EXAMPLE PATTERNS (use these as templates — generate similarly detailed CSS):
 
-Disco/glitter event:
-→ bgColor "270 40% 6%", bubbleColor "300 100% 70%", bubbleTextColor "0 0% 0%", Bold, gradientColor "#ff44ff"
-→ customCSS layers: 2 large pink/purple glow blobs + repeating-linear-gradient(45deg, rgba(255,255,255,0.04) 1px, transparent 1px) crosshatch + repeating-linear-gradient(-45deg, rgba(255,255,255,0.04) 1px, transparent 1px) crosshatch + 20 tiny white/gold/cyan glitter dots as "radial-gradient(circle 2px at X% Y%, #ffffffcc 0%, transparent 100%)" + deep purple/black base sweep
+Disco/80s/Glitter/Club event:
+→ bgColor "270 40% 3%", bubbleColor "300 100% 70%", bubbleTextColor "0 0% 0%", Bold, gradientColor "#ff44ff"
+→ customCSS EXAMPLE (copy this density and style):
+radial-gradient(ellipse 90% 50% at 50% 0%, rgba(180,0,255,0.55) 0%, transparent 60%),radial-gradient(ellipse 60% 40% at 10% 80%, rgba(255,0,180,0.45) 0%, transparent 55%),radial-gradient(ellipse 50% 35% at 90% 60%, rgba(120,0,255,0.4) 0%, transparent 50%),repeating-linear-gradient(45deg, rgba(255,255,255,0.035) 0px, rgba(255,255,255,0.035) 1px, transparent 1px, transparent 8px),repeating-linear-gradient(-45deg, rgba(255,255,255,0.035) 0px, rgba(255,255,255,0.035) 1px, transparent 1px, transparent 8px),radial-gradient(circle 2px at 5% 12%, rgba(255,215,0,0.9) 0%, transparent 100%),radial-gradient(circle 2px at 14% 7%, rgba(255,255,255,0.95) 0%, transparent 100%),radial-gradient(circle 2px at 23% 31%, rgba(0,255,255,0.85) 0%, transparent 100%),radial-gradient(circle 2px at 37% 18%, rgba(255,215,0,0.9) 0%, transparent 100%),radial-gradient(circle 2px at 48% 42%, rgba(255,255,255,0.9) 0%, transparent 100%),radial-gradient(circle 2px at 61% 8%, rgba(255,215,0,0.85) 0%, transparent 100%),radial-gradient(circle 2px at 72% 25%, rgba(0,255,255,0.9) 0%, transparent 100%),radial-gradient(circle 2px at 83% 14%, rgba(255,255,255,0.95) 0%, transparent 100%),radial-gradient(circle 2px at 91% 37%, rgba(255,215,0,0.85) 0%, transparent 100%),radial-gradient(circle 2px at 19% 55%, rgba(255,255,255,0.8) 0%, transparent 100%),radial-gradient(circle 2px at 33% 68%, rgba(255,215,0,0.9) 0%, transparent 100%),radial-gradient(circle 2px at 55% 61%, rgba(0,255,255,0.85) 0%, transparent 100%),radial-gradient(circle 2px at 67% 74%, rgba(255,255,255,0.9) 0%, transparent 100%),radial-gradient(circle 2px at 78% 58%, rgba(255,215,0,0.85) 0%, transparent 100%),radial-gradient(circle 2px at 88% 82%, rgba(255,255,255,0.9) 0%, transparent 100%),radial-gradient(circle 2px at 42% 87%, rgba(0,255,255,0.8) 0%, transparent 100%),radial-gradient(circle 2px at 8% 93%, rgba(255,215,0,0.85) 0%, transparent 100%),radial-gradient(circle 2px at 96% 91%, rgba(255,255,255,0.9) 0%, transparent 100%),radial-gradient(circle 2px at 29% 95%, rgba(255,215,0,0.8) 0%, transparent 100%),radial-gradient(circle 3px at 52% 77%, rgba(255,0,255,0.7) 0%, transparent 100%),linear-gradient(160deg, #0a0014 0%, #150025 40%, #0d001a 70%, #050008 100%)
 
-Norfolk countryside summer:
-→ bgColor "195 45% 52%", bubbleColor "30 95% 58%", bubbleTextColor "0 0% 0%", Handwritten, gradientColor "#ff8c42"
-→ customCSS layers: warm golden sun glow radial at top-right + 3 soft white cloud puffs as large white radial blobs upper area + sky-to-meadow linear sweep (sky blue → pale blue → cream horizon → fresh green → deeper grass green) + 12 tiny pink/yellow wildflower dots scattered at bottom 20-40% of canvas
+Norfolk/Countryside/Garden/Summer/Picnic event:
+→ bgColor "100 35% 35%", bubbleColor "35 95% 55%", bubbleTextColor "0 0% 0%", Handwritten, gradientColor "#ffb347"
+→ customCSS EXAMPLE (copy this density and style):
+radial-gradient(ellipse 30% 20% at 85% 8%, rgba(255,220,80,0.75) 0%, rgba(255,180,30,0.3) 40%, transparent 70%),radial-gradient(ellipse 40% 18% at 15% 15%, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.2) 50%, transparent 80%),radial-gradient(ellipse 35% 15% at 45% 10%, rgba(255,255,255,0.65) 0%, rgba(255,255,255,0.15) 55%, transparent 85%),radial-gradient(ellipse 25% 12% at 70% 20%, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0.1) 60%, transparent 90%),radial-gradient(circle 3px at 8% 72%, rgba(255,180,200,0.9) 0%, transparent 100%),radial-gradient(circle 3px at 15% 85%, rgba(255,230,80,0.85) 0%, transparent 100%),radial-gradient(circle 3px at 22% 78%, rgba(255,180,200,0.9) 0%, transparent 100%),radial-gradient(circle 3px at 31% 88%, rgba(255,230,80,0.85) 0%, transparent 100%),radial-gradient(circle 3px at 38% 75%, rgba(255,255,255,0.8) 0%, transparent 100%),radial-gradient(circle 3px at 47% 82%, rgba(255,180,200,0.9) 0%, transparent 100%),radial-gradient(circle 3px at 56% 91%, rgba(255,230,80,0.85) 0%, transparent 100%),radial-gradient(circle 3px at 63% 77%, rgba(255,180,200,0.9) 0%, transparent 100%),radial-gradient(circle 3px at 72% 86%, rgba(255,230,80,0.85) 0%, transparent 100%),radial-gradient(circle 3px at 81% 79%, rgba(255,255,255,0.8) 0%, transparent 100%),radial-gradient(circle 3px at 90% 88%, rgba(255,180,200,0.9) 0%, transparent 100%),radial-gradient(circle 3px at 5% 80%, rgba(255,230,80,0.8) 0%, transparent 100%),linear-gradient(180deg, #87ceeb 0%, #b0e0f0 18%, #e8f4e8 35%, #d4edaa 50%, #90c060 68%, #5a9e30 85%, #3d7a20 100%)
 
-Masquerade/gold black tie:
-→ bgColor "28 12% 5%", bubbleColor "45 90% 52%", bubbleTextColor "0 0% 0%", Elegant, gradientColor "#c9a84c"
-→ customCSS layers: 3 deep amber/gold radial glow blobs at different corners + repeating-linear-gradient(45deg, rgba(201,168,76,0.05) 1px, transparent 2px) fine diagonal texture + 18 tiny gold glitter dots scattered across canvas + near-black warm base sweep
-
-Beach/tropical:
-→ bgColor "195 55% 50%", bubbleColor "25 100% 60%", bubbleTextColor "0 0% 0%", Handwritten, gradientColor "#ff7043"
-→ customCSS layers: warm coral sun glow at top + soft aqua/turquoise water shimmer radials at bottom + sky-to-sea-to-sand linear sweep + 8 small warm highlight sparkle dots near horizon line
-
-Rave/underground club:
-→ bgColor "0 0% 3%", bubbleColor "180 100% 50%", bubbleTextColor "0 0% 0%", Bold, gradientColor "#00ffff"
-→ customCSS layers: electric cyan radial glow bottom-left + deep magenta radial glow top-right + purple radial mid + repeating-linear-gradient(0deg, rgba(0,255,255,0.03) 1px, transparent 2px) subtle grid + near-black base + 10 bright cyan/white tiny bokeh dots
+Beach/Tropical/Sunset event:
+→ bgColor "25 60% 45%", bubbleColor "195 90% 55%", bubbleTextColor "0 0% 0%", Handwritten, gradientColor "#ff7043"
+→ customCSS EXAMPLE (copy this density and style):
+radial-gradient(ellipse 45% 35% at 50% 5%, rgba(255,220,100,0.9) 0%, rgba(255,160,50,0.5) 35%, transparent 65%),radial-gradient(ellipse 70% 25% at 50% 55%, rgba(255,120,60,0.5) 0%, rgba(255,80,30,0.2) 50%, transparent 80%),radial-gradient(ellipse 80% 30% at 30% 85%, rgba(30,160,200,0.45) 0%, rgba(20,130,180,0.2) 50%, transparent 80%),radial-gradient(ellipse 60% 20% at 80% 80%, rgba(30,180,210,0.4) 0%, transparent 70%),repeating-linear-gradient(180deg, rgba(255,255,255,0.025) 0px, rgba(255,255,255,0.025) 1px, transparent 1px, transparent 12px),radial-gradient(circle 2px at 12% 62%, rgba(255,255,220,0.85) 0%, transparent 100%),radial-gradient(circle 2px at 28% 58%, rgba(255,255,200,0.8) 0%, transparent 100%),radial-gradient(circle 2px at 44% 65%, rgba(255,255,220,0.85) 0%, transparent 100%),radial-gradient(circle 2px at 60% 60%, rgba(255,255,200,0.8) 0%, transparent 100%),radial-gradient(circle 2px at 76% 63%, rgba(255,255,220,0.85) 0%, transparent 100%),radial-gradient(circle 2px at 88% 57%, rgba(255,255,200,0.8) 0%, transparent 100%),linear-gradient(180deg, #1a6fa8 0%, #3d9fd4 20%, #f4a460 45%, #ff7043 55%, #f5deb3 75%, #e8d5a3 100%)
 
 RULES:
 - NEVER use SVG, url(), image-set(), or any non-gradient CSS value
-- Use at least 6 comma-separated gradient layers
-- Glitter/sparkle dots must use "circle Npx at X% Y%" syntax (N = 2 to 5)
-- Cloud puffs use large "ellipse 25% 10% at X% Y%" syntax in near-white
-- Keep all rgba/hex alpha values — they create the layering effect
+- Use at least 20 comma-separated gradient layers — more is better
+- For glitter/club/disco: use 25+ tiny dot gradients, they are what make it look sparkly
+- For nature themes: use cloud blobs (large ellipse radials in near-white) + wildflower dots
+- Glitter/sparkle dots must use "circle 2px at X% Y%" or "circle 3px at X% Y%" syntax
+- Cloud puffs use large "ellipse 35% 15% at X% Y%" syntax in near-white/rgba(255,255,255,0.6+)
+- Keep all rgba alpha values high enough to be visible (0.7+ for dots, 0.4+ for blobs)
 - bubbleColor must be VIVID and contrast strongly against the background
+- customCSS must be 500+ characters — short CSS means not enough layers
 - Make every result feel genuinely unique and atmospheric for the specific event type
 
 Return ONLY a valid JSON object. No markdown, no code fences, no explanation. Just the JSON.
