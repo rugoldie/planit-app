@@ -19,6 +19,7 @@ import Friends from "./pages/Friends";
 import EventsList from "./pages/EventsList";
 import Notifications from "./pages/Notifications";
 import Messages from "./pages/Messages";
+import Conversation from "./pages/Conversation";
 
 const queryClient = new QueryClient();
 
@@ -44,6 +45,7 @@ const App = () => (
             <Route path="/events" element={<EventsList />} />
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/messages" element={<Messages />} />
+            <Route path="/messages/:conversationId" element={<Conversation />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
