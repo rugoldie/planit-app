@@ -549,6 +549,13 @@ const HostEvent = () => {
     return () => { cancelled = true; };
   }, [editCode]);
 
+  // Open the template picker automatically when creating a new event
+  useEffect(() => {
+    if (editCode) return;
+    const t = setTimeout(() => setDrawerOpen(true), 300);
+    return () => clearTimeout(t);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   const loadFriendsForInvite = async () => {
     if (!user) return;
     setLoadingFriends(true);
