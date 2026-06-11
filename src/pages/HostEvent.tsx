@@ -1025,6 +1025,7 @@ const HostEvent = () => {
   const isOcean = templateName === "ocean";
   const isBlush = templateName === "blush";
   const isForest = templateName === "forest";
+  console.log('[DEBUG] templateName at render:', templateName, 'isCustom:', templateName === "planit-custom");
   const isCustom = templateName === "planit-custom";
   const customPatternKey = bgPreset?.startsWith("planit-pattern:") ? bgPreset : null;
   const customBgKey = (bgPreset?.startsWith("planit-pattern:") || bgPreset?.startsWith("solid-")) ? bgPreset : null;
