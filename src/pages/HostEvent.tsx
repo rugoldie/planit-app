@@ -423,7 +423,7 @@ const HostEvent = () => {
   const [extra, setExtra] = useState("");
   const [bgColor, setBgColor] = useState("0 0% 4%");
   const [bgPhoto, setBgPhoto] = useState<string | null>(null);
-  const [bgPreset, setBgPreset] = useState<string | null>(null);
+  const [bgPreset, _setBgPreset] = useState<string | null>(null);
   const [bgPresetIsImage, setBgPresetIsImage] = useState(false);
   const [textSize, setTextSize] = useState<(typeof TEXT_SIZES)[number]>("Medium");
   const [bubbleColor, setBubbleColor] = useState("82 100% 48%");
@@ -468,6 +468,17 @@ const HostEvent = () => {
   const stickerPinchRef = useRef<{ id: string; initDist: number; initSize: number } | null>(null);
   // Prevents a stale Supabase load callback from overwriting state after the user applies a Build It style
   const buildItAppliedRef = useRef(false);
+
+  // Guarded setter: once Build It applies a CSS gradient, null writes are blocked
+  // until the user explicitly picks a new template/bg (which clears buildItAppliedRef).
+  const setBgPreset = (value: string | null) => {
+    console.log("[bgPreset] SET TO:", value ? value.slice(0, 100) + (value.length > 100 ? "…" : "") : "null");
+    if (buildItAppliedRef.current && value === null) {
+      console.log("[bgPreset] BLOCKED — Build It gradient is active, refusing null overwrite");
+      return;
+    }
+    _setBgPreset(value);
+  };
 
   // Load event data if editing
   useEffect(() => {
@@ -671,6 +682,7 @@ const HostEvent = () => {
     const file = e.target.files?.[0];
     if (file) {
       const url = URL.createObjectURL(file);
+      buildItAppliedRef.current = false;
       setUploadedPhoto(url);
       setBgPhoto(url);
       setBgPreset(null);
@@ -2666,6 +2678,7 @@ const HostEvent = () => {
                           <button
                             key={c.name}
                             onClick={() => {
+                              buildItAppliedRef.current = false;
                               setBgColor(c.hsl);
                               setBgPhoto(null);
                               setBgPreset(null);
@@ -2692,6 +2705,7 @@ const HostEvent = () => {
                         {uploadedPhoto && (
                           <button
                             onClick={() => {
+                              buildItAppliedRef.current = false;
                               setBgPhoto(uploadedPhoto);
                               setBgPreset(null);
                               setBgPresetIsImage(false);
@@ -2856,7 +2870,7 @@ const HostEvent = () => {
                         </button>
                       </div>
                       {(customBgKey || bgPhoto) && (
-                        <button onClick={() => { setBgPreset(null); setBgPhoto(null); setUploadedPhoto(null); setBgPresetIsImage(false); }} className="text-xs text-white/50 underline mb-2">Clear (use solid colour)</button>
+                        <button onClick={() => { buildItAppliedRef.current = false; setBgPreset(null); setBgPhoto(null); setUploadedPhoto(null); setBgPresetIsImage(false); }} className="text-xs text-white/50 underline mb-2">Clear (use solid colour)</button>
                       )}
                       <p className="text-xs text-white/40 mb-2 mt-1">Solid colours</p>
                       <div className="grid grid-cols-4 gap-2">
@@ -3011,6 +3025,7 @@ const HostEvent = () => {
                             <button
                               key={t.name}
                               onClick={() => {
+                                buildItAppliedRef.current = false;
                                 setBgColor(t.bgColor);
                                 setBubbleColor(t.bubbleColor);
                                 setBubbleTextColor(t.bubbleTextColor);
