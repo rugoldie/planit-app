@@ -427,6 +427,7 @@ const HostEvent = () => {
   const [textSize, setTextSize] = useState<(typeof TEXT_SIZES)[number]>("Medium");
   const [bubbleColor, setBubbleColor] = useState("82 100% 48%");
   const [bubbleTextColor, setBubbleTextColor] = useState("0 0% 10%");
+  const [customAccentHex, setCustomAccentHex] = useState<string | null>(null);
   const [showCode, setShowCode] = useState(false);
   const [eventCode, setEventCode] = useState("");
   const [uploadedPhoto, setUploadedPhoto] = useState<string | null>(null);
@@ -543,6 +544,7 @@ const HostEvent = () => {
                 setStickers(parsed.items || []);
                 if (parsed.customLayout) { const cl = parsed.customLayout as string; setCustomLayout((cl === "centred" ? "cards" : cl === "cards" ? "cards" : cl === "ocean" ? "ocean" : "editorial") as "cards" | "editorial" | "ocean"); }
                 if (parsed.bubbleStyle) setBubbleStyle(parsed.bubbleStyle as "frosted" | "solid" | "outlined");
+                if (parsed.customAccentHex) setCustomAccentHex(parsed.customAccentHex as string);
               }
             } catch {}
           }
@@ -629,7 +631,7 @@ const HostEvent = () => {
       font_style: fontStyle,
       template_name: templateName,
       font_color: fontColor,
-      stickers: JSON.stringify({ items: stickers, customLayout, bubbleStyle }),
+      stickers: JSON.stringify({ items: stickers, customLayout, bubbleStyle, ...(customAccentHex ? { customAccentHex } : {}) }),
       rsvp_deadline: rsvpDeadline ? new Date(rsvpDeadline).toISOString() : null,
     } as any;
 
@@ -817,6 +819,7 @@ const HostEvent = () => {
     console.log("[BuildIt] → setBgPhoto(null), setBgPreset (customCSS):", buildItResult.customCSS.slice(0, 60));
     setBgPhoto(null);
     setBgPreset(buildItResult.customCSS);
+    setCustomAccentHex(null);
     setBgPresetIsImage(false);
     console.log("[BuildIt] → setShowBuildIt(false) — closing modal");
     setShowBuildIt(false);
@@ -1051,7 +1054,7 @@ const HostEvent = () => {
         : "text-4xl font-extrabold";
   const vibeClass = textSize === "Small" ? "text-xs" : textSize === "Large" ? "text-base" : "text-sm";
   const currentFontFamily = FONT_MAP[fontStyle] || FONT_MAP["Bold"];
-  const accentColor = `hsl(${bubbleColor})`;
+  const accentColor = (templateName === "planit-custom" && customAccentHex) ? customAccentHex : `hsl(${bubbleColor})`;
   const accentText = `hsl(${bubbleTextColor})`;
 
   // Auto-contrast for default template text on bg
@@ -1063,7 +1066,7 @@ const HostEvent = () => {
   const bgTextColor = isLightBg ? "#111111" : "#ffffff";
   const bgTextMuted = isLightBg ? "rgba(17,17,17,0.6)" : "rgba(255,255,255,0.6)";
   const bgTextSoft = isLightBg ? "rgba(17,17,17,0.8)" : "rgba(255,255,255,0.8)";
-  const noirFontSize = textSize === "Small" ? "28px" : textSize === "Large" ? "48px" : "36px";
+  const noirFontSize = textSize === "Small" ? "28px" : textSize === "Large" ? "52px" : "38px";
   const isGalaxy = templateName === "galaxy";
   const isSunny = templateName === "sunny";
   const isMidnight = templateName === "midnight";
@@ -2609,7 +2612,7 @@ const HostEvent = () => {
                     {titleError && <p className="text-red-400 text-xs mb-2">{titleError}</p>}
                     <p style={{ fontFamily:"'Inter',sans-serif",fontSize:"12px",color:fontColorMuted,marginBottom:"20px",textShadow:customIsLight?"none":"0 1px 6px rgba(0,0,0,0.4)" }}>hosted by {hostName}</p>
                     <div style={{ position:"relative",marginBottom:"20px" }}>
-                      <div style={{ borderRadius:"50px",padding:"10px 22px",backgroundColor:`hsl(${bubbleColor})`,display:"inline-block",boxShadow:"0 2px 14px rgba(0,0,0,0.28)" }}>
+                      <div style={{ borderRadius:"50px",padding:"10px 22px",backgroundColor:accentColor,display:"inline-block",boxShadow:"0 2px 14px rgba(0,0,0,0.28)" }}>
                         <span style={{ fontFamily:currentFontFamily,fontSize:"16px",fontWeight:fontStyle==="Bold"?400:700,color:`hsl(${bubbleTextColor})`,letterSpacing:fontStyle==="Bold"?"0.05em":0 }}>
                           {dayNum?`${dayNum} ${monthName}`:"Date"}<span style={{ color:`hsl(${bubbleTextColor})`,opacity:0.6,margin:"0 8px" }}>·</span>{timeStr||"Time"}
                         </span>
@@ -3266,6 +3269,27 @@ const HostEvent = () => {
                                   {["S","M","L"][i]}
                                 </button>
                               ))}
+                            </div>
+                          </div>
+                          {/* Accent colour */}
+                          <div>
+                            <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-2.5">Accent colour</p>
+                            <div className="flex flex-wrap gap-2.5">
+                              {([
+                                { hex: "#ffffff", label: "White" },
+                                { hex: "#ffd700", label: "Gold" },
+                                { hex: "#ff70b0", label: "Hot Pink" },
+                                { hex: "#38bdf8", label: "Sky Blue" },
+                                { hex: "#aaee44", label: "Lime" },
+                                { hex: "#ff6b6b", label: "Coral" },
+                                { hex: "#4ade80", label: "Mint" },
+                                { hex: "#c084fc", label: "Lavender" },
+                              ] as const).map(({ hex, label }) => (
+                                <button key={hex} onClick={() => setCustomAccentHex(hex)} title={label} style={{ width:32,height:32,borderRadius:"50%",backgroundColor:hex,border:customAccentHex===hex?"3px solid #aaee44":"2px solid rgba(255,255,255,0.2)",flexShrink:0 }} />
+                              ))}
+                              <label title="Custom colour" style={{ width:32,height:32,borderRadius:"50%",background:"conic-gradient(red,yellow,lime,cyan,blue,magenta,red)",border:customAccentHex&&!["#ffffff","#ffd700","#ff70b0","#38bdf8","#aaee44","#ff6b6b","#4ade80","#c084fc"].includes(customAccentHex)?"3px solid #aaee44":"2px solid rgba(255,255,255,0.2)",cursor:"pointer",flexShrink:0,display:"block",position:"relative" }}>
+                                <input type="color" value={customAccentHex||"#aaee44"} onChange={e => setCustomAccentHex(e.target.value)} style={{ position:"absolute",inset:0,opacity:0,cursor:"pointer",width:"100%",height:"100%" }} />
+                              </label>
                             </div>
                           </div>
                           {/* Font colour */}
