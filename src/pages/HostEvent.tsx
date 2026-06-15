@@ -904,7 +904,6 @@ const HostEvent = () => {
   if (showCode) {
     const previewBgKey = bgPreset?.startsWith("planit-pattern:") || bgPreset?.startsWith("solid-") ? bgPreset : null;
     const previewCssGradient = bgPreset && (bgPreset.includes("gradient") || bgPreset.startsWith("radial")) ? bgPreset : null;
-    const previewAccent = (templateName === "planit-custom" && customAccentHex) ? customAccentHex : `hsl(${bubbleColor})`;
     const previewFontFam = FONT_MAP[fontStyle] || FONT_MAP["Bold"];
     const previewBgStyle: React.CSSProperties = previewBgKey
       ? getPatternBgStyle(previewBgKey)
@@ -916,112 +915,75 @@ const HostEvent = () => {
             ? { backgroundColor: `hsl(${bgColor})` }
             : { backgroundColor: "#1a1a1a" };
     return (
-      <div className="min-h-screen bg-background flex flex-col overflow-y-auto">
-        {/* Mini event preview hero */}
-        <div style={{ position: "relative", height: "240px", overflow: "hidden", flexShrink: 0, ...previewBgStyle }}>
-          {previewBgKey?.startsWith("planit-pattern:") && <PatternOverlay patternKey={previewBgKey} />}
-          {bgPhoto && <div style={{ position: "absolute", inset: 0, backgroundColor: "rgba(0,0,0,0.4)", zIndex: 1 }} />}
-          <button onClick={() => navigate("/home")} className="absolute top-12 left-5 z-30 w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: "rgba(0,0,0,0.3)", backdropFilter: "blur(8px)" }}>
-            <ArrowLeft className="w-5 h-5" style={{ color: fontColor || "#fff" }} />
+      <div className="h-screen bg-background flex flex-col overflow-hidden">
+        {/* Header: back + live badge + event name */}
+        <div className="px-5 pt-12 pb-3 shrink-0">
+          <button onClick={() => navigate("/home")} className="mb-3">
+            <ArrowLeft className="w-6 h-6 text-muted-foreground" />
           </button>
-          <div style={{ position: "absolute", inset: 0, zIndex: 10, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "24px" }}>
-            {vibe && <p style={{ fontFamily: "'Inter',sans-serif", fontSize: "9px", fontWeight: 700, letterSpacing: "0.28em", textTransform: "uppercase", color: `${previewAccent}90`, marginBottom: "8px" }}>{vibe}</p>}
-            <p style={{ fontFamily: previewFontFam, fontSize: "28px", fontWeight: 900, color: fontColor || "#fff", lineHeight: 1.05, textAlign: "center", maxWidth: "100%" }}>{title || "Your Event"}</p>
-            <div style={{ width: "40px", height: "3px", backgroundColor: previewAccent, borderRadius: "2px", marginTop: "12px" }} />
+          <div className="flex items-center gap-2 mb-1.5">
+            <div className="w-2 h-2 rounded-full bg-[#aaee44]" style={{ boxShadow: "0 0 6px #aaee44" }} />
+            <span className="text-xs font-semibold text-muted-foreground">Event is live</span>
           </div>
+          <p className="text-[22px] font-bold text-foreground leading-tight">{title || "Your Event"}</p>
         </div>
 
-        <div className="flex flex-col px-5 pb-10 gap-4 pt-6">
-          {/* Live heading */}
-          <div>
-            <p className="text-2xl font-extrabold text-foreground leading-tight">Your event is live! 🎉</p>
-            {title && <p className="text-muted-foreground text-sm mt-1">{title}</p>}
+        {/* Body */}
+        <div className="flex flex-col px-5 gap-3 flex-1 pb-8">
+          {/* Mini preview card */}
+          <div style={{ position: "relative", height: "130px", borderRadius: "16px", overflow: "hidden", flexShrink: 0, ...previewBgStyle }}>
+            {previewBgKey?.startsWith("planit-pattern:") && <PatternOverlay patternKey={previewBgKey} />}
+            {bgPhoto && <div style={{ position: "absolute", inset: 0, backgroundColor: "rgba(0,0,0,0.38)", zIndex: 1 }} />}
+            <div style={{ position: "absolute", inset: 0, zIndex: 10, display: "flex", alignItems: "center", justifyContent: "center", padding: "16px" }}>
+              <p style={{ fontFamily: previewFontFam, fontSize: "22px", fontWeight: 900, color: fontColor || "#fff", lineHeight: 1.05, textAlign: "center" }}>{title || "Your Event"}</p>
+            </div>
           </div>
 
-          {/* Event code */}
-          <div className="bg-card border border-border rounded-2xl p-5">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3">Event code</p>
-            <p className="text-center font-black tracking-widest py-1" style={{ fontSize: "34px", fontFamily: "'Courier New', monospace", color: "#aaee44", letterSpacing: "0.25em" }}>{eventCode}</p>
-            <p className="text-xs text-muted-foreground text-center mt-1">Guests enter this code to join</p>
-          </div>
-
-          {/* Copy + Share */}
-          <div className="flex gap-3">
+          {/* Event code row */}
+          <div className="flex items-center bg-card border border-border rounded-xl px-4 py-3 shrink-0">
+            <div className="flex-1 min-w-0">
+              <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground mb-0.5">Event code</p>
+              <p className="font-black text-foreground text-lg tracking-[0.18em]" style={{ fontFamily: "'Courier New', monospace" }}>{eventCode}</p>
+            </div>
             <button
               onClick={handleCopy}
-              className="flex-1 rounded-2xl py-4 font-bold text-sm flex items-center justify-center gap-2 border border-border bg-card text-foreground transition-colors"
+              className="ml-3 w-9 h-9 rounded-lg flex items-center justify-center shrink-0 transition-colors"
+              style={{ backgroundColor: linkCopied ? "#aaee44" : "rgba(255,255,255,0.07)" }}
             >
-              {linkCopied ? <Check className="w-4 h-4" style={{ color: "#aaee44" }} /> : <Copy className="w-4 h-4" />}
-              {linkCopied ? "Copied!" : "Copy link"}
-            </button>
-            <button
-              onClick={handleShare}
-              className="flex-1 rounded-2xl py-4 font-bold text-sm flex items-center justify-center gap-2"
-              style={{ backgroundColor: "#aaee44", color: "#111" }}
-            >
-              <Share2 className="w-4 h-4" /> Share
+              {linkCopied
+                ? <Check className="w-4 h-4" style={{ color: "#111" }} />
+                : <Copy className="w-4 h-4 text-muted-foreground" />}
             </button>
           </div>
 
-          {/* Invite friends - lime green full width */}
+          {/* Share button */}
+          <button
+            onClick={handleShare}
+            className="w-full rounded-xl py-3.5 font-bold text-sm flex items-center justify-center gap-2 shrink-0"
+            style={{ backgroundColor: "#aaee44", color: "#111" }}
+          >
+            <Share2 className="w-4 h-4" /> Share event
+          </button>
+
+          {/* Invite friends */}
           <button
             type="button"
             onClick={() => { setShowInviteDrawer(true); loadFriendsForInvite(); }}
-            className="w-full rounded-2xl py-4 font-bold text-base flex items-center justify-center gap-2"
-            style={{ backgroundColor: "#aaee44", color: "#111" }}
+            className="w-full rounded-xl py-3.5 font-bold text-sm flex items-center justify-center gap-2 bg-card border border-border text-foreground shrink-0"
           >
-            <Users className="w-5 h-5" /> Invite friends
+            <Users className="w-4 h-4" /> Invite friends
           </button>
 
-          {/* RSVP Deadline */}
-          <div className="bg-card border border-border rounded-2xl p-4">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2.5">RSVP deadline <span className="normal-case font-normal">(optional)</span></p>
-            <div className="flex gap-2 items-center">
-              <input
-                type="datetime-local"
-                value={rsvpDeadline}
-                onChange={(e) => setRsvpDeadline(e.target.value)}
-                className="flex-1 bg-muted text-foreground rounded-xl px-3 py-2.5 text-sm outline-none border border-border"
-              />
-              {rsvpDeadline && (
-                <button
-                  type="button"
-                  onClick={async () => {
-                    if (!eventCode) return;
-                    await supabase.from("events").update({ rsvp_deadline: new Date(rsvpDeadline).toISOString() } as any).eq("code", eventCode);
-                  }}
-                  className="text-sm font-bold px-4 py-2.5 rounded-xl"
-                  style={{ backgroundColor: "#aaee44", color: "#111" }}
-                >
-                  Set
-                </button>
-              )}
-              {rsvpDeadline && (
-                <button
-                  type="button"
-                  onClick={async () => {
-                    setRsvpDeadline("");
-                    if (eventCode) await supabase.from("events").update({ rsvp_deadline: null } as any).eq("code", eventCode);
-                  }}
-                  className="text-sm text-muted-foreground px-2"
-                >
-                  Clear
-                </button>
-              )}
-            </div>
-            {rsvpDeadline && (
-              <p className="text-xs text-muted-foreground mt-2">
-                Guests reminded before {new Date(rsvpDeadline).toLocaleDateString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
-              </p>
-            )}
-          </div>
+          {/* Divider */}
+          <div className="h-px bg-border shrink-0" />
 
           {/* View event */}
           <button
             onClick={() => navigate("/event/" + eventCode)}
-            className="w-full rounded-2xl py-4 font-bold text-sm border border-border text-foreground bg-secondary"
+            className="w-full rounded-xl py-3.5 font-bold text-sm flex items-center justify-center gap-1 border shrink-0"
+            style={{ borderColor: "#aaee44", color: "#aaee44", backgroundColor: "transparent" }}
           >
-            View event →
+            View event <span style={{ marginLeft: 2 }}>→</span>
           </button>
         </div>
 
