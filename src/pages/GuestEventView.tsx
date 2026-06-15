@@ -2537,15 +2537,15 @@ const GuestEventView = () => {
             const frostBg = isLight ? "rgba(0,0,0,0.06)" : "rgba(255,255,255,0.09)";
             const frostBorder = isLight ? "rgba(0,0,0,0.12)" : "rgba(255,255,255,0.16)";
             const fontFam = ({ Bold:"'Bebas Neue', sans-serif", Handwritten:"'Caveat', cursive", Elegant:"'Playfair Display', serif" } as Record<string,string>)[event.font_style||"Bold"] || "'Bebas Neue', sans-serif";
-            const titleSz = event.text_size === "Small" ? "28px" : event.text_size === "Large" ? "44px" : "36px";
+            const titleSz = event.text_size === "Small" ? "28px" : event.text_size === "Large" ? "48px" : "36px";
             const titleWt = event.font_style === "Bold" ? 400 : 800;
             let stickerItems: StickerItem[] = [];
-            let customLayout: "centred" | "editorial" | "cards" = "cards";
+            let customLayout: "cards" | "editorial" | "ocean" = "cards";
             let bubbleStyleVal: "frosted" | "solid" | "outlined" = "frosted";
             try {
               const parsed = JSON.parse((event as any).stickers || "[]");
               if (Array.isArray(parsed)) { stickerItems = parsed; }
-              else { stickerItems = parsed.items || []; customLayout = parsed.customLayout || "cards"; bubbleStyleVal = parsed.bubbleStyle || "frosted"; }
+              else { stickerItems = parsed.items || []; const cl = parsed.customLayout as string; customLayout = (cl === "centred" ? "cards" : cl === "ocean" ? "ocean" : cl === "editorial" ? "editorial" : "cards") as "cards" | "editorial" | "ocean"; bubbleStyleVal = parsed.bubbleStyle || "frosted"; }
             } catch {}
             const infoBubbleStyle: React.CSSProperties = bubbleStyleVal === "solid"
               ? { borderRadius:"20px",padding:"16px 18px",backgroundColor:accentColor }
@@ -2575,19 +2575,35 @@ const GuestEventView = () => {
                   </div>
                 </div>
                 {/* Content — three layout variants */}
-                {customLayout === "centred" ? (
-                  <div className="flex flex-col items-center text-center px-6 pt-6 pb-6 relative z-10">
-                    {event.vibe && <div style={{ border:`1px solid ${accentColor}50`,borderRadius:"50px",padding:"3px 12px",backgroundColor:`${accentColor}15`,backdropFilter:"blur(8px)",WebkitBackdropFilter:"blur(8px)",marginBottom:"10px",display:"inline-block" }}><span style={{ fontFamily:"'Inter',sans-serif",fontSize:"10px",fontWeight:700,letterSpacing:"0.18em",textTransform:"uppercase" as const,color:accentColor }}>{event.vibe}</span></div>}
-                    <h1 style={{ fontFamily:fontFam,fontSize:titleSz,fontWeight:titleWt,color:tCol,lineHeight:1.05,marginBottom:"6px",textShadow:isLight?"none":"0 1px 8px rgba(0,0,0,0.5)" }}>{event.title||"Untitled Event"}</h1>
-                    <p style={{ fontFamily:"'Inter',sans-serif",fontSize:"12px",color:tMuted,marginBottom:"18px" }}>hosted by {hostName}</p>
-                    {eventDate && <p style={{ fontFamily:fontFam,fontSize:"18px",fontWeight:titleWt,color:accentColor,marginBottom:"20px" }}>{dayNum} {monthName}<span style={{ opacity:0.5,margin:"0 8px" }}>·</span>{timeStr}<span style={{ opacity:0.5,margin:"0 8px" }}>·</span>{goingList.length} going</p>}
-                    <div style={{ width:"36px",height:"1px",backgroundColor:`${accentColor}50`,marginBottom:"20px" }} />
-                    <div className="w-full flex flex-col gap-4 mb-4">
-                      {event.location && <div><p style={{ fontFamily:"'Inter',sans-serif",fontSize:"9px",fontWeight:700,letterSpacing:"0.2em",textTransform:"uppercase" as const,color:`${accentColor}80`,marginBottom:"4px" }}>Location</p><p style={{ fontFamily:fontFam,fontSize:"20px",color:infoTextColor,lineHeight:1.2 }}>{event.location}</p></div>}
-                      {event.dress_code && <div><p style={{ fontFamily:"'Inter',sans-serif",fontSize:"9px",fontWeight:700,letterSpacing:"0.2em",textTransform:"uppercase" as const,color:`${accentColor}80`,marginBottom:"4px" }}>Dress Code</p><p style={{ fontFamily:fontFam,fontSize:"20px",color:infoTextColor,lineHeight:1.2 }}>{event.dress_code}</p></div>}
-                      {event.extra && <p style={{ fontFamily:"'Inter',sans-serif",fontSize:"13px",color:tMuted,lineHeight:1.5,fontStyle:"italic" }}>{event.extra}</p>}
+                {customLayout === "ocean" ? (
+                  <div className="relative z-10 pb-6">
+                    <div className="px-5 pt-6 text-center mb-1">
+                      {event.vibe && <p style={{ fontFamily:"'Inter',sans-serif",fontSize:"9px",fontWeight:700,letterSpacing:"0.28em",textTransform:"uppercase" as const,color:`${accentColor}90`,marginBottom:"8px" }}>{event.vibe}</p>}
+                      <h1 style={{ fontFamily:fontFam,fontSize:titleSz,fontWeight:900,color:tCol,lineHeight:1.05,marginBottom:"6px" }}>{event.title||"Untitled Event"}</h1>
+                      <p style={{ fontFamily:"'Inter',sans-serif",fontSize:"11px",color:tMuted,marginBottom:"10px" }}>hosted by {hostName}</p>
+                      <svg viewBox="0 0 320 20" xmlns="http://www.w3.org/2000/svg" style={{ width:"100%",height:"20px",display:"block",margin:"8px 0" }}>
+                        <path d="M0,10 C26.7,2 53.3,18 80,10 C106.7,2 133.3,18 160,10 C186.7,2 213.3,18 240,10 C266.7,2 293.3,18 320,10" stroke={`${accentColor}40`} strokeWidth="1.5" fill="none" strokeLinecap="round" />
+                      </svg>
                     </div>
-                    <div className="w-full flex flex-col gap-3">
+                    <div className="flex flex-col gap-3 px-5">
+                      {eventDate && <div style={{ display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:"8px" }}>
+                        <div style={{ backgroundColor:frostBg,border:`1px solid ${frostBorder}`,borderRadius:"16px",padding:"14px 8px",textAlign:"center" as const }}>
+                          <p style={{ fontFamily:"'Inter',sans-serif",fontSize:"7px",fontWeight:700,letterSpacing:"0.22em",textTransform:"uppercase" as const,color:accentColor,marginBottom:"8px",opacity:0.8 }}>Day</p>
+                          <span style={{ fontFamily:"'Inter',sans-serif",fontSize:"28px",fontWeight:900,color:tCol,lineHeight:1,display:"block" }}>{dayNum}</span>
+                          <p style={{ fontFamily:"'Inter',sans-serif",fontSize:"9px",fontWeight:700,color:accentColor,textTransform:"uppercase" as const,letterSpacing:"0.1em",marginTop:"5px",opacity:0.8 }}>{monthName}</p>
+                        </div>
+                        <div style={{ backgroundColor:frostBg,border:`1px solid ${frostBorder}`,borderRadius:"16px",padding:"14px 8px",textAlign:"center" as const }}>
+                          <p style={{ fontFamily:"'Inter',sans-serif",fontSize:"7px",fontWeight:700,letterSpacing:"0.22em",textTransform:"uppercase" as const,color:accentColor,marginBottom:"8px",opacity:0.8 }}>Time</p>
+                          <span style={{ fontFamily:"'Inter',sans-serif",fontSize:"17px",fontWeight:900,color:tCol,lineHeight:1,display:"block" }}>{timeStr}</span>
+                        </div>
+                        <div style={{ backgroundColor:frostBg,border:`1px solid ${frostBorder}`,borderRadius:"16px",padding:"14px 8px",textAlign:"center" as const }}>
+                          <p style={{ fontFamily:"'Inter',sans-serif",fontSize:"7px",fontWeight:700,letterSpacing:"0.22em",textTransform:"uppercase" as const,color:accentColor,marginBottom:"8px",opacity:0.8 }}>Going</p>
+                          <span style={{ fontFamily:"'Inter',sans-serif",fontSize:"28px",fontWeight:900,color:tCol,lineHeight:1,display:"block" }}>{goingList.length}</span>
+                        </div>
+                      </div>}
+                      {event.location && <div style={{ backgroundColor:frostBg,border:`1px solid ${frostBorder}`,borderRadius:"50px",padding:"14px 22px" }}><p style={{ fontFamily:"'Inter',sans-serif",fontSize:"7px",fontWeight:700,letterSpacing:"0.22em",textTransform:"uppercase" as const,color:accentColor,marginBottom:"4px",opacity:0.8 }}>📍 Location</p><p style={{ fontFamily:fontFam,fontSize:"16px",fontWeight:700,color:tCol }}>{event.location}</p></div>}
+                      {event.dress_code && <div style={{ backgroundColor:frostBg,border:`1px solid ${frostBorder}`,borderRadius:"50px",padding:"14px 22px" }}><p style={{ fontFamily:"'Inter',sans-serif",fontSize:"7px",fontWeight:700,letterSpacing:"0.22em",textTransform:"uppercase" as const,color:accentColor,marginBottom:"4px",opacity:0.8 }}>🎭 Dress Code</p><p style={{ fontFamily:fontFam,fontSize:"16px",fontWeight:700,color:tCol }}>{event.dress_code}</p></div>}
+                      {event.extra && <div style={infoBubbleStyle}><p style={{ fontFamily:"'Inter',sans-serif",fontSize:"7px",fontWeight:700,letterSpacing:"0.22em",textTransform:"uppercase" as const,color:infoLabelColor,marginBottom:"4px" }}>From the host</p><p style={{ fontFamily:"'Inter',sans-serif",fontSize:"13px",color:infoTextColor,lineHeight:1.5 }}>{event.extra}</p></div>}
                       {goingList.length > 0 && (<div style={{ borderRadius:"20px",border:`1px solid ${frostBorder}`,padding:"16px 18px",backgroundColor:frostBg,backdropFilter:"blur(12px)",WebkitBackdropFilter:"blur(12px)" }}><p style={{ fontFamily:"'Inter',sans-serif",fontSize:"8px",fontWeight:700,letterSpacing:"0.22em",textTransform:"uppercase" as const,color:accentColor,marginBottom:"8px" }}>Who's going</p><div style={{ display:"flex",flexWrap:"wrap" as const,gap:"8px",justifyContent:"center" }}>{goingList.map((r)=>(<div key={r.user_id} style={{ width:"30px",height:"30px",borderRadius:"50%",backgroundColor:accentColor,display:"flex",alignItems:"center",justifyContent:"center" }}><span style={{ fontFamily:"'Inter',sans-serif",fontSize:"11px",fontWeight:700,color:accentText }}>{getInitials(r.name)}</span></div>))}</div></div>)}
                       <div style={{ borderRadius:"20px",border:`1px solid ${frostBorder}`,padding:"16px 18px",backgroundColor:frostBg,backdropFilter:"blur(12px)",WebkitBackdropFilter:"blur(12px)" }}>
                         <div style={{ display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"10px" }}><p style={{ fontFamily:"'Inter',sans-serif",fontSize:"8px",fontWeight:700,letterSpacing:"0.22em",textTransform:"uppercase" as const,color:accentColor,margin:0 }}>Chat</p><button onClick={()=>setShowFullComments(true)}><Maximize2 className="w-4 h-4" style={{ color:accentColor }} /></button></div>

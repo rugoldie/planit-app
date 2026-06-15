@@ -456,7 +456,7 @@ const HostEvent = () => {
   const [buildItError, setBuildItError] = useState<string | null>(null);
   const [selectedStickerId, setSelectedStickerId] = useState<string | null>(null);
   const [fontColor, setFontColor] = useState<string>("#ffffff");
-  const [customLayout, setCustomLayout] = useState<"centred" | "editorial" | "cards">("cards");
+  const [customLayout, setCustomLayout] = useState<"cards" | "editorial" | "ocean">("cards");
   const [bubbleStyle, setBubbleStyle] = useState<"frosted" | "solid" | "outlined">("frosted");
   const [rsvpDeadline, setRsvpDeadline] = useState("");
   const [showInviteDrawer, setShowInviteDrawer] = useState(false);
@@ -541,7 +541,7 @@ const HostEvent = () => {
                 setStickers(parsed);
               } else {
                 setStickers(parsed.items || []);
-                if (parsed.customLayout) setCustomLayout(parsed.customLayout as "centred" | "editorial" | "cards");
+                if (parsed.customLayout) { const cl = parsed.customLayout as string; setCustomLayout((cl === "centred" ? "cards" : cl === "cards" ? "cards" : cl === "ocean" ? "ocean" : "editorial") as "cards" | "editorial" | "ocean"); }
                 if (parsed.bubbleStyle) setBubbleStyle(parsed.bubbleStyle as "frosted" | "solid" | "outlined");
               }
             } catch {}
@@ -683,8 +683,7 @@ const HostEvent = () => {
         }
         return;
       }
-      setEventCode(code);
-      setShowCode(true);
+      navigate("/event/" + code);
     }
   };
 
@@ -1064,7 +1063,7 @@ const HostEvent = () => {
   const bgTextColor = isLightBg ? "#111111" : "#ffffff";
   const bgTextMuted = isLightBg ? "rgba(17,17,17,0.6)" : "rgba(255,255,255,0.6)";
   const bgTextSoft = isLightBg ? "rgba(17,17,17,0.8)" : "rgba(255,255,255,0.8)";
-  const noirFontSize = textSize === "Small" ? "28px" : textSize === "Large" ? "44px" : "36px";
+  const noirFontSize = textSize === "Small" ? "28px" : textSize === "Large" ? "48px" : "36px";
   const isGalaxy = templateName === "galaxy";
   const isSunny = templateName === "sunny";
   const isMidnight = templateName === "midnight";
@@ -2500,41 +2499,63 @@ const HostEvent = () => {
                   <ArrowLeft className="w-6 h-6" style={{ color: fontColor }} />
                 </button>
                 {/* Content — three layout variants */}
-                {customLayout === "centred" ? (
-                  /* ── Centred layout: minimal, no cards ── */
-                  <div className="flex flex-col items-center text-center px-6 pt-16 pb-8 relative z-10">
-                    <div style={{ display:"inline-block",position:"relative",marginBottom:"10px" }}>
-                      <div style={{ border:`1px solid ${accentColor}55`,borderRadius:"50px",padding:"3px 12px",backgroundColor:`${accentColor}15`,backdropFilter:"blur(8px)",WebkitBackdropFilter:"blur(8px)" }}>
-                        <span style={{ fontFamily:"'Inter',sans-serif",fontSize:"10px",fontWeight:700,letterSpacing:"0.18em",textTransform:"uppercase" as const,color:vibe?accentColor:`${accentColor}45` }}>{vibe||"Event type..."}</span>
+                {customLayout === "ocean" ? (
+                  /* ── Ocean layout: YOU'RE INVITED, stat cards, full-width info ── */
+                  <div className="px-5 pt-16 pb-4 relative z-10">
+                    <div className="text-center mb-1">
+                      <p style={{ fontFamily:"'Inter',sans-serif",fontSize:"9px",fontWeight:700,letterSpacing:"0.28em",textTransform:"uppercase" as const,color:`${accentColor}90`,marginBottom:"10px" }}>You're Invited</p>
+                      <div style={{ position:"relative",marginBottom:"8px" }}>
+                        <input type="text" value={title} onChange={(e)=>{setTitle(e.target.value);setTitleError("");}} placeholder="Event name..." className="w-full bg-transparent outline-none text-center placeholder:opacity-20 block" style={{ fontFamily:currentFontFamily,fontSize:noirFontSize,fontWeight:900,color:fontColor,lineHeight:1.05 }} />
+                        {titleError && <p className="text-red-400 text-xs mt-1">{titleError}</p>}
                       </div>
-                      <input type="text" value={vibe} onChange={(e)=>setVibe(e.target.value)} maxLength={30} style={{ position:"absolute",inset:0,width:"100%",height:"100%",opacity:0,cursor:"text",zIndex:10 }} />
+                      <div style={{ position:"relative",marginBottom:"6px",display:"inline-block" }}>
+                        <textarea value={vibe} onChange={(e)=>setVibe(e.target.value)} placeholder="Add a tagline..." rows={1} maxLength={80} className="bg-transparent outline-none resize-none text-center placeholder:opacity-20" style={{ fontFamily:"'Inter',sans-serif",fontSize:"13px",fontStyle:"italic",color:`${accentColor}70` }} />
+                      </div>
+                      <p style={{ fontFamily:"'Inter',sans-serif",fontSize:"11px",color:fontColorMuted,marginBottom:"12px" }}>hosted by {hostName}</p>
+                      <div style={{ margin:"10px 0 4px" }}>
+                        <svg viewBox="0 0 320 20" xmlns="http://www.w3.org/2000/svg" style={{ width:"100%",height:"20px",display:"block" }}>
+                          <path d="M0,10 C26.7,2 53.3,18 80,10 C106.7,2 133.3,18 160,10 C186.7,2 213.3,18 240,10 C266.7,2 293.3,18 320,10" stroke={`${accentColor}40`} strokeWidth="1.5" fill="none" strokeLinecap="round" />
+                        </svg>
+                      </div>
                     </div>
-                    <input type="text" value={title} onChange={(e)=>{setTitle(e.target.value);setTitleError("");}} placeholder="Event name..." className="w-full bg-transparent outline-none placeholder:opacity-20 text-center block" style={{ fontFamily:currentFontFamily,fontSize:noirFontSize,fontWeight:fontStyle==="Bold"?400:800,color:fontColor,lineHeight:1.05,marginBottom:"6px",textShadow:customIsLight?"none":"0 1px 8px rgba(0,0,0,0.5)" }} />
-                    {titleError && <p className="text-red-400 text-xs mb-2">{titleError}</p>}
-                    <p style={{ fontFamily:"'Inter',sans-serif",fontSize:"12px",color:fontColorMuted,marginBottom:"22px" }}>hosted by {hostName}</p>
-                    <div style={{ position:"relative",marginBottom:"22px" }}>
-                      <p style={{ fontFamily:currentFontFamily,fontSize:"18px",fontWeight:fontStyle==="Bold"?400:700,color:accentColor,letterSpacing:"0.04em" }}>
-                        {dayNum?`${dayNum} ${monthName}`:"Date"}<span style={{ opacity:0.5,margin:"0 8px" }}>·</span>{timeStr||"Time"}
-                      </p>
-                      <input type="datetime-local" value={dateTime} onChange={(e)=>setDateTime(e.target.value)} style={{ position:"absolute",inset:0,width:"100%",height:"100%",opacity:0,cursor:"pointer",zIndex:10 }} />
-                    </div>
-                    <div style={{ width:"36px",height:"1px",backgroundColor:`${accentColor}50`,marginBottom:"22px" }} />
-                    <div style={{ position:"relative",marginBottom:"16px",width:"100%" }}>
-                      <p style={{ fontFamily:"'Inter',sans-serif",fontSize:"9px",fontWeight:700,letterSpacing:"0.2em",textTransform:"uppercase" as const,color:`${accentColor}80`,marginBottom:"4px" }}>Location</p>
-                      <p style={{ fontFamily:currentFontFamily,fontSize:"20px",color:location?fontColor:`${fontColor}40`,lineHeight:1.2 }}>{location||"Where's the event?"}</p>
-                      <input type="text" value={location} onChange={(e)=>setLocation(e.target.value)} style={{ position:"absolute",inset:0,width:"100%",height:"100%",opacity:0,cursor:"text",zIndex:10 }} />
-                    </div>
-                    <div style={{ position:"relative",marginBottom:"16px",width:"100%" }}>
-                      <p style={{ fontFamily:"'Inter',sans-serif",fontSize:"9px",fontWeight:700,letterSpacing:"0.2em",textTransform:"uppercase" as const,color:`${accentColor}80`,marginBottom:"4px" }}>Dress Code</p>
-                      <p style={{ fontFamily:currentFontFamily,fontSize:"20px",color:dressCode?fontColor:`${fontColor}40`,lineHeight:1.2 }}>{dressCode||"Theme..."}</p>
-                      <input type="text" value={dressCode} onChange={(e)=>setDressCode(e.target.value)} style={{ position:"absolute",inset:0,width:"100%",height:"100%",opacity:0,cursor:"text",zIndex:10 }} />
-                    </div>
-                    <div style={{ width:"100%",marginTop:"4px" }}>
-                      <textarea value={extra} onChange={(e)=>setExtra(e.target.value)} placeholder="Anything else..." rows={2} className="w-full bg-transparent outline-none resize-none placeholder:opacity-20 text-center" style={{ fontFamily:"'Inter',sans-serif",fontSize:"13px",color:fontColor,lineHeight:1.5,fontStyle:"italic" }} />
+                    <div className="flex flex-col gap-3">
+                      <div style={{ display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:"8px" }}>
+                        <div style={{ backgroundColor:"rgba(255,255,255,0.07)",border:`1px solid ${accentColor}25`,borderRadius:"16px",padding:"14px 8px",textAlign:"center" as const,position:"relative" }}>
+                          <p style={{ fontFamily:"'Inter',sans-serif",fontSize:"7px",fontWeight:700,letterSpacing:"0.22em",textTransform:"uppercase" as const,color:`${accentColor}80`,marginBottom:"8px" }}>Day</p>
+                          <span style={{ fontFamily:"'Inter',sans-serif",fontSize:"28px",fontWeight:900,color:fontColor,lineHeight:1,display:"block" }}>{dayNum||"—"}</span>
+                          <p style={{ fontFamily:"'Inter',sans-serif",fontSize:"9px",fontWeight:700,color:accentColor,textTransform:"uppercase" as const,letterSpacing:"0.1em",marginTop:"5px",opacity:0.8 }}>{monthName||"TBD"}</p>
+                          <input type="datetime-local" value={dateTime} onChange={(e)=>setDateTime(e.target.value)} style={{ position:"absolute",inset:0,width:"100%",height:"100%",opacity:0,cursor:"pointer",zIndex:10 }} />
+                        </div>
+                        <div style={{ backgroundColor:"rgba(255,255,255,0.07)",border:`1px solid ${accentColor}25`,borderRadius:"16px",padding:"14px 8px",textAlign:"center" as const,position:"relative" }}>
+                          <p style={{ fontFamily:"'Inter',sans-serif",fontSize:"7px",fontWeight:700,letterSpacing:"0.22em",textTransform:"uppercase" as const,color:`${accentColor}80`,marginBottom:"8px" }}>Time</p>
+                          <span style={{ fontFamily:"'Inter',sans-serif",fontSize:eventDate?"17px":"28px",fontWeight:900,color:eventDate?fontColor:`${fontColor}30`,lineHeight:1,display:"block" }}>{eventDate?timeStr:"—"}</span>
+                          <p style={{ fontFamily:"'Inter',sans-serif",fontSize:"9px",fontWeight:700,color:accentColor,textTransform:"uppercase" as const,letterSpacing:"0.06em",marginTop:"5px",opacity:0.7 }}>{dayOfWeek?dayOfWeek.slice(0,3).toUpperCase():"TBD"}</p>
+                          <input type="datetime-local" value={dateTime} onChange={(e)=>setDateTime(e.target.value)} style={{ position:"absolute",inset:0,width:"100%",height:"100%",opacity:0,cursor:"pointer",zIndex:10 }} />
+                        </div>
+                        <div style={{ backgroundColor:"rgba(255,255,255,0.07)",border:`1px solid ${accentColor}25`,borderRadius:"16px",padding:"14px 8px",textAlign:"center" as const }}>
+                          <p style={{ fontFamily:"'Inter',sans-serif",fontSize:"7px",fontWeight:700,letterSpacing:"0.22em",textTransform:"uppercase" as const,color:`${accentColor}80`,marginBottom:"8px" }}>Going</p>
+                          <span style={{ fontFamily:"'Inter',sans-serif",fontSize:"28px",fontWeight:900,color:fontColor,lineHeight:1,display:"block" }}>0</span>
+                          <p style={{ fontFamily:"'Inter',sans-serif",fontSize:"9px",fontWeight:700,color:accentColor,textTransform:"uppercase" as const,letterSpacing:"0.1em",marginTop:"5px",opacity:0.8 }}>Guests</p>
+                        </div>
+                      </div>
+                      <div style={{ backgroundColor:"rgba(255,255,255,0.07)",border:`1px solid ${accentColor}25`,borderRadius:"50px",padding:"14px 22px",position:"relative" }}>
+                        <p style={{ fontFamily:"'Inter',sans-serif",fontSize:"7px",fontWeight:700,letterSpacing:"0.22em",textTransform:"uppercase" as const,color:`${accentColor}80`,marginBottom:"4px" }}>📍 Location</p>
+                        <p style={{ fontFamily:"'Inter',sans-serif",fontSize:"16px",fontWeight:700,color:location?fontColor:`${fontColor}30` }}>{location||"Where's the event?"}</p>
+                        <input type="text" value={location} onChange={(e)=>setLocation(e.target.value)} style={{ position:"absolute",inset:0,width:"100%",height:"100%",opacity:0,cursor:"text",zIndex:10 }} />
+                      </div>
+                      <div style={{ backgroundColor:"rgba(255,255,255,0.07)",border:`1px solid ${accentColor}25`,borderRadius:"50px",padding:"14px 22px",position:"relative" }}>
+                        <p style={{ fontFamily:"'Inter',sans-serif",fontSize:"7px",fontWeight:700,letterSpacing:"0.22em",textTransform:"uppercase" as const,color:`${accentColor}80`,marginBottom:"4px" }}>🎭 Dress Code</p>
+                        <p style={{ fontFamily:"'Inter',sans-serif",fontSize:"16px",fontWeight:700,color:dressCode?fontColor:`${fontColor}30` }}>{dressCode||"Theme..."}</p>
+                        <input type="text" value={dressCode} onChange={(e)=>setDressCode(e.target.value)} style={{ position:"absolute",inset:0,width:"100%",height:"100%",opacity:0,cursor:"text",zIndex:10 }} />
+                      </div>
+                      <div style={{ backgroundColor:"rgba(255,255,255,0.05)",border:`1px solid ${accentColor}15`,borderRadius:"16px",padding:"14px 16px" }}>
+                        <p style={{ fontFamily:"'Inter',sans-serif",fontSize:"7px",fontWeight:700,letterSpacing:"0.22em",textTransform:"uppercase" as const,color:`${accentColor}60`,marginBottom:"6px" }}>From the host</p>
+                        <textarea value={extra} onChange={(e)=>setExtra(e.target.value)} placeholder="Anything else your guests should know..." rows={2} className="w-full bg-transparent outline-none resize-none placeholder:opacity-20" style={{ fontFamily:"'Inter',sans-serif",fontSize:"13px",color:fontColor,lineHeight:1.5 }} />
+                      </div>
                     </div>
                   </div>
                 ) : customLayout === "editorial" ? (
-                  /* ── Editorial layout: left-aligned, big title ── */
+                  /* ── Editorial layout: left-aligned title + frosted info bubbles ── */
                   <div className="flex flex-col px-6 pt-20 pb-8 relative z-10">
                     <div style={{ position:"relative",marginBottom:"16px",alignSelf:"flex-start" }}>
                       <div style={{ border:`1px solid ${accentColor}55`,borderRadius:"6px",padding:"2px 10px",backgroundColor:`${accentColor}15`,display:"inline-block" }}>
@@ -2542,7 +2563,7 @@ const HostEvent = () => {
                       </div>
                       <input type="text" value={vibe} onChange={(e)=>setVibe(e.target.value)} maxLength={30} style={{ position:"absolute",inset:0,width:"100%",height:"100%",opacity:0,cursor:"text",zIndex:10 }} />
                     </div>
-                    <input type="text" value={title} onChange={(e)=>{setTitle(e.target.value);setTitleError("");}} placeholder="Event name..." className="w-full bg-transparent outline-none placeholder:opacity-20 block" style={{ fontFamily:currentFontFamily,fontSize:"52px",fontWeight:fontStyle==="Bold"?400:900,color:fontColor,lineHeight:0.95,marginBottom:"8px",textShadow:customIsLight?"none":"0 1px 12px rgba(0,0,0,0.4)" }} />
+                    <input type="text" value={title} onChange={(e)=>{setTitle(e.target.value);setTitleError("");}} placeholder="Event name..." className="w-full bg-transparent outline-none placeholder:opacity-20 block" style={{ fontFamily:currentFontFamily,fontSize:noirFontSize,fontWeight:fontStyle==="Bold"?400:900,color:fontColor,lineHeight:0.95,marginBottom:"8px",textShadow:customIsLight?"none":"0 1px 12px rgba(0,0,0,0.4)" }} />
                     {titleError && <p className="text-red-400 text-xs mb-2">{titleError}</p>}
                     <p style={{ fontFamily:"'Inter',sans-serif",fontSize:"12px",color:fontColorMuted,marginBottom:"18px" }}>hosted by {hostName}</p>
                     <div style={{ width:"56px",height:"3px",backgroundColor:accentColor,marginBottom:"22px",borderRadius:"2px" }} />
@@ -2558,36 +2579,25 @@ const HostEvent = () => {
                       </div>
                       <input type="datetime-local" value={dateTime} onChange={(e)=>setDateTime(e.target.value)} style={{ position:"absolute",inset:0,width:"100%",height:"100%",opacity:0,cursor:"pointer",zIndex:10 }} />
                     </div>
-                    <div style={{ position:"relative",marginBottom:"18px" }}>
-                      <div className="flex items-center gap-3">
-                        <span style={{ fontSize:"15px" }}>📍</span>
-                        <div style={{ flex:1 }}>
-                          <p style={{ fontFamily:"'Inter',sans-serif",fontSize:"9px",fontWeight:700,letterSpacing:"0.18em",textTransform:"uppercase" as const,color:accentColor,marginBottom:"2px" }}>Location</p>
-                          <p style={{ fontFamily:currentFontFamily,fontSize:"20px",color:location?fontColor:`${fontColor}40`,lineHeight:1.1 }}>{location||"Where's the event?"}</p>
-                        </div>
+                    <div className="w-full flex flex-col gap-3">
+                      <div style={{ ...infoBubbleStyle,position:"relative" }}>
+                        <p style={{ fontFamily:"'Inter',sans-serif",fontSize:"8px",fontWeight:700,letterSpacing:"0.22em",textTransform:"uppercase" as const,color:infoBubbleLabelColor,marginBottom:"5px" }}>Location</p>
+                        <p style={{ fontFamily:currentFontFamily,fontSize:"18px",fontWeight:fontStyle==="Bold"?400:600,color:location?infoBubbleTextColor:`${infoBubbleTextColor}40`,lineHeight:1.2 }}>{location||"Where's the event?"}</p>
+                        <input type="text" value={location} onChange={(e)=>setLocation(e.target.value)} style={{ position:"absolute",inset:0,width:"100%",height:"100%",opacity:0,cursor:"text",zIndex:10 }} />
                       </div>
-                      <input type="text" value={location} onChange={(e)=>setLocation(e.target.value)} style={{ position:"absolute",inset:0,width:"100%",height:"100%",opacity:0,cursor:"text",zIndex:10 }} />
-                    </div>
-                    <div style={{ position:"relative",marginBottom:"18px" }}>
-                      <div className="flex items-center gap-3">
-                        <span style={{ fontSize:"15px" }}>👗</span>
-                        <div style={{ flex:1 }}>
-                          <p style={{ fontFamily:"'Inter',sans-serif",fontSize:"9px",fontWeight:700,letterSpacing:"0.18em",textTransform:"uppercase" as const,color:accentColor,marginBottom:"2px" }}>Dress Code</p>
-                          <p style={{ fontFamily:currentFontFamily,fontSize:"20px",color:dressCode?fontColor:`${fontColor}40`,lineHeight:1.1 }}>{dressCode||"Theme..."}</p>
-                        </div>
+                      <div style={{ ...infoBubbleStyle,position:"relative" }}>
+                        <p style={{ fontFamily:"'Inter',sans-serif",fontSize:"8px",fontWeight:700,letterSpacing:"0.22em",textTransform:"uppercase" as const,color:infoBubbleLabelColor,marginBottom:"5px" }}>Dress Code</p>
+                        <p style={{ fontFamily:currentFontFamily,fontSize:"18px",fontWeight:fontStyle==="Bold"?400:600,color:dressCode?infoBubbleTextColor:`${infoBubbleTextColor}40`,lineHeight:1.2 }}>{dressCode||"Theme..."}</p>
+                        <input type="text" value={dressCode} onChange={(e)=>setDressCode(e.target.value)} style={{ position:"absolute",inset:0,width:"100%",height:"100%",opacity:0,cursor:"text",zIndex:10 }} />
                       </div>
-                      <input type="text" value={dressCode} onChange={(e)=>setDressCode(e.target.value)} style={{ position:"absolute",inset:0,width:"100%",height:"100%",opacity:0,cursor:"text",zIndex:10 }} />
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <span style={{ fontSize:"15px",marginTop:"2px" }}>📝</span>
-                      <div style={{ flex:1 }}>
-                        <p style={{ fontFamily:"'Inter',sans-serif",fontSize:"9px",fontWeight:700,letterSpacing:"0.18em",textTransform:"uppercase" as const,color:accentColor,marginBottom:"4px" }}>Notes</p>
-                        <textarea value={extra} onChange={(e)=>setExtra(e.target.value)} placeholder="Anything else..." rows={2} className="w-full bg-transparent outline-none resize-none placeholder:opacity-20" style={{ fontFamily:"'Inter',sans-serif",fontSize:"13px",color:fontColor,lineHeight:1.5 }} />
+                      <div style={{ ...infoBubbleStyle }}>
+                        <p style={{ fontFamily:"'Inter',sans-serif",fontSize:"8px",fontWeight:700,letterSpacing:"0.22em",textTransform:"uppercase" as const,color:infoBubbleLabelColor,marginBottom:"5px" }}>From the host</p>
+                        <textarea value={extra} onChange={(e)=>setExtra(e.target.value)} placeholder="Anything else..." rows={2} className="w-full bg-transparent outline-none resize-none placeholder:opacity-20" style={{ fontFamily:"'Inter',sans-serif",fontSize:"13px",color:infoBubbleTextColor,lineHeight:1.5 }} />
                       </div>
                     </div>
                   </div>
                 ) : (
-                  /* ── Cards layout (default): centred with info cards ── */
+                  /* ── Cards layout (default): centred with frosted info bubbles ── */
                   <div className="flex flex-col items-center text-center px-5 pt-16 pb-6 relative z-10">
                     <div style={{ display:"inline-block",position:"relative",marginBottom:"10px" }}>
                       <div style={{ border:`1px solid ${accentColor}55`,borderRadius:"50px",padding:"3px 12px",backgroundColor:`${accentColor}15`,backdropFilter:"blur(8px)",WebkitBackdropFilter:"blur(8px)" }}>
@@ -3224,14 +3234,14 @@ const HostEvent = () => {
                           <div>
                             <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-2.5">Layout</p>
                             <div className="grid grid-cols-3 gap-2">
-                              {([ ["centred","Centred"], ["editorial","Editorial"], ["cards","Cards"] ] as const).map(([val, label]) => (
+                              {([ ["cards","Cards"], ["editorial","Editorial"], ["ocean","Ocean"] ] as const).map(([val, label]) => (
                                 <button key={val} onClick={() => setCustomLayout(val)} className="flex flex-col items-center gap-2 rounded-xl py-3 px-2" style={{ backgroundColor:"#1e1e1e", border: customLayout===val ? "2px solid #aaee44" : "2px solid transparent" }}>
                                   <div style={{ width:36,height:46,borderRadius:4,backgroundColor:"#2a2a2a",display:"flex",flexDirection:"column",alignItems:val==="editorial"?"flex-start":"center",justifyContent:"flex-start",padding:"6px 5px",gap:3 }}>
                                     <div style={{ height:3,width:val==="editorial"?"85%":"55%",backgroundColor:"#fff",borderRadius:2 }} />
                                     <div style={{ height:2,width:val==="editorial"?"60%":"38%",backgroundColor:"rgba(255,255,255,0.4)",borderRadius:2 }} />
                                     {val==="cards" && <><div style={{ height:7,width:"90%",backgroundColor:"rgba(255,255,255,0.12)",borderRadius:3,marginTop:2 }} /><div style={{ height:7,width:"90%",backgroundColor:"rgba(255,255,255,0.12)",borderRadius:3 }} /></>}
-                                    {val==="centred" && <div style={{ height:2,width:"28%",backgroundColor:"rgba(170,238,68,0.6)",borderRadius:2,marginTop:2 }} />}
                                     {val==="editorial" && <div style={{ height:2,width:20,backgroundColor:"rgba(170,238,68,0.8)",borderRadius:2,marginTop:2 }} />}
+                                    {val==="ocean" && <div style={{ display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:2,width:"90%",marginTop:2 }}><div style={{ height:12,backgroundColor:"rgba(255,255,255,0.12)",borderRadius:2 }}/><div style={{ height:12,backgroundColor:"rgba(255,255,255,0.12)",borderRadius:2 }}/><div style={{ height:12,backgroundColor:"rgba(255,255,255,0.12)",borderRadius:2 }}/></div>}
                                   </div>
                                   <span className="text-xs text-white/70">{label}</span>
                                 </button>
