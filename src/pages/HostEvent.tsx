@@ -461,6 +461,7 @@ const HostEvent = () => {
   const [bubbleStyle, setBubbleStyle] = useState<"frosted" | "solid" | "outlined">("frosted");
   const [rsvpDeadline, setRsvpDeadline] = useState("");
   const [showInviteDrawer, setShowInviteDrawer] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
   const [inviteFriends, setInviteFriends] = useState<{user_id: string; name: string; avatar_url: string | null}[]>([]);
   const [inviteSelected, setInviteSelected] = useState<Set<string>>(new Set());
   const [inviting, setInviting] = useState(false);
@@ -685,7 +686,8 @@ const HostEvent = () => {
         }
         return;
       }
-      navigate("/event/" + code);
+      setEventCode(code);
+      setShowCode(true);
     }
   };
 
@@ -830,13 +832,17 @@ const HostEvent = () => {
     console.log("[BuildIt] applyStyle dispatched — waiting for React re-render (see ★ STATE RENDER log)");
   };
 
+  const eventUrl = eventCode ? `${window.location.origin}/event/${eventCode}` : "";
+
   const handleCopy = () => {
-    navigator.clipboard.writeText(eventCode);
+    navigator.clipboard.writeText(eventUrl);
+    setLinkCopied(true);
+    setTimeout(() => setLinkCopied(false), 2000);
   };
 
   const handleShare = () => {
     if (navigator.share) {
-      navigator.share({ title: "Join my event on Planit!", text: `Use code ${eventCode} to join!` });
+      navigator.share({ title: `Join ${title || "my event"} on Planit!`, url: eventUrl });
     } else {
       handleCopy();
     }
@@ -897,89 +903,108 @@ const HostEvent = () => {
 
   if (showCode) {
     return (
-      <div className="relative flex flex-col items-center justify-center min-h-screen bg-background px-6">
-        <button onClick={() => navigate("/home")} className="absolute top-5 left-5 z-10">
-          <ArrowLeft className="w-6 h-6 text-muted-foreground" />
-        </button>
-        <div className="bg-card rounded-[var(--radius)] p-8 w-full max-w-sm text-center border border-border">
-          <p className="text-muted-foreground text-sm font-semibold mb-2">Your event code</p>
-          <p className="text-5xl font-extrabold text-primary tracking-widest mb-4">{eventCode}</p>
-          <p className="text-muted-foreground text-sm">Share this code with your guests</p>
-        </div>
-
-        <div className="flex gap-4 mt-8 w-full max-w-sm">
-          <button
-            onClick={handleCopy}
-            className="flex-1 bg-secondary text-secondary-foreground rounded-[var(--radius)] py-4 text-base font-bold flex items-center justify-center gap-2 border border-border"
-          >
-            <Copy className="w-4 h-4" /> Copy link
-          </button>
-          <button
-            onClick={handleShare}
-            className="flex-1 bg-primary text-primary-foreground rounded-[var(--radius)] py-4 text-base font-bold flex items-center justify-center gap-2"
-          >
-            <Share2 className="w-4 h-4" /> Share
+      <div className="min-h-screen bg-background flex flex-col">
+        {/* Header */}
+        <div className="flex items-center px-5 pt-12 pb-4">
+          <button onClick={() => navigate("/home")}>
+            <ArrowLeft className="w-6 h-6 text-muted-foreground" />
           </button>
         </div>
 
-        <button
-          type="button"
-          onClick={() => { setShowInviteDrawer(true); loadFriendsForInvite(); }}
-          className="w-full max-w-sm mt-2 bg-secondary text-secondary-foreground rounded-[var(--radius)] py-4 text-base font-bold flex items-center justify-center gap-2 border border-border"
-        >
-          <Users className="w-4 h-4" /> Invite friends
-        </button>
+        <div className="flex-1 flex flex-col px-5 pb-10 gap-5">
+          {/* Title */}
+          <div>
+            <p className="text-3xl font-extrabold text-foreground leading-tight">Your event is live! 🎉</p>
+            {title && <p className="text-muted-foreground text-sm mt-1">{title}</p>}
+          </div>
 
-        <button
-          onClick={() => navigate("/event/" + eventCode)}
-          className="mt-6 text-foreground text-sm font-semibold underline underline-offset-4"
-        >
-          View my event
-        </button>
+          {/* Link card */}
+          <div className="bg-card border border-border rounded-2xl p-4">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">Event link</p>
+            <p className="text-foreground font-semibold text-sm break-all mb-1">{eventUrl}</p>
+            <p className="text-[11px] text-muted-foreground">Share this with your guests so they can join</p>
+          </div>
 
-        {/* RSVP Deadline */}
-        <div className="w-full max-w-sm mt-4 bg-card border border-border rounded-[var(--radius)] p-4">
-          <p className="text-muted-foreground text-sm font-semibold mb-2">RSVP deadline (optional)</p>
-          <div className="flex gap-2 items-center">
-            <input
-              type="datetime-local"
-              value={rsvpDeadline}
-              onChange={(e) => setRsvpDeadline(e.target.value)}
-              className="flex-1 bg-muted text-foreground rounded-[var(--radius)] px-3 py-2 text-sm outline-none border border-border"
-            />
+          {/* Primary actions */}
+          <div className="flex gap-3">
+            <button
+              onClick={handleCopy}
+              className="flex-1 rounded-2xl py-4 font-bold text-sm flex items-center justify-center gap-2 border border-border bg-card text-foreground transition-colors"
+            >
+              {linkCopied ? <Check className="w-4 h-4" style={{ color: "#aaee44" }} /> : <Copy className="w-4 h-4" />}
+              {linkCopied ? "Copied!" : "Copy link"}
+            </button>
+            <button
+              onClick={handleShare}
+              className="flex-1 rounded-2xl py-4 font-bold text-sm flex items-center justify-center gap-2"
+              style={{ backgroundColor: "#aaee44", color: "#111" }}
+            >
+              <Share2 className="w-4 h-4" /> Share
+            </button>
+          </div>
+
+          {/* Invite friends */}
+          <button
+            type="button"
+            onClick={() => { setShowInviteDrawer(true); loadFriendsForInvite(); }}
+            className="w-full rounded-2xl py-4 font-bold text-sm flex items-center justify-center gap-2 bg-card border border-border text-foreground"
+          >
+            <Users className="w-4 h-4" /> Invite friends
+          </button>
+
+          {/* RSVP Deadline */}
+          <div className="bg-card border border-border rounded-2xl p-4">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2.5">RSVP deadline <span className="normal-case font-normal">(optional)</span></p>
+            <div className="flex gap-2 items-center">
+              <input
+                type="datetime-local"
+                value={rsvpDeadline}
+                onChange={(e) => setRsvpDeadline(e.target.value)}
+                className="flex-1 bg-muted text-foreground rounded-xl px-3 py-2.5 text-sm outline-none border border-border"
+              />
+              {rsvpDeadline && (
+                <button
+                  type="button"
+                  onClick={async () => {
+                    if (!eventCode) return;
+                    await supabase.from("events").update({ rsvp_deadline: new Date(rsvpDeadline).toISOString() } as any).eq("code", eventCode);
+                  }}
+                  className="text-sm font-bold px-4 py-2.5 rounded-xl"
+                  style={{ backgroundColor: "#aaee44", color: "#111" }}
+                >
+                  Set
+                </button>
+              )}
+              {rsvpDeadline && (
+                <button
+                  type="button"
+                  onClick={async () => {
+                    setRsvpDeadline("");
+                    if (eventCode) await supabase.from("events").update({ rsvp_deadline: null } as any).eq("code", eventCode);
+                  }}
+                  className="text-sm text-muted-foreground px-2"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
             {rsvpDeadline && (
-              <button
-                type="button"
-                onClick={async () => {
-                  if (!eventCode) return;
-                  await supabase.from("events").update({ rsvp_deadline: new Date(rsvpDeadline).toISOString() } as any).eq("code", eventCode);
-                }}
-                className="text-sm font-bold px-4 py-2 rounded-[var(--radius)]"
-                style={{ backgroundColor: "#aaee44", color: "#111" }}
-              >
-                Set
-              </button>
-            )}
-            {rsvpDeadline && (
-              <button
-                type="button"
-                onClick={async () => {
-                  setRsvpDeadline("");
-                  if (eventCode) await supabase.from("events").update({ rsvp_deadline: null } as any).eq("code", eventCode);
-                }}
-                className="text-sm text-muted-foreground px-2"
-              >
-                Clear
-              </button>
+              <p className="text-xs text-muted-foreground mt-2">
+                Guests reminded before {new Date(rsvpDeadline).toLocaleDateString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+              </p>
             )}
           </div>
-          {rsvpDeadline && (
-            <p className="text-xs text-muted-foreground mt-2">
-              Guests will be reminded to RSVP before {new Date(rsvpDeadline).toLocaleDateString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
-            </p>
-          )}
+
+          {/* View event */}
+          <button
+            onClick={() => navigate("/event/" + eventCode)}
+            className="w-full rounded-2xl py-4 font-bold text-sm border border-border text-foreground bg-secondary"
+          >
+            View event →
+          </button>
         </div>
 
+        {/* Invite friends drawer */}
         <Drawer open={showInviteDrawer} onOpenChange={setShowInviteDrawer}>
           <DrawerContent className="bg-background border-t border-border max-h-[80vh] flex flex-col">
             <div className="flex items-center justify-between px-5 pt-5 pb-3 border-b border-border">
