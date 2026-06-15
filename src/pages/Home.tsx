@@ -222,6 +222,10 @@ const isCustomTemplate = (templateName: string | null) => {
   if (!templateName) return false;
   return templateName.toLowerCase().trim() === "planit-custom";
 };
+const isMidnight = (templateName: string | null) => {
+  if (!templateName) return false;
+  return templateName.toLowerCase().trim() === "midnight";
+};
 /** Noir-styled title: second word in accent color + italic */
 const NoirCardTitle = ({
   title,
@@ -1307,6 +1311,54 @@ const ForestUpcomingCard = ({ event, navigate }: { event: EventWithRole; navigat
   </div>
 );
 
+const MidnightNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate: ReturnType<typeof useNavigate> }) => {
+  const parsed = event.date_time ? parseISO(event.date_time) : null;
+  const dayNum = parsed ? format(parsed, "d") : "?";
+  const monthName = parsed ? format(parsed, "MMM").toUpperCase() : "TBD";
+  const timeStr = parsed ? format(parsed, "h:mm a") : "";
+  const navPath = event.role === "host" ? `/event/${event.code}` : `/guest/${event.code}`;
+  return (
+    <div className="rounded-2xl overflow-hidden cursor-pointer" style={{ backgroundColor: "#ffffff", border: "1px solid rgba(0,0,0,0.12)" }} onClick={() => navigate(navPath)}>
+      <div className="p-3.5 pb-2">
+        <div style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 700, color: "rgba(0,0,0,0.35)", letterSpacing: "0.18em", textTransform: "uppercase" as const, marginBottom: "4px" }}>midnight</div>
+        <span style={{ fontFamily: "'Playfair Display', serif", fontWeight: 900, fontSize: "1.15rem", color: "#111", lineHeight: 1.2, display: "block", marginBottom: "4px" }}>{event.title || "Untitled Event"}</span>
+      </div>
+      <div style={{ display: "flex", borderTop: "1px solid rgba(0,0,0,0.08)", borderBottom: "1px solid rgba(0,0,0,0.08)" }}>
+        {[{ label: monthName, value: dayNum }, { label: "Start", value: timeStr || "—" }, { label: "Going", value: String(event.guest_count) }].map((s, i) => (
+          <div key={i} style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.03)", padding: "10px 6px", textAlign: "center" as const, borderRight: i < 2 ? "1px solid rgba(0,0,0,0.07)" : undefined }}>
+            <span style={{ fontFamily: "'Playfair Display', serif", fontSize: i === 1 && timeStr ? "14px" : "22px", fontWeight: 900, color: "#111", display: "block", lineHeight: 1.1 }}>{s.value}</span>
+            <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, color: "rgba(0,0,0,0.35)", textTransform: "uppercase" as const, marginTop: "3px", display: "block" }}>{s.label}</span>
+          </div>
+        ))}
+      </div>
+      <div className="p-3.5 pt-3 flex flex-col gap-2">
+        {event.location && (
+          <div style={{ backgroundColor: "rgba(0,0,0,0.04)", border: "1px solid rgba(0,0,0,0.07)", borderRadius: "10px", padding: "8px 12px" }}>
+            <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "7px", fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase" as const, color: "rgba(0,0,0,0.35)", display: "block", marginBottom: "2px" }}>Location</span>
+            <span className="truncate" style={{ fontFamily: "'Playfair Display', serif", fontSize: "15px", fontWeight: 700, color: "#111", display: "block" }}>{event.location}</span>
+          </div>
+        )}
+        <button className="w-full rounded-lg py-2 text-xs font-bold tracking-wide" style={{ backgroundColor: "#111", color: "#fff", fontFamily: "'Inter', sans-serif" }} onClick={(e) => { e.stopPropagation(); navigate(navPath); }}>View event →</button>
+      </div>
+    </div>
+  );
+};
+
+const MidnightUpcomingCard = ({ event, navigate }: { event: EventWithRole; navigate: ReturnType<typeof useNavigate> }) => (
+  <div className="rounded-xl px-3.5 py-3 cursor-pointer" style={{ backgroundColor: "#ffffff", border: "1px solid rgba(0,0,0,0.12)" }} onClick={() => { const p = event.role === "host" ? `/event/${event.code}` : `/guest/${event.code}`; navigate(p); }}>
+    <div className="flex items-center justify-between">
+      <div className="flex-1 mr-3 min-w-0">
+        <div style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 700, color: "rgba(0,0,0,0.35)", letterSpacing: "1.5px", textTransform: "uppercase" as const, marginBottom: "2px" }}>midnight</div>
+        <h3 className="truncate" style={{ fontFamily: "'Playfair Display', serif", fontSize: "14px", fontWeight: 700, color: "#111" }}>{event.title || "Untitled Event"}</h3>
+        <p className="truncate mt-0.5" style={{ fontFamily: "'Inter', sans-serif", fontSize: "11px", color: "rgba(0,0,0,0.4)" }}>{formatDate(event.date_time)} · {event.location || "Location TBD"}</p>
+      </div>
+      <div style={{ backgroundColor: "rgba(0,0,0,0.06)", border: "1px solid rgba(0,0,0,0.12)", borderRadius: "50px", padding: "4px 10px", fontFamily: "'Inter', sans-serif", fontSize: "10px", fontWeight: 700, color: "#111", whiteSpace: "nowrap" as const }}>
+        {event.role === "host" ? "Host" : event.role === "going" ? "Going" : "Maybe"}
+      </div>
+    </div>
+  </div>
+);
+
 const CUSTOM_SOLID_COLOR_MAP: Record<string, string> = {
   "solid-softwhite": "#fafafa", "solid-cream": "#fdf6e3", "solid-blushpink": "#fde8f0",
   "solid-lavender": "#ede9fe", "solid-mint": "#ecfdf5", "solid-sky": "#e0f2fe",
@@ -1327,16 +1379,15 @@ const getCustomCardBg = (bgPhoto: string | null, bgColor?: string | null): { sty
   if (bgPhoto.startsWith("http") || bgPhoto.startsWith("blob:")) {
     return { style: { backgroundImage: `url(${bgPhoto})`, backgroundSize: "cover", backgroundPosition: "center" }, isLight: false, hasStars: false };
   }
-  // CSS gradient from Build It — use bg_color as the solid card background so it reads clearly at card size
+  // CSS gradient from Build It — apply directly so the card looks like a real mini preview
   if (
     bgPhoto.startsWith("linear-gradient") ||
     bgPhoto.startsWith("radial-gradient") ||
     bgPhoto.startsWith("conic-gradient") ||
     bgPhoto.startsWith("repeating-")
   ) {
-    const solidBg = bgColor ? `hsl(${bgColor})` : "#111111";
     const isLight = bgColor ? parseFloat(bgColor.trim().split(/[\s,]+/)[2] ?? "0") > 55 : false;
-    return { style: { backgroundColor: solidBg }, isLight, hasStars: false };
+    return { style: { background: bgPhoto }, isLight, hasStars: false };
   }
   switch (bgPhoto) {
     case "planit-pattern:retro-stars":    return { style: { backgroundColor: "#ede8d8" }, isLight: true,  hasStars: true };
@@ -1741,6 +1792,14 @@ const UpcomingSection = ({
       );
     }
 
+    if (isMidnight(event.template_name)) {
+      return (
+        <div key={event.id} style={{ opacity: isFaded ? 0.45 : 1, transition: "opacity 0.3s" }}>
+          <MidnightUpcomingCard event={event} navigate={navigate} />
+        </div>
+      );
+    }
+
     if (isCustomTemplate(event.template_name)) {
       return (
         <div key={event.id} style={{ opacity: isFaded ? 0.45 : 1, transition: "opacity 0.3s" }}>
@@ -2040,6 +2099,8 @@ const Home = () => {
             <BlushNextUpCard event={nextEvent} navigate={navigate} />
           ) : isForest(nextEvent.template_name) ? (
             <ForestNextUpCard event={nextEvent} navigate={navigate} />
+          ) : isMidnight(nextEvent.template_name) ? (
+            <MidnightNextUpCard event={nextEvent} navigate={navigate} />
           ) : isCustomTemplate(nextEvent.template_name) ? (
             <CustomNextUpCard event={nextEvent} navigate={navigate} />
           ) : (
