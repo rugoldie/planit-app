@@ -446,7 +446,14 @@ const HostEvent = () => {
   const [eventId, setEventId] = useState<string | null>(null);
   const [gradientColor, setGradientColor] = useState(GRADIENT_COLORS[0].color);
   const [fontStyle, setFontStyle] = useState<string>("Elegant");
-  const [templateName, setTemplateName] = useState<string>("planit-noir");
+  const [templateName, _setTemplateName] = useState<string>("planit-noir");
+  const setTemplateName = (value: string) => {
+    if (buildItAppliedRef.current && value !== "planit-custom") {
+      console.log("[templateName] BLOCKED — Build It is active, refusing overwrite to:", value);
+      return;
+    }
+    _setTemplateName(value);
+  };
   const [customizeTab, setCustomizeTab] = useState<"templates" | "customise">("templates");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const { toast } = useToast();
