@@ -3,7 +3,8 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowLeft, Upload, Copy, Share2, Users, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { Drawer, DrawerContent } from "@/components/ui/drawer";
+import { Drawer, DrawerPortal, DrawerOverlay } from "@/components/ui/drawer";
+import { Drawer as VaulDrawer } from "vaul";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import bgNeonCity from "@/assets/bg-neon-city.jpg";
@@ -2833,8 +2834,10 @@ const HostEvent = () => {
         >
           Make it yours ✦
         </button>
-        <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
-          <DrawerContent className="bg-card px-5 pb-8 pt-2 border-t border-border max-h-[80vh]">
+        <Drawer open={drawerOpen} onOpenChange={setDrawerOpen} shouldScaleBackground={false}>
+          <DrawerPortal>
+            <DrawerOverlay className="bg-black/30" />
+            <VaulDrawer.Content className="fixed inset-x-0 bottom-0 z-50 flex flex-col rounded-t-2xl bg-card px-5 pb-8 pt-2 border-t border-border max-h-[80vh]">
             <div className="mx-auto w-10 h-1 rounded-full bg-muted-foreground/30 mb-4" />
 
             <div className="overflow-y-auto flex-1">
@@ -3453,7 +3456,8 @@ const HostEvent = () => {
             >
               Done
             </button>
-          </DrawerContent>
+          </VaulDrawer.Content>
+          </DrawerPortal>
         </Drawer>
 
         <button
