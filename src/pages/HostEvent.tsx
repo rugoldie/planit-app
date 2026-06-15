@@ -3,8 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowLeft, Upload, Copy, Share2, Users, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { Drawer, DrawerPortal, DrawerOverlay } from "@/components/ui/drawer";
-import { Drawer as VaulDrawer } from "vaul";
+import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import bgNeonCity from "@/assets/bg-neon-city.jpg";
@@ -461,10 +460,10 @@ const HostEvent = () => {
     }
     _setTemplateName(value);
   };
-  const [customizeTab, setCustomizeTab] = useState<"templates" | "customise">("templates");
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [showStyleScreen, setShowStyleScreen] = useState(!editCode);
+  const [showTemplatePicker, setShowTemplatePicker] = useState(false);
+  const [showCustomiseDrawer, setShowCustomiseDrawer] = useState(false);
   const { toast } = useToast();
-  const [customisePanel, setCustomisePanel] = useState<string | null>(null);
   const [editLoading, setEditLoading] = useState(!!editCode);
   const [titleError, setTitleError] = useState("");
   const [stickers, setStickers] = useState<StickerItem[]>([]);
@@ -580,13 +579,6 @@ const HostEvent = () => {
       });
     return () => { cancelled = true; };
   }, [editCode]);
-
-  // Open the template picker automatically when creating a new event
-  useEffect(() => {
-    if (editCode) return;
-    const t = setTimeout(() => setDrawerOpen(true), 300);
-    return () => clearTimeout(t);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadFriendsForInvite = async () => {
     if (!user) return;
@@ -2831,649 +2823,286 @@ const HostEvent = () => {
         </>
       )}
 
-      <div className="px-5 pb-10 flex flex-col gap-3">
-        {/* Make it yours + action buttons */}
-        <button
-          onClick={() => setDrawerOpen(true)}
-          className="rounded-2xl px-4 py-3.5 mb-4 w-full text-center text-sm font-bold border mt-2"
-          style={{ backgroundColor: accentColor, color: accentText, borderColor: "rgba(0,0,0,0.1)" }}
+      <div className="px-5 pb-10">
+        <div className="flex gap-3 mt-2">
+          <button
+            onClick={() => setShowCustomiseDrawer(true)}
+            className="flex-1 rounded-2xl py-4 text-sm font-bold"
+            style={{ backgroundColor: "#1a1a1a", color: "#fff", border: "1px solid rgba(255,255,255,0.12)" }}
+          >
+            Customise
+          </button>
+          <button
+            onClick={handleCreate}
+            className="flex-1 rounded-2xl py-4 text-sm font-extrabold"
+            style={{ backgroundColor: "#aaee44", color: "#111" }}
+          >
+            {editCode ? "Update Event" : "Create Event"}
+          </button>
+        </div>
+        <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileUpload} />
+      </div>
+
+      {/* ─── Customise drawer ─── */}
+      {showCustomiseDrawer && (
+        <div
+          className="fixed inset-0 z-40"
+          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+          onClick={() => setShowCustomiseDrawer(false)}
         >
-          Make it yours ✦
-        </button>
-        <Drawer open={drawerOpen} onOpenChange={setDrawerOpen} shouldScaleBackground={false}>
-          <DrawerPortal>
-            <DrawerOverlay className="bg-black/30" />
-            <VaulDrawer.Content className="fixed inset-x-0 bottom-0 z-50 flex flex-col rounded-t-2xl bg-card px-5 pb-6 pt-2 border-t border-border max-h-[55vh]">
-            <div className="mx-auto w-10 h-1 rounded-full bg-muted-foreground/30 mb-3" />
-
-            <div className="overflow-y-auto flex-1" style={{ WebkitOverflowScrolling: "touch" }}>
-              {customisePanel !== null ? (
-                /* ─── Sub-panel screen ─── */
+          <div
+            className="absolute inset-x-0 bottom-0 rounded-t-2xl px-5 pt-4 pb-8"
+            style={{ backgroundColor: "#141414", maxHeight: "50vh", overflowY: "auto", WebkitOverflowScrolling: "touch" } as React.CSSProperties}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mx-auto w-10 h-1 rounded-full mb-4" style={{ backgroundColor: "#333" }} />
+            {isCustom ? (
+              <div className="flex flex-col gap-5 pb-2">
                 <div>
-                  <button
-                    onClick={() => setCustomisePanel(null)}
-                    className="flex items-center gap-1 text-sm text-white/60 mb-4"
-                  >
-                    <ArrowLeft className="w-4 h-4" /> Back
-                  </button>
-
-                  {customisePanel === "bg" && (
-                    <>
-                      <p className="text-card-foreground font-bold text-sm mb-2">Background colour</p>
-                      <div className="flex gap-2.5 mb-5 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
-                        {(isNoir ? NOIR_PALETTE_COLORS : PALETTE_COLORS).map((c) => (
-                          <button
-                            key={c.name}
-                            onClick={() => {
-                              buildItAppliedRef.current = false;
-                              setBgColor(c.hsl);
-                              setBgPhoto(null);
-                              setBgPreset(null);
-                              setBgPresetIsImage(false);
-                            }}
-                            className="w-8 h-8 rounded-full border-2 transition-all shrink-0"
-                            style={{
-                              backgroundColor: `hsl(${c.hsl})`,
-                              borderColor: bgColor === c.hsl && !bgPhoto && !bgPreset ? "#aaee44" : "hsl(0 0% 30%)",
-                              transform: bgColor === c.hsl && !bgPhoto && !bgPreset ? "scale(1.15)" : "scale(1)",
-                            }}
-                            title={c.name}
-                          />
-                        ))}
-                      </div>
-                      <p className="text-card-foreground font-bold text-sm mb-2">Background photo</p>
-                      <div className="flex gap-2.5 mb-3">
-                        <button
-                          onClick={() => fileInputRef.current?.click()}
-                          className="flex-1 bg-muted text-card-foreground rounded-[var(--radius)] py-2.5 text-sm font-bold flex items-center justify-center gap-2 border border-border"
-                        >
-                          <Upload className="w-4 h-4" /> Upload photo
-                        </button>
-                        {uploadedPhoto && (
-                          <button
-                            onClick={() => {
-                              buildItAppliedRef.current = false;
-                              setBgPhoto(uploadedPhoto);
-                              setBgPreset(null);
-                              setBgPresetIsImage(false);
-                            }}
-                            className="w-11 h-11 rounded-xl overflow-hidden border-2"
-                            style={{ borderColor: bgPhoto === uploadedPhoto ? "#aaee44" : "transparent" }}
-                          >
-                            <img src={uploadedPhoto} alt="Uploaded" className="w-full h-full object-cover" />
-                          </button>
-                        )}
-                      </div>
-                      <div className="grid grid-cols-3 gap-2.5">
-                        {PRESET_BACKGROUNDS.map((p) => (
-                          <button
-                            key={p.name}
-                            onClick={() => {
-                              setBgPreset(p.gradient);
-                              setBgPresetIsImage(!!(p as any).isImage);
-                              setBgPhoto(null);
-                            }}
-                            className="h-14 rounded-xl border-2 transition-all overflow-hidden"
-                            style={{
-                              ...((p as any).isImage
-                                ? { backgroundImage: p.gradient, backgroundSize: "cover", backgroundPosition: "center" }
-                                : { background: p.gradient }),
-                              borderColor: bgPreset === p.gradient ? "#aaee44" : "transparent",
-                            }}
-                          >
-                            <span className="text-[10px] font-bold text-white drop-shadow-sm">{p.name}</span>
-                          </button>
-                        ))}
-                      </div>
-                    </>
-                  )}
-
-                  {customisePanel === "bubble" && (
-                    <>
-                      <p className="text-card-foreground font-bold text-sm mb-2">Bubble colour</p>
-                      <div className="flex flex-wrap gap-2.5">
-                        {BUBBLE_COLORS.map((c) => (
-                          <button
-                            key={c.name}
-                            onClick={() => {
-                              setBubbleColor(c.hsl);
-                              setBubbleTextColor(c.text);
-                            }}
-                            className="w-8 h-8 rounded-full border-2 transition-all"
-                            style={{
-                              backgroundColor: `hsl(${c.hsl})`,
-                              borderColor: bubbleColor === c.hsl ? "#aaee44" : "hsl(0 0% 30%)",
-                              transform: bubbleColor === c.hsl ? "scale(1.15)" : "scale(1)",
-                            }}
-                            title={c.name}
-                          />
-                        ))}
-                      </div>
-                    </>
-                  )}
-
-                  {customisePanel === "gradient" && (
-                    <>
-                      <p className="text-card-foreground font-bold text-sm mb-2">Header gradient</p>
-                      <div className="flex flex-wrap gap-2.5">
-                        {GRADIENT_COLORS.map((c) => (
-                          <button
-                            key={c.name}
-                            onClick={() => setGradientColor(c.color)}
-                            className="w-8 h-8 rounded-full border-2 transition-all"
-                            style={{
-                              backgroundColor: c.color,
-                              borderColor: gradientColor === c.color ? "#aaee44" : "hsl(0 0% 30%)",
-                              transform: gradientColor === c.color ? "scale(1.15)" : "scale(1)",
-                            }}
-                            title={c.name}
-                          />
-                        ))}
-                      </div>
-                    </>
-                  )}
-
-                  {customisePanel === "accent" && (
-                    <>
-                      <p className="text-card-foreground font-bold text-sm mb-2">Accent colour</p>
-                      <div className="flex flex-wrap gap-2.5">
-                        {VINTAGE_ACCENT_COLORS.map((c) => (
-                          <button
-                            key={c.name}
-                            onClick={() => setGradientColor(c.color)}
-                            className="w-8 h-8 rounded-full border-2 transition-all"
-                            style={{
-                              backgroundColor: c.color,
-                              borderColor: gradientColor === c.color ? "#aaee44" : "hsl(0 0% 30%)",
-                              transform: gradientColor === c.color ? "scale(1.15)" : "scale(1)",
-                            }}
-                            title={c.name}
-                          />
-                        ))}
-                      </div>
-                    </>
-                  )}
-
-                  {customisePanel === "font" && (
-                    <>
-                      <p className="text-card-foreground font-bold text-sm mb-2">Font style</p>
-                      <div className="flex gap-2.5">
-                        {FONT_STYLES.map((f) => (
-                          <button
-                            key={f.name}
-                            onClick={() => setFontStyle(f.name)}
-                            className="flex-1 flex flex-col items-center gap-1.5 py-3 rounded-xl border-2 transition-all"
-                            style={{
-                              backgroundColor: "#2b2b2b",
-                              borderColor: fontStyle === f.name ? "#aaee44" : "#444",
-                            }}
-                          >
-                            <span className="text-2xl text-white" style={{ fontFamily: f.family }}>
-                              {f.name}
-                            </span>
-                            <span
-                              className="text-[10px] font-semibold"
-                              style={{ color: fontStyle === f.name ? "#aaee44" : "#999" }}
-                            >
-                              {f.name}
-                            </span>
-                          </button>
-                        ))}
-                      </div>
-                    </>
-                  )}
-
-                  {customisePanel === "custom-bg" && (
-                    <>
-                      <p className="text-card-foreground font-bold text-sm mb-3">Background</p>
-                      <div className="grid grid-cols-4 gap-2 mb-4">
-                        {CUSTOM_BG_PATTERNS.map((p) => (
-                          <button
-                            key={p.key}
-                            onClick={() => { setBgPreset(p.key); setBgPresetIsImage(false); setBgPhoto(null); setUploadedPhoto(null); }}
-                            className="flex flex-col items-center gap-1"
-                            style={{ border: bgPreset === p.key ? "2px solid #aaee44" : "2px solid transparent", borderRadius: "10px", overflow: "hidden", padding: "2px" }}
-                          >
-                            <div style={{ width: "100%", aspectRatio: "1", borderRadius: "8px", overflow: "hidden", position: "relative", ...getPatternBgStyle(p.key) }}>
-                              {(p.key === "planit-pattern:retro-stars" || p.key === "planit-pattern:camo" || p.key === "planit-pattern:blueprint" || p.key === "planit-pattern:cherry-blossom" || p.key === "planit-pattern:groovy") && (
-                                <div style={{ position: "absolute", inset: 0, overflow: "hidden" }}>
-                                  <PatternOverlay patternKey={p.key} />
-                                </div>
-                              )}
-                            </div>
-                            <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 600, color: "#ccc", textAlign: "center" as const }}>{p.name}</span>
-                          </button>
-                        ))}
-                        {/* Camera Roll */}
-                        <button
-                          onClick={() => fileInputRef.current?.click()}
-                          className="flex flex-col items-center gap-1"
-                          style={{ border: (bgPhoto && !customBgKey) ? "2px solid #aaee44" : "2px solid transparent", borderRadius: "10px", overflow: "hidden", padding: "2px" }}
-                        >
-                          <div style={{ width: "100%", aspectRatio: "1", borderRadius: "8px", backgroundColor: "#2b2b2b", border: "1px dashed #555", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
-                            {uploadedPhoto ? <img src={uploadedPhoto} style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <span style={{ fontSize: "22px" }}>📷</span>}
-                          </div>
-                          <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 600, color: "#ccc" }}>Camera Roll</span>
-                        </button>
-                      </div>
-                      {(customBgKey || bgPhoto) && (
-                        <button onClick={() => { buildItAppliedRef.current = false; setBgPreset(null); setBgPhoto(null); setUploadedPhoto(null); setBgPresetIsImage(false); }} className="text-xs text-white/50 underline mb-2">Clear (use solid colour)</button>
-                      )}
-                      <p className="text-xs text-white/40 mb-2 mt-1">Solid colours</p>
-                      <div className="grid grid-cols-4 gap-2">
-                        {CUSTOM_SOLID_COLORS.map((c) => (
-                          <button
-                            key={c.key}
-                            onClick={() => { setBgPreset(c.key); setBgPresetIsImage(false); setBgPhoto(null); setUploadedPhoto(null); }}
-                            className="flex flex-col items-center gap-1"
-                            style={{ border: bgPreset === c.key ? "2px solid #aaee44" : "2px solid transparent", borderRadius: "10px", overflow: "hidden", padding: "2px" }}
-                          >
-                            <div style={{ width: "100%", aspectRatio: "1", borderRadius: "8px", backgroundColor: c.color, border: "1px solid #444" }} />
-                            <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 600, color: "#ccc", textAlign: "center" as const }}>{c.name}</span>
-                          </button>
-                        ))}
-                      </div>
-                    </>
-                  )}
-
-                  {customisePanel === "custom-font-color" && (
-                    <>
-                      <p className="text-card-foreground font-bold text-sm mb-3">Font colour</p>
-                      <div className="grid grid-cols-3 gap-3">
-                        {FONT_COLORS.map((c) => (
-                          <button
-                            key={c.value}
-                            onClick={() => setFontColor(c.value)}
-                            className="flex flex-col items-center gap-1.5 py-3 rounded-xl"
-                            style={{
-                              backgroundColor: c.value === "#ffffff" ? "#2b2b2b" : c.value === "#111111" ? "#333" : "#1a1a1a",
-                              border: fontColor === c.value ? "2px solid #aaee44" : "2px solid transparent",
-                            }}
-                          >
-                            <div className="w-8 h-8 rounded-full border border-white/20" style={{ backgroundColor: c.value }} />
-                            <span className="text-xs text-white/70">{c.label}</span>
-                          </button>
-                        ))}
-                      </div>
-                    </>
-                  )}
-
-                  {customisePanel === "custom-stickers" && (
-                    <>
-                      <p className="text-card-foreground font-bold text-sm mb-3">Stickers</p>
-                      <p className="text-xs text-white/50 mb-3">Tap to place · Drag to move · Pinch to resize · Tap sticker → ✕ to remove</p>
-                      <div className="grid grid-cols-6 gap-2 mb-4">
-                        {STICKER_EMOJIS.map((emoji) => (
-                          <button
-                            key={emoji}
-                            onClick={() => addSticker(emoji)}
-                            className="flex items-center justify-center rounded-xl"
-                            style={{ aspectRatio: "1", backgroundColor: "#2b2b2b", fontSize: "22px" }}
-                          >
-                            {emoji}
-                          </button>
-                        ))}
-                      </div>
-                      {stickers.length > 0 && (
-                        <div className="flex flex-col gap-1 mt-2">
-                          <p className="text-xs text-white/40 mb-1">Placed stickers</p>
-                          {stickers.map(stk => (
-                            <div key={stk.id} className="flex items-center justify-between px-3 py-2 rounded-xl" style={{ backgroundColor: "#2b2b2b" }}>
-                              <span style={{ fontSize: "20px" }}>{stk.emoji}</span>
-                              <button onClick={() => deleteSticker(stk.id)} className="text-xs text-red-400 font-bold">Remove</button>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </>
-                  )}
-
-                  {customisePanel === "size" && (
-                    <>
-                      <p className="text-card-foreground font-bold text-sm mb-2">Text size</p>
-                      <div className="flex gap-2">
-                        {TEXT_SIZES.map((s) => (
-                          <button
-                            key={s}
-                            onClick={() => setTextSize(s)}
-                            className={`flex-1 py-2 rounded-[var(--radius)] text-sm font-bold transition-all ${
-                              textSize === s ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
-                            }`}
-                          >
-                            {s}
-                          </button>
-                        ))}
-                      </div>
-                    </>
-                  )}
-                </div>
-              ) : (
-                /* ─── Tabbed drawer ─── */
-                <div>
-                  {/* Tab row */}
-                  <div className="flex gap-2 mb-5 p-1.5 rounded-full" style={{ backgroundColor: "#1a1a1a" }}>
-                    <button
-                      onClick={() => setCustomizeTab("templates")}
-                      className="flex-1 py-2 text-sm font-bold transition-all rounded-full"
-                      style={{ backgroundColor: customizeTab === "templates" ? "#aaee44" : "transparent", color: customizeTab === "templates" ? "#111" : "#666" }}
-                    >
-                      Templates
-                    </button>
-                    <button
-                      onClick={() => { setCustomizeTab("customise"); setCustomisePanel(null); }}
-                      className="flex-1 py-2 text-sm font-bold transition-all rounded-full"
-                      style={{ backgroundColor: customizeTab === "customise" ? "#aaee44" : "transparent", color: customizeTab === "customise" ? "#111" : "#666" }}
-                    >
-                      Customise
-                    </button>
+                  <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-2.5">Font</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {(["Bold","Handwritten","Elegant"] as const).map(fv => (
+                      <button key={fv} onClick={() => setFontStyle(fv)} className="py-2.5 rounded-xl text-sm text-center" style={{ backgroundColor:"#1e1e1e", border: fontStyle===fv ? "2px solid #aaee44" : "2px solid transparent", fontFamily: FONT_MAP[fv], color:"#fff" }}>{fv}</button>
+                    ))}
                   </div>
-
-                  {customizeTab === "templates" ? (
-                    /* ─── Templates tab ─── */
-                    <div className="flex flex-col gap-5">
-                      {/* Build It button */}
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-2.5">Size</p>
+                  <div className="flex gap-2">
+                    {(["Small","Medium","Large"] as const).map((sz, i) => (
+                      <button key={sz} onClick={() => setTextSize(sz)} className="flex-1 py-2.5 rounded-xl font-bold" style={{ backgroundColor:"#1e1e1e", border: textSize===sz ? "2px solid #aaee44" : "2px solid transparent", color:"#fff", fontSize:[12,14,16][i] }}>
+                        {["S","M","L"][i]}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-2.5">Font colour</p>
+                  <div className="flex flex-wrap gap-2.5">
+                    {FONT_COLORS.map(c => (
+                      <button key={c.value} onClick={() => setFontColor(c.value)} title={c.label} style={{ width:32,height:32,borderRadius:"50%",backgroundColor:c.value,border:fontColor===c.value?"3px solid #aaee44":"2px solid rgba(255,255,255,0.2)",flexShrink:0 }} />
+                    ))}
+                    <label title="Custom colour" style={{ width:32,height:32,borderRadius:"50%",background:"conic-gradient(red,yellow,lime,cyan,blue,magenta,red)",border:"2px solid rgba(255,255,255,0.2)",cursor:"pointer",flexShrink:0,display:"block",position:"relative" }}>
+                      <input type="color" value={fontColor} onChange={e => setFontColor(e.target.value)} style={{ position:"absolute",inset:0,opacity:0,cursor:"pointer",width:"100%",height:"100%" }} />
+                    </label>
+                  </div>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-2.5">Accent colour</p>
+                  <div className="flex flex-wrap gap-2.5">
+                    {([
+                      { hex: "#ffffff", label: "White" },
+                      { hex: "#ffd700", label: "Gold" },
+                      { hex: "#ff70b0", label: "Hot Pink" },
+                      { hex: "#38bdf8", label: "Sky Blue" },
+                      { hex: "#aaee44", label: "Lime" },
+                      { hex: "#ff6b6b", label: "Coral" },
+                      { hex: "#4ade80", label: "Mint" },
+                      { hex: "#c084fc", label: "Lavender" },
+                    ] as const).map(({ hex, label }) => (
+                      <button key={hex} onClick={() => setCustomAccentHex(hex)} title={label} style={{ width:32,height:32,borderRadius:"50%",backgroundColor:hex,border:customAccentHex===hex?"3px solid #aaee44":"2px solid rgba(255,255,255,0.2)",flexShrink:0 }} />
+                    ))}
+                    <label title="Custom colour" style={{ width:32,height:32,borderRadius:"50%",background:"conic-gradient(red,yellow,lime,cyan,blue,magenta,red)",border:customAccentHex&&!["#ffffff","#ffd700","#ff70b0","#38bdf8","#aaee44","#ff6b6b","#4ade80","#c084fc"].includes(customAccentHex)?"3px solid #aaee44":"2px solid rgba(255,255,255,0.2)",cursor:"pointer",flexShrink:0,display:"block",position:"relative" }}>
+                      <input type="color" value={customAccentHex||"#aaee44"} onChange={e => setCustomAccentHex(e.target.value)} style={{ position:"absolute",inset:0,opacity:0,cursor:"pointer",width:"100%",height:"100%" }} />
+                    </label>
+                  </div>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-2.5">Info cards</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {([ ["frosted","Frosted"], ["solid","Solid"], ["outlined","Outlined"] ] as const).map(([val, label]) => (
+                      <button key={val} onClick={() => setBubbleStyle(val)} className="py-2.5 rounded-xl text-sm text-center" style={{ backgroundColor:"#1e1e1e", border: bubbleStyle===val ? "2px solid #aaee44" : "2px solid transparent", color:"#fff" }}>{label}</button>
+                    ))}
+                  </div>
+                </div>
+                <button
+                  onClick={() => { setShowCustomiseDrawer(false); setTimeout(() => { setShowBuildIt(true); setBuildItError(null); }, 200); }}
+                  className="w-full rounded-2xl py-3.5 text-sm font-bold"
+                  style={{ background:"linear-gradient(135deg,#7c3aed,#db2777)",color:"#fff",border:"none" }}
+                >
+                  ✦ Regenerate Background
+                </button>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-5 pb-2">
+                <div>
+                  <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-2.5">Bubble colour</p>
+                  <div className="flex gap-2.5 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
+                    {BUBBLE_COLORS.map((c) => (
                       <button
+                        key={c.name}
+                        onClick={() => { setBubbleColor(c.hsl); setBubbleTextColor(c.text); }}
+                        className="w-8 h-8 rounded-full border-2 shrink-0 transition-all"
+                        style={{ backgroundColor: `hsl(${c.hsl})`, borderColor: bubbleColor === c.hsl ? "#aaee44" : "rgba(255,255,255,0.2)", transform: bubbleColor === c.hsl ? "scale(1.15)" : "scale(1)" }}
+                        title={c.name}
+                      />
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-2.5">Font</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {(["Bold","Handwritten","Elegant"] as const).map(fv => (
+                      <button key={fv} onClick={() => setFontStyle(fv)} className="py-2.5 rounded-xl text-sm text-center" style={{ backgroundColor:"#1e1e1e", border: fontStyle===fv ? "2px solid #aaee44" : "2px solid transparent", fontFamily: FONT_MAP[fv], color:"#fff" }}>{fv}</button>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-2.5">Size</p>
+                  <div className="flex gap-2">
+                    {(["Small","Medium","Large"] as const).map((sz, i) => (
+                      <button key={sz} onClick={() => setTextSize(sz)} className="flex-1 py-2.5 rounded-xl font-bold" style={{ backgroundColor:"#1e1e1e", border: textSize===sz ? "2px solid #aaee44" : "2px solid transparent", color:"#fff", fontSize:[12,14,16][i] }}>
+                        {["S","M","L"][i]}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ─── Style screen ─── */}
+      {showStyleScreen && (
+        <div className="fixed inset-0 z-40 flex flex-col" style={{ backgroundColor: "#0a0a0a" }}>
+          {showTemplatePicker ? (
+            <div className="flex flex-col flex-1 overflow-hidden">
+              <div className="px-5 pt-14 pb-5">
+                <button
+                  onClick={() => setShowTemplatePicker(false)}
+                  className="flex items-center gap-2 text-sm mb-6"
+                  style={{ color: "rgba(255,255,255,0.5)", background: "none", border: "none" }}
+                >
+                  ← Back
+                </button>
+                <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "24px", fontWeight: 700, color: "#fff" }}>Pick a template</p>
+                <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "13px", color: "#666", marginTop: "4px" }}>You can customise it after</p>
+              </div>
+              <div className="flex-1 overflow-y-auto px-5 pb-10">
+                <div className="grid grid-cols-3 gap-3">
+                  {TEMPLATES.map((t) => {
+                    const isSelected = templateName === t.templateName;
+                    const tn = t.templateName;
+                    const cfgMap: Record<string, { bg: string; bgGrad?: string; titleColor: string; accentColor: string; accentStyle?: React.CSSProperties; font: string; barColor: string; barText: string }> = {
+                      "planit-noir":    { bg: "#0a0a0a", titleColor: "#fff", accentColor: "#aaee44", accentStyle: { fontStyle: "italic" }, font: "'Playfair Display', serif", barColor: "#aaee44", barText: "#111" },
+                      vintage:          { bg: "#f5f0e8", titleColor: "#2c1810", accentColor: "#8b7355", font: "'Playfair Display', serif", barColor: "#8b7355", barText: "#f5f0e8" },
+                      galaxy:           { bg: "#0d0d2b", titleColor: "#fff", accentColor: "#7c3aed", font: "'Bebas Neue', sans-serif", barColor: "#7c3aed", barText: "#fff" },
+                      sunny:            { bg: "#ff6b35", bgGrad: "linear-gradient(135deg, #ff6b35, #ff8c00)", titleColor: "#fff", accentColor: "#fff", font: "'Caveat', cursive", barColor: "#ff6b35", barText: "#fff" },
+                      midnight:         { bg: "#ffffff", titleColor: "#000", accentColor: "#000", font: "'Bebas Neue', sans-serif", barColor: "#000", barText: "#fff" },
+                      ocean:            { bg: "#0d1b2a", titleColor: "#fff", accentColor: "#1e90ff", font: "'Bebas Neue', sans-serif", barColor: "#1e90ff", barText: "#fff" },
+                      blush:            { bg: "#1a0a10", titleColor: "#fff", accentColor: "#e91e8c", font: "'Playfair Display', serif", barColor: "#e91e8c", barText: "#fff" },
+                      forest:           { bg: "#0a1f0a", titleColor: "#fff", accentColor: "#2e7d32", font: "'Playfair Display', serif", barColor: "#2e7d32", barText: "#fff" },
+                      "planit-custom":  { bg: "linear-gradient(135deg, #f857a6, #ff5858, #43e97b, #38f9d7, #4776e6)", titleColor: "#fff", accentColor: "#fff", font: "'Bebas Neue', sans-serif", barColor: "#fff", barText: "#111" },
+                    };
+                    const c = cfgMap[tn] || { bg: "#2b2b2b", titleColor: "#fff", accentColor: "#aaee44", font: "sans-serif", barColor: "#aaee44", barText: "#111" };
+                    return (
+                      <button
+                        key={t.name}
                         onClick={() => {
-                          setDrawerOpen(false);
-                          setTimeout(() => {
-                            setShowBuildIt(true);
-                            setBuildItError(null);
-                            
-                          }, 300);
+                          buildItAppliedRef.current = false;
+                          setBgColor(t.bgColor);
+                          setBubbleColor(t.bubbleColor);
+                          setBubbleTextColor(t.bubbleTextColor);
+                          setGradientColor(t.gradientColor);
+                          setFontStyle(t.fontStyle);
+                          setTemplateName(t.templateName);
+                          setBgPhoto(null);
+                          setBgPreset(null);
+                          setBgPresetIsImage(false);
+                          setShowTemplatePicker(false);
+                          setShowStyleScreen(false);
                         }}
-                        className="w-full rounded-2xl py-4 px-4 flex items-center gap-3 text-left"
-                        style={{ background: "linear-gradient(135deg, #7c3aed, #db2777)", border: "none" }}
+                        className="flex flex-col rounded-xl overflow-hidden transition-all"
+                        style={{ border: isSelected ? "2px solid #aaee44" : "2px solid transparent" }}
                       >
-                        <span style={{ fontSize: "22px" }}>🪄</span>
-                        <div>
-                          <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "14px", fontWeight: 700, color: "#fff", lineHeight: 1.2 }}>✦ Build It</p>
-                          <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "11px", color: "rgba(255,255,255,0.7)", marginTop: "2px" }}>Describe your event, we'll create the art</p>
+                        <div
+                          style={{
+                            width: "100%",
+                            height: "80px",
+                            background: c.bgGrad || c.bg,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            position: "relative",
+                            overflow: "hidden",
+                          }}
+                        >
+                          {tn === "galaxy" && (
+                            <div style={{ position: "absolute", top: "40%", left: "50%", transform: "translate(-50%,-50%)", width: 28, height: 28, borderRadius: "50%", background: "radial-gradient(circle, rgba(124,58,237,0.5) 0%, transparent 70%)" }} />
+                          )}
+                          {tn === "planit-custom" ? (
+                            <span style={{ fontSize: 20, filter: "drop-shadow(0 0 4px rgba(255,255,255,0.6))" }}>✦</span>
+                          ) : tn === "midnight" ? (
+                            <div style={{ borderLeft: "2px solid #000", paddingLeft: 3 }}>
+                              <span style={{ fontFamily: c.font, fontSize: 9, fontWeight: 800, color: c.titleColor, textTransform: "uppercase" as const, letterSpacing: "0.05em" }}>EVENT</span>
+                            </div>
+                          ) : (
+                            <span style={{ fontFamily: c.font, fontSize: 9, fontWeight: 700, color: c.titleColor, lineHeight: 1.2, textAlign: "center" as const, position: "relative", zIndex: 1 }}>
+                              Your <span style={{ color: c.accentColor, ...c.accentStyle }}>event</span>
+                            </span>
+                          )}
+                        </div>
+                        <div
+                          className="py-1.5 text-center"
+                          style={tn === "planit-custom" ? { background: "linear-gradient(90deg, #f857a6, #ff5858, #43e97b, #38f9d7, #4776e6)" } : { backgroundColor: c.barColor }}
+                        >
+                          <span style={{ fontSize: 8, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" as const, color: tn === "planit-custom" ? "#fff" : c.barText, display: "block", lineHeight: 1.4 }}>
+                            {t.name}
+                          </span>
                         </div>
                       </button>
-                      {/* Horizontal template scroll */}
-                      <div className="flex gap-2.5 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
-                        {TEMPLATES.map((t) => {
-                          const isSelected = templateName === t.templateName;
-                          const tn = t.templateName;
-                          const cfg: Record<string, { bg: string; bgGrad?: string; titleColor: string; accentColor: string; accentStyle?: React.CSSProperties; font: string; barColor: string; barText: string }> = {
-                            "planit-noir":    { bg: "#0a0a0a", titleColor: "#fff", accentColor: "#aaee44", accentStyle: { fontStyle: "italic" }, font: "'Playfair Display', serif", barColor: "#aaee44", barText: "#111" },
-                            vintage:          { bg: "#f5f0e8", titleColor: "#2c1810", accentColor: "#8b7355", font: "'Playfair Display', serif", barColor: "#8b7355", barText: "#f5f0e8" },
-                            galaxy:           { bg: "#0d0d2b", titleColor: "#fff", accentColor: "#7c3aed", font: "'Bebas Neue', sans-serif", barColor: "#7c3aed", barText: "#fff" },
-                            sunny:            { bg: "#ff6b35", bgGrad: "linear-gradient(135deg, #ff6b35, #ff8c00)", titleColor: "#fff", accentColor: "#fff", font: "'Caveat', cursive", barColor: "#ff6b35", barText: "#fff" },
-                            midnight:         { bg: "#ffffff", titleColor: "#000", accentColor: "#000", font: "'Bebas Neue', sans-serif", barColor: "#000", barText: "#fff" },
-                            ocean:            { bg: "#0d1b2a", titleColor: "#fff", accentColor: "#1e90ff", font: "'Bebas Neue', sans-serif", barColor: "#1e90ff", barText: "#fff" },
-                            blush:            { bg: "#1a0a10", titleColor: "#fff", accentColor: "#e91e8c", font: "'Playfair Display', serif", barColor: "#e91e8c", barText: "#fff" },
-                            forest:           { bg: "#0a1f0a", titleColor: "#fff", accentColor: "#2e7d32", font: "'Playfair Display', serif", barColor: "#2e7d32", barText: "#fff" },
-                            "planit-custom":  { bg: "linear-gradient(135deg, #f857a6, #ff5858, #43e97b, #38f9d7, #4776e6)", titleColor: "#fff", accentColor: "#fff", font: "'Bebas Neue', sans-serif", barColor: "#fff", barText: "#111" },
-                          };
-                          const c = cfg[tn] || { bg: "#2b2b2b", titleColor: "#fff", accentColor: "#aaee44", font: "sans-serif", barColor: "#aaee44", barText: "#111" };
-
-                          return (
-                            <button
-                              key={t.name}
-                              onClick={() => {
-                                buildItAppliedRef.current = false;
-                                setBgColor(t.bgColor);
-                                setBubbleColor(t.bubbleColor);
-                                setBubbleTextColor(t.bubbleTextColor);
-                                setGradientColor(t.gradientColor);
-                                setFontStyle(t.fontStyle);
-                                setTemplateName(t.templateName);
-                                setBgPhoto(null);
-                                setBgPreset(null);
-                                setBgPresetIsImage(false);
-                              }}
-                              className="flex flex-col rounded-xl overflow-hidden shrink-0 transition-all"
-                              style={{ width: "60px", border: isSelected ? "2px solid #aaee44" : "2px solid transparent" }}
-                            >
-                              <div
-                                style={{
-                                  width: "100%",
-                                  height: "62px",
-                                  background: c.bgGrad || c.bg,
-                                  backgroundColor: c.bgGrad ? undefined : c.bg,
-                                  display: "flex",
-                                  alignItems: "center",
-                                  justifyContent: "center",
-                                  position: "relative",
-                                  overflow: "hidden",
-                                }}
-                              >
-                                {tn === "galaxy" && (
-                                  <div style={{ position: "absolute", top: "40%", left: "50%", transform: "translate(-50%,-50%)", width: 28, height: 28, borderRadius: "50%", background: "radial-gradient(circle, rgba(124,58,237,0.5) 0%, transparent 70%)" }} />
-                                )}
-                                {tn === "planit-custom" ? (
-                                  <span style={{ fontSize: 16, filter: "drop-shadow(0 0 4px rgba(255,255,255,0.6))" }}>✦</span>
-                                ) : tn === "midnight" ? (
-                                  <div style={{ borderLeft: "2px solid #000", paddingLeft: 3 }}>
-                                    <span style={{ fontFamily: c.font, fontSize: 7, fontWeight: 800, color: c.titleColor, textTransform: "uppercase" as const, letterSpacing: "0.05em" }}>EVENT</span>
-                                  </div>
-                                ) : (
-                                  <span style={{ fontFamily: c.font, fontSize: 7, fontWeight: 700, color: c.titleColor, lineHeight: 1.2, textAlign: "center", position: "relative", zIndex: 1 }}>
-                                    Your <span style={{ color: c.accentColor, ...c.accentStyle }}>event</span>
-                                  </span>
-                                )}
-                              </div>
-                              <div
-                                className="py-1 text-center"
-                                style={tn === "planit-custom" ? { background: "linear-gradient(90deg, #f857a6, #ff5858, #43e97b, #38f9d7, #4776e6)" } : { backgroundColor: c.barColor }}
-                              >
-                                <span style={{ fontSize: 6, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" as const, color: tn === "planit-custom" ? "#fff" : c.barText, display: "block", lineHeight: 1.4 }}>
-                                  {t.name}
-                                </span>
-                              </div>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  ) : (
-                    /* ─── Customise tab ─── */
-                    <div>
-                      {isCustom && customCssGradient ? (
-                        /* ─── Build It Customise panel ─── */
-                        <div className="flex flex-col gap-5 pb-2">
-                          {/* Layout */}
-                          <div>
-                            <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-2.5">Layout</p>
-                            <div className="grid grid-cols-3 gap-2">
-                              {([ ["cards","Cards"], ["editorial","Editorial"], ["ocean","Ocean"] ] as const).map(([val, label]) => (
-                                <button key={val} onClick={() => setCustomLayout(val)} className="flex flex-col items-center gap-2 rounded-xl py-3 px-2" style={{ backgroundColor:"#1e1e1e", border: customLayout===val ? "2px solid #aaee44" : "2px solid transparent" }}>
-                                  <div style={{ width:36,height:46,borderRadius:4,backgroundColor:"#2a2a2a",display:"flex",flexDirection:"column",alignItems:val==="editorial"?"flex-start":"center",justifyContent:"flex-start",padding:"6px 5px",gap:3 }}>
-                                    <div style={{ height:3,width:val==="editorial"?"85%":"55%",backgroundColor:"#fff",borderRadius:2 }} />
-                                    <div style={{ height:2,width:val==="editorial"?"60%":"38%",backgroundColor:"rgba(255,255,255,0.4)",borderRadius:2 }} />
-                                    {val==="cards" && <><div style={{ height:7,width:"90%",backgroundColor:"rgba(255,255,255,0.12)",borderRadius:3,marginTop:2 }} /><div style={{ height:7,width:"90%",backgroundColor:"rgba(255,255,255,0.12)",borderRadius:3 }} /></>}
-                                    {val==="editorial" && <div style={{ height:2,width:20,backgroundColor:"rgba(170,238,68,0.8)",borderRadius:2,marginTop:2 }} />}
-                                    {val==="ocean" && <div style={{ display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:2,width:"90%",marginTop:2 }}><div style={{ height:12,backgroundColor:"rgba(255,255,255,0.12)",borderRadius:2 }}/><div style={{ height:12,backgroundColor:"rgba(255,255,255,0.12)",borderRadius:2 }}/><div style={{ height:12,backgroundColor:"rgba(255,255,255,0.12)",borderRadius:2 }}/></div>}
-                                  </div>
-                                  <span className="text-xs text-white/70">{label}</span>
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-                          {/* Font */}
-                          <div>
-                            <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-2.5">Font</p>
-                            <div className="grid grid-cols-3 gap-2">
-                              {(["Bold","Handwritten","Elegant"] as const).map(fv => (
-                                <button key={fv} onClick={() => setFontStyle(fv)} className="py-2.5 rounded-xl text-sm text-center" style={{ backgroundColor:"#1e1e1e", border: fontStyle===fv ? "2px solid #aaee44" : "2px solid transparent", fontFamily: FONT_MAP[fv], color:"#fff" }}>{fv}</button>
-                              ))}
-                            </div>
-                          </div>
-                          {/* Font size */}
-                          <div>
-                            <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-2.5">Size</p>
-                            <div className="flex gap-2">
-                              {(["Small","Medium","Large"] as const).map((sz, i) => (
-                                <button key={sz} onClick={() => setTextSize(sz)} className="flex-1 py-2.5 rounded-xl font-bold" style={{ backgroundColor:"#1e1e1e", border: textSize===sz ? "2px solid #aaee44" : "2px solid transparent", color:"#fff", fontSize:[12,14,16][i] }}>
-                                  {["S","M","L"][i]}
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-                          {/* Accent colour */}
-                          <div>
-                            <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-2.5">Accent colour</p>
-                            <div className="flex flex-wrap gap-2.5">
-                              {([
-                                { hex: "#ffffff", label: "White" },
-                                { hex: "#ffd700", label: "Gold" },
-                                { hex: "#ff70b0", label: "Hot Pink" },
-                                { hex: "#38bdf8", label: "Sky Blue" },
-                                { hex: "#aaee44", label: "Lime" },
-                                { hex: "#ff6b6b", label: "Coral" },
-                                { hex: "#4ade80", label: "Mint" },
-                                { hex: "#c084fc", label: "Lavender" },
-                              ] as const).map(({ hex, label }) => (
-                                <button key={hex} onClick={() => setCustomAccentHex(hex)} title={label} style={{ width:32,height:32,borderRadius:"50%",backgroundColor:hex,border:customAccentHex===hex?"3px solid #aaee44":"2px solid rgba(255,255,255,0.2)",flexShrink:0 }} />
-                              ))}
-                              <label title="Custom colour" style={{ width:32,height:32,borderRadius:"50%",background:"conic-gradient(red,yellow,lime,cyan,blue,magenta,red)",border:customAccentHex&&!["#ffffff","#ffd700","#ff70b0","#38bdf8","#aaee44","#ff6b6b","#4ade80","#c084fc"].includes(customAccentHex)?"3px solid #aaee44":"2px solid rgba(255,255,255,0.2)",cursor:"pointer",flexShrink:0,display:"block",position:"relative" }}>
-                                <input type="color" value={customAccentHex||"#aaee44"} onChange={e => setCustomAccentHex(e.target.value)} style={{ position:"absolute",inset:0,opacity:0,cursor:"pointer",width:"100%",height:"100%" }} />
-                              </label>
-                            </div>
-                          </div>
-                          {/* Font colour */}
-                          <div>
-                            <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-2.5">Font colour</p>
-                            <div className="flex flex-wrap gap-2.5">
-                              {FONT_COLORS.map(c => (
-                                <button key={c.value} onClick={() => setFontColor(c.value)} title={c.label} style={{ width:32,height:32,borderRadius:"50%",backgroundColor:c.value,border:fontColor===c.value?"3px solid #aaee44":"2px solid rgba(255,255,255,0.2)",flexShrink:0 }} />
-                              ))}
-                              <label title="Custom colour" style={{ width:32,height:32,borderRadius:"50%",background:"conic-gradient(red,yellow,lime,cyan,blue,magenta,red)",border:"2px solid rgba(255,255,255,0.2)",cursor:"pointer",flexShrink:0,display:"block",position:"relative" }}>
-                                <input type="color" value={fontColor} onChange={e => setFontColor(e.target.value)} style={{ position:"absolute",inset:0,opacity:0,cursor:"pointer",width:"100%",height:"100%" }} />
-                              </label>
-                            </div>
-                          </div>
-                          {/* Info card style */}
-                          <div>
-                            <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-2.5">Info cards</p>
-                            <div className="grid grid-cols-3 gap-2">
-                              {([ ["frosted","Frosted"], ["solid","Solid"], ["outlined","Outlined"] ] as const).map(([val, label]) => (
-                                <button key={val} onClick={() => setBubbleStyle(val)} className="py-2.5 rounded-xl text-sm text-center" style={{ backgroundColor:"#1e1e1e", border: bubbleStyle===val ? "2px solid #aaee44" : "2px solid transparent", color:"#fff" }}>{label}</button>
-                              ))}
-                            </div>
-                          </div>
-                          {/* Regenerate */}
-                          <button onClick={() => { setDrawerOpen(false); setTimeout(() => { setShowBuildIt(true); setBuildItError(null); }, 300); }} className="w-full rounded-2xl py-3.5 text-sm font-bold" style={{ background:"linear-gradient(135deg,#7c3aed,#db2777)",color:"#fff",border:"none" }}>
-                            ✦ Regenerate Background
-                          </button>
-                          {/* Stickers */}
-                          <button onClick={() => setCustomisePanel("custom-stickers")} className="flex items-center justify-between py-3 px-1 border-t border-white/10">
-                            <span className="text-sm font-semibold text-white">Stickers</span>
-                            <div className="flex items-center gap-2">
-                              <span className="text-xs text-white/60">{stickers.length > 0 ? `${stickers.length} placed` : "None"}</span>
-                              <span className="text-white/40 text-lg">›</span>
-                            </div>
-                          </button>
-                        </div>
-                      ) : isCustom ? (
-                        <div className="flex flex-col gap-1">
-                          <button onClick={() => setCustomisePanel("custom-bg")} className="flex items-center justify-between py-3.5 px-1">
-                            <span className="text-sm font-semibold text-white">Background</span>
-                            <div className="flex items-center gap-2">
-                              <div className="w-5 h-5 rounded-full border border-white/20" style={customBgKey ? getPatternBgStyle(customBgKey) : bgPhoto ? { backgroundImage: `url(${bgPhoto})`, backgroundSize: "cover" } : { backgroundColor: `hsl(${bgColor})` }} />
-                              <span className="text-white/40 text-lg">›</span>
-                            </div>
-                          </button>
-                          <button onClick={() => setCustomisePanel("bubble")} className="flex items-center justify-between py-3.5 px-1">
-                            <span className="text-sm font-semibold text-white">Accent colour</span>
-                            <div className="flex items-center gap-2">
-                              <div className="w-5 h-5 rounded-full border border-white/20" style={{ backgroundColor: accentColor }} />
-                              <span className="text-white/40 text-lg">›</span>
-                            </div>
-                          </button>
-                          <button onClick={() => setCustomisePanel("font")} className="flex items-center justify-between py-3.5 px-1">
-                            <span className="text-sm font-semibold text-white">Font</span>
-                            <div className="flex items-center gap-2">
-                              <span className="text-xs text-white/60">{fontStyle}</span>
-                              <span className="text-white/40 text-lg">›</span>
-                            </div>
-                          </button>
-                          <button onClick={() => setCustomisePanel("size")} className="flex items-center justify-between py-3.5 px-1">
-                            <span className="text-sm font-semibold text-white">Text size</span>
-                            <div className="flex items-center gap-2">
-                              <span className="text-xs text-white/60">{textSize}</span>
-                              <span className="text-white/40 text-lg">›</span>
-                            </div>
-                          </button>
-                          <button onClick={() => setCustomisePanel("custom-font-color")} className="flex items-center justify-between py-3.5 px-1">
-                            <span className="text-sm font-semibold text-white">Font colour</span>
-                            <div className="flex items-center gap-2">
-                              <div className="w-5 h-5 rounded-full border border-white/20" style={{ backgroundColor: fontColor }} />
-                              <span className="text-white/40 text-lg">›</span>
-                            </div>
-                          </button>
-                          <button onClick={() => setCustomisePanel("custom-stickers")} className="flex items-center justify-between py-3.5 px-1">
-                            <span className="text-sm font-semibold text-white">Stickers</span>
-                            <div className="flex items-center gap-2">
-                              <span className="text-xs text-white/60">{stickers.length > 0 ? `${stickers.length} placed` : "None"}</span>
-                              <span className="text-white/40 text-lg">›</span>
-                            </div>
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="flex flex-col gap-1">
-                          <button onClick={() => setCustomisePanel("bg")} className="flex items-center justify-between py-3.5 px-1">
-                            <span className="text-sm font-semibold text-white">Background colour</span>
-                            <div className="flex items-center gap-2">
-                              <div className="w-5 h-5 rounded-full border border-white/20" style={{ backgroundColor: `hsl(${bgColor})` }} />
-                              <span className="text-white/40 text-lg">›</span>
-                            </div>
-                          </button>
-                          <button onClick={() => setCustomisePanel("bubble")} className="flex items-center justify-between py-3.5 px-1">
-                            <span className="text-sm font-semibold text-white">Bubble colour</span>
-                            <div className="flex items-center gap-2">
-                              <div className="w-5 h-5 rounded-full border border-white/20" style={{ backgroundColor: accentColor }} />
-                              <span className="text-white/40 text-lg">›</span>
-                            </div>
-                          </button>
-                          <button onClick={() => setCustomisePanel("font")} className="flex items-center justify-between py-3.5 px-1">
-                            <span className="text-sm font-semibold text-white">Font</span>
-                            <div className="flex items-center gap-2">
-                              <span className="text-xs text-white/60">{fontStyle}</span>
-                              <span className="text-white/40 text-lg">›</span>
-                            </div>
-                          </button>
-                          <button onClick={() => setCustomisePanel("size")} className="flex items-center justify-between py-3.5 px-1">
-                            <span className="text-sm font-semibold text-white">Text size</span>
-                            <div className="flex items-center gap-2">
-                              <span className="text-xs text-white/60">{textSize}</span>
-                              <span className="text-white/40 text-lg">›</span>
-                            </div>
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  )}
+                    );
+                  })}
                 </div>
-              )}
+              </div>
             </div>
-
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={handleFileUpload}
-            />
-            <button
-              onClick={() => setDrawerOpen(false)}
-              className="w-full bg-secondary text-secondary-foreground rounded-[var(--radius)] py-3 text-sm font-bold border border-border mt-3 shrink-0"
-            >
-              Done
-            </button>
-          </VaulDrawer.Content>
-          </DrawerPortal>
-        </Drawer>
-
-        <button
-          onClick={handleCreate}
-          className="w-full rounded-[var(--radius)] py-5 text-xl font-extrabold"
-          style={{ backgroundColor: "#aaee44", color: "#111" }}
-        >
-          {editCode ? "Update Event" : "Create Event"}
-        </button>
-      </div>
+          ) : (
+            <div className="flex flex-col flex-1 justify-center px-5 pb-10">
+              <div className="mb-10">
+                <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "26px", fontWeight: 700, color: "#fff", lineHeight: 1.2 }}>Choose your style</p>
+                <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "13px", color: "#666", marginTop: "6px" }}>You can always change this later</p>
+              </div>
+              <div className="flex flex-col gap-3">
+                <button
+                  onClick={() => { setShowStyleScreen(false); setShowBuildIt(true); setBuildItError(null); }}
+                  className="w-full rounded-2xl px-5 py-5 flex items-center gap-4 text-left"
+                  style={{ background: "linear-gradient(135deg, #7c3aed, #db2777)", border: "none" }}
+                >
+                  <span style={{ fontSize: "28px" }}>🪄</span>
+                  <div>
+                    <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "16px", fontWeight: 700, color: "#fff", lineHeight: 1.2 }}>✦ Build It</p>
+                    <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "12px", color: "rgba(255,255,255,0.7)", marginTop: "3px" }}>AI creates your vibe</p>
+                  </div>
+                </button>
+                <button
+                  onClick={() => setShowTemplatePicker(true)}
+                  className="w-full rounded-2xl px-5 py-5 flex items-center gap-4 text-left"
+                  style={{ backgroundColor: "#1a1a1a", border: "1px solid rgba(255,255,255,0.08)" }}
+                >
+                  <span style={{ fontSize: "28px" }}>🎨</span>
+                  <div>
+                    <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "16px", fontWeight: 700, color: "#fff", lineHeight: 1.2 }}>Templates</p>
+                    <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "12px", color: "#666", marginTop: "3px" }}>Pick from 8 styles</p>
+                  </div>
+                  <span style={{ marginLeft: "auto", color: "#aaee44", fontSize: "20px" }}>›</span>
+                </button>
+                <button
+                  onClick={() => setShowStyleScreen(false)}
+                  className="w-full rounded-2xl px-5 py-5 flex items-center gap-4 text-left"
+                  style={{ backgroundColor: "#111", border: "1px solid rgba(255,255,255,0.06)" }}
+                >
+                  <span style={{ fontSize: "28px" }}>✏️</span>
+                  <div>
+                    <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "16px", fontWeight: 700, color: "#fff", lineHeight: 1.2 }}>Start blank</p>
+                    <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "12px", color: "#666", marginTop: "3px" }}>Keep it simple</p>
+                  </div>
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* ─── Build It modal ─── */}
       {showBuildIt && (
