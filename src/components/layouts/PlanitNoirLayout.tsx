@@ -361,10 +361,11 @@ export const NoirNotesCard = ({
         <textarea
           value={notes}
           onChange={(e) => onChange?.(e.target.value)}
+          onInput={(e) => { const t = e.currentTarget; t.style.height = "auto"; t.style.height = t.scrollHeight + "px"; }}
           placeholder="Anything else your guests should know..."
           rows={2}
           className="w-full bg-transparent outline-none resize-none text-sm mt-1 placeholder:text-white/20"
-          style={{ fontFamily: "'Playfair Display', serif", color: "rgba(255,255,255,0.5)", fontStyle: "italic" }}
+          style={{ fontFamily: "'Playfair Display', serif", color: "rgba(255,255,255,0.5)", fontStyle: "italic", overflow: "hidden" }}
         />
       ) : (
         <span

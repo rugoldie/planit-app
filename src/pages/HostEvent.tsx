@@ -420,6 +420,12 @@ const generateCode = () => {
   return code;
 };
 
+const autoExpand = (e: React.FormEvent<HTMLTextAreaElement>) => {
+  const t = e.currentTarget;
+  t.style.height = "auto";
+  t.style.height = t.scrollHeight + "px";
+};
+
 const HostEvent = () => {
   const navigate = useNavigate();
   const { user, profile } = useAuth();
@@ -1460,7 +1466,7 @@ const HostEvent = () => {
                   value={extra}
                   onChange={(e) => setExtra(e.target.value)}
                   placeholder="Anything else your guests should know..."
-                  rows={2}
+                  rows={2} onInput={autoExpand}
                   className="w-full bg-transparent outline-none resize-none placeholder:opacity-30 text-center"
                   style={{
                     fontFamily: "'Caveat', cursive",
@@ -1672,7 +1678,7 @@ const HostEvent = () => {
                   value={extra}
                   onChange={(e) => setExtra(e.target.value)}
                   placeholder="Anything else your guests should know..."
-                  rows={2}
+                  rows={2} onInput={autoExpand}
                   className="w-full bg-transparent outline-none resize-none placeholder:opacity-30"
                   style={{
                     fontFamily: "'Inter', sans-serif",
@@ -1776,7 +1782,7 @@ const HostEvent = () => {
                   value={extra}
                   onChange={(e) => setExtra(e.target.value)}
                   placeholder="Anything else your guests should know..."
-                  rows={2}
+                  rows={2} onInput={autoExpand}
                   className="w-full bg-transparent outline-none resize-none placeholder:opacity-20"
                   style={{ fontFamily: "'Inter', sans-serif", fontSize: "13px", color: "rgba(255,255,255,0.7)", lineHeight: 1.5 }}
                 />
@@ -1837,7 +1843,7 @@ const HostEvent = () => {
               </div>
               <div style={{ backgroundColor: "rgba(244,114,182,0.05)", border: "1px solid rgba(244,114,182,0.12)", borderRadius: "12px", padding: "12px 16px" }}>
                 <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase" as const, color: "rgba(244,114,182,0.5)", marginBottom: "6px" }}>From the host</p>
-                <textarea value={extra} onChange={(e) => setExtra(e.target.value)} placeholder="Anything else your guests should know..." rows={2} className="w-full bg-transparent outline-none resize-none placeholder:opacity-20" style={{ fontFamily: "'Inter', sans-serif", fontSize: "13px", color: "rgba(255,255,255,0.65)", lineHeight: 1.5 }} />
+                <textarea value={extra} onChange={(e) => setExtra(e.target.value)} placeholder="Anything else your guests should know..." rows={2} onInput={autoExpand} className="w-full bg-transparent outline-none resize-none placeholder:opacity-20" style={{ fontFamily: "'Inter', sans-serif", fontSize: "13px", color: "rgba(255,255,255,0.65)", lineHeight: 1.5 }} />
               </div>
             </div>
           </div>
@@ -1892,7 +1898,7 @@ const HostEvent = () => {
               </div>
               <div style={{ border: "1px solid rgba(74,222,128,0.15)", borderRadius: "12px", padding: "12px 16px" }}>
                 <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase" as const, color: "rgba(74,222,128,0.5)", marginBottom: "6px" }}>From the host</p>
-                <textarea value={extra} onChange={(e) => setExtra(e.target.value)} placeholder="Anything else your guests should know..." rows={2} className="w-full bg-transparent outline-none resize-none placeholder:opacity-20" style={{ fontFamily: "'Inter', sans-serif", fontSize: "13px", color: "rgba(255,255,255,0.65)", lineHeight: 1.5 }} />
+                <textarea value={extra} onChange={(e) => setExtra(e.target.value)} placeholder="Anything else your guests should know..." rows={2} onInput={autoExpand} className="w-full bg-transparent outline-none resize-none placeholder:opacity-20" style={{ fontFamily: "'Inter', sans-serif", fontSize: "13px", color: "rgba(255,255,255,0.65)", lineHeight: 1.5 }} />
               </div>
             </div>
           </div>
@@ -2217,7 +2223,7 @@ const HostEvent = () => {
                     value={extra}
                     onChange={(e) => setExtra(e.target.value)}
                     placeholder="Anything else your guests should know..."
-                    rows={2}
+                    rows={2} onInput={autoExpand}
                     className="w-full bg-transparent outline-none resize-none placeholder:opacity-30"
                     style={{
                       fontSize: "13px",
@@ -2478,7 +2484,7 @@ const HostEvent = () => {
                   value={extra}
                   onChange={(e) => setExtra(e.target.value)}
                   placeholder="Anything else your guests should know..."
-                  rows={2}
+                  rows={2} onInput={autoExpand}
                   className="w-full bg-transparent outline-none resize-none mt-1 placeholder:opacity-30"
                   style={{
                     fontFamily: "'Playfair Display', serif",
@@ -2585,7 +2591,7 @@ const HostEvent = () => {
                       </div>
                       <div style={{ backgroundColor:"rgba(255,255,255,0.05)",border:`1px solid ${accentColor}15`,borderRadius:"16px",padding:"14px 16px" }}>
                         <p style={{ fontFamily:"'Inter',sans-serif",fontSize:customLabelSz,fontWeight:700,letterSpacing:"0.22em",textTransform:"uppercase" as const,color:`${accentColor}60`,marginBottom:"6px" }}>From the host</p>
-                        <textarea value={extra} onChange={(e)=>setExtra(e.target.value)} placeholder="Anything else your guests should know..." rows={2} className="w-full bg-transparent outline-none resize-none placeholder:opacity-20" style={{ fontFamily:"'Inter',sans-serif",fontSize:customValueSz,color:fontColor,lineHeight:1.5 }} />
+                        <textarea value={extra} onChange={(e)=>setExtra(e.target.value)} placeholder="Anything else your guests should know..." rows={2} onInput={autoExpand} className="w-full bg-transparent outline-none resize-none placeholder:opacity-20" style={{ fontFamily:"'Inter',sans-serif",fontSize:customValueSz,color:fontColor,lineHeight:1.5 }} />
                       </div>
                     </div>
                   </div>
@@ -2627,7 +2633,7 @@ const HostEvent = () => {
                       </div>
                       <div style={{ ...infoBubbleStyle }}>
                         <p style={{ fontFamily:"'Inter',sans-serif",fontSize:customLabelSz,fontWeight:700,letterSpacing:"0.22em",textTransform:"uppercase" as const,color:infoBubbleLabelColor,marginBottom:"5px" }}>From the host</p>
-                        <textarea value={extra} onChange={(e)=>setExtra(e.target.value)} placeholder="Anything else..." rows={2} className="w-full bg-transparent outline-none resize-none placeholder:opacity-20" style={{ fontFamily:"'Inter',sans-serif",fontSize:customValueSz,color:infoBubbleTextColor,lineHeight:1.5 }} />
+                        <textarea value={extra} onChange={(e)=>setExtra(e.target.value)} placeholder="Anything else..." rows={2} onInput={autoExpand} className="w-full bg-transparent outline-none resize-none placeholder:opacity-20" style={{ fontFamily:"'Inter',sans-serif",fontSize:customValueSz,color:infoBubbleTextColor,lineHeight:1.5 }} />
                       </div>
                     </div>
                   </div>
@@ -2664,7 +2670,7 @@ const HostEvent = () => {
                       </div>
                       <div style={{ ...infoBubbleStyle }}>
                         <p style={{ fontFamily:"'Inter',sans-serif",fontSize:customLabelSz,fontWeight:700,letterSpacing:"0.22em",textTransform:"uppercase" as const,color:infoBubbleLabelColor,marginBottom:"5px" }}>From the host</p>
-                        <textarea value={extra} onChange={(e)=>setExtra(e.target.value)} placeholder="Anything else..." rows={2} className="w-full bg-transparent outline-none resize-none placeholder:opacity-20 text-center" style={{ fontFamily:"'Inter',sans-serif",fontSize:customValueSz,color:infoBubbleTextColor,lineHeight:1.5 }} />
+                        <textarea value={extra} onChange={(e)=>setExtra(e.target.value)} placeholder="Anything else..." rows={2} onInput={autoExpand} className="w-full bg-transparent outline-none resize-none placeholder:opacity-20 text-center" style={{ fontFamily:"'Inter',sans-serif",fontSize:customValueSz,color:infoBubbleTextColor,lineHeight:1.5 }} />
                       </div>
                     </div>
                   </div>
@@ -2815,7 +2821,7 @@ const HostEvent = () => {
                   value={extra}
                   onChange={(e) => setExtra(e.target.value)}
                   placeholder="Anything else your guests should know..."
-                  rows={2}
+                  rows={2} onInput={autoExpand}
                   className="w-full bg-transparent outline-none resize-none text-sm mt-1 placeholder:opacity-30"
                   style={{ color: bgTextSoft }}
                 />
