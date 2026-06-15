@@ -1204,7 +1204,7 @@ const HostEvent = () => {
                 onChange={(e) => setVibe(e.target.value)}
                 placeholder="Set the vibe..."
                 rows={1}
-                maxLength={120}
+               
                 className="w-full bg-transparent outline-none resize-none mt-1 placeholder:text-white/15"
                 style={{
                   fontFamily: "'Playfair Display', serif",
@@ -1297,7 +1297,7 @@ const HostEvent = () => {
                 onChange={(e) => setVibe(e.target.value)}
                 placeholder="Set the vibe..."
                 rows={1}
-                maxLength={120}
+               
                 className="w-full bg-transparent outline-none resize-none mt-1 text-center placeholder:opacity-30"
                 style={{
                   fontFamily: "'Caveat', cursive",
@@ -1493,7 +1493,7 @@ const HostEvent = () => {
                     onChange={(e) => setVibe(e.target.value)}
                     placeholder="EVENT TYPE (e.g. Birthday Party)"
                     rows={1}
-                    maxLength={60}
+                   
                     className="w-full bg-transparent outline-none resize-none placeholder:opacity-30 uppercase"
                     style={{
                       fontFamily: "'Inter', sans-serif",
@@ -1715,7 +1715,7 @@ const HostEvent = () => {
                 onChange={(e) => setVibe(e.target.value)}
                 placeholder="Add a tagline..."
                 rows={1}
-                maxLength={80}
+               
                 className="w-full bg-transparent outline-none resize-none text-center placeholder:opacity-20 mt-1"
                 style={{ fontFamily: "'Inter', sans-serif", fontSize: "13px", fontStyle: "italic", color: "rgba(56,189,248,0.45)" }}
               />
@@ -1798,7 +1798,7 @@ const HostEvent = () => {
                 <div style={{ backgroundColor: "rgba(244,114,182,0.14)", border: "1px solid rgba(244,114,182,0.3)", borderRadius: "50px", padding: "4px 14px" }}>
                   <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "10px", fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase" as const, color: vibe ? "#f472b6" : "rgba(244,114,182,0.35)" }}>{vibe || "Event type..."}</span>
                 </div>
-                <input type="text" value={vibe} onChange={(e) => setVibe(e.target.value)} maxLength={40} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", opacity: 0, cursor: "text", zIndex: 10 }} />
+                <input type="text" value={vibe} onChange={(e) => setVibe(e.target.value)} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", opacity: 0, cursor: "text", zIndex: 10 }} />
               </div>
               <input type="text" value={title} onChange={(e) => { setTitle(e.target.value); setTitleError(""); }} placeholder="Event name..." className="w-full bg-transparent outline-none placeholder:opacity-20 block" style={{ fontFamily: "'Playfair Display', serif", fontSize: noirFontSize, fontWeight: 900, color: "#ffffff", lineHeight: 1.1, marginBottom: "6px" }} />
               {titleError && <p className="text-red-400 text-xs mt-1">{titleError}</p>}
@@ -1856,7 +1856,7 @@ const HostEvent = () => {
               <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 700, letterSpacing: "0.3em", textTransform: "uppercase" as const, color: "rgba(74,222,128,0.5)", marginBottom: "10px" }}>An Invitation</p>
               <input type="text" value={title} onChange={(e) => { setTitle(e.target.value); setTitleError(""); }} placeholder="Event name..." className="w-full bg-transparent outline-none placeholder:opacity-20 block" style={{ fontFamily: "'Playfair Display', serif", fontSize: noirFontSize, fontWeight: 900, color: "#ffffff", lineHeight: 1.1, marginBottom: "6px" }} />
               {titleError && <p className="text-red-400 text-xs mt-1">{titleError}</p>}
-              <textarea value={vibe} onChange={(e) => setVibe(e.target.value)} placeholder="Add a tagline..." rows={1} maxLength={80} className="w-full bg-transparent outline-none resize-none placeholder:opacity-20" style={{ fontFamily: "'Inter', sans-serif", fontSize: "12px", fontStyle: "italic", color: "rgba(74,222,128,0.45)", marginBottom: "14px" }} />
+              <textarea value={vibe} onChange={(e) => setVibe(e.target.value)} placeholder="Add a tagline..." rows={1} className="w-full bg-transparent outline-none resize-none placeholder:opacity-20" style={{ fontFamily: "'Inter', sans-serif", fontSize: "12px", fontStyle: "italic", color: "rgba(74,222,128,0.45)", marginBottom: "14px" }} />
 
               {/* Diamond divider */}
               <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "14px" }}>
@@ -1975,7 +1975,7 @@ const HostEvent = () => {
                 onChange={(e) => setVibe(e.target.value)}
                 placeholder="Set the vibe..."
                 rows={1}
-                maxLength={120}
+               
                 className="w-full bg-transparent outline-none resize-none mt-1 text-center placeholder:opacity-30"
                 style={{
                   fontSize: "13px",
@@ -2277,7 +2277,7 @@ const HostEvent = () => {
                 onChange={(e) => setVibe(e.target.value)}
                 placeholder="Set the vibe..."
                 rows={1}
-                maxLength={120}
+               
                 className="w-full bg-transparent outline-none resize-none mt-1 text-center placeholder:opacity-30"
                 style={{
                   fontFamily: "'Playfair Display', serif",
@@ -2544,7 +2544,7 @@ const HostEvent = () => {
                         {titleError && <p className="text-red-400 text-xs mt-1">{titleError}</p>}
                       </div>
                       <div style={{ position:"relative",marginBottom:"6px",display:"inline-block" }}>
-                        <textarea value={vibe} onChange={(e)=>setVibe(e.target.value)} placeholder="Add a tagline..." rows={1} maxLength={80} className="bg-transparent outline-none resize-none text-center placeholder:opacity-20" style={{ fontFamily:"'Inter',sans-serif",fontSize:customSubtitleSz,fontStyle:"italic",color:`${accentColor}70` }} />
+                        <textarea value={vibe} onChange={(e)=>setVibe(e.target.value)} placeholder="Add a tagline..." rows={1} className="bg-transparent outline-none resize-none text-center placeholder:opacity-20" style={{ fontFamily:"'Inter',sans-serif",fontSize:customSubtitleSz,fontStyle:"italic",color:`${accentColor}70` }} />
                       </div>
                       <p style={{ fontFamily:"'Inter',sans-serif",fontSize:customHostedBySz,color:fontColorMuted,marginBottom:"12px" }}>hosted by {hostName}</p>
                       <div style={{ margin:"10px 0 4px" }}>
@@ -2596,7 +2596,7 @@ const HostEvent = () => {
                       <div style={{ border:`1px solid ${accentColor}55`,borderRadius:"6px",padding:"2px 10px",backgroundColor:`${accentColor}15`,display:"inline-block" }}>
                         <span style={{ fontFamily:"'Inter',sans-serif",fontSize:customSubtitleSz,fontWeight:700,letterSpacing:"0.2em",textTransform:"uppercase" as const,color:vibe?accentColor:`${accentColor}45` }}>{vibe||"Event type..."}</span>
                       </div>
-                      <input type="text" value={vibe} onChange={(e)=>setVibe(e.target.value)} maxLength={30} style={{ position:"absolute",inset:0,width:"100%",height:"100%",opacity:0,cursor:"text",zIndex:10 }} />
+                      <input type="text" value={vibe} onChange={(e)=>setVibe(e.target.value)} style={{ position:"absolute",inset:0,width:"100%",height:"100%",opacity:0,cursor:"text",zIndex:10 }} />
                     </div>
                     <input type="text" value={title} onChange={(e)=>{setTitle(e.target.value);setTitleError("");}} placeholder="Event name..." className="w-full bg-transparent outline-none placeholder:opacity-20 block" style={{ fontFamily:currentFontFamily,fontSize:noirFontSize,fontWeight:fontStyle==="Bold"?400:900,color:fontColor,lineHeight:0.95,marginBottom:"8px",textShadow:customIsLight?"none":"0 1px 12px rgba(0,0,0,0.4)" }} />
                     {titleError && <p className="text-red-400 text-xs mb-2">{titleError}</p>}
@@ -2638,7 +2638,7 @@ const HostEvent = () => {
                       <div style={{ border:`1px solid ${accentColor}55`,borderRadius:"50px",padding:"3px 12px",backgroundColor:`${accentColor}15`,backdropFilter:"blur(8px)",WebkitBackdropFilter:"blur(8px)" }}>
                         <span style={{ fontFamily:"'Inter',sans-serif",fontSize:customSubtitleSz,fontWeight:700,letterSpacing:"0.18em",textTransform:"uppercase" as const,color:vibe?accentColor:`${accentColor}45` }}>{vibe||"Event type..."}</span>
                       </div>
-                      <input type="text" value={vibe} onChange={(e)=>setVibe(e.target.value)} maxLength={30} style={{ position:"absolute",inset:0,width:"100%",height:"100%",opacity:0,cursor:"text",zIndex:10 }} />
+                      <input type="text" value={vibe} onChange={(e)=>setVibe(e.target.value)} style={{ position:"absolute",inset:0,width:"100%",height:"100%",opacity:0,cursor:"text",zIndex:10 }} />
                     </div>
                     <input type="text" value={title} onChange={(e)=>{setTitle(e.target.value);setTitleError("");}} placeholder="Event name..." className="w-full bg-transparent outline-none placeholder:opacity-20 text-center block" style={{ fontFamily:currentFontFamily,fontSize:noirFontSize,fontWeight:fontStyle==="Bold"?400:800,color:fontColor,lineHeight:1.05,marginBottom:"6px",textShadow:customIsLight?"none":"0 1px 8px rgba(0,0,0,0.5)" }} />
                     {titleError && <p className="text-red-400 text-xs mb-2">{titleError}</p>}
@@ -2711,7 +2711,7 @@ const HostEvent = () => {
                 onChange={(e) => setVibe(e.target.value)}
                 placeholder="Set the vibe..."
                 rows={1}
-                maxLength={120}
+               
                 className={`w-full bg-transparent placeholder:opacity-30 outline-none resize-none mt-1 ${vibeClass}`}
                 style={{ fontFamily: currentFontFamily, color: bgTextMuted }}
               />
