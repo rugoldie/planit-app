@@ -2837,10 +2837,10 @@ const HostEvent = () => {
         <Drawer open={drawerOpen} onOpenChange={setDrawerOpen} shouldScaleBackground={false}>
           <DrawerPortal>
             <DrawerOverlay className="bg-black/30" />
-            <VaulDrawer.Content className="fixed inset-x-0 bottom-0 z-50 flex flex-col rounded-t-2xl bg-card px-5 pb-8 pt-2 border-t border-border max-h-[80vh]">
-            <div className="mx-auto w-10 h-1 rounded-full bg-muted-foreground/30 mb-4" />
+            <VaulDrawer.Content className="fixed inset-x-0 bottom-0 z-50 flex flex-col rounded-t-2xl bg-card px-5 pb-6 pt-2 border-t border-border max-h-[55vh]">
+            <div className="mx-auto w-10 h-1 rounded-full bg-muted-foreground/30 mb-3" />
 
-            <div className="overflow-y-auto flex-1">
+            <div className="overflow-y-auto flex-1" style={{ WebkitOverflowScrolling: "touch" }}>
               {customisePanel !== null ? (
                 /* ─── Sub-panel screen ─── */
                 <div>
@@ -3452,7 +3452,7 @@ const HostEvent = () => {
             />
             <button
               onClick={() => setDrawerOpen(false)}
-              className="w-full bg-secondary text-secondary-foreground rounded-[var(--radius)] py-4 text-base font-extrabold border border-border mt-4"
+              className="w-full bg-secondary text-secondary-foreground rounded-[var(--radius)] py-3 text-sm font-bold border border-border mt-3 shrink-0"
             >
               Done
             </button>
