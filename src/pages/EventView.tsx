@@ -382,6 +382,35 @@ const EventView = () => {
     };
   }, [event, fetchComments]);
 
+  const fetchPolls = useCallback(async () => {
+    if (!event) return;
+    const { data: pollData } = await (supabase as any).from("polls").select("*").eq("event_id", event.id).order("created_at", { ascending: true });
+    if (!pollData) return;
+    const enriched = await Promise.all(pollData.map(async (poll: any) => {
+      const { data: votes } = await (supabase as any).from("poll_votes").select("option").eq("poll_id", poll.id);
+      const counts: Record<string, number> = {};
+      (votes || []).forEach((v: any) => { counts[v.option] = (counts[v.option] || 0) + 1; });
+      return { ...poll, voteCounts: counts, totalVotes: (votes || []).length };
+    }));
+    setPolls(enriched);
+    if (user && pollData.length) {
+      const { data: voteData } = await (supabase as any).from("poll_votes").select("poll_id, option").eq("user_id", user.id).in("poll_id", pollData.map((p: any) => p.id));
+      if (voteData) {
+        const map: Record<string, string> = {};
+        voteData.forEach((v: any) => { map[v.poll_id] = v.option; });
+        setMyVotes(map);
+      }
+    }
+  }, [event, user]);
+
+  const fetchWaitlist = useCallback(async () => {
+    if (!event) return;
+    const waitlist: string[] = (event as any).waitlist || [];
+    if (!waitlist.length) { setWaitlistProfiles([]); return; }
+    const { data } = await (supabase as any).from("profiles_public").select("user_id, name, avatar_url").in("user_id", waitlist);
+    setWaitlistProfiles((data || []).map((p: any) => ({ user_id: p.user_id, name: p.name || "Guest", avatar_url: p.avatar_url })));
+  }, [event]);
+
   useEffect(() => { if (event) { fetchPolls(); fetchWaitlist(); } }, [event, fetchPolls, fetchWaitlist]);
   useEffect(() => { if (event?.rsvp_deadline) setDeadlineInput(new Date((event as any).rsvp_deadline).toISOString().slice(0, 16)); }, [event]);
 
@@ -627,35 +656,6 @@ const EventView = () => {
     toast.success("Event deleted");
     navigate("/home", { replace: true });
   };
-
-  const fetchPolls = useCallback(async () => {
-    if (!event) return;
-    const { data: pollData } = await (supabase as any).from("polls").select("*").eq("event_id", event.id).order("created_at", { ascending: true });
-    if (!pollData) return;
-    const enriched = await Promise.all(pollData.map(async (poll: any) => {
-      const { data: votes } = await (supabase as any).from("poll_votes").select("option").eq("poll_id", poll.id);
-      const counts: Record<string, number> = {};
-      (votes || []).forEach((v: any) => { counts[v.option] = (counts[v.option] || 0) + 1; });
-      return { ...poll, voteCounts: counts, totalVotes: (votes || []).length };
-    }));
-    setPolls(enriched);
-    if (user && pollData.length) {
-      const { data: voteData } = await (supabase as any).from("poll_votes").select("poll_id, option").eq("user_id", user.id).in("poll_id", pollData.map((p: any) => p.id));
-      if (voteData) {
-        const map: Record<string, string> = {};
-        voteData.forEach((v: any) => { map[v.poll_id] = v.option; });
-        setMyVotes(map);
-      }
-    }
-  }, [event, user]);
-
-  const fetchWaitlist = useCallback(async () => {
-    if (!event) return;
-    const waitlist: string[] = (event as any).waitlist || [];
-    if (!waitlist.length) { setWaitlistProfiles([]); return; }
-    const { data } = await (supabase as any).from("profiles_public").select("user_id, name, avatar_url").in("user_id", waitlist);
-    setWaitlistProfiles((data || []).map((p: any) => ({ user_id: p.user_id, name: p.name || "Guest", avatar_url: p.avatar_url })));
-  }, [event]);
 
   const createPoll = async () => {
     if (!pollQuestion.trim() || pollOptions.filter(o => o.trim()).length < 2) return;
