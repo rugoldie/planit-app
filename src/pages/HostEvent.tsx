@@ -2,6 +2,12 @@ import { useState, useRef, useEffect } from "react";
 
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowLeft, Upload, Copy, Share2, Users, Check } from "lucide-react";
+import {
+  IconConfetti, IconGlassFull, IconMusic, IconStar, IconCake, IconCrown,
+  IconSun, IconWaveSine, IconTrees, IconFlower, IconMountain, IconSnowflake,
+  IconPizza, IconBeer, IconCoffee, IconMeat, IconFish, IconSalad,
+  IconTrophy, IconBallFootball, IconHorseToy, IconSwimming, IconBike, IconRun,
+} from "@tabler/icons-react";
 import { useToast } from "@/hooks/use-toast";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { supabase } from "@/integrations/supabase/client";
@@ -104,6 +110,29 @@ const PRESET_BACKGROUNDS = [
 type StickerItem = { id: string; emoji: string; x: number; y: number; size: number };
 
 const STICKER_EMOJIS = ["🍷","🌟","😊","🎉","🎈","🌸","🔥","💫","🦋","🍾","💎","🌙","🎂","👑","🕺","💃","🍕","🎸"];
+
+const TABLER_ICON_MAP: Record<string, React.ComponentType<{size?: number; stroke?: number; color?: string}>> = {
+  "confetti": IconConfetti, "glass-full": IconGlassFull, "music": IconMusic, "star": IconStar, "cake": IconCake, "crown": IconCrown,
+  "sun": IconSun, "wave-sine": IconWaveSine, "trees": IconTrees, "flower": IconFlower, "mountain": IconMountain, "snowflake": IconSnowflake,
+  "pizza": IconPizza, "beer": IconBeer, "coffee": IconCoffee, "meat": IconMeat, "fish": IconFish, "salad": IconSalad,
+  "trophy": IconTrophy, "ball-football": IconBallFootball, "horse-toy": IconHorseToy, "swimming": IconSwimming, "bike": IconBike, "run": IconRun,
+};
+
+const STICKER_CATEGORIES = [
+  { label: "Party",        keys: ["confetti","glass-full","music","star","cake","crown"] },
+  { label: "Nature",       keys: ["sun","wave-sine","trees","flower","mountain","snowflake"] },
+  { label: "Food & drink", keys: ["pizza","beer","coffee","meat","fish","salad"] },
+  { label: "Sports",       keys: ["trophy","ball-football","horse-toy","swimming","bike","run"] },
+];
+
+const BLANK_BG_COLORS = [
+  { name: "Black",         hsl: "0 0% 4%",    hex: "#0a0a0a" },
+  { name: "Cream",         hsl: "40 88% 95%", hex: "#fdf6e3" },
+  { name: "Deep Purple",   hsl: "270 100% 10%", hex: "#1a0033" },
+  { name: "Forest Green",  hsl: "120 52% 8%", hex: "#0a1f0a" },
+  { name: "Navy",          hsl: "235 58% 11%", hex: "#0a0d2b" },
+  { name: "Wine",          hsl: "340 100% 12%", hex: "#3d0014" },
+];
 
 const FONT_COLORS = [
   { label: "White",    value: "#ffffff" },
@@ -2509,24 +2538,28 @@ const HostEvent = () => {
                 {/* Photo scrim */}
                 {hasPhotoScrim && <div style={{ position: "absolute", inset: 0, backgroundColor: "rgba(0,0,0,0.4)", zIndex: 1, pointerEvents: "none" }} />}
                 {/* Stickers layer */}
-                {stickers.map(stk => (
-                  <div
-                    key={stk.id}
-                    style={{ position: "absolute", left: `${stk.x}%`, top: `${stk.y}%`, fontSize: `${stk.size}px`, zIndex: 30, cursor: "move", userSelect: "none" as const, touchAction: "none", lineHeight: 1 }}
-                    onTouchStart={(e) => handleStickerTouchStart(e, stk.id)}
-                    onTouchMove={(e) => handleStickerTouchMove(e, stk.id)}
-                    onTouchEnd={handleStickerTouchEnd}
-                    onClick={(e) => { e.stopPropagation(); setSelectedStickerId(prev => prev === stk.id ? null : stk.id); }}
-                  >
-                    {stk.emoji}
-                    {selectedStickerId === stk.id && (
-                      <button
-                        style={{ position: "absolute", top: "-10px", right: "-10px", width: "22px", height: "22px", borderRadius: "50%", backgroundColor: "#ff3b30", border: "2px solid #fff", color: "#fff", fontSize: "11px", fontWeight: 900, cursor: "pointer", zIndex: 40, display: "flex", alignItems: "center", justifyContent: "center", lineHeight: 1 }}
-                        onClick={(e) => { e.stopPropagation(); deleteSticker(stk.id); }}
-                      >✕</button>
-                    )}
-                  </div>
-                ))}
+                {stickers.map(stk => {
+                  const isTabler = stk.emoji.startsWith("tabler:");
+                  const TablerIcon = isTabler ? TABLER_ICON_MAP[stk.emoji.replace("tabler:", "")] : null;
+                  return (
+                    <div
+                      key={stk.id}
+                      style={{ position: "absolute", left: `${stk.x}%`, top: `${stk.y}%`, fontSize: `${stk.size}px`, zIndex: 30, cursor: "move", userSelect: "none" as const, touchAction: "none", lineHeight: 1 }}
+                      onTouchStart={(e) => handleStickerTouchStart(e, stk.id)}
+                      onTouchMove={(e) => handleStickerTouchMove(e, stk.id)}
+                      onTouchEnd={handleStickerTouchEnd}
+                      onClick={(e) => { e.stopPropagation(); setSelectedStickerId(prev => prev === stk.id ? null : stk.id); }}
+                    >
+                      {TablerIcon ? <TablerIcon size={stk.size} stroke={1.5} color={fontColor} /> : stk.emoji}
+                      {selectedStickerId === stk.id && (
+                        <button
+                          style={{ position: "absolute", top: "-10px", right: "-10px", width: "22px", height: "22px", borderRadius: "50%", backgroundColor: "#ff3b30", border: "2px solid #fff", color: "#fff", fontSize: "11px", fontWeight: 900, cursor: "pointer", zIndex: 40, display: "flex", alignItems: "center", justifyContent: "center", lineHeight: 1 }}
+                          onClick={(e) => { e.stopPropagation(); deleteSticker(stk.id); }}
+                        >✕</button>
+                      )}
+                    </div>
+                  );
+                })}
                 {/* Back nav */}
                 <button onClick={() => navigate(editCode ? `/event/${editCode}` : "/home")} className="absolute top-5 left-5 z-20">
                   <ArrowLeft className="w-6 h-6" style={{ color: fontColor }} />
@@ -2852,7 +2885,7 @@ const HostEvent = () => {
         >
           <div
             className="absolute inset-x-0 bottom-0 rounded-t-2xl px-5 pt-4 pb-8"
-            style={{ backgroundColor: "#141414", maxHeight: "50vh", overflowY: "auto", WebkitOverflowScrolling: "touch" } as React.CSSProperties}
+            style={{ backgroundColor: "#141414", maxHeight: "55vh", overflowY: "auto", WebkitOverflowScrolling: "touch" } as React.CSSProperties}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mx-auto w-10 h-1 rounded-full mb-4" style={{ backgroundColor: "#333" }} />
@@ -2924,31 +2957,82 @@ const HostEvent = () => {
                 </button>
               </div>
             ) : (
-              <div className="flex flex-col gap-5 pb-2">
+              /* ─── Start Blank / pre-built canvas customise panel ─── */
+              <div className="flex flex-col gap-6 pb-4">
+
+                {/* BACKGROUND */}
                 <div>
-                  <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-2.5">Bubble colour</p>
-                  <div className="flex gap-2.5 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
-                    {BUBBLE_COLORS.map((c) => (
+                  <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-3">Background</p>
+                  {/* Solid colours */}
+                  <div className="flex gap-2.5 mb-3">
+                    {BLANK_BG_COLORS.map((c) => (
                       <button
                         key={c.name}
-                        onClick={() => { setBubbleColor(c.hsl); setBubbleTextColor(c.text); }}
-                        className="w-8 h-8 rounded-full border-2 shrink-0 transition-all"
-                        style={{ backgroundColor: `hsl(${c.hsl})`, borderColor: bubbleColor === c.hsl ? "#aaee44" : "rgba(255,255,255,0.2)", transform: bubbleColor === c.hsl ? "scale(1.15)" : "scale(1)" }}
+                        onClick={() => { buildItAppliedRef.current = false; setBgColor(c.hsl); setBgPreset(null); setBgPhoto(null); setBgPresetIsImage(false); }}
+                        className="w-9 h-9 rounded-full shrink-0 transition-all"
+                        style={{ backgroundColor: c.hex, border: bgColor === c.hsl && !bgPreset && !bgPhoto ? "3px solid #aaee44" : "2px solid rgba(255,255,255,0.18)", transform: bgColor === c.hsl && !bgPreset && !bgPhoto ? "scale(1.15)" : "scale(1)" }}
                         title={c.name}
                       />
                     ))}
+                    <label title="Custom colour" className="w-9 h-9 rounded-full shrink-0 cursor-pointer relative" style={{ background: "conic-gradient(red,yellow,lime,cyan,blue,magenta,red)", border: "2px solid rgba(255,255,255,0.18)" }}>
+                      <input type="color" onChange={e => { buildItAppliedRef.current = false; const hex = e.target.value; const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16); const max=Math.max(r,g,b)/255,min=Math.min(r,g,b)/255,l=(max+min)/2; const s=max===min?0:(max-min)/(l<0.5?max+min:2-max-min); const h=max===r?((g/255-b/255)/(max-min)*60+360)%360:max===g?(b/255-r/255)/(max-min)*60+120:(r/255-g/255)/(max-min)*60+240; setBgColor(`${Math.round(h)} ${Math.round(s*100)}% ${Math.round(l*100)}%`); setBgPreset(null); setBgPhoto(null); setBgPresetIsImage(false); }} style={{ position:"absolute",inset:0,opacity:0,cursor:"pointer",width:"100%",height:"100%" }} />
+                    </label>
                   </div>
+                  {/* Pattern tiles */}
+                  <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
+                    {CUSTOM_BG_PATTERNS.map((p) => {
+                      const patStyle = getPatternBgStyle(p.key);
+                      const isActive = bgPreset === p.key;
+                      return (
+                        <button
+                          key={p.key}
+                          onClick={() => { buildItAppliedRef.current = false; setBgPreset(p.key); setBgPhoto(null); setBgPresetIsImage(false); }}
+                          className="shrink-0 flex flex-col items-center gap-1 rounded-lg overflow-hidden transition-all"
+                          style={{ border: isActive ? "2px solid #aaee44" : "2px solid rgba(255,255,255,0.12)", width: 52 }}
+                          title={p.name}
+                        >
+                          <div style={{ width: "100%", height: 36, ...patStyle }} />
+                          <span style={{ fontSize: 8, color: "#888", paddingBottom: 3, lineHeight: 1, textAlign: "center" as const }}>{p.name}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {/* Camera roll upload */}
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    className="mt-3 w-full rounded-xl py-3 flex items-center justify-center gap-2 text-sm font-semibold"
+                    style={{ border: "1.5px dashed rgba(255,255,255,0.25)", color: "#888", backgroundColor: "transparent" }}
+                  >
+                    <Upload className="w-4 h-4" /> Upload from camera roll
+                  </button>
                 </div>
+
+                {/* TEXT */}
                 <div>
-                  <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-2.5">Font</p>
-                  <div className="grid grid-cols-3 gap-2">
-                    {(["Bold","Handwritten","Elegant"] as const).map(fv => (
-                      <button key={fv} onClick={() => setFontStyle(fv)} className="py-2.5 rounded-xl text-sm text-center" style={{ backgroundColor:"#1e1e1e", border: fontStyle===fv ? "2px solid #aaee44" : "2px solid transparent", fontFamily: FONT_MAP[fv], color:"#fff" }}>{fv}</button>
+                  <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-3">Text</p>
+                  <div className="flex gap-2.5 mb-3">
+                    {[
+                      { label: "White",    hex: "#ffffff" },
+                      { label: "Gold",     hex: "#ffd700" },
+                      { label: "Hot Pink", hex: "#ff70b0" },
+                      { label: "Sky Blue", hex: "#38bdf8" },
+                      { label: "Lime",     hex: "#aaee44" },
+                      { label: "Black",    hex: "#111111" },
+                    ].map(({ label, hex }) => (
+                      <button
+                        key={hex}
+                        onClick={() => setFontColor(hex)}
+                        className="w-9 h-9 rounded-full shrink-0 transition-all"
+                        style={{ backgroundColor: hex, border: fontColor === hex ? "3px solid #aaee44" : "2px solid rgba(255,255,255,0.18)", transform: fontColor === hex ? "scale(1.15)" : "scale(1)" }}
+                        title={label}
+                      />
                     ))}
                   </div>
-                </div>
-                <div>
-                  <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-2.5">Size</p>
+                  <div className="flex gap-2 mb-3">
+                    {(["Bold","Elegant","Handwritten"] as const).map(fv => (
+                      <button key={fv} onClick={() => setFontStyle(fv)} className="flex-1 py-2.5 rounded-xl text-sm text-center" style={{ backgroundColor:"#1e1e1e", border: fontStyle===fv ? "2px solid #aaee44" : "2px solid transparent", fontFamily: FONT_MAP[fv], color:"#fff" }}>{fv}</button>
+                    ))}
+                  </div>
                   <div className="flex gap-2">
                     {(["Small","Medium","Large"] as const).map((sz, i) => (
                       <button key={sz} onClick={() => setTextSize(sz)} className="flex-1 py-2.5 rounded-xl font-bold" style={{ backgroundColor:"#1e1e1e", border: textSize===sz ? "2px solid #aaee44" : "2px solid transparent", color:"#fff", fontSize:[12,14,16][i] }}>
@@ -2957,6 +3041,53 @@ const HostEvent = () => {
                     ))}
                   </div>
                 </div>
+
+                {/* BUBBLES */}
+                <div>
+                  <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-3">Bubbles</p>
+                  <div className="flex gap-2.5 mb-3 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
+                    {BUBBLE_COLORS.map((c) => (
+                      <button
+                        key={c.name}
+                        onClick={() => { setBubbleColor(c.hsl); setBubbleTextColor(c.text); }}
+                        className="w-9 h-9 rounded-full border-2 shrink-0 transition-all"
+                        style={{ backgroundColor: `hsl(${c.hsl})`, borderColor: bubbleColor === c.hsl ? "#aaee44" : "rgba(255,255,255,0.18)", transform: bubbleColor === c.hsl ? "scale(1.15)" : "scale(1)" }}
+                        title={c.name}
+                      />
+                    ))}
+                  </div>
+                  <div className="flex gap-2">
+                    {([ ["frosted","Frosted"], ["solid","Solid"], ["outlined","Outlined"] ] as const).map(([val, label]) => (
+                      <button key={val} onClick={() => setBubbleStyle(val)} className="flex-1 py-2.5 rounded-xl text-sm text-center" style={{ backgroundColor:"#1e1e1e", border: bubbleStyle===val ? "2px solid #aaee44" : "2px solid transparent", color:"#fff" }}>{label}</button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* STICKERS */}
+                <div>
+                  <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-3">Stickers</p>
+                  {STICKER_CATEGORIES.map((cat) => (
+                    <div key={cat.label} className="mb-4">
+                      <p className="text-[9px] text-white/30 uppercase tracking-widest mb-2">{cat.label}</p>
+                      <div className="grid grid-cols-6 gap-2">
+                        {cat.keys.map((key) => {
+                          const Icon = TABLER_ICON_MAP[key];
+                          return (
+                            <button
+                              key={key}
+                              onClick={() => addSticker(`tabler:${key}`)}
+                              className="flex items-center justify-center rounded-xl"
+                              style={{ height: 44, backgroundColor: "#1e1e1e", border: "1px solid rgba(255,255,255,0.08)" }}
+                            >
+                              {Icon && <Icon size={22} stroke={1.5} color="#ffffff" />}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
               </div>
             )}
           </div>
