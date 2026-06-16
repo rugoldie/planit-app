@@ -2,12 +2,6 @@ import { useState, useRef, useEffect } from "react";
 
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowLeft, Upload, Copy, Share2, Users, Check } from "lucide-react";
-import {
-  IconConfetti, IconGlassFull, IconMusic, IconStar, IconCake, IconCrown,
-  IconSun, IconWaveSine, IconTrees, IconFlower, IconMountain, IconSnowflake,
-  IconPizza, IconBeer, IconCoffee, IconMeat, IconFish, IconSalad,
-  IconTrophy, IconBallFootball, IconHorseToy, IconSwimming, IconBike, IconRun,
-} from "@tabler/icons-react";
 import { useToast } from "@/hooks/use-toast";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { supabase } from "@/integrations/supabase/client";
@@ -107,23 +101,6 @@ const PRESET_BACKGROUNDS = [
   { name: "Marble", gradient: "linear-gradient(135deg, hsl(0 0% 95%), hsl(0 0% 80%), hsl(0 0% 90%))" },
 ];
 
-type StickerItem = { id: string; emoji: string; x: number; y: number; size: number };
-
-const STICKER_EMOJIS = ["🍷","🌟","😊","🎉","🎈","🌸","🔥","💫","🦋","🍾","💎","🌙","🎂","👑","🕺","💃","🍕","🎸"];
-
-const TABLER_ICON_MAP: Record<string, React.ComponentType<{size?: number; stroke?: number; color?: string}>> = {
-  "confetti": IconConfetti, "glass-full": IconGlassFull, "music": IconMusic, "star": IconStar, "cake": IconCake, "crown": IconCrown,
-  "sun": IconSun, "wave-sine": IconWaveSine, "trees": IconTrees, "flower": IconFlower, "mountain": IconMountain, "snowflake": IconSnowflake,
-  "pizza": IconPizza, "beer": IconBeer, "coffee": IconCoffee, "meat": IconMeat, "fish": IconFish, "salad": IconSalad,
-  "trophy": IconTrophy, "ball-football": IconBallFootball, "horse-toy": IconHorseToy, "swimming": IconSwimming, "bike": IconBike, "run": IconRun,
-};
-
-const STICKER_CATEGORIES = [
-  { label: "Party",        keys: ["confetti","glass-full","music","star","cake","crown"] },
-  { label: "Nature",       keys: ["sun","wave-sine","trees","flower","mountain","snowflake"] },
-  { label: "Food & drink", keys: ["pizza","beer","coffee","meat","fish","salad"] },
-  { label: "Sports",       keys: ["trophy","ball-football","horse-toy","swimming","bike","run"] },
-];
 
 const BLANK_BG_COLORS = [
   { name: "Black",         hsl: "0 0% 4%",    hex: "#0a0a0a" },
@@ -475,6 +452,7 @@ const HostEvent = () => {
   const [bubbleColor, setBubbleColor] = useState("82 100% 48%");
   const [bubbleTextColor, setBubbleTextColor] = useState("0 0% 10%");
   const [customAccentHex, setCustomAccentHex] = useState<string | null>(null);
+  const [capacity, setCapacity] = useState<string>("");
   const [showCode, setShowCode] = useState(false);
   const [eventCode, setEventCode] = useState("");
   const [uploadedPhoto, setUploadedPhoto] = useState<string | null>(null);
@@ -495,7 +473,6 @@ const HostEvent = () => {
   const { toast } = useToast();
   const [editLoading, setEditLoading] = useState(!!editCode);
   const [titleError, setTitleError] = useState("");
-  const [stickers, setStickers] = useState<StickerItem[]>([]);
   const [showBuildIt, setShowBuildIt] = useState(false);
   const [buildItPrompt, setBuildItPrompt] = useState("");
   const [buildItGenerating, setBuildItGenerating] = useState(false);
@@ -509,7 +486,6 @@ const HostEvent = () => {
     customCSS: string;
   } | null>(null);
   const [buildItError, setBuildItError] = useState<string | null>(null);
-  const [selectedStickerId, setSelectedStickerId] = useState<string | null>(null);
   const [fontColor, setFontColor] = useState<string>("#ffffff");
   const [customLayout, setCustomLayout] = useState<"cards" | "editorial" | "ocean">("cards");
   const [bubbleStyle, setBubbleStyle] = useState<"frosted" | "solid" | "outlined">("frosted");
@@ -521,13 +497,6 @@ const HostEvent = () => {
   const [inviting, setInviting] = useState(false);
   const [loadingFriends, setLoadingFriends] = useState(false);
   const customContainerRef = useRef<HTMLDivElement>(null);
-  const stickerDragRef = useRef<{ id: string; startX: number; startY: number; sx: number; sy: number } | null>(null);
-  const stickerPinchRef = useRef<{ id: string; initDist: number; initSize: number } | null>(null);
-  const isDraggingRef = useRef(false);
-  const activeStickerIdRef = useRef<string | null>(null);
-  const didDragRef = useRef(false);
-  const initialPinchDistRef = useRef(0);
-  const initialStickerSizeRef = useRef(40);
   // Prevents a stale Supabase load callback from overwriting state after the user applies a Build It style
   const buildItAppliedRef = useRef(false);
 
@@ -598,16 +567,14 @@ const HostEvent = () => {
           if ((data as any).stickers) {
             try {
               const parsed = JSON.parse((data as any).stickers);
-              if (Array.isArray(parsed)) {
-                setStickers(parsed);
-              } else {
-                setStickers(parsed.items || []);
+              if (!Array.isArray(parsed)) {
                 if (parsed.customLayout) { const cl = parsed.customLayout as string; setCustomLayout((cl === "centred" ? "cards" : cl === "cards" ? "cards" : cl === "ocean" ? "ocean" : "editorial") as "cards" | "editorial" | "ocean"); }
                 if (parsed.bubbleStyle) setBubbleStyle(parsed.bubbleStyle as "frosted" | "solid" | "outlined");
                 if (parsed.customAccentHex) setCustomAccentHex(parsed.customAccentHex as string);
               }
             } catch {}
           }
+          if ((data as any).capacity) setCapacity(String((data as any).capacity));
         }
         setEditLoading(false);
       });
@@ -684,8 +651,9 @@ const HostEvent = () => {
       font_style: fontStyle,
       template_name: templateName,
       font_color: fontColor,
-      stickers: JSON.stringify({ items: stickers, customLayout, bubbleStyle, ...(customAccentHex ? { customAccentHex } : {}) }),
+      stickers: JSON.stringify({ customLayout, bubbleStyle, ...(customAccentHex ? { customAccentHex } : {}) }),
       rsvp_deadline: rsvpDeadline ? new Date(rsvpDeadline).toISOString() : null,
+      capacity: capacity ? parseInt(capacity) : null,
     } as any;
 
     // Helper: strip optional/new columns so the retry only sends core fields.
@@ -707,7 +675,7 @@ const HostEvent = () => {
       if (isColError) {
         // Strip all columns that may be absent in an older schema
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { font_color, stickers: _s, bubble_text_color, text_size, ...safe } = data;
+        const { font_color, stickers: _s, bubble_text_color, text_size, capacity: _cap, rsvp_deadline: _rd, ...safe } = data;
         return safe;
       }
       return null;
@@ -847,14 +815,6 @@ const HostEvent = () => {
     console.log("[BuildIt] ★ STATE RENDER — templateName:", templateName, "| bgColor:", bgColor, "| bubbleColor:", bubbleColor, "| fontStyle:", fontStyle, "| bgPreset:", bgPreset);
   }, [templateName, bgColor, bubbleColor, fontStyle, bgPreset]);
 
-  useEffect(() => {
-    const handler = (e: TouchEvent) => {
-      if (isDraggingRef.current && activeStickerIdRef.current) e.preventDefault();
-    };
-    document.addEventListener("touchmove", handler, { passive: false });
-    return () => document.removeEventListener("touchmove", handler);
-  }, []);
-
   const applyStyle = () => {
     if (!buildItResult) return;
     // Mark that the user has applied a Build It style so any in-flight DB load callback won't overwrite it
@@ -913,64 +873,6 @@ const HostEvent = () => {
     const lightness = parseFloat(parts[parts.length - 1]);
     return lightness <= 30;
   })();
-
-  const addSticker = (emoji: string) => {
-    setStickers(prev => [...prev, { id: Date.now().toString(), emoji, x: Math.random()*60+15, y: Math.random()*35+12, size: 48 }]);
-  };
-  const deleteSticker = (id: string) => { setStickers(prev => prev.filter(s => s.id !== id)); setSelectedStickerId(null); };
-
-  const handleStickerTouchStart = (e: React.TouchEvent, id: string) => {
-    e.preventDefault();
-    e.stopPropagation();
-    didDragRef.current = false;
-    activeStickerIdRef.current = id;
-    setSelectedStickerId(prev => prev === id ? prev : id);
-    const stk = stickers.find(s => s.id === id);
-    if (!stk) return;
-    if (e.touches.length === 1) {
-      stickerDragRef.current = { id, startX: e.touches[0].clientX, startY: e.touches[0].clientY, sx: stk.x, sy: stk.y };
-      stickerPinchRef.current = null;
-      initialPinchDistRef.current = 0;
-      isDraggingRef.current = true;
-    } else if (e.touches.length === 2) {
-      const t1 = e.touches[0], t2 = e.touches[1];
-      const dist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
-      initialPinchDistRef.current = dist;
-      initialStickerSizeRef.current = stk.size;
-      stickerPinchRef.current = { id, initDist: dist, initSize: stk.size };
-      stickerDragRef.current = null;
-      isDraggingRef.current = true;
-    }
-  };
-  const handleStickerTouchMove = (e: React.TouchEvent, id: string) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (e.touches.length === 1 && stickerDragRef.current?.id === id) {
-      const rect = customContainerRef.current?.getBoundingClientRect();
-      if (!rect) return;
-      const dx = e.touches[0].clientX - stickerDragRef.current.startX;
-      const dy = e.touches[0].clientY - stickerDragRef.current.startY;
-      if (Math.abs(dx) > 5 || Math.abs(dy) > 5) didDragRef.current = true;
-      setStickers(prev => prev.map(s => s.id === id ? { ...s, x: Math.max(0,Math.min(88, stickerDragRef.current!.sx + (dx/rect.width)*100)), y: Math.max(0,Math.min(88, stickerDragRef.current!.sy + (dy/rect.height)*100)) } : s));
-    } else if (e.touches.length === 2) {
-      if (initialPinchDistRef.current === 0) {
-        const curStk = stickers.find(s => s.id === id);
-        if (curStk) {
-          const t1 = e.touches[0], t2 = e.touches[1];
-          initialPinchDistRef.current = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
-          initialStickerSizeRef.current = curStk.size;
-          stickerPinchRef.current = { id, initDist: initialPinchDistRef.current, initSize: curStk.size };
-        }
-      }
-      if (stickerPinchRef.current?.id === id && initialPinchDistRef.current > 0) {
-        const t1 = e.touches[0], t2 = e.touches[1];
-        const dist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
-        const newSize = Math.max(24, Math.min(180, stickerPinchRef.current.initSize * (dist / stickerPinchRef.current.initDist)));
-        setStickers(prev => prev.map(s => s.id === id ? { ...s, size: newSize } : s));
-      }
-    }
-  };
-  const handleStickerTouchEnd = (e: React.TouchEvent) => { e.preventDefault(); e.stopPropagation(); stickerDragRef.current = null; stickerPinchRef.current = null; initialPinchDistRef.current = 0; isDraggingRef.current = false; activeStickerIdRef.current = null; };
 
   // Loading screen for edit mode — prevents flash
   if (editLoading) {
@@ -1053,6 +955,22 @@ const HostEvent = () => {
           >
             <Users className="w-4 h-4" /> Invite friends
           </button>
+
+          {/* Guest limit */}
+          <div className="flex items-center gap-3 bg-card border border-border rounded-xl px-4 py-3 shrink-0">
+            <div className="flex-1">
+              <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground mb-0.5">Guest limit</p>
+              <input
+                type="number"
+                min="1"
+                value={capacity}
+                onChange={(e) => setCapacity(e.target.value)}
+                placeholder="Unlimited"
+                className="w-full bg-transparent text-foreground font-semibold text-sm outline-none placeholder:text-muted-foreground/50"
+              />
+            </div>
+            <span className="text-muted-foreground text-xs">guests max</span>
+          </div>
 
           {/* Divider */}
           <div className="h-px bg-border shrink-0" />
@@ -2565,34 +2483,11 @@ const HostEvent = () => {
                   : { backgroundColor: `hsl(${bgColor})`, backgroundImage: "none", backgroundSize: "auto" };
             const hasPhotoScrim = !!bgPhoto;
             return (
-              <div ref={customContainerRef} style={{ minHeight: "100vh", position: "relative", overflow: "hidden", touchAction: "none", ...patternStyle }} onClick={() => setSelectedStickerId(null)}>
+              <div ref={customContainerRef} style={{ minHeight: "100vh", position: "relative", overflow: "hidden", ...patternStyle }}>
                 {/* Pattern overlays for complex patterns */}
                 {customPatternKey && <PatternOverlay patternKey={customPatternKey} />}
                 {/* Photo scrim */}
                 {hasPhotoScrim && <div style={{ position: "absolute", inset: 0, backgroundColor: "rgba(0,0,0,0.4)", zIndex: 1, pointerEvents: "none" }} />}
-                {/* Stickers layer */}
-                {stickers.map(stk => {
-                  const isTabler = stk.emoji.startsWith("tabler:");
-                  const TablerIcon = isTabler ? TABLER_ICON_MAP[stk.emoji.replace("tabler:", "")] : null;
-                  return (
-                    <div
-                      key={stk.id}
-                      style={{ position: "absolute", left: `${stk.x}%`, top: `${stk.y}%`, fontSize: `${stk.size}px`, zIndex: 30, cursor: "move", userSelect: "none" as const, touchAction: "none", lineHeight: 1 }}
-                      onTouchStart={(e) => handleStickerTouchStart(e, stk.id)}
-                      onTouchMove={(e) => handleStickerTouchMove(e, stk.id)}
-                      onTouchEnd={handleStickerTouchEnd}
-                      onClick={(e) => { e.stopPropagation(); if (didDragRef.current) { didDragRef.current = false; return; } setSelectedStickerId(prev => prev === stk.id ? null : stk.id); }}
-                    >
-                      {TablerIcon ? <TablerIcon size={stk.size} stroke={1.5} color={fontColor} /> : stk.emoji}
-                      {selectedStickerId === stk.id && (
-                        <button
-                          style={{ position: "absolute", top: "-10px", right: "-10px", width: "22px", height: "22px", borderRadius: "50%", backgroundColor: "#ff3b30", border: "2px solid #fff", color: "#fff", fontSize: "11px", fontWeight: 900, cursor: "pointer", zIndex: 40, display: "flex", alignItems: "center", justifyContent: "center", lineHeight: 1 }}
-                          onPointerDown={(e) => { e.stopPropagation(); e.preventDefault(); deleteSticker(stk.id); }}
-                        >✕</button>
-                      )}
-                    </div>
-                  );
-                })}
                 {/* Back nav */}
                 <button onClick={() => navigate(editCode ? `/event/${editCode}` : "/home")} className="absolute top-5 left-5 z-20">
                   <ArrowLeft className="w-6 h-6" style={{ color: fontColor }} />
@@ -2973,24 +2868,6 @@ const HostEvent = () => {
                     ))}
                   </div>
                 </div>
-                <div>
-                  <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-2.5">Stickers</p>
-                  {STICKER_CATEGORIES.map((cat) => (
-                    <div key={cat.label} className="mb-3">
-                      <p className="text-[9px] text-white/30 uppercase tracking-widest mb-2">{cat.label}</p>
-                      <div className="grid grid-cols-6 gap-2">
-                        {cat.keys.map((key) => {
-                          const Icon = TABLER_ICON_MAP[key];
-                          return (
-                            <button key={key} onClick={() => addSticker(`tabler:${key}`)} className="flex items-center justify-center rounded-xl" style={{ height:40, backgroundColor:"#1e1e1e", border:"1px solid rgba(255,255,255,0.08)" }}>
-                              {Icon && <Icon size={20} stroke={1.5} color="#fff" />}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  ))}
-                </div>
                 <button
                   onClick={() => { setShowCustomiseDrawer(false); setTimeout(() => { setShowBuildIt(true); setBuildItError(null); }, 200); }}
                   className="w-full rounded-2xl py-3.5 text-sm font-bold"
@@ -3094,26 +2971,6 @@ const HostEvent = () => {
                       <button key={val} onClick={() => setBubbleStyle(val)} className="flex-1 py-2.5 rounded-xl text-sm text-center" style={{ backgroundColor:"#1e1e1e", border: bubbleStyle===val ? "2px solid #aaee44" : "2px solid transparent", color:"#fff" }}>{label}</button>
                     ))}
                   </div>
-                </div>
-
-                {/* STICKERS */}
-                <div>
-                  <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-3">Stickers</p>
-                  {STICKER_CATEGORIES.map((cat) => (
-                    <div key={cat.label} className="mb-4">
-                      <p className="text-[9px] text-white/30 uppercase tracking-widest mb-2">{cat.label}</p>
-                      <div className="grid grid-cols-6 gap-2">
-                        {cat.keys.map((key) => {
-                          const Icon = TABLER_ICON_MAP[key];
-                          return (
-                            <button key={key} onClick={() => addSticker(`tabler:${key}`)} className="flex items-center justify-center rounded-xl" style={{ height:44, backgroundColor:"#1e1e1e", border:"1px solid rgba(255,255,255,0.08)" }}>
-                              {Icon && <Icon size={22} stroke={1.5} color="#fff" />}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  ))}
                 </div>
 
               </div>

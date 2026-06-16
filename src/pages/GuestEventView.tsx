@@ -175,6 +175,10 @@ const GuestEventView = () => {
   const [rsvpList, setRsvpList] = useState<RsvpEntry[]>([]);
   const [guestListExpanded, setGuestListExpanded] = useState(false);
   const [hostName, setHostName] = useState<string>("Host");
+  const [showCapacityFull, setShowCapacityFull] = useState(false);
+  const [onWaitlist, setOnWaitlist] = useState(false);
+  const [polls, setPolls] = useState<any[]>([]);
+  const [myVotes, setMyVotes] = useState<Record<string, string>>({});
 
   // Fetch event
   useEffect(() => {
@@ -247,6 +251,35 @@ const GuestEventView = () => {
       supabase.removeChannel(channel);
     };
   }, [event, user]);
+
+  const fetchPolls = useCallback(async () => {
+    if (!event) return;
+    const { data: pollData } = await (supabase as any).from("polls").select("*").eq("event_id", event.id).order("created_at", { ascending: true });
+    if (!pollData) return;
+    const enriched = await Promise.all(pollData.map(async (poll: any) => {
+      const { data: votes } = await (supabase as any).from("poll_votes").select("option").eq("poll_id", poll.id);
+      const counts: Record<string, number> = {};
+      (votes || []).forEach((v: any) => { counts[v.option] = (counts[v.option] || 0) + 1; });
+      return { ...poll, voteCounts: counts, totalVotes: (votes || []).length };
+    }));
+    setPolls(enriched);
+    if (user && pollData.length) {
+      const { data: voteData } = await (supabase as any).from("poll_votes").select("poll_id, option").eq("user_id", user.id).in("poll_id", pollData.map((p: any) => p.id));
+      if (voteData) {
+        const map: Record<string, string> = {};
+        voteData.forEach((v: any) => { map[v.poll_id] = v.option; });
+        setMyVotes(map);
+      }
+    }
+  }, [event, user]);
+
+  useEffect(() => {
+    if (event) {
+      fetchPolls();
+      const waitlist: string[] = (event as any).waitlist || [];
+      if (user && waitlist.includes(user.id)) setOnWaitlist(true);
+    }
+  }, [event, fetchPolls, user]);
 
   // Fetch comments — defined at component scope so sendComment can call it directly
   const fetchComments = useCallback(async () => {
@@ -432,8 +465,40 @@ const GuestEventView = () => {
   const bubbleBg = event.bubble_color ? `hsl(${event.bubble_color})` : undefined;
   const bubbleText = event.bubble_text_color ? `hsl(${event.bubble_text_color})` : undefined;
 
+  const joinWaitlist = async () => {
+    if (!user || !event) return;
+    const waitlist: string[] = (event as any).waitlist || [];
+    if (waitlist.includes(user.id)) { setOnWaitlist(true); return; }
+    const newWaitlist = [...waitlist, user.id];
+    await (supabase as any).from("events").update({ waitlist: newWaitlist }).eq("id", event.id);
+    await createNotification(event.host_id, "waitlist", "New waitlist request", `Someone wants to join ${event.title || "your event"}`, { event_id: event.id, event_code: event.code });
+    setOnWaitlist(true);
+    setShowCapacityFull(false);
+  };
+
+  const voteOnPoll = async (pollId: string, option: string) => {
+    if (!user) return;
+    await (supabase as any).from("poll_votes").upsert({ poll_id: pollId, user_id: user.id, option }, { onConflict: "poll_id,user_id" });
+    setMyVotes(prev => ({ ...prev, [pollId]: option }));
+    fetchPolls();
+  };
+
   const handleRsvp = async (response: string) => {
     if (!user || !event) return;
+
+    if (response === "yes") {
+      const cap = (event as any).capacity;
+      if (cap) {
+        const { count } = await supabase.from("event_guests").select("*", { count: "exact", head: true }).eq("event_id", event.id).eq("rsvp_status", "yes");
+        if (count !== null && count >= cap) {
+          const waitlist: string[] = (event as any).waitlist || [];
+          setOnWaitlist(waitlist.includes(user.id));
+          setShowCapacityFull(true);
+          return;
+        }
+      }
+    }
+
     setRsvp(response);
 
     const { data: existing } = await supabase
@@ -519,6 +584,45 @@ const GuestEventView = () => {
 
   const rsvpLabel = rsvp === "yes" ? "You're going! 🎉" : rsvp === "no" ? "You're not going 👎" : "You're a maybe 🤷";
   const getInitials = (name: string) => name.charAt(0).toUpperCase();
+
+  const renderPolls = () => polls.length === 0 ? null : (
+    <div className="mt-3 space-y-3">
+      {polls.map(poll => (
+        <div key={poll.id} className="rounded-2xl p-4" style={{ backgroundColor: "#1e1e1e", border: "1px solid rgba(255,255,255,0.08)" }}>
+          <p className="text-sm font-bold text-white mb-3">{poll.question}</p>
+          {poll.chosen_option && (
+            <div className="mb-2 px-2 py-1 rounded-lg inline-flex items-center gap-1" style={{ backgroundColor: "rgba(170,238,68,0.15)", border: "1px solid rgba(170,238,68,0.3)" }}>
+              <span style={{ color: "#aaee44", fontSize: 11, fontWeight: 700 }}>HOST'S CHOICE: {poll.chosen_option}</span>
+            </div>
+          )}
+          <div className="flex flex-col gap-2">
+            {(poll.options || []).map((opt: string) => {
+              const count = poll.voteCounts?.[opt] || 0;
+              const pct = poll.totalVotes > 0 ? Math.round((count / poll.totalVotes) * 100) : 0;
+              const myVote = myVotes[poll.id] === opt;
+              const isChosen = poll.chosen_option === opt;
+              return (
+                <div key={opt}>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs text-white/80">{opt}</span>
+                    <span className="text-xs text-white/40">{pct}% · {count}</span>
+                  </div>
+                  <div className="relative h-8 rounded-lg overflow-hidden" style={{ backgroundColor: "#2a2a2a" }}>
+                    <div className="absolute inset-y-0 left-0 rounded-lg transition-all" style={{ width: `${pct}%`, backgroundColor: isChosen ? "#aaee44" : myVote ? "rgba(170,238,68,0.35)" : "rgba(255,255,255,0.1)" }} />
+                    {!poll.chosen_option && (
+                      <button onClick={() => voteOnPoll(poll.id, opt)} className="absolute inset-0 w-full text-left pl-3 text-xs font-semibold" style={{ color: myVote ? "#aaee44" : "rgba(255,255,255,0.5)", background: "none", border: "none" }}>
+                        {myVote ? "✓ Your vote" : "Tap to vote"}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
 
   const statusBadge = (status: string) => {
     if (status === "yes")
@@ -1047,6 +1151,7 @@ const GuestEventView = () => {
               </div>
             </div>
 
+            <div className="mx-5">{renderPolls()}</div>
             {/* Vintage Chat */}
             <div className="mx-5 mb-4 rounded-2xl p-4" style={{ backgroundColor: "#2c1810" }}>
               <div className="flex items-center justify-between mb-3">
@@ -1498,6 +1603,7 @@ const GuestEventView = () => {
                 </div>
               </div>
 
+              {renderPolls()}
               {/* Chat */}
               <div
                 style={{
@@ -1942,6 +2048,7 @@ const GuestEventView = () => {
                 </div>
               </div>
 
+              {renderPolls()}
               {/* Chat */}
               <div
                 style={{ backgroundColor: isLightBg ? "#f5f5f5" : "#111", borderRadius: "12px", padding: "12px 14px" }}
@@ -2202,6 +2309,8 @@ const GuestEventView = () => {
                 </div>
               </div>
 
+              {renderPolls()}
+
               {/* Chat */}
               <div style={{ backgroundColor: "rgba(56,189,248,0.06)", border: "1px solid rgba(56,189,248,0.12)", borderRadius: "16px", padding: "12px 14px" }}>
                 <div className="flex items-center justify-between mb-3">
@@ -2339,6 +2448,8 @@ const GuestEventView = () => {
                 </div>
               </div>
 
+              {renderPolls()}
+
               {/* Chat */}
               <div style={{ backgroundColor: "rgba(244,114,182,0.06)", border: "1px solid rgba(244,114,182,0.15)", borderRadius: "12px", padding: "12px 14px" }}>
                 <div className="flex items-center justify-between mb-3">
@@ -2474,6 +2585,8 @@ const GuestEventView = () => {
                   ))}
                 </div>
               </div>
+
+              {renderPolls()}
 
               {/* Chat */}
               <div style={{ border: "1px solid rgba(74,222,128,0.18)", borderRadius: "12px", padding: "12px 14px" }}>
@@ -2951,6 +3064,8 @@ const GuestEventView = () => {
                 </div>
               </div>
 
+              {renderPolls()}
+
               {/* Chat */}
               <div
                 style={{
@@ -3226,6 +3341,8 @@ const GuestEventView = () => {
             )}
           </div>
 
+          {renderPolls()}
+
           {/* Chat section */}
           <div className="mt-4 rounded-2xl p-4" style={{ backgroundColor: "#1e1e1e" }}>
             <div className="flex items-center justify-between mb-3">
@@ -3485,6 +3602,22 @@ const GuestEventView = () => {
               <Download className="w-4 h-4" />
               Save to Camera Roll
             </button>
+          </div>
+        </div>
+      )}
+      {/* Capacity full overlay */}
+      {showCapacityFull && (
+        <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center px-6" style={{ backgroundColor: "rgba(0,0,0,0.85)" }}>
+          <div className="bg-card border border-border rounded-3xl p-6 w-full max-w-xs text-center">
+            <div className="text-4xl mb-3">🎟️</div>
+            <h2 className="text-lg font-bold text-foreground mb-2">This event is full</h2>
+            <p className="text-sm text-muted-foreground mb-5">The host can approve people from the waitlist.</p>
+            {onWaitlist ? (
+              <p className="text-sm font-semibold" style={{ color: "#aaee44" }}>You're on the waitlist ✓</p>
+            ) : (
+              <button onClick={joinWaitlist} className="w-full py-3 rounded-xl text-sm font-bold mb-3" style={{ backgroundColor: "#aaee44", color: "#111" }}>Join waitlist</button>
+            )}
+            <button onClick={() => setShowCapacityFull(false)} className="w-full py-3 rounded-xl text-sm font-semibold border border-border text-muted-foreground mt-2">Close</button>
           </div>
         </div>
       )}

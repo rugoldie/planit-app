@@ -54,6 +54,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+import { createNotification } from "@/lib/notifications";
+import { Drawer, DrawerContent } from "@/components/ui/drawer";
 
 type Comment = { id: string; user_name: string; text: string; created_at: string; avatar_url?: string };
 type RsvpEntry = { name: string; avatar_url?: string; status: string; user_id: string };
@@ -194,6 +196,22 @@ const EventView = () => {
   // Delete
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
+
+  // Guest list
+  const [showGuestList, setShowGuestList] = useState(false);
+  const [guestListTab, setGuestListTab] = useState<"going" | "waitlist">("going");
+  const [waitlistProfiles, setWaitlistProfiles] = useState<{user_id: string; name: string; avatar_url?: string}[]>([]);
+
+  // Polls
+  const [showPollSheet, setShowPollSheet] = useState(false);
+  const [pollQuestion, setPollQuestion] = useState("");
+  const [pollOptions, setPollOptions] = useState(["", ""]);
+  const [polls, setPolls] = useState<any[]>([]);
+  const [myVotes, setMyVotes] = useState<Record<string, string>>({});
+
+  // RSVP deadline editor
+  const [showRsvpDeadlineSheet, setShowRsvpDeadlineSheet] = useState(false);
+  const [deadlineInput, setDeadlineInput] = useState("");
 
   // RSVP
   const [rsvp, setRsvp] = useState<string | null>(null);
@@ -363,6 +381,9 @@ const EventView = () => {
       supabase.removeChannel(channel);
     };
   }, [event, fetchComments]);
+
+  useEffect(() => { if (event) { fetchPolls(); fetchWaitlist(); } }, [event, fetchPolls, fetchWaitlist]);
+  useEffect(() => { if (event?.rsvp_deadline) setDeadlineInput(new Date((event as any).rsvp_deadline).toISOString().slice(0, 16)); }, [event]);
 
   // Fetch photos
   useEffect(() => {
@@ -607,9 +628,148 @@ const EventView = () => {
     navigate("/home", { replace: true });
   };
 
+  const fetchPolls = useCallback(async () => {
+    if (!event) return;
+    const { data: pollData } = await (supabase as any).from("polls").select("*").eq("event_id", event.id).order("created_at", { ascending: true });
+    if (!pollData) return;
+    const enriched = await Promise.all(pollData.map(async (poll: any) => {
+      const { data: votes } = await (supabase as any).from("poll_votes").select("option").eq("poll_id", poll.id);
+      const counts: Record<string, number> = {};
+      (votes || []).forEach((v: any) => { counts[v.option] = (counts[v.option] || 0) + 1; });
+      return { ...poll, voteCounts: counts, totalVotes: (votes || []).length };
+    }));
+    setPolls(enriched);
+    if (user && pollData.length) {
+      const { data: voteData } = await (supabase as any).from("poll_votes").select("poll_id, option").eq("user_id", user.id).in("poll_id", pollData.map((p: any) => p.id));
+      if (voteData) {
+        const map: Record<string, string> = {};
+        voteData.forEach((v: any) => { map[v.poll_id] = v.option; });
+        setMyVotes(map);
+      }
+    }
+  }, [event, user]);
+
+  const fetchWaitlist = useCallback(async () => {
+    if (!event) return;
+    const waitlist: string[] = (event as any).waitlist || [];
+    if (!waitlist.length) { setWaitlistProfiles([]); return; }
+    const { data } = await (supabase as any).from("profiles_public").select("user_id, name, avatar_url").in("user_id", waitlist);
+    setWaitlistProfiles((data || []).map((p: any) => ({ user_id: p.user_id, name: p.name || "Guest", avatar_url: p.avatar_url })));
+  }, [event]);
+
+  const createPoll = async () => {
+    if (!pollQuestion.trim() || pollOptions.filter(o => o.trim()).length < 2) return;
+    const opts = pollOptions.filter(o => o.trim());
+    await (supabase as any).from("polls").insert({ event_id: event.id, question: pollQuestion.trim(), options: opts });
+    setPollQuestion(""); setPollOptions(["", ""]); setShowPollSheet(false);
+    fetchPolls();
+  };
+
+  const voteOnPoll = async (pollId: string, option: string) => {
+    if (!user) return;
+    await (supabase as any).from("poll_votes").upsert({ poll_id: pollId, user_id: user.id, option }, { onConflict: "poll_id,user_id" });
+    setMyVotes(prev => ({ ...prev, [pollId]: option }));
+    fetchPolls();
+  };
+
+  const pickPollOption = async (poll: any, option: string) => {
+    if (!isHost) return;
+    await (supabase as any).from("polls").update({ chosen_option: option }).eq("id", poll.id);
+    const going = rsvpList.filter((r: any) => r.status === "yes");
+    const hostName = profile?.name || "Your host";
+    await Promise.all(going.map((g: any) => createNotification(g.user_id, "poll", `${hostName} decided`, `${hostName} decided: ${option}`, { event_id: event.id, event_code: event.code })));
+    fetchPolls();
+  };
+
+  const removeGuest = async (guestUserId: string) => {
+    await supabase.from("event_guests").delete().eq("event_id", event.id).eq("user_id", guestUserId);
+    await createNotification(guestUserId, "event", "Removed from event", `You have been removed from ${event.title || "an event"}`, { event_id: event.id });
+    setRsvpList(prev => prev.filter(r => r.user_id !== guestUserId));
+  };
+
+  const approveWaitlist = async (guestUserId: string) => {
+    const { data: existing } = await supabase.from("event_guests").select("id").eq("event_id", event.id).eq("user_id", guestUserId).single();
+    if (existing) {
+      await supabase.from("event_guests").update({ rsvp_status: "yes" }).eq("id", (existing as any).id);
+    } else {
+      await supabase.from("event_guests").insert({ event_id: event.id, user_id: guestUserId, rsvp_status: "yes" });
+    }
+    const newWaitlist = ((event as any).waitlist || []).filter((id: string) => id !== guestUserId);
+    await (supabase as any).from("events").update({ waitlist: newWaitlist }).eq("id", event.id);
+    await createNotification(guestUserId, "event", "You're in!", `You've been approved for ${event.title || "an event"}`, { event_id: event.id, event_code: event.code });
+    setEvent((prev: any) => ({ ...prev, waitlist: newWaitlist }));
+    fetchWaitlist();
+  };
+
+  const declineWaitlist = async (guestUserId: string) => {
+    const newWaitlist = ((event as any).waitlist || []).filter((id: string) => id !== guestUserId);
+    await (supabase as any).from("events").update({ waitlist: newWaitlist }).eq("id", event.id);
+    setEvent((prev: any) => ({ ...prev, waitlist: newWaitlist }));
+    fetchWaitlist();
+  };
+
+  const saveRsvpDeadline = async () => {
+    if (!deadlineInput) return;
+    await (supabase as any).from("events").update({ rsvp_deadline: new Date(deadlineInput).toISOString() }).eq("id", event.id);
+    setEvent((prev: any) => ({ ...prev, rsvp_deadline: new Date(deadlineInput).toISOString() }));
+    setShowRsvpDeadlineSheet(false);
+    toast.success("Deadline saved");
+  };
+
+  const shareEvent = () => {
+    const link = `${window.location.origin}/join/${event.code}`;
+    navigator.clipboard.writeText(link);
+    toast.success("Event link copied!");
+    setShowMenu(false);
+  };
+
   const rsvpLabel = rsvp === "yes" ? "You're going! 🎉" : rsvp === "no" ? "You're not going 👎" : "You're a maybe 🤷";
   const getInitials = (name: string) => name.charAt(0).toUpperCase();
   const formatTime = (ts: string) => new Date(ts).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+
+  const renderPolls = () => polls.length === 0 ? null : (
+    <div className="mt-3 space-y-3">
+      {polls.map(poll => (
+        <div key={poll.id} className="rounded-2xl p-4" style={{ backgroundColor: "#1e1e1e", border: "1px solid rgba(255,255,255,0.08)" }}>
+          <p className="text-sm font-bold text-white mb-3">{poll.question}</p>
+          {poll.chosen_option && (
+            <div className="mb-2 px-2 py-1 rounded-lg inline-flex items-center gap-1" style={{ backgroundColor: "rgba(170,238,68,0.15)", border: "1px solid rgba(170,238,68,0.3)" }}>
+              <span style={{ color: "#aaee44", fontSize: 11, fontWeight: 700 }}>HOST'S CHOICE: {poll.chosen_option}</span>
+            </div>
+          )}
+          <div className="flex flex-col gap-2">
+            {(poll.options || []).map((opt: string) => {
+              const count = poll.voteCounts?.[opt] || 0;
+              const pct = poll.totalVotes > 0 ? Math.round((count / poll.totalVotes) * 100) : 0;
+              const myVote = myVotes[poll.id] === opt;
+              const isChosen = poll.chosen_option === opt;
+              return (
+                <div key={opt}>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs text-white/80">{opt}</span>
+                    <span className="text-xs text-white/40">{pct}% · {count}</span>
+                  </div>
+                  <div className="relative h-8 rounded-lg overflow-hidden" style={{ backgroundColor: "#2a2a2a" }}>
+                    <div className="absolute inset-y-0 left-0 rounded-lg transition-all" style={{ width: `${pct}%`, backgroundColor: isChosen ? "#aaee44" : myVote ? "rgba(170,238,68,0.35)" : "rgba(255,255,255,0.1)" }} />
+                    {!poll.chosen_option && (
+                      <button onClick={() => voteOnPoll(poll.id, opt)} className="absolute inset-0 w-full text-left pl-3 text-xs font-semibold" style={{ color: myVote ? "#aaee44" : "rgba(255,255,255,0.5)", background: "none", border: "none" }}>
+                        {myVote ? "✓ Your vote" : "Tap to vote"}
+                      </button>
+                    )}
+                    {isHost && !poll.chosen_option && (
+                      <button onClick={() => pickPollOption(poll, opt)} className="absolute right-2 top-1/2 -translate-y-1/2 px-2 py-0.5 rounded text-[10px] font-bold" style={{ backgroundColor: "#aaee44", color: "#111" }}>
+                        Pick this
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
 
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
@@ -1256,6 +1416,7 @@ const EventView = () => {
                 </div>
               </div>
 
+              {renderPolls()}
               <div
                 style={{
                   background: "rgba(168,85,247,0.08)",
@@ -1672,6 +1833,7 @@ const EventView = () => {
                 </div>
               </div>
 
+              {renderPolls()}
               <div
                 style={{
                   background: "rgba(255,255,255,0.1)",
@@ -2136,6 +2298,7 @@ const EventView = () => {
                 </div>
               </div>
 
+              {renderPolls()}
               <div
                 style={{ backgroundColor: isLightBg ? "#f5f5f5" : "#111", borderRadius: "12px", padding: "12px 14px" }}
               >
@@ -2403,6 +2566,7 @@ const EventView = () => {
                 </div>
               </div>
 
+              {renderPolls()}
               {/* Chat */}
               <div style={{ backgroundColor: "rgba(56,189,248,0.06)", border: "1px solid rgba(56,189,248,0.12)", borderRadius: "16px", padding: "12px 14px" }}>
                 <div className="flex items-center justify-between mb-3">
@@ -2549,6 +2713,7 @@ const EventView = () => {
                 </div>
               </div>
 
+              {renderPolls()}
               {/* Chat */}
               <div style={{ backgroundColor: "rgba(244,114,182,0.06)", border: "1px solid rgba(244,114,182,0.15)", borderRadius: "12px", padding: "12px 14px" }}>
                 <div className="flex items-center justify-between mb-3">
@@ -2694,6 +2859,7 @@ const EventView = () => {
                 </div>
               </div>
 
+              {renderPolls()}
               {/* Chat */}
               <div style={{ border: "1px solid rgba(74,222,128,0.18)", borderRadius: "12px", padding: "12px 14px" }}>
                 <div className="flex items-center justify-between mb-3">
@@ -3296,6 +3462,7 @@ const EventView = () => {
             )}
           </div>
 
+          {renderPolls()}
           {/* Chat section */}
           <div className="mt-4 rounded-2xl p-4" style={{ backgroundColor: "#1e1e1e" }}>
             <div className="flex items-center justify-between mb-3">
@@ -3569,28 +3736,18 @@ const EventView = () => {
       {showMenu && isHost && (
         <>
           <div className="fixed inset-0 z-[60]" onClick={() => setShowMenu(false)} />
-          <div
-            className="fixed top-16 right-5 rounded-xl border border-border shadow-lg z-[70] overflow-hidden"
-            style={{ backgroundColor: "#383838" }}
-          >
-            <button
-              onClick={() => {
-                setShowMenu(false);
-                navigate(`/host?edit=${event.code}`);
-              }}
-              className="px-5 py-3 text-sm font-semibold text-white hover:bg-white/10 w-full text-left whitespace-nowrap"
-            >
-              Edit event
-            </button>
-            <button
-              onClick={() => {
-                setShowMenu(false);
-                setShowDeleteDialog(true);
-              }}
-              className="px-5 py-3 text-sm font-semibold text-red-400 hover:bg-red-500/10 w-full text-left whitespace-nowrap"
-            >
-              Delete event
-            </button>
+          <div className="fixed top-16 right-5 rounded-xl border border-border shadow-lg z-[70] overflow-hidden" style={{ backgroundColor: "#383838" }}>
+            <button onClick={() => { setShowMenu(false); setShowGuestList(true); fetchWaitlist(); }} className="px-5 py-3 text-sm font-semibold text-white hover:bg-white/10 w-full text-left whitespace-nowrap">Guest list</button>
+            <div className="h-px bg-white/10" />
+            <button onClick={() => { setShowMenu(false); setShowPollSheet(true); }} className="px-5 py-3 text-sm font-semibold text-white hover:bg-white/10 w-full text-left whitespace-nowrap">Add a poll</button>
+            <div className="h-px bg-white/10" />
+            <button onClick={() => { setShowMenu(false); setShowRsvpDeadlineSheet(true); }} className="px-5 py-3 text-sm font-semibold text-white hover:bg-white/10 w-full text-left whitespace-nowrap">RSVP deadline</button>
+            <div className="h-px bg-white/10" />
+            <button onClick={() => { setShowMenu(false); navigate(`/host?edit=${event.code}`); }} className="px-5 py-3 text-sm font-semibold text-white hover:bg-white/10 w-full text-left whitespace-nowrap">Edit event</button>
+            <div className="h-px bg-white/10" />
+            <button onClick={shareEvent} className="px-5 py-3 text-sm font-semibold text-white hover:bg-white/10 w-full text-left whitespace-nowrap">Share event</button>
+            <div className="h-px bg-white/10" />
+            <button onClick={() => { setShowMenu(false); setShowDeleteDialog(true); }} className="px-5 py-3 text-sm font-semibold text-red-400 hover:bg-red-500/10 w-full text-left whitespace-nowrap">Delete event</button>
           </div>
         </>
       )}
@@ -3635,13 +3792,107 @@ const EventView = () => {
         </div>
       )}
 
+      {/* Guest list sheet */}
+      <Drawer open={showGuestList} onOpenChange={setShowGuestList}>
+        <DrawerContent className="bg-background border-t border-border max-h-[85vh] flex flex-col">
+          <div className="px-5 pt-5 pb-3 border-b border-border shrink-0">
+            <h2 className="text-lg font-bold text-foreground">Guest list</h2>
+            <div className="flex gap-2 mt-3">
+              {(["going", "waitlist"] as const).map(tab => (
+                <button key={tab} onClick={() => setGuestListTab(tab)} className="px-4 py-1.5 rounded-full text-sm font-semibold capitalize" style={{ backgroundColor: guestListTab === tab ? "#aaee44" : "#1e1e1e", color: guestListTab === tab ? "#111" : "#fff" }}>{tab}</button>
+              ))}
+            </div>
+          </div>
+          <div className="flex-1 overflow-y-auto px-5 py-4">
+            {guestListTab === "going" ? (
+              rsvpList.length === 0
+                ? <p className="text-muted-foreground text-sm text-center py-8">No guests yet</p>
+                : <div className="space-y-2">
+                    {rsvpList.map(r => (
+                      <div key={r.user_id} className="flex items-center gap-3 bg-card rounded-2xl px-4 py-3 border border-border">
+                        <div className="w-9 h-9 rounded-full bg-secondary flex items-center justify-center shrink-0 overflow-hidden">
+                          {r.avatar_url ? <img src={r.avatar_url} alt="" className="w-full h-full object-cover" /> : <span className="font-bold text-sm text-foreground">{r.name.charAt(0).toUpperCase()}</span>}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-sm text-foreground truncate">{r.name}</p>
+                          <p className="text-xs text-muted-foreground">{r.status === "yes" ? "Going" : r.status === "maybe" ? "Maybe" : "Not going"}</p>
+                        </div>
+                        {r.user_id !== user?.id && (
+                          <button onClick={() => removeGuest(r.user_id)} className="text-xs text-red-400 font-semibold px-2 py-1 rounded hover:bg-red-500/10">Remove</button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+            ) : (
+              waitlistProfiles.length === 0
+                ? <p className="text-muted-foreground text-sm text-center py-8">No one on waitlist</p>
+                : <div className="space-y-2">
+                    {waitlistProfiles.map(p => (
+                      <div key={p.user_id} className="flex items-center gap-3 bg-card rounded-2xl px-4 py-3 border border-border">
+                        <div className="w-9 h-9 rounded-full bg-secondary flex items-center justify-center shrink-0 overflow-hidden">
+                          {p.avatar_url ? <img src={p.avatar_url} alt="" className="w-full h-full object-cover" /> : <span className="font-bold text-sm text-foreground">{p.name.charAt(0).toUpperCase()}</span>}
+                        </div>
+                        <div className="flex-1 min-w-0"><p className="font-semibold text-sm text-foreground truncate">{p.name}</p></div>
+                        <div className="flex gap-2">
+                          <button onClick={() => approveWaitlist(p.user_id)} className="text-xs font-bold px-3 py-1.5 rounded-full" style={{ backgroundColor: "#aaee44", color: "#111" }}>Approve</button>
+                          <button onClick={() => declineWaitlist(p.user_id)} className="text-xs font-bold px-3 py-1.5 rounded-full border border-red-500/50 text-red-400">Decline</button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+            )}
+          </div>
+        </DrawerContent>
+      </Drawer>
+
+      {/* Add poll sheet */}
+      <Drawer open={showPollSheet} onOpenChange={setShowPollSheet}>
+        <DrawerContent className="bg-background border-t border-border max-h-[85vh] flex flex-col">
+          <div className="px-5 pt-5 pb-3 border-b border-border shrink-0 flex items-center justify-between">
+            <h2 className="text-lg font-bold text-foreground">Add a poll</h2>
+            <button onClick={createPoll} className="text-sm font-bold px-4 py-1.5 rounded-full" style={{ backgroundColor: "#aaee44", color: "#111" }}>Save</button>
+          </div>
+          <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
+            <div>
+              <p className="text-xs text-muted-foreground font-semibold uppercase tracking-widest mb-2">Question</p>
+              <input value={pollQuestion} onChange={e => setPollQuestion(e.target.value)} placeholder="Ask your guests something..." className="w-full bg-card border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground outline-none" />
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground font-semibold uppercase tracking-widest mb-2">Options</p>
+              <div className="space-y-2">
+                {pollOptions.map((opt, i) => (
+                  <div key={i} className="flex gap-2">
+                    <input value={opt} onChange={e => { const n = [...pollOptions]; n[i] = e.target.value; setPollOptions(n); }} placeholder={`Option ${i + 1}`} className="flex-1 bg-card border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground outline-none" />
+                    {pollOptions.length > 2 && <button onClick={() => setPollOptions(pollOptions.filter((_, j) => j !== i))} className="text-muted-foreground px-2">✕</button>}
+                  </div>
+                ))}
+                {pollOptions.length < 4 && (
+                  <button onClick={() => setPollOptions([...pollOptions, ""])} className="text-sm text-muted-foreground border border-dashed border-border rounded-xl px-4 py-3 w-full text-left">+ Add option</button>
+                )}
+              </div>
+            </div>
+          </div>
+        </DrawerContent>
+      </Drawer>
+
+      {/* RSVP deadline sheet */}
+      <Drawer open={showRsvpDeadlineSheet} onOpenChange={setShowRsvpDeadlineSheet}>
+        <DrawerContent className="bg-background border-t border-border">
+          <div className="px-5 pt-5 pb-8">
+            <h2 className="text-lg font-bold text-foreground mb-4">RSVP deadline</h2>
+            <input type="datetime-local" value={deadlineInput} onChange={e => setDeadlineInput(e.target.value)} className="w-full bg-card border border-border rounded-xl px-4 py-3 text-sm text-foreground outline-none mb-4" />
+            <button onClick={saveRsvpDeadline} className="w-full py-3.5 rounded-xl text-sm font-bold" style={{ backgroundColor: "#aaee44", color: "#111" }}>Save deadline</button>
+          </div>
+        </DrawerContent>
+      </Drawer>
+
       {/* Delete confirmation - all templates */}
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent style={{ backgroundColor: "#2b2b2b", border: "1px solid #444" }}>
           <AlertDialogHeader>
             <AlertDialogTitle className="text-white">Delete Event</AlertDialogTitle>
             <AlertDialogDescription className="text-muted-foreground">
-              Are you sure you want to delete this event? This cannot be undone.
+              This will delete the event for all guests. Are you sure?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
