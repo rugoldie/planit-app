@@ -523,6 +523,7 @@ const HostEvent = () => {
   const customContainerRef = useRef<HTMLDivElement>(null);
   const stickerDragRef = useRef<{ id: string; startX: number; startY: number; sx: number; sy: number } | null>(null);
   const stickerPinchRef = useRef<{ id: string; initDist: number; initSize: number } | null>(null);
+  const isDraggingRef = useRef(false);
   // Prevents a stale Supabase load callback from overwriting state after the user applies a Build It style
   const buildItAppliedRef = useRef(false);
 
@@ -842,6 +843,14 @@ const HostEvent = () => {
     console.log("[BuildIt] ★ STATE RENDER — templateName:", templateName, "| bgColor:", bgColor, "| bubbleColor:", bubbleColor, "| fontStyle:", fontStyle, "| bgPreset:", bgPreset);
   }, [templateName, bgColor, bubbleColor, fontStyle, bgPreset]);
 
+  useEffect(() => {
+    const handler = (e: TouchEvent) => {
+      if (isDraggingRef.current) e.preventDefault();
+    };
+    document.addEventListener("touchmove", handler, { passive: false });
+    return () => document.removeEventListener("touchmove", handler);
+  }, []);
+
   const applyStyle = () => {
     if (!buildItResult) return;
     // Mark that the user has applied a Build It style so any in-flight DB load callback won't overwrite it
@@ -915,11 +924,13 @@ const HostEvent = () => {
     if (e.touches.length === 1) {
       stickerDragRef.current = { id, startX: e.touches[0].clientX, startY: e.touches[0].clientY, sx: stk.x, sy: stk.y };
       stickerPinchRef.current = null;
+      isDraggingRef.current = true;
     } else if (e.touches.length === 2) {
       const dx = e.touches[0].clientX - e.touches[1].clientX;
       const dy = e.touches[0].clientY - e.touches[1].clientY;
       stickerPinchRef.current = { id, initDist: Math.sqrt(dx*dx+dy*dy), initSize: stk.size };
       stickerDragRef.current = null;
+      isDraggingRef.current = false;
     }
   };
   const handleStickerTouchMove = (e: React.TouchEvent, id: string) => {
@@ -931,15 +942,25 @@ const HostEvent = () => {
       const dx = e.touches[0].clientX - stickerDragRef.current.startX;
       const dy = e.touches[0].clientY - stickerDragRef.current.startY;
       setStickers(prev => prev.map(s => s.id === id ? { ...s, x: Math.max(0,Math.min(88, stickerDragRef.current!.sx + (dx/rect.width)*100)), y: Math.max(0,Math.min(88, stickerDragRef.current!.sy + (dy/rect.height)*100)) } : s));
-    } else if (e.touches.length === 2 && stickerPinchRef.current?.id === id) {
-      const dx = e.touches[0].clientX - e.touches[1].clientX;
-      const dy = e.touches[0].clientY - e.touches[1].clientY;
-      const dist = Math.sqrt(dx*dx+dy*dy);
-      const newSize = Math.max(20, Math.min(120, stickerPinchRef.current.initSize * (dist/stickerPinchRef.current.initDist)));
-      setStickers(prev => prev.map(s => s.id === id ? { ...s, size: newSize } : s));
+    } else if (e.touches.length === 2) {
+      if (!stickerPinchRef.current) {
+        const curStk = stickers.find(s => s.id === id);
+        if (curStk) {
+          const dx0 = e.touches[0].clientX - e.touches[1].clientX;
+          const dy0 = e.touches[0].clientY - e.touches[1].clientY;
+          stickerPinchRef.current = { id, initDist: Math.sqrt(dx0*dx0+dy0*dy0), initSize: curStk.size };
+        }
+      }
+      if (stickerPinchRef.current?.id === id) {
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        const dist = Math.sqrt(dx*dx+dy*dy);
+        const newSize = Math.max(30, Math.min(200, stickerPinchRef.current.initSize * (dist/stickerPinchRef.current.initDist)));
+        setStickers(prev => prev.map(s => s.id === id ? { ...s, size: newSize } : s));
+      }
     }
   };
-  const handleStickerTouchEnd = (e: React.TouchEvent) => { e.preventDefault(); e.stopPropagation(); stickerDragRef.current = null; stickerPinchRef.current = null; };
+  const handleStickerTouchEnd = (e: React.TouchEvent) => { e.preventDefault(); e.stopPropagation(); stickerDragRef.current = null; stickerPinchRef.current = null; isDraggingRef.current = false; };
 
   // Loading screen for edit mode — prevents flash
   if (editLoading) {
@@ -2534,7 +2555,7 @@ const HostEvent = () => {
                   : { backgroundColor: `hsl(${bgColor})`, backgroundImage: "none", backgroundSize: "auto" };
             const hasPhotoScrim = !!bgPhoto;
             return (
-              <div ref={customContainerRef} style={{ minHeight: "100vh", position: "relative", overflow: "hidden", ...patternStyle }} onClick={() => setSelectedStickerId(null)}>
+              <div ref={customContainerRef} style={{ minHeight: "100vh", position: "relative", overflow: "hidden", touchAction: "none", ...patternStyle }} onClick={() => setSelectedStickerId(null)}>
                 {/* Pattern overlays for complex patterns */}
                 {customPatternKey && <PatternOverlay patternKey={customPatternKey} />}
                 {/* Photo scrim */}
@@ -2556,7 +2577,7 @@ const HostEvent = () => {
                       {selectedStickerId === stk.id && (
                         <button
                           style={{ position: "absolute", top: "-10px", right: "-10px", width: "22px", height: "22px", borderRadius: "50%", backgroundColor: "#ff3b30", border: "2px solid #fff", color: "#fff", fontSize: "11px", fontWeight: 900, cursor: "pointer", zIndex: 40, display: "flex", alignItems: "center", justifyContent: "center", lineHeight: 1 }}
-                          onClick={(e) => { e.stopPropagation(); deleteSticker(stk.id); }}
+                          onPointerDown={(e) => { e.stopPropagation(); e.preventDefault(); deleteSticker(stk.id); }}
                         >✕</button>
                       )}
                     </div>
