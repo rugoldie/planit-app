@@ -907,6 +907,7 @@ const HostEvent = () => {
   const deleteSticker = (id: string) => { setStickers(prev => prev.filter(s => s.id !== id)); setSelectedStickerId(null); };
 
   const handleStickerTouchStart = (e: React.TouchEvent, id: string) => {
+    e.preventDefault();
     e.stopPropagation();
     setSelectedStickerId(prev => prev === id ? prev : id);
     const stk = stickers.find(s => s.id === id);
@@ -922,6 +923,7 @@ const HostEvent = () => {
     }
   };
   const handleStickerTouchMove = (e: React.TouchEvent, id: string) => {
+    e.preventDefault();
     e.stopPropagation();
     if (e.touches.length === 1 && stickerDragRef.current?.id === id) {
       const rect = customContainerRef.current?.getBoundingClientRect();
@@ -937,7 +939,7 @@ const HostEvent = () => {
       setStickers(prev => prev.map(s => s.id === id ? { ...s, size: newSize } : s));
     }
   };
-  const handleStickerTouchEnd = (e: React.TouchEvent) => { e.stopPropagation(); stickerDragRef.current = null; stickerPinchRef.current = null; };
+  const handleStickerTouchEnd = (e: React.TouchEvent) => { e.preventDefault(); e.stopPropagation(); stickerDragRef.current = null; stickerPinchRef.current = null; };
 
   // Loading screen for edit mode — prevents flash
   if (editLoading) {
@@ -3056,17 +3058,6 @@ const HostEvent = () => {
                 {/* BUBBLES */}
                 <div>
                   <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-3">Bubbles</p>
-                  <div className="flex gap-2.5 mb-3 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
-                    {BUBBLE_COLORS.map((c) => (
-                      <button
-                        key={c.name}
-                        onClick={() => { setBubbleColor(c.hsl); setBubbleTextColor(c.text); }}
-                        className="w-9 h-9 rounded-full border-2 shrink-0 transition-all"
-                        style={{ backgroundColor: `hsl(${c.hsl})`, borderColor: bubbleColor===c.hsl ? "#aaee44" : "rgba(255,255,255,0.18)", transform: bubbleColor===c.hsl ? "scale(1.15)" : "scale(1)" }}
-                        title={c.name}
-                      />
-                    ))}
-                  </div>
                   <div className="flex gap-2">
                     {([ ["frosted","Frosted"], ["solid","Solid"], ["outlined","Outlined"] ] as const).map(([val, label]) => (
                       <button key={val} onClick={() => setBubbleStyle(val)} className="flex-1 py-2.5 rounded-xl text-sm text-center" style={{ backgroundColor:"#1e1e1e", border: bubbleStyle===val ? "2px solid #aaee44" : "2px solid transparent", color:"#fff" }}>{label}</button>
