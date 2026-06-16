@@ -524,6 +524,9 @@ const HostEvent = () => {
   const stickerDragRef = useRef<{ id: string; startX: number; startY: number; sx: number; sy: number } | null>(null);
   const stickerPinchRef = useRef<{ id: string; initDist: number; initSize: number } | null>(null);
   const isDraggingRef = useRef(false);
+  const didDragRef = useRef(false);
+  const initialPinchDistRef = useRef(0);
+  const initialStickerSizeRef = useRef(40);
   // Prevents a stale Supabase load callback from overwriting state after the user applies a Build It style
   const buildItAppliedRef = useRef(false);
 
@@ -918,17 +921,21 @@ const HostEvent = () => {
   const handleStickerTouchStart = (e: React.TouchEvent, id: string) => {
     e.preventDefault();
     e.stopPropagation();
+    didDragRef.current = false;
     setSelectedStickerId(prev => prev === id ? prev : id);
     const stk = stickers.find(s => s.id === id);
     if (!stk) return;
     if (e.touches.length === 1) {
       stickerDragRef.current = { id, startX: e.touches[0].clientX, startY: e.touches[0].clientY, sx: stk.x, sy: stk.y };
       stickerPinchRef.current = null;
+      initialPinchDistRef.current = 0;
       isDraggingRef.current = true;
     } else if (e.touches.length === 2) {
-      const dx = e.touches[0].clientX - e.touches[1].clientX;
-      const dy = e.touches[0].clientY - e.touches[1].clientY;
-      stickerPinchRef.current = { id, initDist: Math.sqrt(dx*dx+dy*dy), initSize: stk.size };
+      const t1 = e.touches[0], t2 = e.touches[1];
+      const dist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+      initialPinchDistRef.current = dist;
+      initialStickerSizeRef.current = stk.size;
+      stickerPinchRef.current = { id, initDist: dist, initSize: stk.size };
       stickerDragRef.current = null;
       isDraggingRef.current = false;
     }
@@ -941,26 +948,27 @@ const HostEvent = () => {
       if (!rect) return;
       const dx = e.touches[0].clientX - stickerDragRef.current.startX;
       const dy = e.touches[0].clientY - stickerDragRef.current.startY;
+      if (Math.abs(dx) > 5 || Math.abs(dy) > 5) didDragRef.current = true;
       setStickers(prev => prev.map(s => s.id === id ? { ...s, x: Math.max(0,Math.min(88, stickerDragRef.current!.sx + (dx/rect.width)*100)), y: Math.max(0,Math.min(88, stickerDragRef.current!.sy + (dy/rect.height)*100)) } : s));
     } else if (e.touches.length === 2) {
-      if (!stickerPinchRef.current) {
+      if (initialPinchDistRef.current === 0) {
         const curStk = stickers.find(s => s.id === id);
         if (curStk) {
-          const dx0 = e.touches[0].clientX - e.touches[1].clientX;
-          const dy0 = e.touches[0].clientY - e.touches[1].clientY;
-          stickerPinchRef.current = { id, initDist: Math.sqrt(dx0*dx0+dy0*dy0), initSize: curStk.size };
+          const t1 = e.touches[0], t2 = e.touches[1];
+          initialPinchDistRef.current = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+          initialStickerSizeRef.current = curStk.size;
+          stickerPinchRef.current = { id, initDist: initialPinchDistRef.current, initSize: curStk.size };
         }
       }
-      if (stickerPinchRef.current?.id === id) {
-        const dx = e.touches[0].clientX - e.touches[1].clientX;
-        const dy = e.touches[0].clientY - e.touches[1].clientY;
-        const dist = Math.sqrt(dx*dx+dy*dy);
-        const newSize = Math.max(30, Math.min(200, stickerPinchRef.current.initSize * (dist/stickerPinchRef.current.initDist)));
+      if (stickerPinchRef.current?.id === id && initialPinchDistRef.current > 0) {
+        const t1 = e.touches[0], t2 = e.touches[1];
+        const dist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+        const newSize = Math.max(24, Math.min(180, initialStickerSizeRef.current * (dist / initialPinchDistRef.current)));
         setStickers(prev => prev.map(s => s.id === id ? { ...s, size: newSize } : s));
       }
     }
   };
-  const handleStickerTouchEnd = (e: React.TouchEvent) => { e.preventDefault(); e.stopPropagation(); stickerDragRef.current = null; stickerPinchRef.current = null; isDraggingRef.current = false; };
+  const handleStickerTouchEnd = (e: React.TouchEvent) => { e.preventDefault(); e.stopPropagation(); stickerDragRef.current = null; stickerPinchRef.current = null; initialPinchDistRef.current = 0; isDraggingRef.current = false; };
 
   // Loading screen for edit mode — prevents flash
   if (editLoading) {
@@ -2571,7 +2579,7 @@ const HostEvent = () => {
                       onTouchStart={(e) => handleStickerTouchStart(e, stk.id)}
                       onTouchMove={(e) => handleStickerTouchMove(e, stk.id)}
                       onTouchEnd={handleStickerTouchEnd}
-                      onClick={(e) => { e.stopPropagation(); setSelectedStickerId(prev => prev === stk.id ? null : stk.id); }}
+                      onClick={(e) => { e.stopPropagation(); if (didDragRef.current) { didDragRef.current = false; return; } setSelectedStickerId(prev => prev === stk.id ? null : stk.id); }}
                     >
                       {TablerIcon ? <TablerIcon size={stk.size} stroke={1.5} color={fontColor} /> : stk.emoji}
                       {selectedStickerId === stk.id && (
