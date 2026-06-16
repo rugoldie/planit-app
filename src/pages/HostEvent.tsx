@@ -524,6 +524,7 @@ const HostEvent = () => {
   const stickerDragRef = useRef<{ id: string; startX: number; startY: number; sx: number; sy: number } | null>(null);
   const stickerPinchRef = useRef<{ id: string; initDist: number; initSize: number } | null>(null);
   const isDraggingRef = useRef(false);
+  const activeStickerIdRef = useRef<string | null>(null);
   const didDragRef = useRef(false);
   const initialPinchDistRef = useRef(0);
   const initialStickerSizeRef = useRef(40);
@@ -848,7 +849,7 @@ const HostEvent = () => {
 
   useEffect(() => {
     const handler = (e: TouchEvent) => {
-      if (isDraggingRef.current) e.preventDefault();
+      if (isDraggingRef.current && activeStickerIdRef.current) e.preventDefault();
     };
     document.addEventListener("touchmove", handler, { passive: false });
     return () => document.removeEventListener("touchmove", handler);
@@ -922,6 +923,7 @@ const HostEvent = () => {
     e.preventDefault();
     e.stopPropagation();
     didDragRef.current = false;
+    activeStickerIdRef.current = id;
     setSelectedStickerId(prev => prev === id ? prev : id);
     const stk = stickers.find(s => s.id === id);
     if (!stk) return;
@@ -968,7 +970,7 @@ const HostEvent = () => {
       }
     }
   };
-  const handleStickerTouchEnd = (e: React.TouchEvent) => { e.preventDefault(); e.stopPropagation(); stickerDragRef.current = null; stickerPinchRef.current = null; initialPinchDistRef.current = 0; isDraggingRef.current = false; };
+  const handleStickerTouchEnd = (e: React.TouchEvent) => { e.preventDefault(); e.stopPropagation(); stickerDragRef.current = null; stickerPinchRef.current = null; initialPinchDistRef.current = 0; isDraggingRef.current = false; activeStickerIdRef.current = null; };
 
   // Loading screen for edit mode — prevents flash
   if (editLoading) {
