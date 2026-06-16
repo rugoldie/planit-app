@@ -208,6 +208,7 @@ const EventView = () => {
   const [pollOptions, setPollOptions] = useState(["", ""]);
   const [polls, setPolls] = useState<any[]>([]);
   const [myVotes, setMyVotes] = useState<Record<string, string>>({});
+  const [pollKeyboardHeight, setPollKeyboardHeight] = useState(0);
 
   // RSVP deadline editor
   const [showRsvpDeadlineSheet, setShowRsvpDeadlineSheet] = useState(false);
@@ -413,6 +414,16 @@ const EventView = () => {
 
   useEffect(() => { if (event) { fetchPolls(); fetchWaitlist(); } }, [event, fetchPolls, fetchWaitlist]);
   useEffect(() => { if (event?.rsvp_deadline) setDeadlineInput(new Date((event as any).rsvp_deadline).toISOString().slice(0, 16)); }, [event]);
+
+  useEffect(() => {
+    if (!showPollSheet) { setPollKeyboardHeight(0); return; }
+    const vv = window.visualViewport;
+    if (!vv) return;
+    const update = () => setPollKeyboardHeight(Math.max(0, window.innerHeight - vv.height));
+    vv.addEventListener("resize", update);
+    vv.addEventListener("scroll", update);
+    return () => { vv.removeEventListener("resize", update); vv.removeEventListener("scroll", update); };
+  }, [showPollSheet]);
 
   // Fetch photos
   useEffect(() => {
@@ -3847,22 +3858,37 @@ const EventView = () => {
 
       {/* Add poll sheet */}
       <Drawer open={showPollSheet} onOpenChange={setShowPollSheet}>
-        <DrawerContent className="bg-background border-t border-border max-h-[85vh] flex flex-col">
+        <DrawerContent
+          className="bg-background border-t border-border max-h-[85vh] flex flex-col"
+          style={{ bottom: pollKeyboardHeight, transition: "bottom 0.15s ease-out" }}
+        >
           <div className="px-5 pt-5 pb-3 border-b border-border shrink-0 flex items-center justify-between">
             <h2 className="text-lg font-bold text-foreground">Add a poll</h2>
             <button onClick={createPoll} className="text-sm font-bold px-4 py-1.5 rounded-full" style={{ backgroundColor: "#aaee44", color: "#111" }}>Save</button>
           </div>
-          <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
+          <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4" style={{ paddingBottom: 24 }}>
             <div>
               <p className="text-xs text-muted-foreground font-semibold uppercase tracking-widest mb-2">Question</p>
-              <input value={pollQuestion} onChange={e => setPollQuestion(e.target.value)} placeholder="Ask your guests something..." className="w-full bg-card border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground outline-none" />
+              <input
+                value={pollQuestion}
+                onChange={e => setPollQuestion(e.target.value)}
+                onFocus={e => e.currentTarget.scrollIntoView({ block: "nearest", behavior: "smooth" })}
+                placeholder="Ask your guests something..."
+                className="w-full bg-card border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground outline-none"
+              />
             </div>
             <div>
               <p className="text-xs text-muted-foreground font-semibold uppercase tracking-widest mb-2">Options</p>
               <div className="space-y-2">
                 {pollOptions.map((opt, i) => (
                   <div key={i} className="flex gap-2">
-                    <input value={opt} onChange={e => { const n = [...pollOptions]; n[i] = e.target.value; setPollOptions(n); }} placeholder={`Option ${i + 1}`} className="flex-1 bg-card border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground outline-none" />
+                    <input
+                      value={opt}
+                      onChange={e => { const n = [...pollOptions]; n[i] = e.target.value; setPollOptions(n); }}
+                      onFocus={e => e.currentTarget.scrollIntoView({ block: "nearest", behavior: "smooth" })}
+                      placeholder={`Option ${i + 1}`}
+                      className="flex-1 bg-card border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground outline-none"
+                    />
                     {pollOptions.length > 2 && <button onClick={() => setPollOptions(pollOptions.filter((_, j) => j !== i))} className="text-muted-foreground px-2">✕</button>}
                   </div>
                 ))}
