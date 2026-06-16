@@ -13,6 +13,12 @@ import {
   Download,
 } from "lucide-react";
 import React, { useEffect, useState, useRef, useMemo, useCallback } from "react";
+import {
+  IconConfetti, IconGlassFull, IconMusic, IconStar, IconCake, IconCrown,
+  IconSun, IconWaveSine, IconTrees, IconFlower, IconMountain, IconSnowflake,
+  IconPizza, IconBeer, IconCoffee, IconMeat, IconFish, IconSalad,
+  IconTrophy, IconBallFootball, IconHorseToy, IconSwimming, IconBike, IconRun,
+} from "@tabler/icons-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
   ConcentricCircles,
@@ -53,6 +59,13 @@ type Comment = { id: string; user_name: string; text: string; created_at: string
 type RsvpEntry = { name: string; avatar_url?: string; status: string; user_id: string };
 type DM = { id: string; sender_id: string; text: string; created_at: string; sender_name?: string };
 type StickerItem = { id: string; emoji: string; x: number; y: number; size: number };
+
+const TABLER_ICON_MAP: Record<string, React.ComponentType<{size?: number; stroke?: number; color?: string}>> = {
+  "confetti": IconConfetti, "glass-full": IconGlassFull, "music": IconMusic, "star": IconStar, "cake": IconCake, "crown": IconCrown,
+  "sun": IconSun, "wave-sine": IconWaveSine, "trees": IconTrees, "flower": IconFlower, "mountain": IconMountain, "snowflake": IconSnowflake,
+  "pizza": IconPizza, "beer": IconBeer, "coffee": IconCoffee, "meat": IconMeat, "fish": IconFish, "salad": IconSalad,
+  "trophy": IconTrophy, "ball-football": IconBallFootball, "horse-toy": IconHorseToy, "swimming": IconSwimming, "bike": IconBike, "run": IconRun,
+};
 
 const hexMuted = (hex: string) => {
   const h = hex.replace("#", "");
@@ -2786,9 +2799,15 @@ const EventView = () => {
                 {isPattern && bp?.startsWith("planit-pattern:") && <PatternOverlay patternKey={bp!} />}
                 {/* Photo scrim — only for real images, not CSS gradients */}
                 {!isPattern && !isCssGradient && bp && <div style={{ position: "absolute", inset: 0, backgroundColor: "rgba(0,0,0,0.4)", zIndex: 1, pointerEvents: "none" }} />}
-                {stickerItems.map(stk => (
-                  <div key={stk.id} style={{ position: "absolute", left: `${stk.x}%`, top: `${stk.y}%`, fontSize: `${stk.size}px`, zIndex: 30, pointerEvents: "none" }}>{stk.emoji}</div>
-                ))}
+                {stickerItems.map(stk => {
+                  const isTabler = stk.emoji.startsWith("tabler:");
+                  const TablerIcon = isTabler ? TABLER_ICON_MAP[stk.emoji.replace("tabler:", "")] : null;
+                  return (
+                    <div key={stk.id} style={{ position: "absolute", left: `${stk.x}%`, top: `${stk.y}%`, fontSize: `${stk.size}px`, zIndex: 30, pointerEvents: "none" }}>
+                      {TablerIcon ? <TablerIcon size={stk.size} stroke={1.5} color={tCol} /> : stk.emoji}
+                    </div>
+                  );
+                })}
                 {/* Nav */}
                 <div className="flex items-center justify-between px-5 pt-5 relative z-10">
                   <button onClick={() => navigate("/home")}><ArrowLeft className="w-6 h-6" style={{ color: tCol }} /></button>

@@ -2889,7 +2889,8 @@ const HostEvent = () => {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mx-auto w-10 h-1 rounded-full mb-4" style={{ backgroundColor: "#333" }} />
-            {isCustom ? (
+            {customCssGradient ? (
+              /* ─── Build It panel ─── */
               <div className="flex flex-col gap-5 pb-2">
                 <div>
                   <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-2.5">Font</p>
@@ -2915,7 +2916,7 @@ const HostEvent = () => {
                     {FONT_COLORS.map(c => (
                       <button key={c.value} onClick={() => setFontColor(c.value)} title={c.label} style={{ width:32,height:32,borderRadius:"50%",backgroundColor:c.value,border:fontColor===c.value?"3px solid #aaee44":"2px solid rgba(255,255,255,0.2)",flexShrink:0 }} />
                     ))}
-                    <label title="Custom colour" style={{ width:32,height:32,borderRadius:"50%",background:"conic-gradient(red,yellow,lime,cyan,blue,magenta,red)",border:"2px solid rgba(255,255,255,0.2)",cursor:"pointer",flexShrink:0,display:"block",position:"relative" }}>
+                    <label title="Custom" style={{ width:32,height:32,borderRadius:"50%",background:"conic-gradient(red,yellow,lime,cyan,blue,magenta,red)",border:"2px solid rgba(255,255,255,0.2)",cursor:"pointer",flexShrink:0,display:"block",position:"relative" }}>
                       <input type="color" value={fontColor} onChange={e => setFontColor(e.target.value)} style={{ position:"absolute",inset:0,opacity:0,cursor:"pointer",width:"100%",height:"100%" }} />
                     </label>
                   </div>
@@ -2923,19 +2924,10 @@ const HostEvent = () => {
                 <div>
                   <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-2.5">Accent colour</p>
                   <div className="flex flex-wrap gap-2.5">
-                    {([
-                      { hex: "#ffffff", label: "White" },
-                      { hex: "#ffd700", label: "Gold" },
-                      { hex: "#ff70b0", label: "Hot Pink" },
-                      { hex: "#38bdf8", label: "Sky Blue" },
-                      { hex: "#aaee44", label: "Lime" },
-                      { hex: "#ff6b6b", label: "Coral" },
-                      { hex: "#4ade80", label: "Mint" },
-                      { hex: "#c084fc", label: "Lavender" },
-                    ] as const).map(({ hex, label }) => (
-                      <button key={hex} onClick={() => setCustomAccentHex(hex)} title={label} style={{ width:32,height:32,borderRadius:"50%",backgroundColor:hex,border:customAccentHex===hex?"3px solid #aaee44":"2px solid rgba(255,255,255,0.2)",flexShrink:0 }} />
+                    {(["#ffffff","#ffd700","#ff70b0","#38bdf8","#aaee44","#ff6b6b","#4ade80","#c084fc"] as const).map(hex => (
+                      <button key={hex} onClick={() => setCustomAccentHex(hex)} style={{ width:32,height:32,borderRadius:"50%",backgroundColor:hex,border:customAccentHex===hex?"3px solid #aaee44":"2px solid rgba(255,255,255,0.2)",flexShrink:0 }} />
                     ))}
-                    <label title="Custom colour" style={{ width:32,height:32,borderRadius:"50%",background:"conic-gradient(red,yellow,lime,cyan,blue,magenta,red)",border:customAccentHex&&!["#ffffff","#ffd700","#ff70b0","#38bdf8","#aaee44","#ff6b6b","#4ade80","#c084fc"].includes(customAccentHex)?"3px solid #aaee44":"2px solid rgba(255,255,255,0.2)",cursor:"pointer",flexShrink:0,display:"block",position:"relative" }}>
+                    <label style={{ width:32,height:32,borderRadius:"50%",background:"conic-gradient(red,yellow,lime,cyan,blue,magenta,red)",border:"2px solid rgba(255,255,255,0.2)",cursor:"pointer",flexShrink:0,display:"block",position:"relative" }}>
                       <input type="color" value={customAccentHex||"#aaee44"} onChange={e => setCustomAccentHex(e.target.value)} style={{ position:"absolute",inset:0,opacity:0,cursor:"pointer",width:"100%",height:"100%" }} />
                     </label>
                   </div>
@@ -2948,6 +2940,24 @@ const HostEvent = () => {
                     ))}
                   </div>
                 </div>
+                <div>
+                  <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-2.5">Stickers</p>
+                  {STICKER_CATEGORIES.map((cat) => (
+                    <div key={cat.label} className="mb-3">
+                      <p className="text-[9px] text-white/30 uppercase tracking-widest mb-2">{cat.label}</p>
+                      <div className="grid grid-cols-6 gap-2">
+                        {cat.keys.map((key) => {
+                          const Icon = TABLER_ICON_MAP[key];
+                          return (
+                            <button key={key} onClick={() => addSticker(`tabler:${key}`)} className="flex items-center justify-center rounded-xl" style={{ height:40, backgroundColor:"#1e1e1e", border:"1px solid rgba(255,255,255,0.08)" }}>
+                              {Icon && <Icon size={20} stroke={1.5} color="#fff" />}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                </div>
                 <button
                   onClick={() => { setShowCustomiseDrawer(false); setTimeout(() => { setShowBuildIt(true); setBuildItError(null); }, 200); }}
                   className="w-full rounded-2xl py-3.5 text-sm font-bold"
@@ -2957,13 +2967,12 @@ const HostEvent = () => {
                 </button>
               </div>
             ) : (
-              /* ─── Start Blank / pre-built canvas customise panel ─── */
+              /* ─── Start Blank / canvas customise panel ─── */
               <div className="flex flex-col gap-6 pb-4">
 
                 {/* BACKGROUND */}
                 <div>
                   <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-3">Background</p>
-                  {/* Solid colours */}
                   <div className="flex gap-2.5 mb-3">
                     {BLANK_BG_COLORS.map((c) => (
                       <button
@@ -2978,7 +2987,6 @@ const HostEvent = () => {
                       <input type="color" onChange={e => { buildItAppliedRef.current = false; const hex = e.target.value; const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16); const max=Math.max(r,g,b)/255,min=Math.min(r,g,b)/255,l=(max+min)/2; const s=max===min?0:(max-min)/(l<0.5?max+min:2-max-min); const h=max===r?((g/255-b/255)/(max-min)*60+360)%360:max===g?(b/255-r/255)/(max-min)*60+120:(r/255-g/255)/(max-min)*60+240; setBgColor(`${Math.round(h)} ${Math.round(s*100)}% ${Math.round(l*100)}%`); setBgPreset(null); setBgPhoto(null); setBgPresetIsImage(false); }} style={{ position:"absolute",inset:0,opacity:0,cursor:"pointer",width:"100%",height:"100%" }} />
                     </label>
                   </div>
-                  {/* Pattern tiles */}
                   <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
                     {CUSTOM_BG_PATTERNS.map((p) => {
                       const patStyle = getPatternBgStyle(p.key);
@@ -2997,35 +3005,25 @@ const HostEvent = () => {
                       );
                     })}
                   </div>
-                  {/* Camera roll upload */}
-                  <button
-                    onClick={() => fileInputRef.current?.click()}
-                    className="mt-3 w-full rounded-xl py-3 flex items-center justify-center gap-2 text-sm font-semibold"
+                  <label
+                    className="mt-3 w-full rounded-xl py-3 flex items-center justify-center gap-2 text-sm font-semibold cursor-pointer"
                     style={{ border: "1.5px dashed rgba(255,255,255,0.25)", color: "#888", backgroundColor: "transparent" }}
                   >
+                    <input type="file" accept="image/*" className="hidden" onChange={handleFileUpload} />
                     <Upload className="w-4 h-4" /> Upload from camera roll
-                  </button>
+                  </label>
                 </div>
 
                 {/* TEXT */}
                 <div>
                   <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-3">Text</p>
                   <div className="flex gap-2.5 mb-3">
-                    {[
-                      { label: "White",    hex: "#ffffff" },
-                      { label: "Gold",     hex: "#ffd700" },
-                      { label: "Hot Pink", hex: "#ff70b0" },
-                      { label: "Sky Blue", hex: "#38bdf8" },
-                      { label: "Lime",     hex: "#aaee44" },
-                      { label: "Black",    hex: "#111111" },
-                    ].map(({ label, hex }) => (
-                      <button
-                        key={hex}
-                        onClick={() => setFontColor(hex)}
-                        className="w-9 h-9 rounded-full shrink-0 transition-all"
-                        style={{ backgroundColor: hex, border: fontColor === hex ? "3px solid #aaee44" : "2px solid rgba(255,255,255,0.18)", transform: fontColor === hex ? "scale(1.15)" : "scale(1)" }}
-                        title={label}
-                      />
+                    {([
+                      { label:"White",    hex:"#ffffff" }, { label:"Gold",     hex:"#ffd700" },
+                      { label:"Hot Pink", hex:"#ff70b0" }, { label:"Sky Blue", hex:"#38bdf8" },
+                      { label:"Lime",     hex:"#aaee44" }, { label:"Black",    hex:"#111111" },
+                    ]).map(({ label, hex }) => (
+                      <button key={hex} onClick={() => setFontColor(hex)} className="w-9 h-9 rounded-full shrink-0 transition-all" style={{ backgroundColor: hex, border: fontColor===hex ? "3px solid #aaee44" : "2px solid rgba(255,255,255,0.18)", transform: fontColor===hex ? "scale(1.15)" : "scale(1)" }} title={label} />
                     ))}
                   </div>
                   <div className="flex gap-2 mb-3">
@@ -3042,6 +3040,19 @@ const HostEvent = () => {
                   </div>
                 </div>
 
+                {/* ACCENT COLOUR */}
+                <div>
+                  <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-3">Accent colour</p>
+                  <div className="flex flex-wrap gap-2.5">
+                    {(["#ffffff","#ffd700","#ff70b0","#38bdf8","#aaee44","#ff6b6b","#4ade80","#c084fc"] as const).map(hex => (
+                      <button key={hex} onClick={() => setCustomAccentHex(hex)} style={{ width:36,height:36,borderRadius:"50%",backgroundColor:hex,border:customAccentHex===hex?"3px solid #aaee44":"2px solid rgba(255,255,255,0.18)",flexShrink:0 }} />
+                    ))}
+                    <label style={{ width:36,height:36,borderRadius:"50%",background:"conic-gradient(red,yellow,lime,cyan,blue,magenta,red)",border:"2px solid rgba(255,255,255,0.18)",cursor:"pointer",flexShrink:0,display:"block",position:"relative" }}>
+                      <input type="color" value={customAccentHex||"#aaee44"} onChange={e => setCustomAccentHex(e.target.value)} style={{ position:"absolute",inset:0,opacity:0,cursor:"pointer",width:"100%",height:"100%" }} />
+                    </label>
+                  </div>
+                </div>
+
                 {/* BUBBLES */}
                 <div>
                   <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-3">Bubbles</p>
@@ -3051,7 +3062,7 @@ const HostEvent = () => {
                         key={c.name}
                         onClick={() => { setBubbleColor(c.hsl); setBubbleTextColor(c.text); }}
                         className="w-9 h-9 rounded-full border-2 shrink-0 transition-all"
-                        style={{ backgroundColor: `hsl(${c.hsl})`, borderColor: bubbleColor === c.hsl ? "#aaee44" : "rgba(255,255,255,0.18)", transform: bubbleColor === c.hsl ? "scale(1.15)" : "scale(1)" }}
+                        style={{ backgroundColor: `hsl(${c.hsl})`, borderColor: bubbleColor===c.hsl ? "#aaee44" : "rgba(255,255,255,0.18)", transform: bubbleColor===c.hsl ? "scale(1.15)" : "scale(1)" }}
                         title={c.name}
                       />
                     ))}
@@ -3073,13 +3084,8 @@ const HostEvent = () => {
                         {cat.keys.map((key) => {
                           const Icon = TABLER_ICON_MAP[key];
                           return (
-                            <button
-                              key={key}
-                              onClick={() => addSticker(`tabler:${key}`)}
-                              className="flex items-center justify-center rounded-xl"
-                              style={{ height: 44, backgroundColor: "#1e1e1e", border: "1px solid rgba(255,255,255,0.08)" }}
-                            >
-                              {Icon && <Icon size={22} stroke={1.5} color="#ffffff" />}
+                            <button key={key} onClick={() => addSticker(`tabler:${key}`)} className="flex items-center justify-center rounded-xl" style={{ height:44, backgroundColor:"#1e1e1e", border:"1px solid rgba(255,255,255,0.08)" }}>
+                              {Icon && <Icon size={22} stroke={1.5} color="#fff" />}
                             </button>
                           );
                         })}
@@ -3219,7 +3225,16 @@ const HostEvent = () => {
                   <span style={{ marginLeft: "auto", color: "#aaee44", fontSize: "20px" }}>›</span>
                 </button>
                 <button
-                  onClick={() => setShowStyleScreen(false)}
+                  onClick={() => {
+                    buildItAppliedRef.current = false;
+                    _setTemplateName("planit-custom");
+                    setBgColor("0 0% 4%");
+                    setBgPreset(null);
+                    setBgPhoto(null);
+                    setBgPresetIsImage(false);
+                    setCustomLayout("cards");
+                    setShowStyleScreen(false);
+                  }}
                   className="w-full rounded-2xl px-5 py-5 flex items-center gap-4 text-left"
                   style={{ backgroundColor: "#111", border: "1px solid rgba(255,255,255,0.06)" }}
                 >
