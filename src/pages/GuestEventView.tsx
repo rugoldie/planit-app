@@ -180,6 +180,27 @@ const GuestEventView = () => {
   const [polls, setPolls] = useState<any[]>([]);
   const [myVotes, setMyVotes] = useState<Record<string, string>>({});
 
+  const fetchPolls = useCallback(async () => {
+    if (!event) return;
+    const { data: pollData } = await (supabase as any).from("polls").select("*").eq("event_id", event.id).order("created_at", { ascending: true });
+    if (!pollData) return;
+    const enriched = await Promise.all(pollData.map(async (poll: any) => {
+      const { data: votes } = await (supabase as any).from("poll_votes").select("option").eq("poll_id", poll.id);
+      const counts: Record<string, number> = {};
+      (votes || []).forEach((v: any) => { counts[v.option] = (counts[v.option] || 0) + 1; });
+      return { ...poll, voteCounts: counts, totalVotes: (votes || []).length };
+    }));
+    setPolls(enriched);
+    if (user && pollData.length) {
+      const { data: voteData } = await (supabase as any).from("poll_votes").select("poll_id, option").eq("user_id", user.id).in("poll_id", pollData.map((p: any) => p.id));
+      if (voteData) {
+        const map: Record<string, string> = {};
+        voteData.forEach((v: any) => { map[v.poll_id] = v.option; });
+        setMyVotes(map);
+      }
+    }
+  }, [event, user]);
+
   // Fetch event
   useEffect(() => {
     if (!code) return;
@@ -250,27 +271,6 @@ const GuestEventView = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [event, user]);
-
-  const fetchPolls = useCallback(async () => {
-    if (!event) return;
-    const { data: pollData } = await (supabase as any).from("polls").select("*").eq("event_id", event.id).order("created_at", { ascending: true });
-    if (!pollData) return;
-    const enriched = await Promise.all(pollData.map(async (poll: any) => {
-      const { data: votes } = await (supabase as any).from("poll_votes").select("option").eq("poll_id", poll.id);
-      const counts: Record<string, number> = {};
-      (votes || []).forEach((v: any) => { counts[v.option] = (counts[v.option] || 0) + 1; });
-      return { ...poll, voteCounts: counts, totalVotes: (votes || []).length };
-    }));
-    setPolls(enriched);
-    if (user && pollData.length) {
-      const { data: voteData } = await (supabase as any).from("poll_votes").select("poll_id, option").eq("user_id", user.id).in("poll_id", pollData.map((p: any) => p.id));
-      if (voteData) {
-        const map: Record<string, string> = {};
-        voteData.forEach((v: any) => { map[v.poll_id] = v.option; });
-        setMyVotes(map);
-      }
-    }
   }, [event, user]);
 
   useEffect(() => {
