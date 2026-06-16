@@ -939,7 +939,7 @@ const HostEvent = () => {
       initialStickerSizeRef.current = stk.size;
       stickerPinchRef.current = { id, initDist: dist, initSize: stk.size };
       stickerDragRef.current = null;
-      isDraggingRef.current = false;
+      isDraggingRef.current = true;
     }
   };
   const handleStickerTouchMove = (e: React.TouchEvent, id: string) => {
@@ -965,7 +965,7 @@ const HostEvent = () => {
       if (stickerPinchRef.current?.id === id && initialPinchDistRef.current > 0) {
         const t1 = e.touches[0], t2 = e.touches[1];
         const dist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
-        const newSize = Math.max(24, Math.min(180, initialStickerSizeRef.current * (dist / initialPinchDistRef.current)));
+        const newSize = Math.max(24, Math.min(180, stickerPinchRef.current.initSize * (dist / stickerPinchRef.current.initDist)));
         setStickers(prev => prev.map(s => s.id === id ? { ...s, size: newSize } : s));
       }
     }
