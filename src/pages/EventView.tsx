@@ -797,8 +797,8 @@ const EventView = () => {
             )}
           </div>
           {poll.chosen_option && (
-            <div className="mb-2 px-2 py-1 rounded-lg inline-flex items-center gap-1" style={{ backgroundColor: "rgba(170,238,68,0.15)", border: "1px solid rgba(170,238,68,0.3)" }}>
-              <span style={{ color: "#aaee44", fontSize: 11, fontWeight: 700 }}>HOST'S CHOICE: {poll.chosen_option}</span>
+            <div className="mb-2 px-2 py-1 rounded-lg inline-flex items-center gap-1" style={{ backgroundColor: bubbleBg ? bubbleBg.replace("hsl(", "hsla(").replace(")", ", 0.15)") : "rgba(170,238,68,0.15)", border: `1px solid ${bubbleBg ? bubbleBg.replace("hsl(", "hsla(").replace(")", ", 0.3)") : "rgba(170,238,68,0.3)"}` }}>
+              <span style={{ color: accentColor, fontSize: 11, fontWeight: 700 }}>HOST'S CHOICE: {poll.chosen_option}</span>
             </div>
           )}
           <div className="flex flex-col gap-2">
@@ -807,12 +807,12 @@ const EventView = () => {
               const pct = poll.totalVotes > 0 ? Math.round((count / poll.totalVotes) * 100) : 0;
               const myVote = myVotes[poll.id] == idx;
               const isChosen = poll.chosen_option === opt;
-              const fillColor = isChosen ? "rgba(170,238,68,0.4)" : myVote ? "rgba(170,238,68,0.2)" : "rgba(255,255,255,0.07)";
+              const fillStyle = (isChosen || myVote) ? { width: `${pct}%`, backgroundColor: accentColor, opacity: isChosen ? 0.4 : 0.2 } : { width: `${pct}%`, backgroundColor: "rgba(255,255,255,0.07)" };
               const row = (
                 <div className="relative rounded-lg overflow-hidden" style={{ backgroundColor: "#2a2a2a", height: "42px" }}>
-                  <div className="absolute inset-y-0 left-0 rounded-lg transition-all duration-300" style={{ width: `${pct}%`, backgroundColor: fillColor }} />
+                  <div className="absolute inset-y-0 left-0 rounded-lg transition-all duration-300" style={fillStyle} />
                   <div className="absolute inset-0 flex items-center justify-between px-3">
-                    <span className="text-xs font-semibold relative" style={{ color: myVote ? "#aaee44" : isChosen ? "#aaee44" : "rgba(255,255,255,0.85)" }}>
+                    <span className="text-xs font-semibold relative" style={{ color: myVote ? accentColor : isChosen ? accentColor : "rgba(255,255,255,0.85)" }}>
                       {myVote ? `✓ ${opt}` : opt}
                     </span>
                     <span className="text-xs relative" style={{ color: "rgba(255,255,255,0.4)" }}>{pct}% · {count}</span>
