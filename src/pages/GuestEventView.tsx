@@ -210,6 +210,7 @@ const GuestEventView = () => {
       .eq("code", code)
       .single()
       .then(({ data }) => {
+        console.log("[GuestEventView] event loaded — capacity:", (data as any)?.capacity, "template:", (data as any)?.template_name, "full event:", data);
         setEvent(data);
         setLoading(false);
         // Fetch host name

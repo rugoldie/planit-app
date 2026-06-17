@@ -524,6 +524,20 @@ const HostEvent = () => {
       .then(({ data }) => {
         if (cancelled || buildItAppliedRef.current) return;
         if (data) {
+          console.log("[HostEvent edit] loaded from DB:", JSON.stringify({
+            template_name: (data as any).template_name,
+            bg_color: data.bg_color,
+            bg_photo: (data.bg_photo || "").slice(0, 80),
+            font_color: (data as any).font_color,
+            font_style: data.font_style,
+            bubble_color: data.bubble_color,
+            bubble_text_color: data.bubble_text_color,
+            text_size: data.text_size,
+            gradient_color: data.gradient_color,
+            stickers: (data as any).stickers,
+            capacity: (data as any).capacity,
+            rsvp_deadline: (data as any).rsvp_deadline,
+          }, null, 2));
           setTitle(data.title || "");
           setVibe(data.vibe || "");
           setLocation(data.location || "");
@@ -681,18 +695,45 @@ const HostEvent = () => {
       return null;
     };
 
+    console.log("[handleCreate] saving eventData:", JSON.stringify({
+      template_name: eventData.template_name,
+      bg_color: eventData.bg_color,
+      bg_photo: (eventData.bg_photo || "").slice(0, 80),
+      font_color: eventData.font_color,
+      font_style: eventData.font_style,
+      bubble_color: eventData.bubble_color,
+      bubble_text_color: eventData.bubble_text_color,
+      text_size: eventData.text_size,
+      gradient_color: eventData.gradient_color,
+      stickers: eventData.stickers,
+      capacity: eventData.capacity,
+      rsvp_deadline: eventData.rsvp_deadline,
+    }, null, 2));
+
     if (editCode && eventId) {
       let { error: updateError } = await supabase.from("events").update(eventData).eq("id", eventId);
       if (updateError) {
+        console.error("[handleCreate] update error (first attempt):", JSON.stringify(updateError, null, 2));
         const fallback = withFallback(eventData, updateError);
-        if (fallback) ({ error: updateError } = await supabase.from("events").update(fallback).eq("id", eventId));
+        if (fallback) {
+          console.warn("[handleCreate] falling back to stripped payload — customisation fields REMOVED:", JSON.stringify(fallback, null, 2));
+          ({ error: updateError } = await supabase.from("events").update(fallback).eq("id", eventId));
+        }
+      } else {
+        console.log("[handleCreate] update succeeded with full payload");
       }
       if (!updateError) navigate("/event/" + code);
     } else {
       let { error } = await supabase.from("events").insert(eventData);
       if (error) {
+        console.error("[handleCreate] insert error (first attempt):", JSON.stringify(error, null, 2));
         const fallback = withFallback(eventData, error);
-        if (fallback) ({ error } = await supabase.from("events").insert(fallback));
+        if (fallback) {
+          console.warn("[handleCreate] falling back to stripped payload — customisation fields REMOVED");
+          ({ error } = await supabase.from("events").insert(fallback));
+        }
+      } else {
+        console.log("[handleCreate] insert succeeded with full payload");
       }
       if (error) {
         if (error.code === "23505") {
