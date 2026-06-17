@@ -11,6 +11,12 @@ import {
   Copy,
   Check,
   Download,
+  Users,
+  BarChart2,
+  Clock,
+  Pencil,
+  Share2,
+  Trash2,
 } from "lucide-react";
 import React, { useEffect, useState, useRef, useMemo, useCallback } from "react";
 import {
@@ -3797,18 +3803,63 @@ const EventView = () => {
       {showMenu && isHost && (
         <>
           <div className="fixed inset-0 z-[60]" onClick={() => setShowMenu(false)} />
-          <div className="fixed top-16 right-5 rounded-xl border border-border shadow-lg z-[70] overflow-hidden" style={{ backgroundColor: "#383838" }}>
-            <button onClick={() => { setShowMenu(false); setShowGuestList(true); fetchWaitlist(); }} className="px-5 py-3 text-sm font-semibold text-white hover:bg-white/10 w-full text-left whitespace-nowrap">Guest list</button>
-            <div className="h-px bg-white/10" />
-            <button onClick={() => { setShowMenu(false); setShowPollSheet(true); }} className="px-5 py-3 text-sm font-semibold text-white hover:bg-white/10 w-full text-left whitespace-nowrap">Add a poll</button>
-            <div className="h-px bg-white/10" />
-            <button onClick={() => { setShowMenu(false); setShowRsvpDeadlineSheet(true); }} className="px-5 py-3 text-sm font-semibold text-white hover:bg-white/10 w-full text-left whitespace-nowrap">RSVP deadline</button>
-            <div className="h-px bg-white/10" />
-            <button onClick={() => { setShowMenu(false); navigate(`/host?edit=${event.code}`); }} className="px-5 py-3 text-sm font-semibold text-white hover:bg-white/10 w-full text-left whitespace-nowrap">Edit event</button>
-            <div className="h-px bg-white/10" />
-            <button onClick={shareEvent} className="px-5 py-3 text-sm font-semibold text-white hover:bg-white/10 w-full text-left whitespace-nowrap">Share event</button>
-            <div className="h-px bg-white/10" />
-            <button onClick={() => { setShowMenu(false); setShowDeleteDialog(true); }} className="px-5 py-3 text-sm font-semibold text-red-400 hover:bg-red-500/10 w-full text-left whitespace-nowrap">Delete event</button>
+          <div
+            className="fixed top-16 right-5 rounded-2xl z-[70] overflow-hidden"
+            style={{ backgroundColor: "#1c1c1e", border: "1px solid rgba(255,255,255,0.1)", boxShadow: "0 8px 32px rgba(0,0,0,0.5)", minWidth: "210px" }}
+          >
+            {/* Group 1: Guest actions */}
+            <button
+              onClick={() => { setShowMenu(false); setShowGuestList(true); fetchWaitlist(); }}
+              className="flex items-center gap-3 px-4 py-3.5 w-full text-left transition-colors hover:bg-white/5"
+            >
+              <Users className="w-4 h-4 shrink-0" style={{ color: accentColor }} />
+              <span className="text-sm font-semibold text-white">Guest list</span>
+            </button>
+            <button
+              onClick={() => { setShowMenu(false); setShowPollSheet(true); }}
+              className="flex items-center gap-3 px-4 py-3.5 w-full text-left transition-colors hover:bg-white/5"
+            >
+              <BarChart2 className="w-4 h-4 shrink-0" style={{ color: accentColor }} />
+              <span className="text-sm font-semibold text-white">Add a poll</span>
+            </button>
+            <button
+              onClick={() => { setShowMenu(false); setShowRsvpDeadlineSheet(true); }}
+              className="flex items-center gap-3 px-4 py-3.5 w-full text-left transition-colors hover:bg-white/5"
+            >
+              <Clock className="w-4 h-4 shrink-0" style={{ color: accentColor }} />
+              <span className="text-sm font-semibold text-white">RSVP deadline</span>
+            </button>
+
+            {/* Divider */}
+            <div className="mx-3" style={{ height: "1px", backgroundColor: "rgba(255,255,255,0.08)" }} />
+
+            {/* Group 2: Event management */}
+            <button
+              onClick={() => { setShowMenu(false); navigate(`/host?edit=${event.code}`); }}
+              className="flex items-center gap-3 px-4 py-3.5 w-full text-left transition-colors hover:bg-white/5"
+            >
+              <Pencil className="w-4 h-4 shrink-0" style={{ color: accentColor }} />
+              <span className="text-sm font-semibold text-white">Edit event</span>
+            </button>
+            <button
+              onClick={shareEvent}
+              className="flex items-center gap-3 px-4 py-3.5 w-full text-left transition-colors hover:bg-white/5"
+            >
+              <Share2 className="w-4 h-4 shrink-0" style={{ color: accentColor }} />
+              <span className="text-sm font-semibold text-white">Share event</span>
+            </button>
+
+            {/* Divider */}
+            <div className="mx-3" style={{ height: "1px", backgroundColor: "rgba(255,255,255,0.08)" }} />
+
+            {/* Group 3: Danger */}
+            <button
+              onClick={() => { setShowMenu(false); setShowDeleteDialog(true); }}
+              className="flex items-center gap-3 px-4 py-3.5 w-full text-left transition-colors hover:bg-red-500/10"
+            >
+              <Trash2 className="w-4 h-4 shrink-0 text-red-400" />
+              <span className="text-sm font-semibold text-red-400">Delete event</span>
+            </button>
           </div>
         </>
       )}
