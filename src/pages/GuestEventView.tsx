@@ -479,10 +479,14 @@ const GuestEventView = () => {
   const voteOnPoll = async (pollId: string, option: string) => {
     if (!user) return;
     if (myVotes[pollId] === option) {
-      await (supabase as any).from("poll_votes").delete().eq("poll_id", pollId).eq("user_id", user.id);
+      const { error: delError } = await (supabase as any).from("poll_votes").delete().eq("poll_id", pollId).eq("user_id", user.id);
+      if (delError) { console.error("[voteOnPoll] delete error:", JSON.stringify(delError, null, 2)); return; }
       setMyVotes(prev => { const n = { ...prev }; delete n[pollId]; return n; });
     } else {
-      await (supabase as any).from("poll_votes").upsert({ poll_id: pollId, user_id: user.id, option }, { onConflict: "poll_id,user_id" });
+      const payload = { poll_id: pollId, user_id: user.id, option };
+      console.log("[voteOnPoll] payload:", payload);
+      const { error } = await (supabase as any).from("poll_votes").upsert(payload, { onConflict: "poll_id,user_id" });
+      if (error) { console.error("[voteOnPoll] error:", JSON.stringify(error, null, 2)); return; }
       setMyVotes(prev => ({ ...prev, [pollId]: option }));
     }
     fetchPolls();
