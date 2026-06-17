@@ -606,25 +606,25 @@ const GuestEventView = () => {
               const pct = poll.totalVotes > 0 ? Math.round((count / poll.totalVotes) * 100) : 0;
               const myVote = myVotes[poll.id] === opt;
               const isChosen = poll.chosen_option === opt;
+              const fillColor = isChosen ? "rgba(170,238,68,0.4)" : myVote ? "rgba(170,238,68,0.2)" : "rgba(255,255,255,0.07)";
+              const row = (
+                <div className="relative rounded-lg overflow-hidden" style={{ backgroundColor: "#2a2a2a", height: "42px" }}>
+                  <div className="absolute inset-y-0 left-0 rounded-lg transition-all duration-300" style={{ width: `${pct}%`, backgroundColor: fillColor }} />
+                  <div className="absolute inset-0 flex items-center justify-between px-3">
+                    <span className="text-xs font-semibold relative" style={{ color: myVote ? "#aaee44" : isChosen ? "#aaee44" : "rgba(255,255,255,0.85)" }}>
+                      {myVote ? `✓ ${opt}` : opt}
+                    </span>
+                    <span className="text-xs relative" style={{ color: "rgba(255,255,255,0.4)" }}>{pct}% · {count}</span>
+                  </div>
+                </div>
+              );
               return (
                 <div key={opt}>
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs text-white/80">{opt}</span>
-                    <span className="text-xs text-white/40">{pct}% · {count}</span>
-                  </div>
-                  <div className="relative h-8 rounded-lg overflow-hidden" style={{ backgroundColor: "#2a2a2a" }}>
-                    <div className="absolute inset-y-0 left-0 rounded-lg transition-all" style={{ width: `${pct}%`, backgroundColor: isChosen ? "#aaee44" : myVote ? "rgba(170,238,68,0.35)" : "rgba(255,255,255,0.1)" }} />
-                    {!poll.chosen_option && (
-                      <button
-                        type="button"
-                        onClick={() => voteOnPoll(poll.id, opt)}
-                        className="absolute inset-0 w-full text-left pl-3 text-xs font-semibold"
-                        style={{ color: myVote ? "#aaee44" : "rgba(255,255,255,0.5)", background: "none", border: "none" }}
-                      >
-                        {myVote ? "✓ Your vote — tap to remove" : "Tap to vote"}
-                      </button>
-                    )}
-                  </div>
+                  {!poll.chosen_option ? (
+                    <button type="button" onClick={() => voteOnPoll(poll.id, opt)} className="w-full text-left" style={{ background: "none", border: "none", padding: 0 }}>
+                      {row}
+                    </button>
+                  ) : row}
                 </div>
               );
             })}
