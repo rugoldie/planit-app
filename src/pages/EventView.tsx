@@ -706,18 +706,19 @@ const EventView = () => {
 
   const voteOnPoll = async (pollId: string, option: string) => {
     if (!user) return;
-    await (supabase as any).from("poll_votes").upsert({ poll_id: pollId, user_id: user.id, option }, { onConflict: "poll_id,user_id" });
-    setMyVotes(prev => ({ ...prev, [pollId]: option }));
+    if (myVotes[pollId] === option) {
+      await (supabase as any).from("poll_votes").delete().eq("poll_id", pollId).eq("user_id", user.id);
+      setMyVotes(prev => { const n = { ...prev }; delete n[pollId]; return n; });
+    } else {
+      await (supabase as any).from("poll_votes").upsert({ poll_id: pollId, user_id: user.id, option }, { onConflict: "poll_id,user_id" });
+      setMyVotes(prev => ({ ...prev, [pollId]: option }));
+    }
     fetchPolls();
   };
 
-  const pickPollOption = async (poll: any, option: string) => {
-    if (!isHost) return;
-    await (supabase as any).from("polls").update({ chosen_option: option }).eq("id", poll.id);
-    const going = rsvpList.filter((r: any) => r.status === "yes");
-    const hostName = profile?.name || "Your host";
-    await Promise.all(going.map((g: any) => createNotification(g.user_id, "poll", `${hostName} decided`, `${hostName} decided: ${option}`, { event_id: event.id, event_code: event.code })));
-    fetchPolls();
+  const deletePoll = async (pollId: string) => {
+    await (supabase as any).from("polls").delete().eq("id", pollId);
+    await fetchPolls();
   };
 
   const removeGuest = async (guestUserId: string) => {
@@ -770,7 +771,19 @@ const EventView = () => {
     <div className="mt-3 space-y-3">
       {polls.map(poll => (
         <div key={poll.id} className="rounded-2xl p-4" style={{ backgroundColor: "#1e1e1e", border: "1px solid rgba(255,255,255,0.08)" }}>
-          <p className="text-sm font-bold text-white mb-3">{poll.question}</p>
+          <div className="flex items-start justify-between mb-3">
+            <p className="text-sm font-bold text-white flex-1 mr-2">{poll.question}</p>
+            {isHost && (
+              <button
+                type="button"
+                onClick={() => deletePoll(poll.id)}
+                className="shrink-0 text-white/30 hover:text-red-400 transition-colors"
+                style={{ fontSize: 16, lineHeight: 1, background: "none", border: "none", padding: "2px 4px" }}
+              >
+                ✕
+              </button>
+            )}
+          </div>
           {poll.chosen_option && (
             <div className="mb-2 px-2 py-1 rounded-lg inline-flex items-center gap-1" style={{ backgroundColor: "rgba(170,238,68,0.15)", border: "1px solid rgba(170,238,68,0.3)" }}>
               <span style={{ color: "#aaee44", fontSize: 11, fontWeight: 700 }}>HOST'S CHOICE: {poll.chosen_option}</span>
@@ -791,13 +804,13 @@ const EventView = () => {
                   <div className="relative h-8 rounded-lg overflow-hidden" style={{ backgroundColor: "#2a2a2a" }}>
                     <div className="absolute inset-y-0 left-0 rounded-lg transition-all" style={{ width: `${pct}%`, backgroundColor: isChosen ? "#aaee44" : myVote ? "rgba(170,238,68,0.35)" : "rgba(255,255,255,0.1)" }} />
                     {!poll.chosen_option && (
-                      <button onClick={() => voteOnPoll(poll.id, opt)} className="absolute inset-0 w-full text-left pl-3 text-xs font-semibold" style={{ color: myVote ? "#aaee44" : "rgba(255,255,255,0.5)", background: "none", border: "none" }}>
-                        {myVote ? "✓ Your vote" : "Tap to vote"}
-                      </button>
-                    )}
-                    {isHost && !poll.chosen_option && (
-                      <button onClick={() => pickPollOption(poll, opt)} className="absolute right-2 top-1/2 -translate-y-1/2 px-2 py-0.5 rounded text-[10px] font-bold" style={{ backgroundColor: "#aaee44", color: "#111" }}>
-                        Pick this
+                      <button
+                        type="button"
+                        onClick={() => voteOnPoll(poll.id, opt)}
+                        className="absolute inset-0 w-full text-left pl-3 text-xs font-semibold"
+                        style={{ color: myVote ? "#aaee44" : "rgba(255,255,255,0.5)", background: "none", border: "none" }}
+                      >
+                        {myVote ? "✓ Your vote — tap to remove" : "Tap to vote"}
                       </button>
                     )}
                   </div>

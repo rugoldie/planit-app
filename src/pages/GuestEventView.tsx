@@ -478,8 +478,13 @@ const GuestEventView = () => {
 
   const voteOnPoll = async (pollId: string, option: string) => {
     if (!user) return;
-    await (supabase as any).from("poll_votes").upsert({ poll_id: pollId, user_id: user.id, option }, { onConflict: "poll_id,user_id" });
-    setMyVotes(prev => ({ ...prev, [pollId]: option }));
+    if (myVotes[pollId] === option) {
+      await (supabase as any).from("poll_votes").delete().eq("poll_id", pollId).eq("user_id", user.id);
+      setMyVotes(prev => { const n = { ...prev }; delete n[pollId]; return n; });
+    } else {
+      await (supabase as any).from("poll_votes").upsert({ poll_id: pollId, user_id: user.id, option }, { onConflict: "poll_id,user_id" });
+      setMyVotes(prev => ({ ...prev, [pollId]: option }));
+    }
     fetchPolls();
   };
 
@@ -610,8 +615,13 @@ const GuestEventView = () => {
                   <div className="relative h-8 rounded-lg overflow-hidden" style={{ backgroundColor: "#2a2a2a" }}>
                     <div className="absolute inset-y-0 left-0 rounded-lg transition-all" style={{ width: `${pct}%`, backgroundColor: isChosen ? "#aaee44" : myVote ? "rgba(170,238,68,0.35)" : "rgba(255,255,255,0.1)" }} />
                     {!poll.chosen_option && (
-                      <button onClick={() => voteOnPoll(poll.id, opt)} className="absolute inset-0 w-full text-left pl-3 text-xs font-semibold" style={{ color: myVote ? "#aaee44" : "rgba(255,255,255,0.5)", background: "none", border: "none" }}>
-                        {myVote ? "✓ Your vote" : "Tap to vote"}
+                      <button
+                        type="button"
+                        onClick={() => voteOnPoll(poll.id, opt)}
+                        className="absolute inset-0 w-full text-left pl-3 text-xs font-semibold"
+                        style={{ color: myVote ? "#aaee44" : "rgba(255,255,255,0.5)", background: "none", border: "none" }}
+                      >
+                        {myVote ? "✓ Your vote — tap to remove" : "Tap to vote"}
                       </button>
                     )}
                   </div>
