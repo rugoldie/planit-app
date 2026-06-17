@@ -669,13 +669,39 @@ const EventView = () => {
   };
 
   const createPoll = async () => {
-    if (!pollQuestion.trim() || pollOptions.filter(o => o.trim()).length < 2) return;
-    const opts = pollOptions.filter(o => o.trim());
-    await (supabase as any).from("polls").insert({ event_id: event.id, question: pollQuestion.trim(), options: opts });
-    setPollQuestion("");
-    setPollOptions(["", ""]);
-    setShowPollSheet(false);
-    await fetchPolls();
+    console.log("[createPoll] called — question:", JSON.stringify(pollQuestion), "options:", pollOptions, "event:", event?.id);
+    const validOpts = pollOptions.filter(o => o.trim());
+    if (!pollQuestion.trim()) {
+      console.log("[createPoll] BLOCKED — question is empty");
+      return;
+    }
+    if (validOpts.length < 2) {
+      console.log("[createPoll] BLOCKED — fewer than 2 non-empty options, got:", validOpts);
+      return;
+    }
+    if (!event?.id) {
+      console.log("[createPoll] BLOCKED — event.id is missing, event:", event);
+      return;
+    }
+    try {
+      console.log("[createPoll] inserting into polls table…");
+      const { data, error } = await (supabase as any).from("polls").insert({
+        event_id: event.id,
+        question: pollQuestion.trim(),
+        options: validOpts,
+      }).select();
+      console.log("[createPoll] insert result — data:", data, "error:", error);
+      if (error) {
+        console.error("[createPoll] Supabase error:", error);
+        return;
+      }
+      setPollQuestion("");
+      setPollOptions(["", ""]);
+      setShowPollSheet(false);
+      await fetchPolls();
+    } catch (err) {
+      console.error("[createPoll] exception thrown:", err);
+    }
   };
 
   const voteOnPoll = async (pollId: string, option: string) => {
@@ -3866,7 +3892,7 @@ const EventView = () => {
         >
           <div className="px-5 pt-5 pb-3 border-b border-border shrink-0 flex items-center justify-between">
             <h2 className="text-lg font-bold text-foreground">Add a poll</h2>
-            <button onClick={createPoll} className="text-sm font-bold px-4 py-1.5 rounded-full" style={{ backgroundColor: "#aaee44", color: "#111" }}>Save</button>
+            <button type="button" onClick={createPoll} className="text-sm font-bold px-4 py-1.5 rounded-full" style={{ backgroundColor: "#aaee44", color: "#111" }}>Save</button>
           </div>
           <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4" style={{ paddingBottom: 24 }}>
             <div>
