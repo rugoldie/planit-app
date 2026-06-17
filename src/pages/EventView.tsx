@@ -2,6 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
   MoreVertical,
+  MoreHorizontal,
   X,
   Send,
   Maximize2,
@@ -212,6 +213,8 @@ const EventView = () => {
   const [showPollSheet, setShowPollSheet] = useState(false);
   const [pollQuestion, setPollQuestion] = useState("");
   const [pollOptions, setPollOptions] = useState(["", ""]);
+  const [pollMenuOpenId, setPollMenuOpenId] = useState<string | null>(null);
+  const [editingPollId, setEditingPollId] = useState<string | null>(null);
   const [polls, setPolls] = useState<any[]>([]);
   const [myVotes, setMyVotes] = useState<Record<string, string>>({});
   const [pollKeyboardHeight, setPollKeyboardHeight] = useState(0);
@@ -677,31 +680,32 @@ const EventView = () => {
   };
 
   const createPoll = async () => {
-    console.log("[createPoll] called — question:", JSON.stringify(pollQuestion), "options:", pollOptions, "event:", event?.id);
     const validOpts = pollOptions.filter(o => o.trim());
-    if (!pollQuestion.trim()) {
-      console.log("[createPoll] BLOCKED — question is empty");
-      return;
-    }
-    if (validOpts.length < 2) {
-      console.log("[createPoll] BLOCKED — fewer than 2 non-empty options, got:", validOpts);
-      return;
-    }
-    if (!event?.id) {
-      console.log("[createPoll] BLOCKED — event.id is missing, event:", event);
-      return;
-    }
+    if (!pollQuestion.trim() || validOpts.length < 2 || !event?.id) return;
     try {
-      console.log("[createPoll] inserting into polls table…");
-      const { data, error } = await (supabase as any).from("polls").insert({
-        event_id: event.id,
-        question: pollQuestion.trim(),
-        options: validOpts,
-      }).select();
-      console.log("[createPoll] insert result — data:", data, "error:", error);
-      if (error) {
-        console.error("[createPoll] Supabase error:", JSON.stringify(error, null, 2));
-        return;
+      if (editingPollId) {
+        const { error } = await (supabase as any).from("polls")
+          .update({ question: pollQuestion.trim(), options: validOpts })
+          .eq("id", editingPollId);
+        if (error) { console.error("[createPoll] update error:", error); return; }
+        await (supabase as any).from("poll_votes").delete().eq("poll_id", editingPollId);
+        for (const guest of goingList) {
+          if (guest.user_id && guest.user_id !== user?.id) {
+            await createNotification(
+              guest.user_id, "event", "Poll updated",
+              `The host updated a poll for ${event.title || "an event"}. Cast your vote!`,
+              { event_id: event.id, event_code: event.code }
+            );
+          }
+        }
+        setEditingPollId(null);
+      } else {
+        const { error } = await (supabase as any).from("polls").insert({
+          event_id: event.id,
+          question: pollQuestion.trim(),
+          options: validOpts,
+        });
+        if (error) { console.error("[createPoll] insert error:", error); return; }
       }
       setPollQuestion("");
       setPollOptions(["", ""]);
@@ -782,18 +786,51 @@ const EventView = () => {
   const renderPolls = () => polls.length === 0 ? null : (
     <div className="mt-3 space-y-3">
       {polls.map(poll => (
-        <div key={poll.id} className="rounded-2xl p-4" style={{ backgroundColor: "#1e1e1e", border: "1px solid rgba(255,255,255,0.08)" }}>
+        <div key={poll.id} className="relative rounded-2xl p-4" style={{ backgroundColor: "#1e1e1e", border: "1px solid rgba(255,255,255,0.08)" }}>
           <div className="flex items-start justify-between mb-3">
             <p className="text-sm font-bold text-white flex-1 mr-2">{poll.question}</p>
             {isHost && (
-              <button
-                type="button"
-                onClick={() => deletePoll(poll.id)}
-                className="shrink-0 text-white/30 hover:text-red-400 transition-colors"
-                style={{ fontSize: 16, lineHeight: 1, background: "none", border: "none", padding: "2px 4px" }}
-              >
-                ✕
-              </button>
+              <div className="relative shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setPollMenuOpenId(pollMenuOpenId === poll.id ? null : poll.id)}
+                  className="text-white/40 hover:text-white/80 transition-colors"
+                  style={{ background: "none", border: "none", padding: "2px 4px" }}
+                >
+                  <MoreHorizontal className="w-4 h-4" />
+                </button>
+                {pollMenuOpenId === poll.id && (
+                  <>
+                    <div className="fixed inset-0 z-[60]" onClick={() => setPollMenuOpenId(null)} />
+                    <div className="absolute right-0 top-6 rounded-xl z-[70] overflow-hidden"
+                      style={{ backgroundColor: "#1c1c1e", border: "1px solid rgba(255,255,255,0.1)", boxShadow: "0 8px 32px rgba(0,0,0,0.5)", minWidth: "150px" }}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setPollMenuOpenId(null);
+                          setPollQuestion(poll.question);
+                          setPollOptions([...poll.options]);
+                          setEditingPollId(poll.id);
+                          setShowPollSheet(true);
+                        }}
+                        className="flex items-center gap-2 px-4 py-3 w-full text-left hover:bg-white/5 transition-colors"
+                      >
+                        <Pencil className="w-3.5 h-3.5 shrink-0" style={{ color: accentColor }} />
+                        <span className="text-sm font-semibold text-white">Edit poll</span>
+                      </button>
+                      <div className="mx-3" style={{ height: "1px", backgroundColor: "rgba(255,255,255,0.08)" }} />
+                      <button
+                        type="button"
+                        onClick={() => { setPollMenuOpenId(null); deletePoll(poll.id); }}
+                        className="flex items-center gap-2 px-4 py-3 w-full text-left hover:bg-red-500/10 transition-colors"
+                      >
+                        <Trash2 className="w-3.5 h-3.5 shrink-0 text-red-400" />
+                        <span className="text-sm font-semibold text-red-400">Delete poll</span>
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
             )}
           </div>
           {poll.chosen_option && (
@@ -3961,15 +3998,15 @@ const EventView = () => {
         </DrawerContent>
       </Drawer>
 
-      {/* Add poll sheet */}
-      <Drawer open={showPollSheet} onOpenChange={setShowPollSheet}>
+      {/* Add / edit poll sheet */}
+      <Drawer open={showPollSheet} onOpenChange={(open) => { setShowPollSheet(open); if (!open) { setEditingPollId(null); setPollQuestion(""); setPollOptions(["", ""]); } }}>
         <DrawerContent
           className="bg-background border-t border-border max-h-[85vh] flex flex-col"
           style={{ bottom: pollKeyboardHeight, transition: "bottom 0.15s ease-out" }}
         >
           <div className="px-5 pt-5 pb-3 border-b border-border shrink-0 flex items-center justify-between">
-            <h2 className="text-lg font-bold text-foreground">Add a poll</h2>
-            <button type="button" onClick={createPoll} className="text-sm font-bold px-4 py-1.5 rounded-full" style={{ backgroundColor: "#aaee44", color: "#111" }}>Save</button>
+            <h2 className="text-lg font-bold text-foreground">{editingPollId ? "Edit poll" : "Add a poll"}</h2>
+            <button type="button" onClick={createPoll} className="text-sm font-bold px-4 py-1.5 rounded-full" style={{ backgroundColor: accentColor, color: "#111" }}>{editingPollId ? "Update" : "Save"}</button>
           </div>
           <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4" style={{ paddingBottom: 24 }}>
             <div>

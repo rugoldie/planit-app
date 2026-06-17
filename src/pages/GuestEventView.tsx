@@ -179,6 +179,7 @@ const GuestEventView = () => {
   const [onWaitlist, setOnWaitlist] = useState(false);
   const [polls, setPolls] = useState<any[]>([]);
   const [myVotes, setMyVotes] = useState<Record<string, string>>({});
+  const [dismissedPolls, setDismissedPolls] = useState<Set<string>>(new Set());
 
   const fetchPolls = useCallback(async () => {
     if (!event) return;
@@ -595,11 +596,26 @@ const GuestEventView = () => {
   const rsvpLabel = rsvp === "yes" ? "You're going! 🎉" : rsvp === "no" ? "You're not going 👎" : "You're a maybe 🤷";
   const getInitials = (name: string) => name.charAt(0).toUpperCase();
 
-  const renderPolls = () => polls.length === 0 ? null : (
+  const renderPolls = () => {
+    const visible = polls.filter(p => !dismissedPolls.has(p.id));
+    if (visible.length === 0) return null;
+    return (
     <div className="mt-3 space-y-3">
-      {polls.map(poll => (
+      {visible.map(poll => {
+        const hasVoted = myVotes[poll.id] !== undefined;
+        return (
         <div key={poll.id} className="rounded-2xl p-4" style={{ backgroundColor: "#1e1e1e", border: "1px solid rgba(255,255,255,0.08)" }}>
-          <p className="text-sm font-bold text-white mb-3">{poll.question}</p>
+          <div className="flex items-start justify-between mb-3">
+            <p className="text-sm font-bold text-white flex-1 mr-2">{poll.question}</p>
+            {hasVoted && (
+              <button
+                type="button"
+                onClick={() => setDismissedPolls(prev => new Set(prev).add(poll.id))}
+                className="shrink-0 text-white/30 hover:text-white/60 transition-colors"
+                style={{ background: "none", border: "none", padding: "2px 4px", fontSize: 14, lineHeight: 1 }}
+              >✕</button>
+            )}
+          </div>
           {poll.chosen_option && (
             <div className="mb-2 px-2 py-1 rounded-lg inline-flex items-center gap-1" style={{ backgroundColor: bubbleBg ? bubbleBg.replace("hsl(", "hsla(").replace(")", ", 0.15)") : "rgba(170,238,68,0.15)", border: `1px solid ${bubbleBg ? bubbleBg.replace("hsl(", "hsla(").replace(")", ", 0.3)") : "rgba(170,238,68,0.3)"}` }}>
               <span style={{ color: accentColor, fontSize: 11, fontWeight: 700 }}>HOST'S CHOICE: {poll.chosen_option}</span>
@@ -635,9 +651,11 @@ const GuestEventView = () => {
             })}
           </div>
         </div>
-      ))}
+        );
+      })}
     </div>
   );
+  };
 
   const statusBadge = (status: string) => {
     if (status === "yes")
