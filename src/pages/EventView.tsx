@@ -692,7 +692,7 @@ const EventView = () => {
       }).select();
       console.log("[createPoll] insert result — data:", data, "error:", error);
       if (error) {
-        console.error("[createPoll] Supabase error:", error);
+        console.error("[createPoll] Supabase error:", JSON.stringify(error, null, 2));
         return;
       }
       setPollQuestion("");
