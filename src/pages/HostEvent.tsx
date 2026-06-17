@@ -1006,6 +1006,10 @@ const HostEvent = () => {
                 min="1"
                 value={capacity}
                 onChange={(e) => setCapacity(e.target.value)}
+                onBlur={async () => {
+                  if (!eventCode) return;
+                  await (supabase as any).from("events").update({ capacity: capacity ? parseInt(capacity) : null }).eq("code", eventCode);
+                }}
                 placeholder="Unlimited"
                 className="w-full bg-transparent text-foreground font-semibold text-sm outline-none placeholder:text-muted-foreground/50"
               />
