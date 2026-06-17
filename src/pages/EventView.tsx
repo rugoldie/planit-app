@@ -705,9 +705,9 @@ const EventView = () => {
     }
   };
 
-  const voteOnPoll = async (pollId: string, option: string) => {
+  const voteOnPoll = async (pollId: string, option: number) => {
     if (!user) return;
-    if (myVotes[pollId] === option) {
+    if (myVotes[pollId] == option) {
       const { error: delError } = await (supabase as any).from("poll_votes").delete().eq("poll_id", pollId).eq("user_id", user.id);
       if (delError) { console.error("[voteOnPoll] delete error:", JSON.stringify(delError, null, 2)); return; }
       setMyVotes(prev => { const n = { ...prev }; delete n[pollId]; return n; });
@@ -795,10 +795,10 @@ const EventView = () => {
             </div>
           )}
           <div className="flex flex-col gap-2">
-            {(poll.options || []).map((opt: string) => {
-              const count = poll.voteCounts?.[opt] || 0;
+            {(poll.options || []).map((opt: string, idx: number) => {
+              const count = poll.voteCounts?.[idx] || 0;
               const pct = poll.totalVotes > 0 ? Math.round((count / poll.totalVotes) * 100) : 0;
-              const myVote = myVotes[poll.id] === opt;
+              const myVote = myVotes[poll.id] == idx;
               const isChosen = poll.chosen_option === opt;
               const fillColor = isChosen ? "rgba(170,238,68,0.4)" : myVote ? "rgba(170,238,68,0.2)" : "rgba(255,255,255,0.07)";
               const row = (
@@ -815,7 +815,7 @@ const EventView = () => {
               return (
                 <div key={opt}>
                   {!poll.chosen_option ? (
-                    <button type="button" onClick={() => voteOnPoll(poll.id, opt)} className="w-full text-left" style={{ background: "none", border: "none", padding: 0 }}>
+                    <button type="button" onClick={() => voteOnPoll(poll.id, idx)} className="w-full text-left" style={{ background: "none", border: "none", padding: 0 }}>
                       {row}
                     </button>
                   ) : row}
