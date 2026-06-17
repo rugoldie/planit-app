@@ -786,7 +786,7 @@ const EventView = () => {
   const renderPolls = () => polls.length === 0 ? null : (
     <div className="mt-3 space-y-3">
       {polls.map(poll => (
-        <div key={poll.id} className="relative rounded-2xl p-4" style={{ backgroundColor: "#1e1e1e", border: "1px solid rgba(255,255,255,0.08)" }}>
+        <div key={poll.id} className="relative rounded-2xl p-4" style={{ backgroundColor: bubbleBg ? bubbleBg.replace("hsl(", "hsla(").replace(")", ", 0.08)") : "rgba(255,255,255,0.06)", border: `1px solid ${bubbleBg ? bubbleBg.replace("hsl(", "hsla(").replace(")", ", 0.15)") : "rgba(255,255,255,0.1)"}` }}>
           <div className="flex items-start justify-between mb-3">
             <p className="text-sm font-bold text-white flex-1 mr-2">{poll.question}</p>
             {isHost && (
