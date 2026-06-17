@@ -271,16 +271,6 @@ const TEMPLATES = [
     templateName: "planit-noir",
   },
   {
-    name: "Custom ✦",
-    bgColor: "0 0% 4%",
-    bubbleColor: "82 100% 48%",
-    bubbleTextColor: "0 0% 10%",
-    gradientColor: "#aaee44",
-    fontStyle: "Bold",
-    previewBg: "rainbow",
-    templateName: "planit-custom",
-  },
-  {
     name: "Vintage",
     bgColor: "40 30% 92%",
     bubbleColor: "0 0% 15%",
@@ -3133,7 +3123,7 @@ const HostEvent = () => {
                   <span style={{ fontSize: "28px" }}>🪄</span>
                   <div>
                     <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "16px", fontWeight: 700, color: "#fff", lineHeight: 1.2 }}>✦ Build It</p>
-                    <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "12px", color: "rgba(255,255,255,0.7)", marginTop: "3px" }}>AI creates your vibe</p>
+                    <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "12px", color: "rgba(255,255,255,0.7)", marginTop: "3px" }}>Describe the vibe, AI designs the page</p>
                   </div>
                 </button>
                 <button
@@ -3144,7 +3134,7 @@ const HostEvent = () => {
                   <span style={{ fontSize: "28px" }}>🎨</span>
                   <div>
                     <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "16px", fontWeight: 700, color: "#fff", lineHeight: 1.2 }}>Templates</p>
-                    <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "12px", color: "#666", marginTop: "3px" }}>Pick from 8 styles</p>
+                    <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "12px", color: "#666", marginTop: "3px" }}>7 ready-made styles</p>
                   </div>
                   <span style={{ marginLeft: "auto", color: "#aaee44", fontSize: "20px" }}>›</span>
                 </button>
@@ -3165,7 +3155,7 @@ const HostEvent = () => {
                   <span style={{ fontSize: "28px" }}>✏️</span>
                   <div>
                     <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "16px", fontWeight: 700, color: "#fff", lineHeight: 1.2 }}>Start blank</p>
-                    <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "12px", color: "#666", marginTop: "3px" }}>Keep it simple</p>
+                    <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "12px", color: "#666", marginTop: "3px" }}>A clean page, fully yours to customise</p>
                   </div>
                 </button>
               </div>
