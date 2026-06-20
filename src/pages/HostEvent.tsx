@@ -3109,7 +3109,10 @@ const HostEvent = () => {
               </div>
             </div>
           ) : (
-            <div className="flex flex-col flex-1 justify-center px-5 pb-10">
+            <div className="relative flex flex-col flex-1 justify-center px-5 pb-10">
+              <button onClick={() => navigate("/home")} className="absolute top-5 left-0">
+                <ArrowLeft className="w-6 h-6" style={{ color: "rgba(255,255,255,0.4)" }} />
+              </button>
               <div className="mb-10">
                 <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "26px", fontWeight: 700, color: "#fff", lineHeight: 1.2 }}>Choose your style</p>
                 <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "13px", color: "#666", marginTop: "6px" }}>You can always change this later</p>
