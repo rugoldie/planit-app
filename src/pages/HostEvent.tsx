@@ -354,7 +354,7 @@ Fields to return:
 - fontStyle: one of "Bold", "Handwritten", "Elegant"
 - gradientColor: hex colour e.g. "#c9a84c" — for decorative accents
 - customLayout: one of "ocean", "editorial", "cards". Pick the layout that best fits the event vibe:
-  "ocean" — Date: accent-coloured date card (showing day/month/time), dress code beside it, location row with pin icon, and "Note from host" below; best for events with a strong venue/dress code focus — weddings, galas, outdoor parties
+  "ocean" — Ocean: centred "YOU'RE INVITED" label, large title, wavy divider line, three stat cards (DAY / TIME / GOING), pill-shaped location and dress code rows, and a notes card below; best for parties, celebrations, and events where attendance and timing are the main highlight
   "editorial" — Column: left-aligned with a small category badge, large title, underline below host name, calendar icon for date/time, and outlined info bubbles; best for art, culture, fashion, intimate dinners, or sophisticated events
   "cards" — Pill: centred title with an accent pill showing date/time, and outlined info bubbles below for location/dress/notes; best for birthdays, casual parties, and celebrations
 - customCSS: the full value for the CSS background property (not background-color). Layer MANY gradient values separated by commas. NEVER use SVG, url(), or image references. The value should be 500+ characters long with 20+ layers.
@@ -2538,50 +2538,26 @@ const HostEvent = () => {
                 </button>
                 {/* Content — three layout variants */}
                 {customLayout === "ocean" ? (
-                  /* ── Date layout: Noir-style with accent DATE card + location + dress + notes ── */
-                  <div className="px-6 pt-16 pb-8 relative z-10">
-                    <p style={{ fontFamily:"'Playfair Display',serif",fontSize:"13px",fontStyle:"italic",color:"rgba(255,255,255,0.4)",marginBottom:"8px" }}>you're invited to</p>
+                  /* ── Ocean layout: centred header + wavy line + stat grid + pill cards ── */
+                  <div className="px-5 pt-16 pb-8 relative z-10 text-center">
+                    <p style={{ fontFamily:"'Inter',sans-serif",fontSize:"9px",fontWeight:700,letterSpacing:"0.28em",textTransform:"uppercase" as const,color:accentColor,marginBottom:"10px" }}>You're Invited</p>
                     <div style={{ position:"relative",marginBottom:"8px" }}>
-                      <input type="text" value={title} onChange={(e)=>{setTitle(e.target.value);setTitleError("");}} placeholder="Event name..." className="w-full bg-transparent outline-none placeholder:opacity-20 block" style={{ fontFamily:currentFontFamily,fontSize:noirFontSize,fontWeight:900,color:"#ffffff",lineHeight:1.1 }} />
+                      <input type="text" value={title} onChange={(e)=>{setTitle(e.target.value);setTitleError("");}} placeholder="Event name..." className="w-full bg-transparent outline-none placeholder:opacity-20 text-center" style={{ fontFamily:currentFontFamily,fontSize:noirFontSize,fontWeight:900,color:fontColor,lineHeight:1.1 }} />
                       {titleError && <p className="text-red-400 text-xs mt-1">{titleError}</p>}
                     </div>
-                    <div className="flex items-center gap-3 mt-4 mb-5">
-                      <div className="flex-1 h-px" style={{ backgroundColor:"rgba(255,255,255,0.12)" }} />
-                      <span style={{ fontFamily:"'Playfair Display',serif",fontSize:"10px",fontWeight:600,letterSpacing:"0.2em",textTransform:"uppercase" as const,color:"rgba(255,255,255,0.4)" }}>by {hostName}</span>
-                      <div className="flex-1 h-px" style={{ backgroundColor:"rgba(255,255,255,0.12)" }} />
-                    </div>
-                    <div className="flex flex-col gap-3">
-                      <div className="flex gap-3">
-                        <div className="flex-1 flex flex-col overflow-hidden" style={{ backgroundColor:accentColor,borderRadius:"14px",position:"relative" }}>
-                          <div className="flex flex-col items-center py-3 px-3">
-                            <span style={{ fontFamily:"'Playfair Display',serif",fontSize:"22px",fontWeight:900,color:"#0a0a0a",lineHeight:1 }}>{dayNum||"?"}</span>
-                            <span style={{ fontFamily:"'Playfair Display',serif",fontSize:"11px",fontWeight:700,color:"#0a0a0a",opacity:0.7,textTransform:"uppercase" as const,letterSpacing:"0.1em",marginTop:"2px" }}>{monthName||"DATE"}</span>
-                            <span style={{ fontFamily:"'Playfair Display',serif",fontSize:"10px",color:"#0a0a0a",opacity:0.5,marginTop:"2px" }}>{timeStr||""}</span>
-                          </div>
-                          <input type="datetime-local" value={dateTime} onChange={(e)=>setDateTime(e.target.value)} style={{ position:"absolute",inset:0,width:"100%",height:"100%",opacity:0,cursor:"pointer",zIndex:10 }} />
-                        </div>
-                        <div className="flex-1 flex flex-col overflow-hidden" style={{ ...infoBubbleStyle,borderRadius:"14px",padding:"12px 12px" }}>
-                          <span style={{ fontFamily:"'Playfair Display',serif",fontSize:"9px",fontWeight:600,color:infoBubbleLabelColor,textTransform:"uppercase" as const,letterSpacing:"0.15em" }}>Dress Code</span>
-                          <input type="text" value={dressCode} onChange={(e)=>setDressCode(e.target.value)} placeholder="Theme..." className="bg-transparent outline-none placeholder:opacity-30 mt-1 font-bold" style={{ fontFamily:"'Playfair Display',serif",color:infoBubbleTextColor,fontSize:"16px" }} />
-                        </div>
+                    <p style={{ fontFamily:"'Inter',sans-serif",fontSize:"11px",color:fontColorMuted,marginBottom:"16px" }}>hosted by {hostName}</p>
+                    <svg viewBox="0 0 320 20" style={{ width:"100%",maxWidth:"280px",margin:"0 auto",display:"block",marginBottom:"20px" }}>
+                      <path d="M0,10 C26.7,2 53.3,18 80,10 C106.7,2 133.3,18 160,10 C186.7,2 213.3,18 240,10 C266.7,2 293.3,18 320,10" stroke={accentColor} strokeWidth="1.5" fill="none" strokeLinecap="round" style={{ opacity:0.3 }} />
+                    </svg>
+                    <div className="flex flex-col gap-3 text-left">
+                      <div style={{ display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:"8px" }}>
+                        <div style={{ ...infoBubbleStyle,borderRadius:"16px",padding:"14px 8px",textAlign:"center" as const,position:"relative" }}><p style={{ fontFamily:"'Inter',sans-serif",fontSize:"7px",fontWeight:700,letterSpacing:"0.22em",textTransform:"uppercase" as const,color:infoBubbleLabelColor,marginBottom:"4px" }}>Day</p><span style={{ fontFamily:currentFontFamily,fontSize:"34px",fontWeight:900,color:infoBubbleTextColor,lineHeight:1,display:"block" }}>{dayNum||"?"}</span><p style={{ fontFamily:"'Inter',sans-serif",fontSize:"9px",fontWeight:700,color:infoBubbleLabelColor,textTransform:"uppercase" as const,marginTop:"2px" }}>{monthName||"DATE"}</p><input type="datetime-local" value={dateTime} onChange={(e)=>setDateTime(e.target.value)} style={{ position:"absolute",inset:0,width:"100%",height:"100%",opacity:0,cursor:"pointer",zIndex:10 }} /></div>
+                        <div style={{ ...infoBubbleStyle,borderRadius:"16px",padding:"14px 8px",textAlign:"center" as const,position:"relative" }}><p style={{ fontFamily:"'Inter',sans-serif",fontSize:"7px",fontWeight:700,letterSpacing:"0.22em",textTransform:"uppercase" as const,color:infoBubbleLabelColor,marginBottom:"4px" }}>Time</p><span style={{ fontFamily:currentFontFamily,fontSize:eventDate?"16px":"28px",fontWeight:900,color:infoBubbleTextColor,lineHeight:1.1,display:"block" }}>{eventDate?timeStr:"—"}</span><p style={{ fontFamily:"'Inter',sans-serif",fontSize:"9px",fontWeight:700,color:infoBubbleLabelColor,textTransform:"uppercase" as const,marginTop:"2px" }}>{dayOfWeek?dayOfWeek.slice(0,3).toUpperCase():"TBD"}</p><input type="datetime-local" value={dateTime} onChange={(e)=>setDateTime(e.target.value)} style={{ position:"absolute",inset:0,width:"100%",height:"100%",opacity:0,cursor:"pointer",zIndex:10 }} /></div>
+                        <div style={{ ...infoBubbleStyle,borderRadius:"16px",padding:"14px 8px",textAlign:"center" as const }}><p style={{ fontFamily:"'Inter',sans-serif",fontSize:"7px",fontWeight:700,letterSpacing:"0.22em",textTransform:"uppercase" as const,color:infoBubbleLabelColor,marginBottom:"4px" }}>Going</p><span style={{ fontFamily:currentFontFamily,fontSize:"34px",fontWeight:900,color:infoBubbleTextColor,lineHeight:1,display:"block" }}>0</span><p style={{ fontFamily:"'Inter',sans-serif",fontSize:"9px",fontWeight:700,color:infoBubbleLabelColor,textTransform:"uppercase" as const,marginTop:"2px" }}>Guests</p></div>
                       </div>
-                      <div className="flex items-center gap-3" style={{ ...infoBubbleStyle,borderRadius:"14px",padding:"14px 16px" }}>
-                        <div className="flex items-center justify-center shrink-0" style={{ width:"36px",height:"36px",borderRadius:"8px",backgroundColor:accentColor }}>
-                          <span style={{ fontSize:"18px" }}>📍</span>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <span style={{ fontFamily:"'Playfair Display',serif",fontSize:"9px",fontWeight:600,color:infoBubbleLabelColor,textTransform:"uppercase" as const,letterSpacing:"0.15em",display:"block" }}>Location</span>
-                          <input type="text" value={location} onChange={(e)=>setLocation(e.target.value)} placeholder="Where's the event?" className="w-full bg-transparent outline-none placeholder:opacity-30 font-bold mt-0.5" style={{ fontFamily:"'Playfair Display',serif",color:infoBubbleTextColor,fontSize:"16px" }} />
-                        </div>
-                        <span style={{ color:"rgba(255,255,255,0.2)",fontSize:"20px",fontWeight:300 }}>›</span>
-                      </div>
-                      <div className="flex items-start gap-3" style={{ ...infoBubbleStyle,borderRadius:"14px",padding:"14px 16px" }}>
-                        <span style={{ color:accentColor,fontSize:"14px",marginTop:"1px" }}>✦</span>
-                        <div className="flex-1">
-                          <span style={{ fontFamily:"'Playfair Display',serif",fontSize:"9px",fontWeight:600,color:infoBubbleLabelColor,textTransform:"uppercase" as const,letterSpacing:"0.15em",display:"block" }}>Note from host</span>
-                          <textarea value={extra} onChange={(e)=>setExtra(e.target.value)} placeholder="Anything else your guests should know..." rows={2} onInput={autoExpand} className="w-full bg-transparent outline-none resize-none placeholder:text-white/20 mt-1" style={{ fontFamily:"'Playfair Display',serif",color:infoBubbleTextColor,fontStyle:"italic",overflow:"hidden" }} />
-                        </div>
-                      </div>
+                      <div style={{ ...infoBubbleStyle,borderRadius:"50px",padding:"14px 22px" }}><p style={{ fontFamily:"'Inter',sans-serif",fontSize:"8px",fontWeight:700,letterSpacing:"0.18em",textTransform:"uppercase" as const,color:infoBubbleLabelColor,marginBottom:"3px" }}>📍 Location</p><input type="text" value={location} onChange={(e)=>setLocation(e.target.value)} placeholder="Where's the event?" className="w-full bg-transparent outline-none placeholder:opacity-30 font-semibold" style={{ fontFamily:currentFontFamily,color:infoBubbleTextColor,fontSize:"14px" }} /></div>
+                      <div style={{ ...infoBubbleStyle,borderRadius:"50px",padding:"14px 22px" }}><p style={{ fontFamily:"'Inter',sans-serif",fontSize:"8px",fontWeight:700,letterSpacing:"0.18em",textTransform:"uppercase" as const,color:infoBubbleLabelColor,marginBottom:"3px" }}>👗 Dress Code</p><input type="text" value={dressCode} onChange={(e)=>setDressCode(e.target.value)} placeholder="Theme..." className="w-full bg-transparent outline-none placeholder:opacity-30 font-semibold" style={{ fontFamily:currentFontFamily,color:infoBubbleTextColor,fontSize:"14px" }} /></div>
+                      <div style={{ ...infoBubbleStyle,borderRadius:"16px",padding:"14px 16px" }}><p style={{ fontFamily:"'Inter',sans-serif",fontSize:"8px",fontWeight:700,letterSpacing:"0.18em",textTransform:"uppercase" as const,color:infoBubbleLabelColor,marginBottom:"6px" }}>From the host</p><textarea value={extra} onChange={(e)=>setExtra(e.target.value)} placeholder="Anything else your guests should know..." rows={2} onInput={autoExpand} className="w-full bg-transparent outline-none resize-none placeholder:text-white/20" style={{ fontFamily:currentFontFamily,color:infoBubbleTextColor,lineHeight:1.5,overflow:"hidden" }} /></div>
                     </div>
                   </div>
                 ) : customLayout === "editorial" ? (
