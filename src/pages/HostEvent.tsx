@@ -2560,28 +2560,26 @@ const HostEvent = () => {
                           </div>
                           <input type="datetime-local" value={dateTime} onChange={(e)=>setDateTime(e.target.value)} style={{ position:"absolute",inset:0,width:"100%",height:"100%",opacity:0,cursor:"pointer",zIndex:10 }} />
                         </div>
-                        <div className="flex-1 flex flex-col overflow-hidden" style={{ backgroundColor:"#111",borderRadius:"14px" }}>
-                          <div className="flex flex-col py-3 px-3">
-                            <span style={{ fontFamily:"'Playfair Display',serif",fontSize:"9px",fontWeight:600,color:"rgba(255,255,255,0.4)",textTransform:"uppercase" as const,letterSpacing:"0.15em" }}>Dress Code</span>
-                            <input type="text" value={dressCode} onChange={(e)=>setDressCode(e.target.value)} placeholder="Theme..." className="bg-transparent outline-none placeholder:opacity-30 mt-1 font-bold" style={{ fontFamily:"'Playfair Display',serif",color:"white",fontSize:"16px" }} />
-                          </div>
+                        <div className="flex-1 flex flex-col overflow-hidden" style={{ ...infoBubbleStyle,borderRadius:"14px",padding:"12px 12px" }}>
+                          <span style={{ fontFamily:"'Playfair Display',serif",fontSize:"9px",fontWeight:600,color:infoBubbleLabelColor,textTransform:"uppercase" as const,letterSpacing:"0.15em" }}>Dress Code</span>
+                          <input type="text" value={dressCode} onChange={(e)=>setDressCode(e.target.value)} placeholder="Theme..." className="bg-transparent outline-none placeholder:opacity-30 mt-1 font-bold" style={{ fontFamily:"'Playfair Display',serif",color:infoBubbleTextColor,fontSize:"16px" }} />
                         </div>
                       </div>
-                      <div className="flex items-center gap-3" style={{ backgroundColor:"#111",borderRadius:"14px",padding:"14px 16px" }}>
+                      <div className="flex items-center gap-3" style={{ ...infoBubbleStyle,borderRadius:"14px",padding:"14px 16px" }}>
                         <div className="flex items-center justify-center shrink-0" style={{ width:"36px",height:"36px",borderRadius:"8px",backgroundColor:accentColor }}>
                           <span style={{ fontSize:"18px" }}>📍</span>
                         </div>
                         <div className="flex-1 min-w-0">
-                          <span style={{ fontFamily:"'Playfair Display',serif",fontSize:"9px",fontWeight:600,color:"rgba(255,255,255,0.4)",textTransform:"uppercase" as const,letterSpacing:"0.15em",display:"block" }}>Location</span>
-                          <input type="text" value={location} onChange={(e)=>setLocation(e.target.value)} placeholder="Where's the event?" className="w-full bg-transparent outline-none placeholder:opacity-30 font-bold mt-0.5" style={{ fontFamily:"'Playfair Display',serif",color:"white",fontSize:"16px" }} />
+                          <span style={{ fontFamily:"'Playfair Display',serif",fontSize:"9px",fontWeight:600,color:infoBubbleLabelColor,textTransform:"uppercase" as const,letterSpacing:"0.15em",display:"block" }}>Location</span>
+                          <input type="text" value={location} onChange={(e)=>setLocation(e.target.value)} placeholder="Where's the event?" className="w-full bg-transparent outline-none placeholder:opacity-30 font-bold mt-0.5" style={{ fontFamily:"'Playfair Display',serif",color:infoBubbleTextColor,fontSize:"16px" }} />
                         </div>
                         <span style={{ color:"rgba(255,255,255,0.2)",fontSize:"20px",fontWeight:300 }}>›</span>
                       </div>
-                      <div className="flex items-start gap-3" style={{ backgroundColor:"#0d0d0d",borderRadius:"14px",padding:"14px 16px",border:"1px solid rgba(255,255,255,0.06)" }}>
+                      <div className="flex items-start gap-3" style={{ ...infoBubbleStyle,borderRadius:"14px",padding:"14px 16px" }}>
                         <span style={{ color:accentColor,fontSize:"14px",marginTop:"1px" }}>✦</span>
                         <div className="flex-1">
-                          <span style={{ fontFamily:"'Playfair Display',serif",fontSize:"9px",fontWeight:600,color:"rgba(255,255,255,0.3)",textTransform:"uppercase" as const,letterSpacing:"0.15em",display:"block" }}>Note from host</span>
-                          <textarea value={extra} onChange={(e)=>setExtra(e.target.value)} placeholder="Anything else your guests should know..." rows={2} onInput={autoExpand} className="w-full bg-transparent outline-none resize-none placeholder:text-white/20 mt-1" style={{ fontFamily:"'Playfair Display',serif",color:"rgba(255,255,255,0.5)",fontStyle:"italic",overflow:"hidden" }} />
+                          <span style={{ fontFamily:"'Playfair Display',serif",fontSize:"9px",fontWeight:600,color:infoBubbleLabelColor,textTransform:"uppercase" as const,letterSpacing:"0.15em",display:"block" }}>Note from host</span>
+                          <textarea value={extra} onChange={(e)=>setExtra(e.target.value)} placeholder="Anything else your guests should know..." rows={2} onInput={autoExpand} className="w-full bg-transparent outline-none resize-none placeholder:text-white/20 mt-1" style={{ fontFamily:"'Playfair Display',serif",color:infoBubbleTextColor,fontStyle:"italic",overflow:"hidden" }} />
                         </div>
                       </div>
                     </div>
