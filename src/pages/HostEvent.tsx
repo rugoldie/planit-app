@@ -353,6 +353,10 @@ Fields to return:
 - bubbleTextColor: HSL string WITHOUT "hsl()" wrapper e.g. "0 0% 0%" — text ON TOP of bubbleColor. "0 0% 0%" for bright accents, "0 0% 100%" for dark accents.
 - fontStyle: one of "Bold", "Handwritten", "Elegant"
 - gradientColor: hex colour e.g. "#c9a84c" — for decorative accents
+- customLayout: one of "ocean", "editorial", "cards". Pick the layout that best fits the event vibe:
+  "ocean" — 3-column stat grid (Day / Time / Going) with pill-style info cards; best for beach, summer, outdoor, sports, or active events
+  "editorial" — left-aligned layout with large bold title and inline date bar; best for art, culture, fashion, dinner parties, intimate or sophisticated gatherings
+  "cards" — centred frosted-glass cards with a date pill; best for parties, birthdays, celebrations, and anything casual or fun
 - customCSS: the full value for the CSS background property (not background-color). Layer MANY gradient values separated by commas. NEVER use SVG, url(), or image references. The value should be 500+ characters long with 20+ layers.
 
 CUSTOMCSS TECHNIQUES:
@@ -474,6 +478,7 @@ const HostEvent = () => {
     fontStyle: string;
     gradientColor: string;
     customCSS: string;
+    customLayout?: "cards" | "editorial" | "ocean";
   } | null>(null);
   const [buildItError, setBuildItError] = useState<string | null>(null);
   const [fontColor, setFontColor] = useState<string>("#ffffff");
@@ -826,6 +831,9 @@ const HostEvent = () => {
 
       if (!["Bold", "Handwritten", "Elegant"].includes(style.fontStyle)) style.fontStyle = "Bold";
 
+      const validLayouts = ["cards", "editorial", "ocean"];
+      if (!validLayouts.includes(style.customLayout)) style.customLayout = "cards";
+
       const required = ["bgColor", "bubbleColor", "bubbleTextColor", "fontStyle", "gradientColor", "customCSS"];
       for (const field of required) {
         if (!style[field]) throw new Error(`Missing field in response: ${field}`);
@@ -874,6 +882,7 @@ const HostEvent = () => {
     setBgPreset(buildItResult.customCSS);
     setCustomAccentHex(null);
     setBgPresetIsImage(false);
+    if (buildItResult.customLayout) setCustomLayout(buildItResult.customLayout);
     console.log("[BuildIt] → setShowBuildIt(false) — closing modal");
     setShowBuildIt(false);
     setBuildItResult(null);
@@ -2900,6 +2909,14 @@ const HostEvent = () => {
                   <div className="grid grid-cols-3 gap-2">
                     {([ ["frosted","Frosted"], ["solid","Solid"], ["outlined","Outlined"] ] as const).map(([val, label]) => (
                       <button key={val} onClick={() => setBubbleStyle(val)} className="py-2.5 rounded-xl text-sm text-center" style={{ backgroundColor:"#1e1e1e", border: bubbleStyle===val ? "2px solid #aaee44" : "2px solid transparent", color:"#fff" }}>{label}</button>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-2.5">Layout</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {([ ["ocean","Ocean"], ["editorial","Noir"], ["cards","Default"] ] as const).map(([val, label]) => (
+                      <button key={val} onClick={() => setCustomLayout(val)} className="py-2.5 rounded-xl text-sm text-center" style={{ backgroundColor:"#1e1e1e", border: customLayout===val ? "2px solid #aaee44" : "2px solid transparent", color:"#fff" }}>{label}</button>
                     ))}
                   </div>
                 </div>
