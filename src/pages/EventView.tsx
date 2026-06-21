@@ -3099,47 +3099,22 @@ const EventView = () => {
                 {/* Content — three layout variants */}
                 {customLayout === "ocean" ? (
                   <div className="relative z-10 pb-6">
-                    <div className="px-5 pt-6 text-center mb-1">
-                      <p style={{ fontFamily:"'Inter',sans-serif",fontSize:customSubtitleSz,fontWeight:700,letterSpacing:"0.28em",textTransform:"uppercase" as const,color:`${accentColor}90`,marginBottom:"8px" }}>You're Invited</p>
-                      <h1 style={{ fontFamily:eventFontFamily,fontSize:titleSz,fontWeight:900,color:tCol,lineHeight:1.05,marginBottom:"6px" }}>{event.title||"Untitled Event"}</h1>
-                      <p style={{ fontFamily:"'Inter',sans-serif",fontSize:customHostedBySz,color:tMuted,marginBottom:"10px" }}>hosted by {profile?.name||"Host"}</p>
-                      {isHost && rsvpDeadline && <div className="w-full mb-3 rounded-xl px-4 py-3 flex items-start gap-2 text-left" style={{ backgroundColor:"rgba(249,115,22,0.12)",border:"1px solid rgba(249,115,22,0.3)" }}><span style={{ color:"#f97316",fontSize:"16px" }}>⏰</span><div><p className="text-sm font-semibold" style={{ color:"#f97316" }}>{deadlinePassed?"RSVP deadline has passed":`RSVP deadline: ${rsvpDeadline.toLocaleDateString(undefined,{month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"})}`}</p>{noReplyCount>0&&<p className="text-xs mt-0.5" style={{ color:"rgba(249,115,22,0.7)" }}>{noReplyCount} guest{noReplyCount>1?"s":""} {deadlinePassed?"didn't reply":"haven't replied"}</p>}</div></div>}
+                    <div className="relative z-10 px-6 pt-6 pb-4">
+                      <p style={{ fontFamily:"'Playfair Display',serif",fontSize:"13px",fontStyle:"italic",color:"rgba(255,255,255,0.4)",marginBottom:"8px" }}>you're invited to</p>
+                      <div className="mt-2">
+                        <StyledTitle title={event.title||"Untitled Event"} accentColor={accentColor} fontFamily={eventFontFamily} fontSize={titleSz} />
+                      </div>
+                      {event.vibe && <p className="mt-2" style={{ fontFamily:"'Playfair Display',serif",fontSize:"13px",fontStyle:"italic",color:"rgba(255,255,255,0.4)" }}>{event.vibe}</p>}
+                      <HostDivider hostName={profile?.name||"Host"} />
+                      {isHost && rsvpDeadline && <div className="w-full mt-3 rounded-xl px-4 py-3 flex items-start gap-2 text-left" style={{ backgroundColor:"rgba(249,115,22,0.12)",border:"1px solid rgba(249,115,22,0.3)" }}><span style={{ color:"#f97316",fontSize:"16px" }}>⏰</span><div><p className="text-sm font-semibold" style={{ color:"#f97316" }}>{deadlinePassed?"RSVP deadline has passed":`RSVP deadline: ${rsvpDeadline.toLocaleDateString(undefined,{month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"})}`}</p>{noReplyCount>0&&<p className="text-xs mt-0.5" style={{ color:"rgba(249,115,22,0.7)" }}>{noReplyCount} guest{noReplyCount>1?"s":""} {deadlinePassed?"didn't reply":"haven't replied"}</p>}</div></div>}
                     </div>
                     <div className="flex flex-col gap-3 px-5">
-                      <div style={{ display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:"8px" }}>
-                        <div style={{ backgroundColor:frostBg,border:`1px solid ${frostBorder}`,borderRadius:"16px",padding:"14px 8px",textAlign:"center" as const }}>
-                          <p style={{ fontFamily:"'Inter',sans-serif",fontSize:customLabelSz,fontWeight:700,letterSpacing:"0.22em",textTransform:"uppercase" as const,color:accentColor,marginBottom:"8px",opacity:0.8 }}>Day</p>
-                          <span style={{ fontFamily:"'Inter',sans-serif",fontSize:"28px",fontWeight:900,color:tCol,lineHeight:1,display:"block" }}>{dayNum||"—"}</span>
-                          <p style={{ fontFamily:"'Inter',sans-serif",fontSize:"9px",fontWeight:700,color:accentColor,textTransform:"uppercase" as const,letterSpacing:"0.1em",marginTop:"5px",opacity:0.8 }}>{monthName||"TBD"}</p>
-                        </div>
-                        <div style={{ backgroundColor:frostBg,border:`1px solid ${frostBorder}`,borderRadius:"16px",padding:"14px 8px",textAlign:"center" as const }}>
-                          <p style={{ fontFamily:"'Inter',sans-serif",fontSize:customLabelSz,fontWeight:700,letterSpacing:"0.22em",textTransform:"uppercase" as const,color:accentColor,marginBottom:"8px",opacity:0.8 }}>Time</p>
-                          <span style={{ fontFamily:"'Inter',sans-serif",fontSize:"17px",fontWeight:900,color:tCol,lineHeight:1,display:"block" }}>{timeStr||"—"}</span>
-                          <p style={{ fontFamily:"'Inter',sans-serif",fontSize:"9px",fontWeight:700,color:accentColor,textTransform:"uppercase" as const,letterSpacing:"0.06em",marginTop:"5px",opacity:0.7 }}>{dayOfWeek?dayOfWeek.slice(0,3).toUpperCase():"TBD"}</p>
-                        </div>
-                        <div style={{ backgroundColor:frostBg,border:`1px solid ${frostBorder}`,borderRadius:"16px",padding:"14px 8px",textAlign:"center" as const }}>
-                          <p style={{ fontFamily:"'Inter',sans-serif",fontSize:customLabelSz,fontWeight:700,letterSpacing:"0.22em",textTransform:"uppercase" as const,color:accentColor,marginBottom:"8px",opacity:0.8 }}>Going</p>
-                          <span style={{ fontFamily:"'Inter',sans-serif",fontSize:"28px",fontWeight:900,color:tCol,lineHeight:1,display:"block" }}>{goingList.length}</span>
-                        </div>
+                      <div className="flex gap-3">
+                        <NoirDateCard monthName={monthName} dayNum={String(dayNum)} timeStr={timeStr} accentColor={accentColor} />
+                        {event.dress_code && <NoirDressCard dressCode={event.dress_code} />}
                       </div>
-                      {event.location && <div className="flex items-center gap-3" style={{ backgroundColor:frostBg,border:`1px solid ${frostBorder}`,borderRadius:"14px",padding:"14px 16px" }}>
-                        <div style={{ width:"36px",height:"36px",borderRadius:"8px",backgroundColor:accentColor,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0 }}><span style={{ fontSize:"18px" }}>📍</span></div>
-                        <div className="flex-1 min-w-0">
-                          <span style={{ fontFamily:"'Inter',sans-serif",fontSize:"9px",fontWeight:600,color:tMuted,textTransform:"uppercase" as const,letterSpacing:"0.15em",display:"block" }}>Location</span>
-                          <span style={{ fontFamily:eventFontFamily,fontSize:customValueSz,fontWeight:700,color:tCol,display:"block",marginTop:"2px" }}>{event.location}</span>
-                        </div>
-                      </div>}
-                      {event.dress_code && <div style={{ backgroundColor:frostBg,border:`1px solid ${frostBorder}`,borderRadius:"14px",padding:"14px 16px" }}>
-                        <span style={{ fontFamily:"'Inter',sans-serif",fontSize:"9px",fontWeight:600,color:tMuted,textTransform:"uppercase" as const,letterSpacing:"0.15em",display:"block" }}>Dress Code</span>
-                        <span style={{ fontFamily:eventFontFamily,fontSize:customValueSz,fontWeight:700,color:tCol,display:"block",marginTop:"4px" }}>{event.dress_code}</span>
-                      </div>}
-                      {event.extra && <div className="flex items-start gap-3" style={{ backgroundColor:frostBg,border:`1px solid ${frostBorder}`,borderRadius:"14px",padding:"14px 16px" }}>
-                        <span style={{ color:accentColor,fontSize:"14px",marginTop:"1px" }}>✦</span>
-                        <div className="flex-1">
-                          <span style={{ fontFamily:"'Inter',sans-serif",fontSize:"9px",fontWeight:600,color:tMuted,textTransform:"uppercase" as const,letterSpacing:"0.15em",display:"block" }}>From the host</span>
-                          <span style={{ fontFamily:"'Inter',sans-serif",fontSize:customValueSz,fontStyle:"italic",color:tMuted,display:"block",marginTop:"4px",lineHeight:1.5 }}>{event.extra}</span>
-                        </div>
-                      </div>}
+                      {event.location && <NoirLocationCard location={event.location} accentColor={accentColor} />}
+                      {event.extra && <NoirNotesCard notes={event.extra} accentColor={accentColor} />}
                       {goingList.length > 0 && (<div style={{ borderRadius:"20px",border:`1px solid ${frostBorder}`,padding:"16px 18px",backgroundColor:frostBg,backdropFilter:"blur(12px)",WebkitBackdropFilter:"blur(12px)" }}><p style={{ fontFamily:"'Inter',sans-serif",fontSize:"8px",fontWeight:700,letterSpacing:"0.22em",textTransform:"uppercase" as const,color:accentColor,marginBottom:"8px" }}>Who's going</p><div style={{ display:"flex",flexWrap:"wrap" as const,gap:"8px",justifyContent:"center" }}>{goingList.map((r)=>(<div key={r.user_id} style={{ width:"30px",height:"30px",borderRadius:"50%",backgroundColor:accentColor,display:"flex",alignItems:"center",justifyContent:"center" }}><span style={{ fontFamily:"'Inter',sans-serif",fontSize:"11px",fontWeight:700,color:accentText }}>{getInitials(r.name)}</span></div>))}</div></div>)}
                       {renderPolls()}
                       <div style={{ borderRadius:"20px",border:`1px solid ${frostBorder}`,padding:"16px 18px",backgroundColor:frostBg,backdropFilter:"blur(12px)",WebkitBackdropFilter:"blur(12px)" }}>
