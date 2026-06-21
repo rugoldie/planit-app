@@ -2747,7 +2747,7 @@ const GuestEventView = () => {
                 {customLayout === "ocean" ? (
                   <div className="relative z-10 pb-6">
                     <div className="px-5 pt-6 text-center mb-1">
-                      {event.vibe && <p style={{ fontFamily:"'Inter',sans-serif",fontSize:customSubtitleSz,fontWeight:700,letterSpacing:"0.28em",textTransform:"uppercase" as const,color:`${accentColor}90`,marginBottom:"8px" }}>{event.vibe}</p>}
+                      <p style={{ fontFamily:"'Inter',sans-serif",fontSize:customSubtitleSz,fontWeight:700,letterSpacing:"0.28em",textTransform:"uppercase" as const,color:`${accentColor}90`,marginBottom:"8px" }}>You're Invited</p>
                       <h1 style={{ fontFamily:fontFam,fontSize:titleSz,fontWeight:900,color:tCol,lineHeight:1.05,marginBottom:"6px" }}>{event.title||"Untitled Event"}</h1>
                       <p style={{ fontFamily:"'Inter',sans-serif",fontSize:customHostedBySz,color:tMuted,marginBottom:"10px" }}>hosted by {hostName}</p>
                       <svg viewBox="0 0 320 20" xmlns="http://www.w3.org/2000/svg" style={{ width:"100%",height:"20px",display:"block",margin:"8px 0" }}>
@@ -2755,24 +2755,24 @@ const GuestEventView = () => {
                       </svg>
                     </div>
                     <div className="flex flex-col gap-3 px-5">
-                      {eventDate && <div style={{ display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:"8px" }}>
+                      <div style={{ display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:"8px" }}>
                         <div style={{ backgroundColor:frostBg,border:`1px solid ${frostBorder}`,borderRadius:"16px",padding:"14px 8px",textAlign:"center" as const }}>
                           <p style={{ fontFamily:"'Inter',sans-serif",fontSize:customLabelSz,fontWeight:700,letterSpacing:"0.22em",textTransform:"uppercase" as const,color:accentColor,marginBottom:"8px",opacity:0.8 }}>Day</p>
-                          <span style={{ fontFamily:"'Inter',sans-serif",fontSize:"28px",fontWeight:900,color:tCol,lineHeight:1,display:"block" }}>{dayNum}</span>
-                          <p style={{ fontFamily:"'Inter',sans-serif",fontSize:"9px",fontWeight:700,color:accentColor,textTransform:"uppercase" as const,letterSpacing:"0.1em",marginTop:"5px",opacity:0.8 }}>{monthName}</p>
+                          <span style={{ fontFamily:"'Inter',sans-serif",fontSize:"28px",fontWeight:900,color:tCol,lineHeight:1,display:"block" }}>{dayNum||"—"}</span>
+                          <p style={{ fontFamily:"'Inter',sans-serif",fontSize:"9px",fontWeight:700,color:accentColor,textTransform:"uppercase" as const,letterSpacing:"0.1em",marginTop:"5px",opacity:0.8 }}>{monthName||"TBD"}</p>
                         </div>
                         <div style={{ backgroundColor:frostBg,border:`1px solid ${frostBorder}`,borderRadius:"16px",padding:"14px 8px",textAlign:"center" as const }}>
                           <p style={{ fontFamily:"'Inter',sans-serif",fontSize:customLabelSz,fontWeight:700,letterSpacing:"0.22em",textTransform:"uppercase" as const,color:accentColor,marginBottom:"8px",opacity:0.8 }}>Time</p>
-                          <span style={{ fontFamily:"'Inter',sans-serif",fontSize:"17px",fontWeight:900,color:tCol,lineHeight:1,display:"block" }}>{timeStr}</span>
+                          <span style={{ fontFamily:"'Inter',sans-serif",fontSize:"17px",fontWeight:900,color:tCol,lineHeight:1,display:"block" }}>{timeStr||"—"}</span>
                         </div>
                         <div style={{ backgroundColor:frostBg,border:`1px solid ${frostBorder}`,borderRadius:"16px",padding:"14px 8px",textAlign:"center" as const }}>
                           <p style={{ fontFamily:"'Inter',sans-serif",fontSize:customLabelSz,fontWeight:700,letterSpacing:"0.22em",textTransform:"uppercase" as const,color:accentColor,marginBottom:"8px",opacity:0.8 }}>Going</p>
                           <span style={{ fontFamily:"'Inter',sans-serif",fontSize:"28px",fontWeight:900,color:tCol,lineHeight:1,display:"block" }}>{goingList.length}</span>
                         </div>
-                      </div>}
+                      </div>
                       {event.location && <div style={{ backgroundColor:frostBg,border:`1px solid ${frostBorder}`,borderRadius:"50px",padding:"14px 22px" }}><p style={{ fontFamily:"'Inter',sans-serif",fontSize:customLabelSz,fontWeight:700,letterSpacing:"0.22em",textTransform:"uppercase" as const,color:accentColor,marginBottom:"4px",opacity:0.8 }}>📍 Location</p><p style={{ fontFamily:fontFam,fontSize:customValueSz,fontWeight:700,color:tCol }}>{event.location}</p></div>}
                       {event.dress_code && <div style={{ backgroundColor:frostBg,border:`1px solid ${frostBorder}`,borderRadius:"50px",padding:"14px 22px" }}><p style={{ fontFamily:"'Inter',sans-serif",fontSize:customLabelSz,fontWeight:700,letterSpacing:"0.22em",textTransform:"uppercase" as const,color:accentColor,marginBottom:"4px",opacity:0.8 }}>🎭 Dress Code</p><p style={{ fontFamily:fontFam,fontSize:customValueSz,fontWeight:700,color:tCol }}>{event.dress_code}</p></div>}
-                      {event.extra && <div style={infoBubbleStyle}><p style={{ fontFamily:"'Inter',sans-serif",fontSize:customLabelSz,fontWeight:700,letterSpacing:"0.22em",textTransform:"uppercase" as const,color:infoLabelColor,marginBottom:"4px" }}>From the host</p><p style={{ fontFamily:"'Inter',sans-serif",fontSize:customValueSz,color:infoTextColor,lineHeight:1.5 }}>{event.extra}</p></div>}
+                      {event.extra && <div style={{ backgroundColor:frostBg,border:`1px solid ${frostBorder}`,borderRadius:"50px",padding:"14px 22px" }}><p style={{ fontFamily:"'Inter',sans-serif",fontSize:customLabelSz,fontWeight:700,letterSpacing:"0.22em",textTransform:"uppercase" as const,color:accentColor,marginBottom:"4px",opacity:0.8 }}>From the host</p><p style={{ fontFamily:"'Inter',sans-serif",fontSize:customValueSz,color:tCol,lineHeight:1.5 }}>{event.extra}</p></div>}
                       {goingList.length > 0 && (<div style={{ borderRadius:"20px",border:`1px solid ${frostBorder}`,padding:"16px 18px",backgroundColor:frostBg,backdropFilter:"blur(12px)",WebkitBackdropFilter:"blur(12px)" }}><p style={{ fontFamily:"'Inter',sans-serif",fontSize:"8px",fontWeight:700,letterSpacing:"0.22em",textTransform:"uppercase" as const,color:accentColor,marginBottom:"8px" }}>Who's going</p><div style={{ display:"flex",flexWrap:"wrap" as const,gap:"8px",justifyContent:"center" }}>{goingList.map((r)=>(<div key={r.user_id} style={{ width:"30px",height:"30px",borderRadius:"50%",backgroundColor:accentColor,display:"flex",alignItems:"center",justifyContent:"center" }}><span style={{ fontFamily:"'Inter',sans-serif",fontSize:"11px",fontWeight:700,color:accentText }}>{getInitials(r.name)}</span></div>))}</div></div>)}
                       {renderPolls()}
                       <div style={{ borderRadius:"20px",border:`1px solid ${frostBorder}`,padding:"16px 18px",backgroundColor:frostBg,backdropFilter:"blur(12px)",WebkitBackdropFilter:"blur(12px)" }}>

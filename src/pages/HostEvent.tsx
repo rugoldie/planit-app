@@ -354,9 +354,9 @@ Fields to return:
 - fontStyle: one of "Bold", "Handwritten", "Elegant"
 - gradientColor: hex colour e.g. "#c9a84c" — for decorative accents
 - customLayout: one of "ocean", "editorial", "cards". Pick the layout that best fits the event vibe:
-  "ocean" — 3-column stat grid (Day / Time / Going) with pill-style info cards; best for beach, summer, outdoor, sports, or active events
-  "editorial" — left-aligned layout with large bold title and inline date bar; best for art, culture, fashion, dinner parties, intimate or sophisticated gatherings
-  "cards" — centred frosted-glass cards with a date pill; best for parties, birthdays, celebrations, and anything casual or fun
+  "ocean" — Stacked: 3-column stat grid (Day / Time / Going) with pill-style info cards; best for beach, summer, outdoor, sports, or active events
+  "editorial" — Editorial: left-aligned layout with large bold title and inline date bar; best for art, culture, fashion, dinner parties, intimate or sophisticated gatherings
+  "cards" — Classic: centred frosted-glass cards with a date pill; best for parties, birthdays, celebrations, and anything casual or fun
 - customCSS: the full value for the CSS background property (not background-color). Layer MANY gradient values separated by commas. NEVER use SVG, url(), or image references. The value should be 500+ characters long with 20+ layers.
 
 CUSTOMCSS TECHNIQUES:
@@ -2915,7 +2915,7 @@ const HostEvent = () => {
                 <div>
                   <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-2.5">Layout</p>
                   <div className="grid grid-cols-3 gap-2">
-                    {([ ["ocean","Ocean"], ["editorial","Noir"], ["cards","Default"] ] as const).map(([val, label]) => (
+                    {([ ["ocean","Stacked"], ["editorial","Editorial"], ["cards","Classic"] ] as const).map(([val, label]) => (
                       <button key={val} onClick={() => setCustomLayout(val)} className="py-2.5 rounded-xl text-sm text-center" style={{ backgroundColor:"#1e1e1e", border: customLayout===val ? "2px solid #aaee44" : "2px solid transparent", color:"#fff" }}>{label}</button>
                     ))}
                   </div>
