@@ -4,7 +4,9 @@ import { ArrowLeft, Bell, Check, X, Eye } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
-const ACCENT = "#aaee44";
+const COVO_BLUE = "#3D7BFF";
+const COVO_CYAN = "#22D3EE";
+const COVO_GRAD = "linear-gradient(120deg, #3D7BFF, #22D3EE)";
 
 type Notification = {
   id: string;
@@ -98,7 +100,7 @@ const Notifications = () => {
           <h1 className="text-xl font-bold text-foreground">Notifications</h1>
         </div>
         {unreadCount > 0 && (
-          <button type="button" onClick={markAllRead} className="text-sm font-medium" style={{ color: ACCENT }}>
+          <button type="button" onClick={markAllRead} className="text-sm font-medium" style={{ color: COVO_BLUE }}>
             Mark all read
           </button>
         )}
@@ -124,12 +126,12 @@ const Notifications = () => {
               type="button"
               onClick={() => handleTap(n)}
               className="w-full text-left px-5 py-4 border-b border-border flex gap-3 items-start"
-              style={{ backgroundColor: n.read ? "transparent" : "rgba(170,238,68,0.04)" }}
+              style={{ backgroundColor: n.read ? "transparent" : "rgba(61,123,255,0.04)" }}
             >
               {/* Unread dot */}
               <div className="mt-1.5 shrink-0">
                 {!n.read ? (
-                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: ACCENT }} />
+                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: COVO_CYAN }} />
                 ) : (
                   <div className="w-2 h-2" />
                 )}
@@ -154,7 +156,7 @@ const Notifications = () => {
                       type="button"
                       onClick={() => handleAcceptFriend(n)}
                       className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full"
-                      style={{ backgroundColor: ACCENT, color: "#111" }}
+                      style={{ background: COVO_GRAD, color: "#06121f", border: "none" }}
                     >
                       <Check className="w-3 h-3" /> Accept
                     </button>
@@ -174,7 +176,7 @@ const Notifications = () => {
                       type="button"
                       onClick={() => navigate(`/guest/${n.data.event_code}`)}
                       className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full"
-                      style={{ backgroundColor: ACCENT, color: "#111" }}
+                      style={{ background: COVO_GRAD, color: "#06121f", border: "none" }}
                     >
                       <Eye className="w-3 h-3" /> View invite
                     </button>

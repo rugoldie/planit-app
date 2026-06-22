@@ -128,7 +128,7 @@ const formatDate = (dt: string | null) => {
 };
 
 const RoleBadge = ({ role, accentColor }: { role: "host" | "going" | "maybe"; accentColor?: string }) => {
-  const bg = accentColor || "#aaee44";
+  const bg = accentColor || "#3D7BFF";
   if (role === "host")
     return (
       <span
@@ -1858,7 +1858,7 @@ const UpcomingSection = ({
           <button
             onClick={() => setShowAll(true)}
             className="rounded-full px-4 py-1.5 text-xs font-semibold"
-            style={{ backgroundColor: "#383838", color: "#aaee44" }}
+            style={{ backgroundColor: "#383838", color: "#3D7BFF" }}
           >
             See all events →
           </button>
@@ -1978,7 +1978,7 @@ const Home = () => {
             type="button"
             onClick={() => navigate("/profile")}
             className="rounded-full w-11 h-11 overflow-hidden border-2 shrink-0"
-            style={{ borderColor: "#aaee44" }}
+            style={{ borderColor: "#3D7BFF" }}
           >
             {profile?.avatar_url ? (
               <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
@@ -1990,7 +1990,12 @@ const Home = () => {
           </button>
         </div>
         <div className="flex flex-col items-center mt-8">
-          <h1 className="text-7xl font-extrabold text-foreground tracking-tight">planit</h1>
+          <h1
+            className="text-7xl font-extrabold tracking-tight"
+            style={{ background: "linear-gradient(120deg, #3D7BFF, #22D3EE)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}
+          >
+            covo
+          </h1>
         </div>
         <div className="flex flex-col items-center justify-center flex-1 gap-12 px-2">
           <button
@@ -2068,7 +2073,7 @@ const Home = () => {
             type="button"
             onClick={() => navigate("/profile")}
             className="rounded-full w-11 h-11 overflow-hidden border-2 shrink-0"
-            style={{ borderColor: "#aaee44" }}
+            style={{ borderColor: "#3D7BFF" }}
           >
             {profile?.avatar_url ? (
               <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
@@ -2159,7 +2164,7 @@ const Home = () => {
         <button
           onClick={() => navigate("/host")}
           className="flex-1 rounded-full py-5 text-lg font-extrabold"
-          style={{ backgroundColor: "#aaee44", color: "#111" }}
+          style={{ background: "linear-gradient(120deg, #3D7BFF, #22D3EE)", color: "#06121f", border: "none" }}
         >
           Host
         </button>

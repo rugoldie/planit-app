@@ -5,7 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { createNotification } from "@/lib/notifications";
 
-const ACCENT = "#aaee44";
+const COVO_BLUE = "#3D7BFF";
+const COVO_GRAD = "linear-gradient(120deg, #3D7BFF, #22D3EE)";
 
 type FriendProfile = {
   id: string;
@@ -194,7 +195,7 @@ const Friends = () => {
                     {p.username && <p className="text-xs text-muted-foreground">@{p.username}</p>}
                   </div>
                   {isFriend ? (
-                    <span className="text-xs font-semibold px-3 py-1 rounded-full" style={{ backgroundColor: `${ACCENT}22`, color: ACCENT }}>
+                    <span className="text-xs font-semibold px-3 py-1 rounded-full" style={{ backgroundColor: "rgba(61,123,255,0.15)", color: COVO_BLUE }}>
                       Friends
                     </span>
                   ) : isPending ? (
@@ -206,7 +207,7 @@ const Friends = () => {
                       type="button"
                       onClick={() => sendRequest(p.user_id)}
                       className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full"
-                      style={{ backgroundColor: ACCENT, color: "#111" }}
+                      style={{ background: COVO_GRAD, color: "#06121f", border: "none" }}
                     >
                       <UserPlus className="w-3.5 h-3.5" />
                       Add
@@ -236,9 +237,9 @@ const Friends = () => {
                     type="button"
                     onClick={() => accept(f.id)}
                     className="w-9 h-9 rounded-full flex items-center justify-center"
-                    style={{ backgroundColor: ACCENT }}
+                    style={{ background: COVO_GRAD }}
                   >
-                    <Check className="w-4 h-4" style={{ color: "#111" }} />
+                    <Check className="w-4 h-4" style={{ color: "#06121f" }} />
                   </button>
                   <button
                     type="button"

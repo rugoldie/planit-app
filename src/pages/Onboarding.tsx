@@ -5,7 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
-const ACCENT = "#aaee44";
+const COVO_BLUE = "#3D7BFF";
+const COVO_GRAD = "linear-gradient(120deg, #3D7BFF, #22D3EE)";
 
 const Onboarding = () => {
   const navigate = useNavigate();
@@ -165,7 +166,7 @@ const Onboarding = () => {
               className="h-1.5 rounded-full transition-all duration-300"
               style={{
                 width: i === step ? "24px" : "8px",
-                backgroundColor: i <= step ? ACCENT : "#333",
+                backgroundColor: i <= step ? COVO_BLUE : "#333",
               }}
             />
           ))}
@@ -185,7 +186,7 @@ const Onboarding = () => {
               onChange={(e) => setFullName(e.target.value)}
               autoFocus
               className="w-full bg-card text-foreground rounded-[var(--radius)] px-4 py-3.5 text-base outline-none placeholder:text-muted-foreground border border-border"
-              style={{ borderColor: fullName.trim() ? ACCENT : undefined }}
+              style={{ borderColor: fullName.trim() ? COVO_BLUE : undefined }}
             />
           </div>
         )}
@@ -206,20 +207,20 @@ const Onboarding = () => {
                 className="w-full bg-card text-foreground rounded-[var(--radius)] pl-8 pr-10 py-3.5 text-base outline-none placeholder:text-muted-foreground border border-border transition-colors"
                 style={{
                   borderColor:
-                    usernameStatus === "available" ? ACCENT :
+                    usernameStatus === "available" ? COVO_BLUE :
                     usernameStatus === "taken" ? "#ef4444" : undefined,
                 }}
               />
               <div className="absolute right-3 top-1/2 -translate-y-1/2">
                 {usernameStatus === "checking" && (
-                  <div className="w-4 h-4 border-2 rounded-full animate-spin" style={{ borderColor: "#333", borderTopColor: ACCENT }} />
+                  <div className="w-4 h-4 border-2 rounded-full animate-spin" style={{ borderColor: "#333", borderTopColor: COVO_BLUE }} />
                 )}
-                {usernameStatus === "available" && <Check className="w-4 h-4" style={{ color: ACCENT }} />}
+                {usernameStatus === "available" && <Check className="w-4 h-4" style={{ color: COVO_BLUE }} />}
                 {usernameStatus === "taken" && <X className="w-4 h-4 text-destructive" />}
               </div>
             </div>
             {usernameStatus === "available" && (
-              <p className="mt-2 text-xs font-semibold" style={{ color: ACCENT }}>@{username} is available!</p>
+              <p className="mt-2 text-xs font-semibold" style={{ color: COVO_BLUE }}>@{username} is available!</p>
             )}
             {usernameStatus === "taken" && (
               <p className="mt-2 text-xs font-semibold text-destructive">@{username} is already taken</p>
@@ -235,7 +236,7 @@ const Onboarding = () => {
               type="button"
               onClick={() => photoRef.current?.click()}
               className="w-32 h-32 rounded-full flex items-center justify-center overflow-hidden relative mb-6 border-2 border-dashed"
-              style={{ borderColor: avatarPreview ? ACCENT : "#444" }}
+              style={{ borderColor: avatarPreview ? COVO_BLUE : "#444" }}
             >
               {avatarPreview ? (
                 <img src={avatarPreview} alt="avatar" className="w-full h-full object-cover" />
@@ -264,7 +265,7 @@ const Onboarding = () => {
           onClick={handleNext}
           disabled={!canNext() || saving || uploading}
           className="w-full py-4 rounded-[var(--radius)] text-base font-bold disabled:opacity-40 transition-opacity"
-          style={{ backgroundColor: ACCENT, color: "#111" }}
+          style={{ background: COVO_GRAD, color: "#06121f", border: "none" }}
         >
           {saving ? "Saving..." : step === 2 ? "Get started" : "Continue"}
         </button>

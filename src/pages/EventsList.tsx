@@ -4,7 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
-const ACCENT = "#aaee44";
+const COVO_GRAD = "linear-gradient(120deg, #3D7BFF, #22D3EE)";
 
 type EventEntry = { name: string; date: string; code: string; role: "Host" | "Going" | "Maybe" | "Not going" };
 
@@ -73,7 +73,7 @@ const EventsList = () => {
           onClick={() => setTab("upcoming")}
           className="flex-1 py-2.5 rounded-full text-sm font-semibold transition-colors"
           style={tab === "upcoming"
-            ? { backgroundColor: ACCENT, color: "#111" }
+            ? { background: COVO_GRAD, color: "#06121f", border: "none" }
             : { backgroundColor: "transparent", color: "#888", border: "1px solid #333" }}
         >
           Upcoming
@@ -83,7 +83,7 @@ const EventsList = () => {
           onClick={() => setTab("past")}
           className="flex-1 py-2.5 rounded-full text-sm font-semibold transition-colors"
           style={tab === "past"
-            ? { backgroundColor: ACCENT, color: "#111" }
+            ? { background: COVO_GRAD, color: "#06121f", border: "none" }
             : { backgroundColor: "transparent", color: "#888", border: "1px solid #333" }}
         >
           Past
@@ -116,7 +116,7 @@ const EventsList = () => {
               </div>
               <span
                 className="text-[11px] font-bold px-2.5 py-1 rounded-full shrink-0"
-                style={{ backgroundColor: ev.role === "Host" ? ACCENT : "#2a2a2a", color: ev.role === "Host" ? "#111" : "#888" }}
+                style={{ background: ev.role === "Host" ? COVO_GRAD : "#2a2a2a", color: ev.role === "Host" ? "#06121f" : "#888" }}
               >
                 {ev.role}
               </span>

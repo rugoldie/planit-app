@@ -4,7 +4,8 @@ import { ArrowLeft, Send } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
-const ACCENT = "#aaee44";
+const COVO_CYAN = "#22D3EE";
+const COVO_GRAD = "linear-gradient(120deg, #3D7BFF, #22D3EE)";
 
 type Message = {
   id: string;
@@ -27,7 +28,7 @@ const Avatar = ({ name, url, size = 38 }: { name: string; url: string | null; si
     {url ? (
       <img src={url} alt="" className="w-full h-full object-cover" />
     ) : (
-      <span className="font-bold" style={{ fontSize: size * 0.38, color: ACCENT }}>
+      <span className="font-bold" style={{ fontSize: size * 0.38, color: COVO_CYAN }}>
         {name.charAt(0).toUpperCase()}
       </span>
     )}
@@ -225,7 +226,7 @@ const Conversation = () => {
                 className="max-w-[75%] rounded-2xl px-4 py-2.5"
                 style={
                   mine
-                    ? { backgroundColor: ACCENT, color: "#111" }
+                    ? { background: COVO_GRAD, color: "#06121f" }
                     : { backgroundColor: "#2a2a2a", color: "white" }
                 }
               >
@@ -259,9 +260,9 @@ const Conversation = () => {
             onClick={send}
             disabled={!draft.trim() || sending}
             className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 disabled:opacity-40 transition-opacity"
-            style={{ backgroundColor: ACCENT }}
+            style={{ background: COVO_GRAD }}
           >
-            <Send className="w-4 h-4" style={{ color: "#111" }} />
+            <Send className="w-4 h-4" style={{ color: "#06121f" }} />
           </button>
         </div>
       </div>

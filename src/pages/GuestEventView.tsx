@@ -692,7 +692,7 @@ const GuestEventView = () => {
       const blob = await res.blob();
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
-      a.download = "planit-photo.jpg";
+      a.download = "covo-photo.jpg";
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -3640,9 +3640,9 @@ const GuestEventView = () => {
             <h2 className="text-lg font-bold text-foreground mb-2">This event is full</h2>
             <p className="text-sm text-muted-foreground mb-5">The host can approve people from the waitlist.</p>
             {onWaitlist ? (
-              <p className="text-sm font-semibold" style={{ color: "#aaee44" }}>You're on the waitlist ✓</p>
+              <p className="text-sm font-semibold" style={{ color: "#3D7BFF" }}>You're on the waitlist ✓</p>
             ) : (
-              <button onClick={joinWaitlist} className="w-full py-3 rounded-xl text-sm font-bold mb-3" style={{ backgroundColor: "#aaee44", color: "#111" }}>Join waitlist</button>
+              <button onClick={joinWaitlist} className="w-full py-3 rounded-xl text-sm font-bold mb-3" style={{ background: "linear-gradient(120deg, #3D7BFF, #22D3EE)", color: "#06121f", border: "none" }}>Join waitlist</button>
             )}
             <button onClick={() => setShowCapacityFull(false)} className="w-full py-3 rounded-xl text-sm font-semibold border border-border text-muted-foreground mt-2">Close</button>
           </div>

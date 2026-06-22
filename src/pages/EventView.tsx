@@ -886,7 +886,7 @@ const EventView = () => {
       const blob = await res.blob();
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
-      a.download = "planit-photo.jpg";
+      a.download = "covo-photo.jpg";
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -3640,7 +3640,7 @@ const EventView = () => {
           <button
             onClick={() => setBarMinimised(false)}
             className="mx-auto block backdrop-blur-sm rounded-full px-5 py-2.5 text-sm font-bold border border-border"
-            style={{ backgroundColor: "rgba(56,56,56,0.95)", color: "#aaee44" }}
+            style={{ backgroundColor: "rgba(56,56,56,0.95)", color: "#3D7BFF" }}
           >
             {rsvpLabel}
           </button>
@@ -3939,7 +3939,7 @@ const EventView = () => {
             <h2 className="text-lg font-bold text-foreground">Guest list</h2>
             <div className="flex gap-2 mt-3">
               {(["going", "waitlist"] as const).map(tab => (
-                <button key={tab} onClick={() => setGuestListTab(tab)} className="px-4 py-1.5 rounded-full text-sm font-semibold" style={{ backgroundColor: guestListTab === tab ? "#aaee44" : "#1e1e1e", color: guestListTab === tab ? "#111" : "#fff" }}>
+                <button key={tab} onClick={() => setGuestListTab(tab)} className="px-4 py-1.5 rounded-full text-sm font-semibold" style={{ background: guestListTab === tab ? "linear-gradient(120deg, #3D7BFF, #22D3EE)" : "#1e1e1e", color: guestListTab === tab ? "#06121f" : "#fff", border: "none" }}>
                   {tab === "going"
                     ? (eventCapacity ? `Going · ${goingList.length}/${eventCapacity}` : `Going · ${goingList.length}`)
                     : "Waitlist"}
@@ -3978,7 +3978,7 @@ const EventView = () => {
                         </div>
                         <div className="flex-1 min-w-0"><p className="font-semibold text-sm text-foreground truncate">{p.name}</p></div>
                         <div className="flex gap-2">
-                          <button onClick={() => approveWaitlist(p.user_id)} className="text-xs font-bold px-3 py-1.5 rounded-full" style={{ backgroundColor: "#aaee44", color: "#111" }}>Approve</button>
+                          <button onClick={() => approveWaitlist(p.user_id)} className="text-xs font-bold px-3 py-1.5 rounded-full" style={{ background: "linear-gradient(120deg, #3D7BFF, #22D3EE)", color: "#06121f", border: "none" }}>Approve</button>
                           <button onClick={() => declineWaitlist(p.user_id)} className="text-xs font-bold px-3 py-1.5 rounded-full border border-red-500/50 text-red-400">Decline</button>
                         </div>
                       </div>
@@ -4040,7 +4040,7 @@ const EventView = () => {
           <div className="px-5 pt-5 pb-8">
             <h2 className="text-lg font-bold text-foreground mb-4">RSVP deadline</h2>
             <input type="datetime-local" value={deadlineInput} onChange={e => setDeadlineInput(e.target.value)} className="w-full bg-card border border-border rounded-xl px-4 py-3 text-sm text-foreground outline-none mb-4" />
-            <button onClick={saveRsvpDeadline} className="w-full py-3.5 rounded-xl text-sm font-bold" style={{ backgroundColor: "#aaee44", color: "#111" }}>Save deadline</button>
+            <button onClick={saveRsvpDeadline} className="w-full py-3.5 rounded-xl text-sm font-bold" style={{ background: "linear-gradient(120deg, #3D7BFF, #22D3EE)", color: "#06121f", border: "none" }}>Save deadline</button>
           </div>
         </DrawerContent>
       </Drawer>
