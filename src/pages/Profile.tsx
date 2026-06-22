@@ -7,7 +7,9 @@ import { toast } from "sonner";
 
 const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 const DAYS = ["S","M","T","W","T","F","S"];
-const ACCENT = "#aaee44";
+const ACCENT = "#C6F24E";
+const COVO_GRAD = "linear-gradient(120deg, #3D7BFF, #22D3EE)";
+const COVO_CYAN = "#22D3EE";
 
 type EventEntry = { name: string; date: string; code: string; role: "Host" | "Going" | "Maybe" | "Not going" };
 
@@ -196,24 +198,27 @@ const Profile = () => {
         <button type="button" onClick={() => navigate(-1)}>
           <ArrowLeft className="w-6 h-6 text-muted-foreground" />
         </button>
-        <h1 className="text-lg font-bold text-foreground">Profile</h1>
-        <button type="button" onClick={openEdit} className="text-sm font-semibold" style={{ color: ACCENT }}>
+        <h1 className="text-lg font-bold" style={{ background: COVO_GRAD, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>Profile</h1>
+        <button type="button" onClick={openEdit} className="text-sm font-semibold" style={{ color: COVO_CYAN }}>
           Edit
         </button>
       </div>
 
       <div className="flex-1 overflow-y-auto pb-8">
         {/* Hero section */}
-        <div className="mx-4 mb-4 rounded-2xl overflow-hidden" style={{ backgroundColor: "#111" }}>
+        <div className="mx-4 mb-4 rounded-2xl overflow-hidden" style={{ backgroundColor: "#141519" }}>
           <div className="flex flex-col items-center pt-8 pb-6 px-6">
-            {/* Avatar with camera badge */}
-            <div className="relative mb-4">
-              <div className="w-24 h-24 rounded-full overflow-hidden border-2" style={{ borderColor: ACCENT }}>
+            {/* Avatar with gradient ring + camera badge */}
+            <div className="relative mb-4" style={{ width: 96, height: 96 }}>
+              {/* Gradient ring */}
+              <div style={{ position: "absolute", inset: -3, borderRadius: "50%", background: COVO_GRAD }} />
+              {/* Avatar */}
+              <div className="absolute inset-0 rounded-full overflow-hidden" style={{ background: "#1c1f26" }}>
                 {avatarUrl ? (
                   <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: "#222" }}>
-                    <span className="text-3xl font-bold" style={{ color: ACCENT }}>{displayName.charAt(0).toUpperCase()}</span>
+                  <div className="w-full h-full flex items-center justify-center">
+                    <span className="text-3xl font-bold text-white">{displayName.charAt(0).toUpperCase()}</span>
                   </div>
                 )}
               </div>
@@ -221,15 +226,15 @@ const Profile = () => {
                 type="button"
                 onClick={() => profilePhotoRef.current?.click()}
                 className="absolute bottom-0 right-0 w-8 h-8 rounded-full flex items-center justify-center"
-                style={{ backgroundColor: ACCENT }}
+                style={{ backgroundColor: ACCENT, border: "2px solid #141519" }}
               >
-                <Camera className="w-4 h-4" style={{ color: "#111" }} />
+                <Camera className="w-4 h-4" style={{ color: "#0d0e11" }} />
               </button>
               <input ref={profilePhotoRef} type="file" accept="image/*" className="hidden" onChange={handleHeroPhotoChange} />
             </div>
 
             <h2 className="text-xl font-bold text-white mb-0.5">{displayName}</h2>
-            {username && <p className="text-sm mb-4" style={{ color: "#aaaaaa" }}>@{username}</p>}
+            {username && <p className="text-sm mb-4" style={{ color: "#8a9098", fontFamily: "'Space Grotesk', sans-serif" }}>@{username}</p>}
             {!username && <div className="mb-4" />}
 
             {/* Stat pills */}
@@ -239,9 +244,9 @@ const Profile = () => {
                 { value: joinedCount, label: "Joined" },
                 { value: friendsCount, label: "Friends" },
               ].map(({ value, label }) => (
-                <div key={label} className="flex-1 rounded-xl py-2.5 text-center" style={{ backgroundColor: "#1a1a1a" }}>
+                <div key={label} className="flex-1 rounded-xl py-2.5 text-center" style={{ backgroundColor: "#1c1f26" }}>
                   <p className="text-lg font-extrabold text-white">{value}</p>
-                  <p className="text-xs text-gray-400">{label}</p>
+                  <p className="text-xs" style={{ color: "#8a9098" }}>{label}</p>
                 </div>
               ))}
             </div>
@@ -251,9 +256,9 @@ const Profile = () => {
         {/* Calendar */}
         <div className="mx-4 mb-4 bg-card rounded-2xl border border-border p-4">
           <div className="flex items-center justify-between mb-3">
-            <button type="button" onClick={prevMonth}><ChevronLeft className="w-5 h-5 text-muted-foreground" /></button>
-            <span className="text-foreground font-semibold text-sm">{MONTHS[calMonth]} {calYear}</span>
-            <button type="button" onClick={nextMonth}><ChevronRight className="w-5 h-5 text-muted-foreground" /></button>
+            <button type="button" onClick={prevMonth}><ChevronLeft className="w-5 h-5" style={{ color: "#6a7078" }} /></button>
+            <span className="font-semibold text-sm" style={{ background: COVO_GRAD, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>{MONTHS[calMonth]} {calYear}</span>
+            <button type="button" onClick={nextMonth}><ChevronRight className="w-5 h-5" style={{ color: "#6a7078" }} /></button>
           </div>
           <div className="grid grid-cols-7 gap-1 text-center text-xs text-muted-foreground mb-2">
             {DAYS.map((d, i) => <div key={i}>{d}</div>)}
@@ -269,8 +274,8 @@ const Profile = () => {
                   key={day}
                   type="button"
                   onClick={() => hasEvent ? setSelectedDate(selectedDate === `${day}` ? null : `${day}`) : undefined}
-                  className={`relative py-1.5 text-sm rounded-lg ${isToday ? "font-bold" : ""} ${hasEvent ? "cursor-pointer" : "cursor-default"}`}
-                  style={{ color: isToday ? ACCENT : undefined }}
+                  className={`relative py-1.5 text-sm rounded-lg ${hasEvent ? "cursor-pointer" : "cursor-default"}`}
+                  style={{ color: isToday ? "#fff" : "#8FE3F5", fontWeight: isToday ? 800 : 600 }}
                 >
                   {day}
                   {hasEvent && <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full" style={{ backgroundColor: ACCENT }} />}
@@ -308,8 +313,8 @@ const Profile = () => {
                   onClick={() => setEventsTab("upcoming")}
                   className="flex-1 py-2.5 rounded-full text-sm font-semibold transition-colors"
                   style={eventsTab === "upcoming"
-                    ? { backgroundColor: ACCENT, color: "#111" }
-                    : { backgroundColor: "transparent", border: "1px solid #333", color: "#888" }}
+                    ? { background: COVO_GRAD, color: "#06121f", border: "none" }
+                    : { background: "#141519", color: "#8a9098", border: "none" }}
                 >
                   Upcoming
                 </button>
@@ -318,8 +323,8 @@ const Profile = () => {
                   onClick={() => setEventsTab("past")}
                   className="flex-1 py-2.5 rounded-full text-sm font-semibold transition-colors"
                   style={eventsTab === "past"
-                    ? { backgroundColor: ACCENT, color: "#111" }
-                    : { backgroundColor: "transparent", border: "1px solid #333", color: "#888" }}
+                    ? { background: COVO_GRAD, color: "#06121f", border: "none" }
+                    : { background: "#141519", color: "#8a9098", border: "none" }}
                 >
                   Past
                 </button>

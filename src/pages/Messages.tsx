@@ -4,7 +4,9 @@ import { ArrowLeft, Search, MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
-const ACCENT = "#aaee44";
+const LIME = "#C6F24E";
+const COVO_GRAD = "linear-gradient(120deg, #3D7BFF, #22D3EE)";
+const COVO_CYAN = "#22D3EE";
 
 type Convo = {
   key: string;
@@ -40,7 +42,7 @@ const Avatar = ({ name, url, size = 48, accent }: { name: string; url: string | 
     {url ? (
       <img src={url} alt="" className="w-full h-full object-cover" />
     ) : (
-      <span className="font-bold" style={{ fontSize: size * 0.35, color: accent ? ACCENT : "#aaa" }}>
+      <span className="font-bold" style={{ fontSize: size * 0.35, color: accent ? COVO_CYAN : "#aaa" }}>
         {name.charAt(0).toUpperCase()}
       </span>
     )}
@@ -130,9 +132,14 @@ const Messages = () => {
         <button type="button" onClick={() => navigate(-1)}>
           <ArrowLeft className="w-6 h-6 text-muted-foreground" />
         </button>
-        <h1 className="flex-1 text-xl font-bold text-foreground">Messages</h1>
+        <h1
+          className="flex-1 text-xl font-bold"
+          style={{ background: COVO_GRAD, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}
+        >
+          Messages
+        </h1>
         {unreadCount > 0 && (
-          <span className="text-[11px] font-bold px-2.5 py-1 rounded-full" style={{ backgroundColor: ACCENT, color: "#111" }}>
+          <span className="text-[11px] font-bold px-2.5 py-1 rounded-full" style={{ backgroundColor: LIME, color: "#0d0e11" }}>
             {unreadCount} new
           </span>
         )}
@@ -176,7 +183,7 @@ const Messages = () => {
               <div className="relative shrink-0">
                 <Avatar name={c.otherName} url={c.otherAvatar} accent />
                 {c.isUnread && (
-                  <div className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-background" style={{ backgroundColor: ACCENT }} />
+                  <div className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-background" style={{ backgroundColor: LIME }} />
                 )}
               </div>
 
@@ -187,7 +194,7 @@ const Messages = () => {
                   </span>
                   <span className="text-[11px] text-muted-foreground ml-2 shrink-0">{fmtTime(c.lastTime)}</span>
                 </div>
-                <span className="inline-block text-[10px] font-bold px-1.5 py-0.5 rounded mb-0.5" style={{ backgroundColor: "rgba(170,238,68,0.13)", color: ACCENT }}>
+                <span className="inline-block text-[10px] font-bold px-1.5 py-0.5 rounded mb-0.5" style={{ backgroundColor: c.isUnread ? "rgba(34,211,238,0.13)" : "rgba(198,242,78,0.1)", color: c.isUnread ? COVO_CYAN : LIME }}>
                   {c.eventTitle}
                 </span>
                 <p className={`text-xs truncate ${c.isUnread ? "font-medium text-foreground" : "text-muted-foreground"}`}>
