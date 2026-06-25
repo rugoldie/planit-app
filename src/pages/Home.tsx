@@ -118,6 +118,14 @@ const getGreeting = () => {
   return "Good evening 👋";
 };
 
+const getDaysUntil = (dt: string | null): number | null => {
+  if (!dt) return null;
+  try {
+    const diff = Math.ceil((parseISO(dt).getTime() - Date.now()) / 86400000);
+    return diff >= 0 ? diff : null;
+  } catch { return null; }
+};
+
 const formatDate = (dt: string | null) => {
   if (!dt) return "Date TBD";
   try {
@@ -1904,6 +1912,48 @@ const Home = () => {
   });
   const pendingCount = pendingRequests || 0;
 
+  const { data: topFriendRequest } = useQuery({
+    queryKey: ["top-friend-request", user?.id],
+    enabled: !!user?.id && pendingCount > 0,
+    refetchInterval: 30000,
+    queryFn: async () => {
+      if (!user?.id) return null;
+      const { data: reqs } = await (supabase as any)
+        .from("friendships")
+        .select("id, requester_id")
+        .eq("recipient_id", user.id)
+        .eq("status", "pending")
+        .order("created_at", { ascending: false })
+        .limit(1);
+      if (!reqs?.length) return null;
+      const req = reqs[0];
+      const { data: p } = await supabase
+        .from("profiles")
+        .select("user_id, name, username, avatar_url")
+        .eq("user_id", req.requester_id)
+        .maybeSingle();
+      // Count mutual friends
+      const { data: myFriends } = await (supabase as any)
+        .from("friendships")
+        .select("requester_id, recipient_id")
+        .or(`requester_id.eq.${user.id},recipient_id.eq.${user.id}`)
+        .eq("status", "accepted");
+      const myFriendIds = new Set((myFriends || []).map((f: any) =>
+        f.requester_id === user.id ? f.recipient_id : f.requester_id
+      ));
+      const { data: theirFriends } = await (supabase as any)
+        .from("friendships")
+        .select("requester_id, recipient_id")
+        .or(`requester_id.eq.${req.requester_id},recipient_id.eq.${req.requester_id}`)
+        .eq("status", "accepted");
+      const mutuals = (theirFriends || []).filter((f: any) => {
+        const other = f.requester_id === req.requester_id ? f.recipient_id : f.requester_id;
+        return myFriendIds.has(other);
+      }).length;
+      return { friendshipId: req.id, requesterId: req.requester_id, profile: p, mutuals };
+    },
+  });
+
   const { data: unreadNotifs } = useQuery({
     queryKey: ["unread-notifs", user?.id],
     enabled: !!user?.id,
@@ -1937,78 +1987,61 @@ const Home = () => {
   // New user / no events
   if (!hasEvents && !isLoading) {
     return (
-      <div className="flex flex-col min-h-screen bg-background px-6 py-8">
-        <div className="flex items-center gap-2">
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => navigate("/notifications")}
-              className="bg-secondary rounded-full w-11 h-11 flex items-center justify-center border border-border"
-            >
-              <Bell className="w-5 h-5 text-muted-foreground" />
-            </button>
-            {unreadNotifCount > 0 && (
-              <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold" style={{ backgroundColor: "#ef4444", color: "#fff" }}>
-                {unreadNotifCount > 9 ? "9+" : unreadNotifCount}
-              </span>
-            )}
+      <div className="flex flex-col min-h-screen bg-background" style={{ paddingBottom: 80 }}>
+        {/* Header */}
+        <div className="flex items-center justify-between px-[18px] pt-[54px] mb-5">
+          <div>
+            <div style={{ fontFamily: "'Space Grotesk', monospace", fontSize: 11, letterSpacing: ".5px", color: "#7a8088" }}>{getGreeting()}</div>
+            <div style={{ fontWeight: 700, fontSize: 24, color: "#fff", lineHeight: 1.1 }}>{firstName}</div>
           </div>
-          <button
-            type="button"
-            onClick={() => navigate("/messages")}
-            className="bg-secondary rounded-full w-11 h-11 flex items-center justify-center border border-border"
-          >
-            <MessageCircle className="w-5 h-5 text-muted-foreground" />
-          </button>
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => navigate("/friends")}
-              className="bg-secondary rounded-full w-11 h-11 flex items-center justify-center border border-border"
-            >
-              <Users className="w-5 h-5 text-muted-foreground" />
-            </button>
-            {pendingCount > 0 && (
-              <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold" style={{ backgroundColor: "#ef4444", color: "#fff" }}>
-                {pendingCount > 9 ? "9+" : pendingCount}
-              </span>
-            )}
-          </div>
-          <button
-            type="button"
-            onClick={() => navigate("/profile")}
-            className="rounded-full w-11 h-11 overflow-hidden border-2 shrink-0"
-            style={{ borderColor: "#3D7BFF" }}
-          >
-            {profile?.avatar_url ? (
-              <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
-            ) : (
-              <div className="w-full h-full bg-secondary flex items-center justify-center">
-                <span className="text-sm font-bold text-foreground">{profile?.name?.charAt(0)?.toUpperCase() || "?"}</span>
+          <div className="flex items-center gap-[10px]">
+            <div className="relative">
+              <button type="button" onClick={() => navigate("/notifications")} style={{ width: 38, height: 38, borderRadius: "50%", background: "#16181d", display: "flex", alignItems: "center", justifyContent: "center", border: "none" }}>
+                <Bell className="w-[18px] h-[18px]" style={{ color: "#aeb4bc" }} />
+              </button>
+              {unreadNotifCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center font-bold" style={{ minWidth: 16, height: 16, padding: "0 4px", borderRadius: 8, background: "#C6F24E", color: "#0a0b0e", fontSize: 10, border: "2px solid #0a0b0e" }}>
+                  {unreadNotifCount > 9 ? "9+" : unreadNotifCount}
+                </span>
+              )}
+            </div>
+            <button type="button" onClick={() => navigate("/profile")} style={{ width: 38, height: 38, borderRadius: "50%", padding: 2, background: "linear-gradient(150deg,#3D7BFF,#22D3EE)", border: "none" }}>
+              <div style={{ width: "100%", height: "100%", borderRadius: "50%", overflow: "hidden", background: "#2a2d34", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                {profile?.avatar_url ? <img src={profile.avatar_url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <span style={{ fontWeight: 700, color: "#fff", fontSize: 14 }}>{profile?.name?.charAt(0)?.toUpperCase() || "?"}</span>}
               </div>
-            )}
+            </button>
+          </div>
+        </div>
+        {/* Create bar */}
+        <div className="flex gap-[10px] px-[18px] mb-10">
+          <button onClick={() => navigate("/host")} style={{ flex: 1, height: 48, borderRadius: 13, background: "linear-gradient(120deg,#3D7BFF,#22D3EE)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontWeight: 700, fontSize: 15, color: "#06121f", border: "none" }}>
+            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="#06121f" strokeWidth="2.6" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>Host
+          </button>
+          <button onClick={() => navigate("/join")} style={{ flex: 1, height: 48, borderRadius: 13, background: "#16181d", border: "1px solid #23262e", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontWeight: 600, fontSize: 15, color: "#cfd3da" }}>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#C6F24E" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg>Join code
           </button>
         </div>
-        <div className="flex flex-col items-center mt-8">
-          <h1
-            className="text-7xl font-extrabold tracking-tight"
-            style={{ background: "linear-gradient(120deg, #3D7BFF, #22D3EE)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}
-          >
-            covo
-          </h1>
+        <div className="flex flex-col items-center justify-center flex-1 gap-4 px-6">
+          <h1 className="text-7xl font-extrabold tracking-tight" style={{ background: "linear-gradient(120deg, #3D7BFF, #22D3EE)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>covo</h1>
+          <p className="text-muted-foreground text-center text-sm">Host or join an event to get started</p>
         </div>
-        <div className="flex flex-col items-center justify-center flex-1 gap-12 px-2">
-          <button
-            onClick={() => navigate("/host")}
-            className="w-full max-w-md bg-primary text-primary-foreground rounded-[var(--radius)] py-10 text-3xl font-extrabold"
-          >
-            Host
+        {/* Tab bar */}
+        <div style={{ position: "fixed", left: 0, right: 0, bottom: 0, height: 80, background: "rgba(12,13,16,.92)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", borderTop: "1px solid #1a1c22", display: "flex", alignItems: "flex-start", justifyContent: "space-around", paddingTop: 14, zIndex: 50 }}>
+          <button type="button" onClick={() => navigate("/home")} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5, background: "none", border: "none" }}>
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#22D3EE" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 11l9-8 9 8M5 10v10h14V10"/></svg>
+            <span style={{ fontFamily: "'Space Grotesk',monospace", fontSize: 10, color: "#22D3EE" }}>Home</span>
           </button>
-          <button
-            onClick={() => navigate("/join")}
-            className="w-full max-w-md bg-primary text-primary-foreground rounded-[var(--radius)] py-10 text-3xl font-extrabold"
-          >
-            Join
+          <button type="button" onClick={() => navigate("/events")} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5, background: "none", border: "none" }}>
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#6a7078" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            <span style={{ fontFamily: "'Space Grotesk',monospace", fontSize: 10, color: "#6a7078" }}>Events</span>
+          </button>
+          <button type="button" onClick={() => navigate("/messages")} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5, background: "none", border: "none" }}>
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#6a7078" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+            <span style={{ fontFamily: "'Space Grotesk',monospace", fontSize: 10, color: "#6a7078" }}>Chats</span>
+          </button>
+          <button type="button" onClick={() => navigate("/profile")} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5, background: "none", border: "none" }}>
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#6a7078" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
+            <span style={{ fontFamily: "'Space Grotesk',monospace", fontSize: 10, color: "#6a7078" }}>Profile</span>
           </button>
         </div>
       </div>
@@ -2023,165 +2056,233 @@ const Home = () => {
     );
   }
 
+  const upcomingEvents = events.slice(1, 3);
+  const daysUntil = getDaysUntil(nextEvent?.date_time ?? null);
+  const nextUpLabel = daysUntil === 0 ? "NEXT UP · TODAY" : daysUntil === 1 ? "NEXT UP · TOMORROW" : daysUntil != null ? `NEXT UP · IN ${daysUntil} DAYS` : "NEXT UP";
+
+  const handleAcceptFriend = async (friendshipId: string) => {
+    await (supabase as any).from("friendships").update({ status: "accepted" }).eq("id", friendshipId);
+    queryClient.invalidateQueries({ queryKey: ["pending-friends", user?.id] });
+    queryClient.invalidateQueries({ queryKey: ["top-friend-request", user?.id] });
+  };
+  const handleDeclineFriend = async (friendshipId: string) => {
+    await (supabase as any).from("friendships").delete().eq("id", friendshipId);
+    queryClient.invalidateQueries({ queryKey: ["pending-friends", user?.id] });
+    queryClient.invalidateQueries({ queryKey: ["top-friend-request", user?.id] });
+  };
+
   return (
-    <div className="flex flex-col min-h-screen bg-background px-5 pt-6 pb-4">
-      {/* Top bar */}
-      <div className="flex items-start justify-between mb-6">
-        <div>
-          <p className="text-muted-foreground text-sm">{getGreeting()}</p>
-          <h1 className="text-2xl font-extrabold mt-0.5" style={{ color: "#ffffff" }}>
-            {firstName}
-          </h1>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => navigate("/notifications")}
-              className="rounded-full w-11 h-11 flex items-center justify-center border-2 border-border bg-secondary"
-            >
-              <Bell className="w-5 h-5 text-muted-foreground" />
-            </button>
-            {unreadNotifCount > 0 && (
-              <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold" style={{ backgroundColor: "#ef4444", color: "#fff" }}>
-                {unreadNotifCount > 9 ? "9+" : unreadNotifCount}
-              </span>
-            )}
+    <div className="flex flex-col min-h-screen bg-background" style={{ paddingBottom: 80 }}>
+      <div className="overflow-y-auto flex-1">
+        {/* Header */}
+        <div className="flex items-center justify-between px-[18px] pt-[54px] mb-5">
+          <div>
+            <div style={{ fontFamily: "'Space Grotesk', monospace", fontSize: 11, letterSpacing: ".5px", color: "#7a8088" }}>{getGreeting()}</div>
+            <div style={{ fontWeight: 700, fontSize: 24, color: "#fff", lineHeight: 1.1 }}>{firstName}</div>
           </div>
-          <button
-            type="button"
-            onClick={() => navigate("/messages")}
-            className="rounded-full w-11 h-11 flex items-center justify-center border-2 border-border bg-secondary"
-          >
-            <MessageCircle className="w-5 h-5 text-muted-foreground" />
-          </button>
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => navigate("/friends")}
-              className="rounded-full w-11 h-11 flex items-center justify-center border-2 border-border bg-secondary"
-            >
-              <Users className="w-5 h-5 text-muted-foreground" />
-            </button>
-            {pendingCount > 0 && (
-              <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold" style={{ backgroundColor: "#ef4444", color: "#fff" }}>
-                {pendingCount > 9 ? "9+" : pendingCount}
-              </span>
-            )}
-          </div>
-          <button
-            type="button"
-            onClick={() => navigate("/profile")}
-            className="rounded-full w-11 h-11 overflow-hidden border-2 shrink-0"
-            style={{ borderColor: "#3D7BFF" }}
-          >
-            {profile?.avatar_url ? (
-              <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
-            ) : (
-              <div className="w-full h-full bg-secondary flex items-center justify-center">
-                <span className="text-sm font-bold text-foreground">{profile?.name?.charAt(0)?.toUpperCase() || "?"}</span>
-              </div>
-            )}
-          </button>
-        </div>
-      </div>
-
-      {/* Next up card */}
-      {nextEvent && (
-        <div className="mb-6">
-          <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Next up</h2>
-          {isGalaxy(nextEvent.template_name) ? (
-            <GalaxyNextUpCard event={nextEvent} navigate={navigate} />
-          ) : isSunny(nextEvent.template_name) ? (
-            <SunnyNextUpCard event={nextEvent} navigate={navigate} />
-          ) : isVintage(nextEvent.template_name) ? (
-            <VintageNextUpCard event={nextEvent} navigate={navigate} />
-          ) : isNoir(nextEvent.template_name) ? (
-            <NoirNextUpCard event={nextEvent} navigate={navigate} />
-          ) : isOcean(nextEvent.template_name) ? (
-            <OceanNextUpCard event={nextEvent} navigate={navigate} />
-          ) : isBlush(nextEvent.template_name) ? (
-            <BlushNextUpCard event={nextEvent} navigate={navigate} />
-          ) : isForest(nextEvent.template_name) ? (
-            <ForestNextUpCard event={nextEvent} navigate={navigate} />
-          ) : isMidnight(nextEvent.template_name) ? (
-            <MidnightNextUpCard event={nextEvent} navigate={navigate} />
-          ) : isCustomTemplate(nextEvent.template_name) ? (
-            <CustomNextUpCard event={nextEvent} navigate={navigate} />
-          ) : (
-            <div
-              className="rounded-2xl p-3.5 cursor-pointer overflow-hidden"
-              style={{
-                background: `linear-gradient(135deg, ${nextEvent.gradient_color || "#aaee44"}99 0%, #1e1e1e 60%)`,
-                border: `1px solid ${nextEvent.gradient_color || "#aaee44"}40`,
-              }}
-              onClick={() => {
-                const path = nextEvent.role === "host" ? `/event/${nextEvent.code}` : `/guest/${nextEvent.code}`;
-                navigate(path);
-              }}
-            >
-              <div className="flex items-start justify-between mb-1.5">
-                <h3
-                  className="flex-1 mr-3"
-                  style={{
-                    color: "#ffffff",
-                    fontFamily: FONT_MAP[nextEvent.font_style || "Bold"] || FONT_MAP.Bold,
-                    fontWeight: nextEvent.font_style === "Bold" || !nextEvent.font_style ? 700 : 400,
-                    fontSize: "1rem",
-                  }}
-                >
-                  {nextEvent.title || "Untitled Event"}
-                </h3>
-                <RoleBadge role={nextEvent.role} />
-              </div>
-              <p className="mb-2.5" style={{ fontSize: "11px", color: "rgba(255,255,255,0.5)" }}>
-                🗓️ {formatDate(nextEvent.date_time)} · 📍 {nextEvent.location || "TBD"} · {nextEvent.guest_count} going
-              </p>
+          <div className="flex items-center gap-[10px]">
+            {/* Bell */}
+            <div className="relative">
               <button
-                className="w-full rounded-lg py-1.5 text-xs font-bold"
-                style={{
-                  backgroundColor: hslToColor(nextEvent.bubble_color, "#aaee44"),
-                  color: textForBubble(nextEvent.bubble_color),
-                }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  const path = nextEvent.role === "host" ? `/event/${nextEvent.code}` : `/guest/${nextEvent.code}`;
-                  navigate(path);
-                }}
+                type="button"
+                onClick={() => navigate("/notifications")}
+                style={{ width: 38, height: 38, borderRadius: "50%", background: "#16181d", display: "flex", alignItems: "center", justifyContent: "center", border: "none" }}
               >
-                View event
+                <Bell className="w-[18px] h-[18px]" style={{ color: "#aeb4bc" }} />
               </button>
+              {unreadNotifCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center font-bold" style={{ minWidth: 16, height: 16, padding: "0 4px", borderRadius: 8, background: "#C6F24E", color: "#0a0b0e", fontSize: 10, border: "2px solid #0a0b0e" }}>
+                  {unreadNotifCount > 9 ? "9+" : unreadNotifCount}
+                </span>
+              )}
             </div>
-          )}
+            {/* Avatar with gradient ring */}
+            <button
+              type="button"
+              onClick={() => navigate("/profile")}
+              style={{ width: 38, height: 38, borderRadius: "50%", padding: 2, background: "linear-gradient(150deg,#3D7BFF,#22D3EE)", border: "none" }}
+            >
+              <div style={{ width: "100%", height: "100%", borderRadius: "50%", overflow: "hidden", background: "#2a2d34", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                {profile?.avatar_url
+                  ? <img src={profile.avatar_url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  : <span style={{ fontWeight: 700, color: "#fff", fontSize: 14 }}>{profile?.name?.charAt(0)?.toUpperCase() || "?"}</span>}
+              </div>
+            </button>
+          </div>
         </div>
-      )}
 
-      {/* Divider */}
-      <div className="mb-4" style={{ height: "1px", backgroundColor: "#333" }} />
+        {/* Create bar */}
+        <div className="flex gap-[10px] px-[18px] mb-6">
+          <button
+            onClick={() => navigate("/host")}
+            style={{ flex: 1, height: 48, borderRadius: 13, background: "linear-gradient(120deg,#3D7BFF,#22D3EE)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontWeight: 700, fontSize: 15, color: "#06121f", border: "none" }}
+          >
+            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="#06121f" strokeWidth="2.6" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>
+            Host
+          </button>
+          <button
+            onClick={() => navigate("/join")}
+            style={{ flex: 1, height: 48, borderRadius: 13, background: "#16181d", border: "1px solid #23262e", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontWeight: 600, fontSize: 15, color: "#cfd3da" }}
+          >
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#C6F24E" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
+            Join code
+          </button>
+        </div>
 
-      {/* Host & Join buttons */}
-      <div className="flex gap-3 mb-4">
-        <button
-          onClick={() => navigate("/host")}
-          className="flex-1 rounded-full py-5 text-lg font-extrabold"
-          style={{ background: "linear-gradient(120deg, #3D7BFF, #22D3EE)", color: "#06121f", border: "none" }}
-        >
-          Host
-        </button>
-        <button
-          onClick={() => navigate("/join")}
-          className="flex-1 rounded-full py-5 text-lg font-extrabold"
-          style={{ backgroundColor: "#383838", color: "#fff" }}
-        >
-          Join
-        </button>
+        {/* Next Up hero */}
+        {nextEvent && (
+          <div className="px-[18px] mb-6">
+            <div style={{ fontFamily: "'Space Grotesk',monospace", fontSize: 11, letterSpacing: "2px", color: "#7a8088", marginBottom: 10 }}>{nextUpLabel}</div>
+            {isGalaxy(nextEvent.template_name) ? (
+              <GalaxyNextUpCard event={nextEvent} navigate={navigate} />
+            ) : isSunny(nextEvent.template_name) ? (
+              <SunnyNextUpCard event={nextEvent} navigate={navigate} />
+            ) : isVintage(nextEvent.template_name) ? (
+              <VintageNextUpCard event={nextEvent} navigate={navigate} />
+            ) : isNoir(nextEvent.template_name) ? (
+              <NoirNextUpCard event={nextEvent} navigate={navigate} />
+            ) : isOcean(nextEvent.template_name) ? (
+              <OceanNextUpCard event={nextEvent} navigate={navigate} />
+            ) : isBlush(nextEvent.template_name) ? (
+              <BlushNextUpCard event={nextEvent} navigate={navigate} />
+            ) : isForest(nextEvent.template_name) ? (
+              <ForestNextUpCard event={nextEvent} navigate={navigate} />
+            ) : isMidnight(nextEvent.template_name) ? (
+              <MidnightNextUpCard event={nextEvent} navigate={navigate} />
+            ) : isCustomTemplate(nextEvent.template_name) ? (
+              <CustomNextUpCard event={nextEvent} navigate={navigate} />
+            ) : (
+              <div
+                style={{ position: "relative", borderRadius: 20, overflow: "hidden", cursor: "pointer" }}
+                onClick={() => navigate(nextEvent.role === "host" ? `/event/${nextEvent.code}` : `/guest/${nextEvent.code}`)}
+              >
+                <div style={{ position: "absolute", inset: 0, background: `linear-gradient(135deg, ${nextEvent.gradient_color || "#3D7BFF"}cc 0%, #0a0b0e 100%)` }} />
+                <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(6,7,9,.9) 0%, rgba(6,7,9,.3) 60%, transparent 100%)" }} />
+                <div style={{ position: "relative", padding: "18px 18px 20px", display: "flex", flexDirection: "column", gap: 12, minHeight: 160 }}>
+                  <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                    <RoleBadge role={nextEvent.role} />
+                  </div>
+                  <div style={{ marginTop: "auto" }}>
+                    <div style={{ fontFamily: "'Fraunces',serif", fontWeight: 600, fontSize: 32, color: "#fff", lineHeight: 1, letterSpacing: "-.5px" }}>{nextEvent.title || "Untitled Event"}</div>
+                    {nextEvent.date_time && <div style={{ fontSize: 13, color: "#e0d8cc", marginTop: 10 }}>🗓 {formatDate(nextEvent.date_time)}</div>}
+                    {nextEvent.location && <div style={{ fontSize: 13, color: "#e0d8cc", marginTop: 5 }}>📍 {nextEvent.location}</div>}
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 16 }}>
+                      <span style={{ fontSize: 13, color: "#cfc6ba" }}>{nextEvent.guest_count} going</span>
+                      <div style={{ background: "#fff", color: "#0a0b0e", fontWeight: 700, fontSize: 14, padding: "9px 20px", borderRadius: 12 }}>Open →</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Upcoming preview — max 2, from events[1..] */}
+        {upcomingEvents.length > 0 && (
+          <div className="px-[18px] mb-6">
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+              <div style={{ fontFamily: "'Space Grotesk',monospace", fontSize: 11, letterSpacing: "2px", color: "#7a8088" }}>UPCOMING</div>
+              <button type="button" onClick={() => navigate("/events")} style={{ fontFamily: "'Space Grotesk',monospace", fontSize: 12, color: "#22D3EE", background: "none", border: "none", padding: 0 }}>See all →</button>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              {upcomingEvents.map((event) => {
+                const gradHex = event.gradient_color || "#3D7BFF";
+                const dt = event.date_time ? parseISO(event.date_time) : null;
+                const dayNum = dt ? format(dt, "dd") : "--";
+                const monthStr = dt ? format(dt, "MMM").toUpperCase() : "";
+                const timeStr = dt ? format(dt, "h:mm a") : "";
+                const roleLabel = event.role === "host" ? "Hosting" : event.role === "going" ? "Going" : "Maybe";
+                const roleBg = event.role === "host" ? "rgba(255,255,255,0.14)" : "#C6F24E";
+                const roleColor = event.role === "host" ? "#fff" : "#0a0b0e";
+                return (
+                  <div
+                    key={event.id}
+                    style={{ position: "relative", height: 96, borderRadius: 16, overflow: "hidden", cursor: "pointer" }}
+                    onClick={() => navigate(event.role === "host" ? `/event/${event.code}` : `/guest/${event.code}`)}
+                  >
+                    <div style={{ position: "absolute", inset: 0, background: `linear-gradient(110deg, ${gradHex}dd, #0a0b0e)` }} />
+                    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, rgba(6,7,9,.88) 0%, rgba(6,7,9,.3) 65%, rgba(6,7,9,.05) 100%)" }} />
+                    <div style={{ position: "absolute", inset: 0, padding: "0 18px", display: "flex", alignItems: "center", gap: 16 }}>
+                      <div style={{ textAlign: "center", flex: "none" }}>
+                        <div style={{ fontFamily: "'Fraunces',serif", fontWeight: 600, fontSize: 24, color: "#FFD27A", lineHeight: 1 }}>{dayNum}</div>
+                        <div style={{ fontFamily: "'Space Grotesk',monospace", fontSize: 10, color: "#b89a86", letterSpacing: 1 }}>{monthStr}</div>
+                      </div>
+                      <div style={{ width: 1, height: 46, background: "rgba(255,255,255,0.12)", flex: "none" }} />
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontFamily: "'Fraunces',serif", fontWeight: 600, fontSize: 20, color: "#fff", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{event.title || "Untitled"}</div>
+                        <div style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", marginTop: 4 }}>{timeStr}{timeStr && " · "}{roleLabel}</div>
+                      </div>
+                      <span style={{ flex: "none", background: roleBg, color: roleColor, fontWeight: 700, fontSize: 12, padding: "6px 14px", borderRadius: 999 }}>{event.role === "host" ? "Host" : event.role === "going" ? "Going" : "Maybe"}</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Friend Requests condensed */}
+        {pendingCount > 0 && (
+          <div className="px-[18px] mb-6">
+            <div style={{ borderRadius: 16, background: "#101116", border: "1px solid #1c1e24", padding: 16 }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
+                  <div style={{ fontFamily: "'Space Grotesk',monospace", fontSize: 11, letterSpacing: "1.5px", color: "#7a8088" }}>FRIEND REQUESTS</div>
+                  <span style={{ minWidth: 20, height: 20, padding: "0 6px", borderRadius: 999, background: "#C6F24E", color: "#0a0b0e", fontWeight: 700, fontSize: 11, display: "flex", alignItems: "center", justifyContent: "center" }}>{pendingCount}</span>
+                </div>
+                <button type="button" onClick={() => navigate("/friends")} style={{ fontFamily: "'Space Grotesk',monospace", fontSize: 12, color: "#22D3EE", background: "none", border: "none", padding: 0 }}>See all →</button>
+              </div>
+              {topFriendRequest && (
+                <div style={{ display: "flex", alignItems: "center", gap: 11 }}>
+                  <div style={{ width: 40, height: 40, borderRadius: "50%", background: "#3D7BFF", flex: "none", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, color: "#fff", fontSize: 16 }}>
+                    {topFriendRequest.profile?.avatar_url
+                      ? <img src={topFriendRequest.profile.avatar_url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                      : (topFriendRequest.profile?.name?.charAt(0)?.toUpperCase() || "?")}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontWeight: 700, fontSize: 15, color: "#fff" }}>{topFriendRequest.profile?.name || "Someone"}</div>
+                    <div style={{ fontFamily: "'Space Grotesk',monospace", fontSize: 12, color: "#7a8088" }}>{topFriendRequest.mutuals} mutual{topFriendRequest.mutuals !== 1 ? "s" : ""}</div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleAcceptFriend(topFriendRequest.friendshipId)}
+                    style={{ width: 34, height: 34, borderRadius: 10, background: "linear-gradient(120deg,#3D7BFF,#22D3EE)", display: "flex", alignItems: "center", justifyContent: "center", flex: "none", border: "none" }}
+                  >
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#06121f" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleDeclineFriend(topFriendRequest.friendshipId)}
+                    style={{ width: 34, height: 34, borderRadius: 10, background: "#1c1e24", display: "flex", alignItems: "center", justifyContent: "center", flex: "none", border: "none" }}
+                  >
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#7a8088" strokeWidth="2.6" strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* Divider */}
-      <div className="mb-4" style={{ height: "1px", backgroundColor: "#333" }} />
-
-      {/* Upcoming section */}
-      <UpcomingSection events={events} navigate={navigate} />
+      {/* Bottom tab bar */}
+      <div style={{ position: "fixed", left: 0, right: 0, bottom: 0, height: 80, background: "rgba(12,13,16,.92)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", borderTop: "1px solid #1a1c22", display: "flex", alignItems: "flex-start", justifyContent: "space-around", paddingTop: 14, zIndex: 50 }}>
+        <button type="button" onClick={() => navigate("/home")} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5, background: "none", border: "none" }}>
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#22D3EE" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 11l9-8 9 8M5 10v10h14V10"/></svg>
+          <span style={{ fontFamily: "'Space Grotesk',monospace", fontSize: 10, color: "#22D3EE" }}>Home</span>
+        </button>
+        <button type="button" onClick={() => navigate("/events")} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5, background: "none", border: "none" }}>
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#6a7078" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+          <span style={{ fontFamily: "'Space Grotesk',monospace", fontSize: 10, color: "#6a7078" }}>Events</span>
+        </button>
+        <button type="button" onClick={() => navigate("/messages")} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5, background: "none", border: "none" }}>
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#6a7078" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+          <span style={{ fontFamily: "'Space Grotesk',monospace", fontSize: 10, color: "#6a7078" }}>Chats</span>
+        </button>
+        <button type="button" onClick={() => navigate("/profile")} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5, background: "none", border: "none" }}>
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#6a7078" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
+          <span style={{ fontFamily: "'Space Grotesk',monospace", fontSize: 10, color: "#6a7078" }}>Profile</span>
+        </button>
+      </div>
     </div>
   );
 };
