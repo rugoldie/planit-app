@@ -9,14 +9,16 @@ const COVO_GRAD = "linear-gradient(120deg, #3D7BFF, #22D3EE)";
 type EventEntry = {
   name: string; date: string; code: string;
   role: "Host" | "Going" | "Maybe" | "Not going";
-  gradient_color: string | null;
+  bg_photo: string | null;
   bg_color: string | null;
+  gradient_color: string | null;
   template_name: string | null;
 };
 
-/** Resolve the most representative accent colour for the left-edge strip. */
+/** Same priority order as the home screen's upcoming cards:
+ *  bg_photo CSS gradient → bg_color HSL → template signature → gradient_color → default */
 const getAccentColor = (ev: EventEntry): string => {
-  if (ev.gradient_color) return ev.gradient_color;
+  if (ev.bg_photo && /^(linear|radial|conic|repeating)/.test(ev.bg_photo)) return ev.bg_photo;
   if (ev.bg_color) return `hsl(${ev.bg_color})`;
   const tn = (ev.template_name || "").toLowerCase().trim();
   if (tn.includes("noir"))    return "#111111";
@@ -27,7 +29,7 @@ const getAccentColor = (ev: EventEntry): string => {
   if (tn === "blush")         return "#c04060";
   if (tn === "forest")        return "#2d6a2d";
   if (tn === "midnight")      return "#3a3a6e";
-  return "#3D7BFF";
+  return ev.gradient_color || "#3D7BFF";
 };
 
 const EventsList = () => {
@@ -45,21 +47,21 @@ const EventsList = () => {
     const fetch = async () => {
       const { data: hosted } = await supabase
         .from("events")
-        .select("title, date_time, code, gradient_color, bg_color, template_name")
+        .select("title, date_time, code, bg_photo, bg_color, gradient_color, template_name")
         .eq("host_id", user.id);
       const { data: guestEntries } = await supabase
         .from("event_guests")
-        .select("event_id, rsvp_status, events(title, date_time, code, gradient_color, bg_color, template_name)")
+        .select("event_id, rsvp_status, events(title, date_time, code, bg_photo, bg_color, gradient_color, template_name)")
         .eq("user_id", user.id);
       const events: EventEntry[] = [];
       (hosted || []).forEach((e: any) =>
-        events.push({ name: e.title || "Untitled", date: e.date_time || "", code: e.code, role: "Host", gradient_color: e.gradient_color ?? null, bg_color: e.bg_color ?? null, template_name: e.template_name ?? null })
+        events.push({ name: e.title || "Untitled", date: e.date_time || "", code: e.code, role: "Host", bg_photo: e.bg_photo ?? null, bg_color: e.bg_color ?? null, gradient_color: e.gradient_color ?? null, template_name: e.template_name ?? null })
       );
       (guestEntries || []).forEach((g: any) => {
         const ev = g.events;
         if (ev && !events.find(e => e.code === ev.code)) {
           const r = g.rsvp_status;
-          events.push({ name: ev.title || "Untitled", date: ev.date_time || "", code: ev.code, role: r === "yes" ? "Going" : r === "maybe" ? "Maybe" : "Not going", gradient_color: ev.gradient_color ?? null, bg_color: ev.bg_color ?? null, template_name: ev.template_name ?? null });
+          events.push({ name: ev.title || "Untitled", date: ev.date_time || "", code: ev.code, role: r === "yes" ? "Going" : r === "maybe" ? "Maybe" : "Not going", bg_photo: ev.bg_photo ?? null, bg_color: ev.bg_color ?? null, gradient_color: ev.gradient_color ?? null, template_name: ev.template_name ?? null });
         }
       });
       setAllEvents(events);
