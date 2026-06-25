@@ -118,6 +118,37 @@ const getGreeting = () => {
   return "Good evening 👋";
 };
 
+/** Pick the best representative CSS color for an event card.
+ *  Priority: bg_color (HSL, set by Build It) → template signature → gradient_color accent */
+const getEventCardColor = (event: EventWithRole): string => {
+  if (event.bg_color) return `hsl(${event.bg_color})`;
+  const tn = event.template_name;
+  if (isNoir(tn))    return "#0a0a0a";
+  if (isGalaxy(tn)) return "#0d0d2b";
+  if (isSunny(tn))  return "#c45a20";
+  if (isVintage(tn)) return "#4a3728";
+  if (isOcean(tn))  return "#0d3060";
+  if (isBlush(tn))  return "#3d1020";
+  if (isForest(tn)) return "#0a2e0a";
+  if (isMidnight(tn)) return "#1a1a2e";
+  return event.gradient_color || "#1e1e2e";
+};
+
+/** Soft radial bloom from top-left, fades to near-black — matches the design mockup style */
+const softHeroBg = (color: string) =>
+  `radial-gradient(130% 120% at 20% 0%, ${color}cc 0%, ${color}55 45%, #080809 100%)`;
+
+/** Same treatment, slightly more compressed for the 96-px poster cards */
+const softPosterBg = (color: string) =>
+  `radial-gradient(160% 200% at 10% 50%, ${color}bb 0%, ${color}44 50%, #080809 100%)`;
+
+/** Subtle warm bokeh dots — same fixed positions every time, purely decorative */
+const BOKEH_OVERLAY =
+  "radial-gradient(2px 2px at 22% 28%, rgba(255,200,120,.45), transparent)," +
+  "radial-gradient(2px 2px at 72% 44%, rgba(255,200,120,.35), transparent)," +
+  "radial-gradient(1px 1px at 48% 68%, rgba(255,200,120,.45), transparent)," +
+  "radial-gradient(2px 2px at 83% 22%, rgba(255,200,120,.35), transparent)";
+
 const getDaysUntil = (dt: string | null): number | null => {
   if (!dt) return null;
   try {
@@ -2156,8 +2187,9 @@ const Home = () => {
                 style={{ position: "relative", borderRadius: 20, overflow: "hidden", cursor: "pointer" }}
                 onClick={() => navigate(nextEvent.role === "host" ? `/event/${nextEvent.code}` : `/guest/${nextEvent.code}`)}
               >
-                <div style={{ position: "absolute", inset: 0, background: `linear-gradient(135deg, ${nextEvent.gradient_color || "#3D7BFF"}cc 0%, #0a0b0e 100%)` }} />
-                <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(6,7,9,.9) 0%, rgba(6,7,9,.3) 60%, transparent 100%)" }} />
+                <div style={{ position: "absolute", inset: 0, background: softHeroBg(getEventCardColor(nextEvent)) }} />
+                <div style={{ position: "absolute", inset: 0, background: BOKEH_OVERLAY }} />
+                <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(6,7,9,.94) 0%, rgba(6,7,9,.4) 50%, rgba(6,7,9,.05) 100%)" }} />
                 <div style={{ position: "relative", padding: "18px 18px 20px", display: "flex", flexDirection: "column", gap: 12, minHeight: 160 }}>
                   <div style={{ display: "flex", justifyContent: "flex-end" }}>
                     <RoleBadge role={nextEvent.role} />
@@ -2186,7 +2218,7 @@ const Home = () => {
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {upcomingEvents.map((event) => {
-                const gradHex = event.gradient_color || "#3D7BFF";
+                const cardColor = getEventCardColor(event);
                 const dt = event.date_time ? parseISO(event.date_time) : null;
                 const dayNum = dt ? format(dt, "dd") : "--";
                 const monthStr = dt ? format(dt, "MMM").toUpperCase() : "";
@@ -2200,8 +2232,8 @@ const Home = () => {
                     style={{ position: "relative", height: 96, borderRadius: 16, overflow: "hidden", cursor: "pointer" }}
                     onClick={() => navigate(event.role === "host" ? `/event/${event.code}` : `/guest/${event.code}`)}
                   >
-                    <div style={{ position: "absolute", inset: 0, background: `linear-gradient(110deg, ${gradHex}dd, #0a0b0e)` }} />
-                    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, rgba(6,7,9,.88) 0%, rgba(6,7,9,.3) 65%, rgba(6,7,9,.05) 100%)" }} />
+                    <div style={{ position: "absolute", inset: 0, background: softPosterBg(cardColor) }} />
+                    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, rgba(6,7,9,.82) 0%, rgba(6,7,9,.25) 65%, rgba(6,7,9,.02) 100%)" }} />
                     <div style={{ position: "absolute", inset: 0, padding: "0 18px", display: "flex", alignItems: "center", gap: 16 }}>
                       <div style={{ textAlign: "center", flex: "none" }}>
                         <div style={{ fontFamily: "'Fraunces',serif", fontWeight: 600, fontSize: 24, color: "#FFD27A", lineHeight: 1 }}>{dayNum}</div>
