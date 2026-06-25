@@ -6,7 +6,29 @@ import { useAuth } from "@/contexts/AuthContext";
 
 const COVO_GRAD = "linear-gradient(120deg, #3D7BFF, #22D3EE)";
 
-type EventEntry = { name: string; date: string; code: string; role: "Host" | "Going" | "Maybe" | "Not going" };
+type EventEntry = {
+  name: string; date: string; code: string;
+  role: "Host" | "Going" | "Maybe" | "Not going";
+  gradient_color: string | null;
+  bg_color: string | null;
+  template_name: string | null;
+};
+
+/** Resolve the most representative accent colour for the left-edge strip. */
+const getAccentColor = (ev: EventEntry): string => {
+  if (ev.gradient_color) return ev.gradient_color;
+  if (ev.bg_color) return `hsl(${ev.bg_color})`;
+  const tn = (ev.template_name || "").toLowerCase().trim();
+  if (tn.includes("noir"))    return "#111111";
+  if (tn === "galaxy")        return "#3a0ca3";
+  if (tn === "sunny")         return "#e07020";
+  if (tn === "vintage")       return "#8b6348";
+  if (tn === "ocean")         return "#1e5fa8";
+  if (tn === "blush")         return "#c04060";
+  if (tn === "forest")        return "#2d6a2d";
+  if (tn === "midnight")      return "#3a3a6e";
+  return "#3D7BFF";
+};
 
 const EventsList = () => {
   const navigate = useNavigate();
@@ -23,21 +45,21 @@ const EventsList = () => {
     const fetch = async () => {
       const { data: hosted } = await supabase
         .from("events")
-        .select("title, date_time, code")
+        .select("title, date_time, code, gradient_color, bg_color, template_name")
         .eq("host_id", user.id);
       const { data: guestEntries } = await supabase
         .from("event_guests")
-        .select("event_id, rsvp_status, events(title, date_time, code)")
+        .select("event_id, rsvp_status, events(title, date_time, code, gradient_color, bg_color, template_name)")
         .eq("user_id", user.id);
       const events: EventEntry[] = [];
       (hosted || []).forEach((e: any) =>
-        events.push({ name: e.title || "Untitled", date: e.date_time || "", code: e.code, role: "Host" })
+        events.push({ name: e.title || "Untitled", date: e.date_time || "", code: e.code, role: "Host", gradient_color: e.gradient_color ?? null, bg_color: e.bg_color ?? null, template_name: e.template_name ?? null })
       );
       (guestEntries || []).forEach((g: any) => {
         const ev = g.events;
         if (ev && !events.find(e => e.code === ev.code)) {
           const r = g.rsvp_status;
-          events.push({ name: ev.title || "Untitled", date: ev.date_time || "", code: ev.code, role: r === "yes" ? "Going" : r === "maybe" ? "Maybe" : "Not going" });
+          events.push({ name: ev.title || "Untitled", date: ev.date_time || "", code: ev.code, role: r === "yes" ? "Going" : r === "maybe" ? "Maybe" : "Not going", gradient_color: ev.gradient_color ?? null, bg_color: ev.bg_color ?? null, template_name: ev.template_name ?? null });
         }
       });
       setAllEvents(events);
@@ -105,7 +127,15 @@ const EventsList = () => {
               type="button"
               onClick={() => navigate(ev.role === "Host" ? `/event/${ev.code}` : `/guest/${ev.code}`)}
               className="w-full flex items-center gap-3 bg-card rounded-2xl px-4 py-3.5 border border-border text-left"
+              style={{ position: "relative", overflow: "hidden" }}
             >
+              {/* Left accent strip — event theme colour, slightly darker at bottom */}
+              {(() => { const c = getAccentColor(ev); return (
+                <div style={{
+                  position: "absolute", left: 0, top: 0, bottom: 0, width: 5,
+                  background: `linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.32) 100%), ${c}`,
+                }} />
+              ); })()}
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold truncate" style={{ color: "#ffffff" }}>{ev.name}</p>
                 <p className="text-xs mt-0.5" style={{ color: "#888888" }}>
