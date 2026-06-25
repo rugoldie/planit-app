@@ -1450,27 +1450,27 @@ const CustomNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate:
     ? { ...bgStyle, background: `linear-gradient(to bottom, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.22) 100%), ${bgStyle.background}` }
     : bgStyle;
 
+  console.log(`[CustomNextUpCard] "${event.title}" bg_photo=${event.bg_photo?.slice(0,70)} softenedOverlay=rgba(0,0,0,0.08→0.22)`);
+
   return (
     <div className="overflow-hidden relative cursor-pointer" style={{ ...softenedBgStyle, borderRadius: 28 }} onClick={() => navigate(navPath)}>
       {hasStars && [0,1,2,3,4].map(i => (
         <span key={i} style={{ position: "absolute", left: `${[8,22,55,72,88][i]}%`, top: `${[15,55,25,70,40][i]}%`, fontSize: `${[18,13,22,15,11][i]}px`, color: "#b91c1c", opacity: 0.6, pointerEvents: "none" }}>★</span>
       ))}
-      {/* Accent top strip */}
-      <div style={{ height: "2px", backgroundColor: accent, opacity: 0.7 }} />
       <div className="p-3.5 pb-0">
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "4px" }}>
           <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase" as const, color: accent }}>Custom ✦</span>
-          <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 700, color: accent, border: `1px solid ${accent}40`, borderRadius: "4px", padding: "2px 6px" }}>{event.role === "host" ? "Host" : event.role === "going" ? "Going" : "Maybe"}</span>
+          <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 700, color: accent, border: `1px solid rgba(255,255,255,.18)`, borderRadius: "4px", padding: "2px 6px" }}>{event.role === "host" ? "Host" : event.role === "going" ? "Going" : "Maybe"}</span>
         </div>
         <h2 style={{ fontFamily, fontSize: "34px", fontWeight: 700, color: textCol, lineHeight: 1.0, marginBottom: "10px" }}>{event.title || "Untitled Event"}</h2>
       </div>
-      {/* Stat bar — semi-transparent overlay so background colour flows through */}
-      <div style={{ display: "flex", borderTop: `1px solid ${accent}40`, borderBottom: `1px solid ${accent}40` }}>
-        <div style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.15)", padding: "10px 8px", textAlign: "center" as const, borderRight: `1px solid ${accent}25` }}>
+      {/* Stat bar */}
+      <div style={{ display: "flex", borderTop: "1px solid rgba(255,255,255,.12)", borderBottom: "1px solid rgba(255,255,255,.12)" }}>
+        <div style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.15)", padding: "10px 8px", textAlign: "center" as const, borderRight: "1px solid rgba(255,255,255,.08)" }}>
           <span style={{ fontFamily, fontSize: "22px", fontWeight: 700, color: accent, display: "block", lineHeight: 1 }}>{dayNum}</span>
           <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase" as const, color: textMuted }}>{monthName}</span>
         </div>
-        <div style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.15)", padding: "10px 8px", textAlign: "center" as const, borderRight: `1px solid ${accent}25` }}>
+        <div style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.15)", padding: "10px 8px", textAlign: "center" as const, borderRight: "1px solid rgba(255,255,255,.08)" }}>
           <span style={{ fontFamily, fontSize: "22px", fontWeight: 700, color: accent, display: "block", lineHeight: 1 }}>{timeStr}</span>
           <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase" as const, color: textMuted }}>Start</span>
         </div>
@@ -1481,7 +1481,7 @@ const CustomNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate:
       </div>
       {event.location && (
         <div className="px-3.5 py-3">
-          <div style={{ border: `1px solid ${accent}25`, borderRadius: "8px", padding: "10px 12px", backgroundColor: bgIsLight ? "rgba(0,0,0,0.05)" : "rgba(255,255,255,0.05)" }}>
+          <div style={{ border: "1px solid rgba(255,255,255,.12)", borderRadius: "8px", padding: "10px 12px", backgroundColor: bgIsLight ? "rgba(0,0,0,0.05)" : "rgba(255,255,255,0.05)" }}>
             <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "7px", fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase" as const, color: accent, marginBottom: "3px" }}>Location</p>
             <p style={{ fontFamily, fontSize: "16px", fontWeight: 700, color: textCol, lineHeight: 1.1 }}>{event.location}</p>
           </div>
@@ -2183,6 +2183,7 @@ const Home = () => {
                 style={{ position: "relative", borderRadius: 28, overflow: "hidden", cursor: "pointer" }}
                 onClick={() => navigate(nextEvent.role === "host" ? `/event/${nextEvent.code}` : `/guest/${nextEvent.code}`)}
               >
+                {(() => { console.log(`[Home hero generic] "${nextEvent.title}" heroColor=${getEventCardColor(nextEvent)} bottomVignette=rgba(6,7,9,.88→0)`); return null; })()}
                 <div style={{ position: "absolute", inset: 0, background: getEventCardColor(nextEvent) }} />
                 <div style={{ position: "absolute", inset: 0, background: BOKEH_OVERLAY }} />
                 <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(6,7,9,.88) 0%, rgba(6,7,9,.2) 45%, rgba(6,7,9,.0) 70%)" }} />
@@ -2232,8 +2233,10 @@ const Home = () => {
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {upcomingEvents.map((event) => {
-                const cardColor = getEventCardColor(event);
-                console.log(`[Home upcoming] "${event.title}" bg_color=${event.bg_color} gradient_color=${event.gradient_color} template=${event.template_name} → ${cardColor}`);
+                // Use the same vivid CSS gradient the event page shows (bg_photo), not the dark canvas bg_color
+                const isCssGradient = (s: string | null) => !!s && /^(linear|radial|conic|repeating)/.test(s);
+                const cardBg = isCssGradient(event.bg_photo) ? event.bg_photo! : getEventCardColor(event);
+                console.log(`[Home upcoming] "${event.title}" bg_photo="${event.bg_photo?.slice(0,60)}" bg_color=${event.bg_color} gradient_color=${event.gradient_color} → using ${isCssGradient(event.bg_photo) ? "bg_photo CSS gradient" : cardBg}`);
                 const dt = event.date_time ? parseISO(event.date_time) : null;
                 const dayNum = dt ? format(dt, "dd") : "--";
                 const monthStr = dt ? format(dt, "MMM").toUpperCase() : "";
@@ -2247,7 +2250,7 @@ const Home = () => {
                     style={{ position: "relative", height: 96, borderRadius: 24, overflow: "hidden", cursor: "pointer" }}
                     onClick={() => navigate(event.role === "host" ? `/event/${event.code}` : `/guest/${event.code}`)}
                   >
-                    <div style={{ position: "absolute", inset: 0, background: cardColor }} />
+                    <div style={{ position: "absolute", inset: 0, background: cardBg }} />
                     <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, rgba(6,7,9,.55) 0%, rgba(6,7,9,.10) 55%, rgba(6,7,9,.0) 100%)" }} />
                     <div style={{ position: "absolute", inset: 0, padding: "0 18px", display: "flex", alignItems: "center", gap: 16 }}>
                       <div style={{ textAlign: "center", flex: "none" }}>
