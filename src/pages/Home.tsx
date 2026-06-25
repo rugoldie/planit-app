@@ -1445,15 +1445,10 @@ const CustomNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate:
   const monthName = parsed ? format(parsed, "MMM").toUpperCase() : "TBD";
   const timeStr = parsed ? format(parsed, "h:mm a") : "—";
   const navPath = event.role === "host" ? `/event/${event.code}` : `/guest/${event.code}`;
-  // Gently soften harsh AI gradients without killing the colour
-  const softenedBgStyle: React.CSSProperties = bgStyle.background
-    ? { ...bgStyle, background: `linear-gradient(to bottom, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.22) 100%), ${bgStyle.background}` }
-    : bgStyle;
-
-  console.log(`[CustomNextUpCard] "${event.title}" bg_photo=${event.bg_photo?.slice(0,70)} softenedOverlay=rgba(0,0,0,0.08→0.22)`);
+  console.log(`[CustomNextUpCard] "${event.title}" bg_photo=${event.bg_photo?.slice(0,70)} overlay=NONE filter=brightness(1.25)saturate(1.1)`);
 
   return (
-    <div className="overflow-hidden relative cursor-pointer" style={{ ...softenedBgStyle, borderRadius: 28 }} onClick={() => navigate(navPath)}>
+    <div className="overflow-hidden relative cursor-pointer" style={{ ...bgStyle, borderRadius: 28, filter: "brightness(1.25) saturate(1.1)" }} onClick={() => navigate(navPath)}>
       {hasStars && [0,1,2,3,4].map(i => (
         <span key={i} style={{ position: "absolute", left: `${[8,22,55,72,88][i]}%`, top: `${[15,55,25,70,40][i]}%`, fontSize: `${[18,13,22,15,11][i]}px`, color: "#b91c1c", opacity: 0.6, pointerEvents: "none" }}>★</span>
       ))}
@@ -2183,10 +2178,10 @@ const Home = () => {
                 style={{ position: "relative", borderRadius: 28, overflow: "hidden", cursor: "pointer" }}
                 onClick={() => navigate(nextEvent.role === "host" ? `/event/${nextEvent.code}` : `/guest/${nextEvent.code}`)}
               >
-                {(() => { console.log(`[Home hero generic] "${nextEvent.title}" heroColor=${getEventCardColor(nextEvent)} bottomVignette=rgba(6,7,9,.88→0)`); return null; })()}
-                <div style={{ position: "absolute", inset: 0, background: getEventCardColor(nextEvent) }} />
+                {(() => { console.log(`[Home hero generic] "${nextEvent.title}" heroColor=${getEventCardColor(nextEvent)} filter=brightness(1.25)saturate(1.1) bottomVignette=rgba(6,7,9,.70→0)`); return null; })()}
+                <div style={{ position: "absolute", inset: 0, background: getEventCardColor(nextEvent), filter: "brightness(1.25) saturate(1.1)" }} />
                 <div style={{ position: "absolute", inset: 0, background: BOKEH_OVERLAY }} />
-                <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(6,7,9,.88) 0%, rgba(6,7,9,.2) 45%, rgba(6,7,9,.0) 70%)" }} />
+                <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(6,7,9,.70) 0%, rgba(6,7,9,.1) 40%, rgba(6,7,9,.0) 60%)" }} />
                 <div style={{ position: "relative", padding: "18px 18px 20px", display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: 240 }}>
                   <div style={{ display: "flex", justifyContent: "flex-end" }}>
                     <span style={{
@@ -2250,8 +2245,8 @@ const Home = () => {
                     style={{ position: "relative", height: 96, borderRadius: 24, overflow: "hidden", cursor: "pointer" }}
                     onClick={() => navigate(event.role === "host" ? `/event/${event.code}` : `/guest/${event.code}`)}
                   >
-                    <div style={{ position: "absolute", inset: 0, background: cardBg }} />
-                    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, rgba(6,7,9,.55) 0%, rgba(6,7,9,.10) 55%, rgba(6,7,9,.0) 100%)" }} />
+                    <div style={{ position: "absolute", inset: 0, background: cardBg, filter: "brightness(1.35) saturate(1.15)" }} />
+                    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, rgba(0,0,0,.28) 0%, rgba(0,0,0,.0) 40%)" }} />
                     <div style={{ position: "absolute", inset: 0, padding: "0 18px", display: "flex", alignItems: "center", gap: 16 }}>
                       <div style={{ textAlign: "center", flex: "none" }}>
                         <div style={{ fontFamily: "'Fraunces',serif", fontWeight: 600, fontSize: 24, color: "#FFD27A", lineHeight: 1 }}>{dayNum}</div>
