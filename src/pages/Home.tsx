@@ -1445,13 +1445,13 @@ const CustomNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate:
   const monthName = parsed ? format(parsed, "MMM").toUpperCase() : "TBD";
   const timeStr = parsed ? format(parsed, "h:mm a") : "—";
   const navPath = event.role === "host" ? `/event/${event.code}` : `/guest/${event.code}`;
-  // Soften harsh AI-generated CSS gradients by layering a dark vignette into the background
+  // Gently soften harsh AI gradients without killing the colour
   const softenedBgStyle: React.CSSProperties = bgStyle.background
-    ? { ...bgStyle, background: `linear-gradient(to bottom, rgba(0,0,0,0.28) 0%, rgba(0,0,0,0.52) 100%), ${bgStyle.background}` }
+    ? { ...bgStyle, background: `linear-gradient(to bottom, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.22) 100%), ${bgStyle.background}` }
     : bgStyle;
 
   return (
-    <div className="overflow-hidden relative cursor-pointer" style={{ ...softenedBgStyle, border: `2px solid ${accent}` }} onClick={() => navigate(navPath)}>
+    <div className="overflow-hidden relative cursor-pointer" style={{ ...softenedBgStyle, borderRadius: 28 }} onClick={() => navigate(navPath)}>
       {hasStars && [0,1,2,3,4].map(i => (
         <span key={i} style={{ position: "absolute", left: `${[8,22,55,72,88][i]}%`, top: `${[15,55,25,70,40][i]}%`, fontSize: `${[18,13,22,15,11][i]}px`, color: "#b91c1c", opacity: 0.6, pointerEvents: "none" }}>★</span>
       ))}
@@ -2183,9 +2183,9 @@ const Home = () => {
                 style={{ position: "relative", borderRadius: 28, overflow: "hidden", cursor: "pointer" }}
                 onClick={() => navigate(nextEvent.role === "host" ? `/event/${nextEvent.code}` : `/guest/${nextEvent.code}`)}
               >
-                <div style={{ position: "absolute", inset: 0, background: `radial-gradient(120% 130% at 30% 0%, ${getEventCardColor(nextEvent)} 0%, #0d0e11 100%)` }} />
+                <div style={{ position: "absolute", inset: 0, background: getEventCardColor(nextEvent) }} />
                 <div style={{ position: "absolute", inset: 0, background: BOKEH_OVERLAY }} />
-                <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(6,7,9,.94) 0%, rgba(6,7,9,.4) 50%, rgba(6,7,9,.05) 100%)" }} />
+                <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(6,7,9,.88) 0%, rgba(6,7,9,.2) 45%, rgba(6,7,9,.0) 70%)" }} />
                 <div style={{ position: "relative", padding: "18px 18px 20px", display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: 240 }}>
                   <div style={{ display: "flex", justifyContent: "flex-end" }}>
                     <span style={{
@@ -2248,7 +2248,7 @@ const Home = () => {
                     onClick={() => navigate(event.role === "host" ? `/event/${event.code}` : `/guest/${event.code}`)}
                   >
                     <div style={{ position: "absolute", inset: 0, background: cardColor }} />
-                    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, rgba(6,7,9,.82) 0%, rgba(6,7,9,.25) 65%, rgba(6,7,9,.02) 100%)" }} />
+                    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, rgba(6,7,9,.55) 0%, rgba(6,7,9,.10) 55%, rgba(6,7,9,.0) 100%)" }} />
                     <div style={{ position: "absolute", inset: 0, padding: "0 18px", display: "flex", alignItems: "center", gap: 16 }}>
                       <div style={{ textAlign: "center", flex: "none" }}>
                         <div style={{ fontFamily: "'Fraunces',serif", fontWeight: 600, fontSize: 24, color: "#FFD27A", lineHeight: 1 }}>{dayNum}</div>
