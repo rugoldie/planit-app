@@ -2180,23 +2180,41 @@ const Home = () => {
               <CustomNextUpCard event={nextEvent} navigate={navigate} />
             ) : (
               <div
-                style={{ position: "relative", borderRadius: 20, overflow: "hidden", cursor: "pointer" }}
+                style={{ position: "relative", borderRadius: 28, overflow: "hidden", cursor: "pointer" }}
                 onClick={() => navigate(nextEvent.role === "host" ? `/event/${nextEvent.code}` : `/guest/${nextEvent.code}`)}
               >
-                <div style={{ position: "absolute", inset: 0, background: getEventCardColor(nextEvent) }} />
+                <div style={{ position: "absolute", inset: 0, background: `radial-gradient(120% 130% at 30% 0%, ${getEventCardColor(nextEvent)} 0%, #0d0e11 100%)` }} />
                 <div style={{ position: "absolute", inset: 0, background: BOKEH_OVERLAY }} />
                 <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(6,7,9,.94) 0%, rgba(6,7,9,.4) 50%, rgba(6,7,9,.05) 100%)" }} />
-                <div style={{ position: "relative", padding: "18px 18px 20px", display: "flex", flexDirection: "column", gap: 12, minHeight: 160 }}>
+                <div style={{ position: "relative", padding: "18px 18px 20px", display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: 240 }}>
                   <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                    <RoleBadge role={nextEvent.role} />
+                    <span style={{
+                      background: nextEvent.role === "host" ? "rgba(255,255,255,.14)" : "#C6F24E",
+                      color: nextEvent.role === "host" ? "#fff" : "#0a0b0e",
+                      fontWeight: 700, fontSize: 12, padding: "5px 13px", borderRadius: 999,
+                      backdropFilter: nextEvent.role === "host" ? "blur(6px)" : undefined,
+                      border: nextEvent.role === "host" ? "1px solid rgba(255,255,255,.18)" : undefined
+                    }}>
+                      {nextEvent.role === "host" ? "Hosting" : nextEvent.role === "going" ? "Going" : "Maybe"}
+                    </span>
                   </div>
-                  <div style={{ marginTop: "auto" }}>
-                    <div style={{ fontFamily: "'Fraunces',serif", fontWeight: 600, fontSize: 32, color: "#fff", lineHeight: 1, letterSpacing: "-.5px" }}>{nextEvent.title || "Untitled Event"}</div>
-                    {nextEvent.date_time && <div style={{ fontSize: 13, color: "#e0d8cc", marginTop: 10 }}>🗓 {formatDate(nextEvent.date_time)}</div>}
-                    {nextEvent.location && <div style={{ fontSize: 13, color: "#e0d8cc", marginTop: 5 }}>📍 {nextEvent.location}</div>}
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 16 }}>
+                  <div>
+                    <div style={{ fontFamily: "'Fraunces',serif", fontWeight: 600, fontSize: 38, color: "#fff", lineHeight: 1, letterSpacing: "-.5px" }}>{nextEvent.title || "Untitled Event"}</div>
+                    {nextEvent.date_time && (
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 14 }}>
+                        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#FFD27A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                        <span style={{ fontSize: 14, color: "#f0eae0" }}>{formatDate(nextEvent.date_time)}</span>
+                      </div>
+                    )}
+                    {nextEvent.location && (
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 8 }}>
+                        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#FFD27A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        <span style={{ fontSize: 14, color: "#f0eae0" }}>{nextEvent.location}</span>
+                      </div>
+                    )}
+                    <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 16 }}>
                       <span style={{ fontSize: 13, color: "#cfc6ba" }}>{nextEvent.guest_count} going</span>
-                      <div style={{ background: "#fff", color: "#0a0b0e", fontWeight: 700, fontSize: 14, padding: "9px 20px", borderRadius: 12 }}>Open →</div>
+                      <div style={{ marginLeft: "auto", background: "#fff", color: "#0a0b0e", fontWeight: 700, fontSize: 14, padding: "9px 20px", borderRadius: 12 }}>Open →</div>
                     </div>
                   </div>
                 </div>
@@ -2226,7 +2244,7 @@ const Home = () => {
                 return (
                   <div
                     key={event.id}
-                    style={{ position: "relative", height: 96, borderRadius: 16, overflow: "hidden", cursor: "pointer" }}
+                    style={{ position: "relative", height: 96, borderRadius: 24, overflow: "hidden", cursor: "pointer" }}
                     onClick={() => navigate(event.role === "host" ? `/event/${event.code}` : `/guest/${event.code}`)}
                   >
                     <div style={{ position: "absolute", inset: 0, background: cardColor }} />
