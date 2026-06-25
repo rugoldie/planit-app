@@ -134,15 +134,7 @@ const getEventCardColor = (event: EventWithRole): string => {
   return event.gradient_color || "#1e1e2e";
 };
 
-/** Soft radial bloom from top-left, fades to near-black — matches the design mockup style */
-const softHeroBg = (color: string) =>
-  `radial-gradient(130% 120% at 20% 0%, ${color}cc 0%, ${color}55 45%, #080809 100%)`;
-
-/** Same treatment, slightly more compressed for the 96-px poster cards */
-const softPosterBg = (color: string) =>
-  `radial-gradient(160% 200% at 10% 50%, ${color}bb 0%, ${color}44 50%, #080809 100%)`;
-
-/** Subtle warm bokeh dots — same fixed positions every time, purely decorative */
+/** Subtle warm bokeh dots — fixed positions, purely decorative */
 const BOKEH_OVERLAY =
   "radial-gradient(2px 2px at 22% 28%, rgba(255,200,120,.45), transparent)," +
   "radial-gradient(2px 2px at 72% 44%, rgba(255,200,120,.35), transparent)," +
@@ -1453,9 +1445,13 @@ const CustomNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate:
   const monthName = parsed ? format(parsed, "MMM").toUpperCase() : "TBD";
   const timeStr = parsed ? format(parsed, "h:mm a") : "—";
   const navPath = event.role === "host" ? `/event/${event.code}` : `/guest/${event.code}`;
+  // Soften harsh AI-generated CSS gradients by layering a dark vignette into the background
+  const softenedBgStyle: React.CSSProperties = bgStyle.background
+    ? { ...bgStyle, background: `linear-gradient(to bottom, rgba(0,0,0,0.28) 0%, rgba(0,0,0,0.52) 100%), ${bgStyle.background}` }
+    : bgStyle;
 
   return (
-    <div className="overflow-hidden relative cursor-pointer" style={{ ...bgStyle, border: `2px solid ${accent}` }} onClick={() => navigate(navPath)}>
+    <div className="overflow-hidden relative cursor-pointer" style={{ ...softenedBgStyle, border: `2px solid ${accent}` }} onClick={() => navigate(navPath)}>
       {hasStars && [0,1,2,3,4].map(i => (
         <span key={i} style={{ position: "absolute", left: `${[8,22,55,72,88][i]}%`, top: `${[15,55,25,70,40][i]}%`, fontSize: `${[18,13,22,15,11][i]}px`, color: "#b91c1c", opacity: 0.6, pointerEvents: "none" }}>★</span>
       ))}
@@ -2187,7 +2183,7 @@ const Home = () => {
                 style={{ position: "relative", borderRadius: 20, overflow: "hidden", cursor: "pointer" }}
                 onClick={() => navigate(nextEvent.role === "host" ? `/event/${nextEvent.code}` : `/guest/${nextEvent.code}`)}
               >
-                <div style={{ position: "absolute", inset: 0, background: softHeroBg(getEventCardColor(nextEvent)) }} />
+                <div style={{ position: "absolute", inset: 0, background: getEventCardColor(nextEvent) }} />
                 <div style={{ position: "absolute", inset: 0, background: BOKEH_OVERLAY }} />
                 <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(6,7,9,.94) 0%, rgba(6,7,9,.4) 50%, rgba(6,7,9,.05) 100%)" }} />
                 <div style={{ position: "relative", padding: "18px 18px 20px", display: "flex", flexDirection: "column", gap: 12, minHeight: 160 }}>
@@ -2219,6 +2215,7 @@ const Home = () => {
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {upcomingEvents.map((event) => {
                 const cardColor = getEventCardColor(event);
+                console.log(`[Home upcoming] "${event.title}" bg_color=${event.bg_color} gradient_color=${event.gradient_color} template=${event.template_name} → ${cardColor}`);
                 const dt = event.date_time ? parseISO(event.date_time) : null;
                 const dayNum = dt ? format(dt, "dd") : "--";
                 const monthStr = dt ? format(dt, "MMM").toUpperCase() : "";
@@ -2232,7 +2229,7 @@ const Home = () => {
                     style={{ position: "relative", height: 96, borderRadius: 16, overflow: "hidden", cursor: "pointer" }}
                     onClick={() => navigate(event.role === "host" ? `/event/${event.code}` : `/guest/${event.code}`)}
                   >
-                    <div style={{ position: "absolute", inset: 0, background: softPosterBg(cardColor) }} />
+                    <div style={{ position: "absolute", inset: 0, background: cardColor }} />
                     <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, rgba(6,7,9,.82) 0%, rgba(6,7,9,.25) 65%, rgba(6,7,9,.02) 100%)" }} />
                     <div style={{ position: "absolute", inset: 0, padding: "0 18px", display: "flex", alignItems: "center", gap: 16 }}>
                       <div style={{ textAlign: "center", flex: "none" }}>
