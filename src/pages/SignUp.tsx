@@ -51,8 +51,28 @@ const SignUp = () => {
       }
       setStep(2);
     } else if (step === 2) {
+      setLoading(true);
+      const fullPhone = `${countryCode}${phone}`;
+      const { data, error: fnError } = await supabase.functions.invoke("send-otp", {
+        body: { phone: fullPhone },
+      });
+      setLoading(false);
+      if (fnError || data?.error) {
+        setError(data?.error || "Failed to send code. Check your number and try again.");
+        return;
+      }
       setStep(3);
     } else if (step === 3) {
+      setLoading(true);
+      const fullPhone = `${countryCode}${phone}`;
+      const { data, error: fnError } = await supabase.functions.invoke("verify-otp", {
+        body: { phone: fullPhone, code: otpValue },
+      });
+      setLoading(false);
+      if (fnError || data?.error) {
+        setError(data?.error || "Incorrect code. Please try again.");
+        return;
+      }
       setStep(4);
     } else if (step === 4) {
       if (!name.trim()) {
@@ -189,7 +209,17 @@ const SignUp = () => {
               </InputOTP>
             </div>
             <button
-              onClick={() => setOtpValue("")}
+              onClick={async () => {
+                setError("");
+                setOtpValue("");
+                const fullPhone = `${countryCode}${phone}`;
+                const { data, error: fnError } = await supabase.functions.invoke("send-otp", {
+                  body: { phone: fullPhone },
+                });
+                if (fnError || data?.error) {
+                  setError(data?.error || "Failed to resend code.");
+                }
+              }}
               className="text-sm text-muted-foreground underline w-full text-center"
             >
               Resend code
