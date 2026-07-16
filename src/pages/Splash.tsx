@@ -24,13 +24,13 @@ const Splash = () => {
       justifyContent: "center",
     }}>
 
-      {/* Covo wordmark PNG */}
+      {/* Covo wordmark PNG — transparent bg, centred */}
       <img
         src="/covo-wordmark.png"
         alt="Covo"
         style={{
-          width: "90vw",
-          maxWidth: 420,
+          width: "92vw",
+          maxWidth: 500,
           height: "auto",
         }}
       />
