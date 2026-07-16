@@ -22,40 +22,43 @@ const Splash = () => {
       flexDirection: "column",
       alignItems: "center",
       justifyContent: "center",
-      padding: "0 28px 48px",
     }}>
 
-      {/* Covo logo — wide horizontal layout */}
-      <img
-        src="/covo-icon.png"
-        alt="Covo"
-        style={{
-          width: "88vw",
-          maxWidth: 380,
-          height: "auto",
-          marginBottom: 24,
-          borderRadius: "20.5%",
-        }}
-      />
-
-      {/* Tagline */}
-      <p style={{
-        fontFamily: "'Bricolage Grotesque', sans-serif",
-        fontWeight: 500,
-        fontSize: 17,
-        color: "rgba(255,255,255,0.82)",
-        letterSpacing: 0.2,
-        margin: 0,
-        marginBottom: 64,
-      }}>
-        Start the covo.
-      </p>
+      {/* Covo wordmark — letters only, no background square */}
+      <svg
+        viewBox="45 45 934 954"
+        width="300"
+        height="300"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <defs>
+          <linearGradient id="gloss" x1="100" y1="45" x2="924" y2="979" gradientUnits="userSpaceOnUse">
+            <stop offset="0%"   stopColor="#ffffff"/>
+            <stop offset="100%" stopColor="#c6cae8"/>
+          </linearGradient>
+          <filter id="sh" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="10" stdDeviation="18" floodColor="#0d20a8" floodOpacity="0.32"/>
+          </filter>
+        </defs>
+        {/* c */}
+        <path d="M 404.9 368.1 A 150 150 0 1 1 404.9 195.9"
+          fill="none" stroke="url(#gloss)" strokeWidth="174" strokeLinecap="round" filter="url(#sh)"/>
+        {/* o top-right */}
+        <circle cx="741.9" cy="282" r="150"
+          fill="none" stroke="url(#gloss)" strokeWidth="174" filter="url(#sh)"/>
+        {/* v */}
+        <path d="M 142 582 L 272 912 L 432 552"
+          fill="none" stroke="url(#gloss)" strokeWidth="174" strokeLinecap="round" strokeLinejoin="round" filter="url(#sh)"/>
+        {/* o bottom-right */}
+        <circle cx="741.9" cy="742" r="150"
+          fill="none" stroke="url(#gloss)" strokeWidth="174" filter="url(#sh)"/>
+      </svg>
 
       {/* Buttons */}
       <div style={{
         display: "flex",
         flexDirection: "column",
-        gap: 14,
+        gap: 12,
         width: "100%",
         maxWidth: 340,
         position: "absolute",
@@ -68,9 +71,9 @@ const Splash = () => {
         <button
           onClick={() => navigate("/signup")}
           style={{
-            height: 58,
+            height: 56,
             border: "none",
-            borderRadius: 16,
+            borderRadius: 999,
             background: "#ffffff",
             color: "#2563eb",
             fontFamily: "'Bricolage Grotesque', sans-serif",
@@ -86,9 +89,9 @@ const Splash = () => {
         <button
           onClick={() => navigate("/login")}
           style={{
-            height: 58,
-            border: "2px solid rgba(255,255,255,0.7)",
-            borderRadius: 16,
+            height: 56,
+            border: "2px solid rgba(255,255,255,0.6)",
+            borderRadius: 999,
             background: "transparent",
             color: "#ffffff",
             fontFamily: "'Bricolage Grotesque', sans-serif",
