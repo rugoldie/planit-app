@@ -1,0 +1,23 @@
+{
+  "name": "Covo",
+  "short_name": "Covo",
+  "description": "Social event planning app for Gen Z",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0d0e11",
+  "theme_color": "#3D7BFF",
+  "icons": [
+    {
+      "src": "/covo-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/covo-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
