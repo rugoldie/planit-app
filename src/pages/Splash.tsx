@@ -34,6 +34,7 @@ const Splash = () => {
           maxWidth: 380,
           height: "auto",
           marginBottom: 24,
+          borderRadius: "20.5%",
         }}
       />
 
