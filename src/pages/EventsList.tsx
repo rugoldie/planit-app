@@ -4,7 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
-const COVO_GRAD = "linear-gradient(120deg, #3D7BFF, #22D3EE)";
+const COVO_GRAD = "#2563eb";
 
 type EventEntry = {
   name: string; date: string; code: string;
@@ -29,7 +29,7 @@ const getAccentColor = (ev: EventEntry): string => {
   if (tn === "blush")         return "#c04060";
   if (tn === "forest")        return "#2d6a2d";
   if (tn === "midnight")      return "#3a3a6e";
-  return ev.gradient_color || "#3D7BFF";
+  return ev.gradient_color || "#2563eb";
 };
 
 const EventsList = () => {
@@ -97,7 +97,7 @@ const EventsList = () => {
           onClick={() => setTab("upcoming")}
           className="flex-1 py-2.5 rounded-full text-sm font-semibold transition-colors"
           style={tab === "upcoming"
-            ? { background: COVO_GRAD, color: "#06121f", border: "none" }
+            ? { background: COVO_GRAD, color: "#ffffff", border: "none" }
             : { backgroundColor: "transparent", color: "#888", border: "1px solid #333" }}
         >
           Upcoming
@@ -107,7 +107,7 @@ const EventsList = () => {
           onClick={() => setTab("past")}
           className="flex-1 py-2.5 rounded-full text-sm font-semibold transition-colors"
           style={tab === "past"
-            ? { background: COVO_GRAD, color: "#06121f", border: "none" }
+            ? { background: COVO_GRAD, color: "#ffffff", border: "none" }
             : { backgroundColor: "transparent", color: "#888", border: "1px solid #333" }}
         >
           Past
@@ -148,7 +148,7 @@ const EventsList = () => {
               </div>
               <span
                 className="text-[11px] font-bold px-2.5 py-1 rounded-full shrink-0"
-                style={{ background: ev.role === "Host" ? COVO_GRAD : "#2a2a2a", color: ev.role === "Host" ? "#06121f" : "#888" }}
+                style={{ background: ev.role === "Host" ? COVO_GRAD : "#2a2a2a", color: ev.role === "Host" ? "#ffffff" : "#888" }}
               >
                 {ev.role}
               </span>

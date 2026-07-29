@@ -55,6 +55,7 @@ const Login = () => {
         onClick={handleLogin}
         disabled={!email || !password || loading}
         className="w-full max-w-xs mx-auto bg-primary text-primary-foreground rounded-[var(--radius)] py-4 text-lg font-bold disabled:opacity-50"
+        style={{ fontFamily: "'Fredoka', sans-serif" }}
       >
         {loading ? "Logging in..." : "Log in"}
       </button>

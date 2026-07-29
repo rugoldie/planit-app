@@ -944,7 +944,7 @@ const HostEvent = () => {
             <ArrowLeft className="w-6 h-6 text-muted-foreground" />
           </button>
           <div className="flex items-center gap-2 mb-1.5">
-            <div className="w-2 h-2 rounded-full bg-[#22D3EE]" style={{ boxShadow: "0 0 6px #22D3EE" }} />
+            <div className="w-2 h-2 rounded-full bg-[#2563eb]" style={{ boxShadow: "0 0 6px #2563eb" }} />
             <span className="text-xs font-semibold text-muted-foreground">Event is live</span>
           </div>
           <p className="text-[22px] font-bold text-foreground leading-tight">{title || "Your Event"}</p>
@@ -970,7 +970,7 @@ const HostEvent = () => {
             <button
               onClick={handleCopy}
               className="ml-3 w-9 h-9 rounded-lg flex items-center justify-center shrink-0 transition-colors"
-              style={{ backgroundColor: linkCopied ? "#22D3EE" : "rgba(255,255,255,0.07)" }}
+              style={{ backgroundColor: linkCopied ? "#2563eb" : "rgba(255,255,255,0.07)" }}
             >
               {linkCopied
                 ? <Check className="w-4 h-4" style={{ color: "#111" }} />
@@ -982,7 +982,7 @@ const HostEvent = () => {
           <button
             onClick={handleShare}
             className="w-full rounded-xl py-3.5 font-bold text-sm flex items-center justify-center gap-2 shrink-0"
-            style={{ background: "linear-gradient(120deg, #3D7BFF, #22D3EE)", color: "#06121f", border: "none" }}
+            style={{ background: "#2563eb", color: "#ffffff", border: "none" }}
           >
             <Share2 className="w-4 h-4" /> Share event
           </button>
@@ -1023,7 +1023,7 @@ const HostEvent = () => {
           <button
             onClick={() => navigate("/event/" + eventCode)}
             className="w-full rounded-xl py-3.5 font-bold text-sm flex items-center justify-center gap-1 border shrink-0"
-            style={{ borderColor: "#3D7BFF", color: "#3D7BFF", backgroundColor: "transparent" }}
+            style={{ borderColor: "#2563eb", color: "#2563eb", backgroundColor: "transparent", fontFamily: "'Fredoka', sans-serif" }}
           >
             View event <span style={{ marginLeft: 2 }}>→</span>
           </button>
@@ -1040,7 +1040,7 @@ const HostEvent = () => {
                   onClick={sendInvites}
                   disabled={inviting}
                   className="text-sm font-bold px-4 py-1.5 rounded-full disabled:opacity-50"
-                  style={{ background: "linear-gradient(120deg, #3D7BFF, #22D3EE)", color: "#06121f", border: "none" }}
+                  style={{ background: "#2563eb", color: "#ffffff", border: "none" }}
                 >
                   {inviting ? "Sending..." : `Invite ${inviteSelected.size}`}
                 </button>
@@ -1068,7 +1068,7 @@ const HostEvent = () => {
                           return next;
                         })}
                         className="w-full flex items-center gap-3 bg-card rounded-2xl px-4 py-3 border transition-colors"
-                        style={{ borderColor: selected ? "#3D7BFF" : "hsl(var(--border))" }}
+                        style={{ borderColor: selected ? "#2563eb" : "hsl(var(--border))" }}
                       >
                         <div className="w-10 h-10 rounded-full overflow-hidden bg-secondary flex items-center justify-center shrink-0">
                           {f.avatar_url ? (
@@ -1080,7 +1080,7 @@ const HostEvent = () => {
                         <span className="flex-1 text-left font-semibold text-foreground text-sm">{f.name}</span>
                         <div
                           className="w-5 h-5 rounded-full border-2 flex items-center justify-center"
-                          style={{ borderColor: selected ? "#3D7BFF" : "#555", backgroundColor: selected ? "#3D7BFF" : "transparent" }}
+                          style={{ borderColor: selected ? "#2563eb" : "#555", backgroundColor: selected ? "#2563eb" : "transparent" }}
                         >
                           {selected && <Check className="w-3 h-3" style={{ color: "#fff" }} />}
                         </div>
@@ -2808,7 +2808,7 @@ const HostEvent = () => {
           <button
             onClick={handleCreate}
             className="flex-1 rounded-2xl py-4 text-sm font-extrabold"
-            style={{ background: "linear-gradient(120deg, #3D7BFF, #22D3EE)", color: "#06121f", border: "none" }}
+            style={{ background: "#2563eb", color: "#ffffff", border: "none" }}
           >
             {editCode ? "Update Event" : "Create Event"}
           </button>
@@ -2836,7 +2836,7 @@ const HostEvent = () => {
                   <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-2.5">Font</p>
                   <div className="grid grid-cols-3 gap-2">
                     {(["Bold","Handwritten","Elegant"] as const).map(fv => (
-                      <button key={fv} onClick={() => setFontStyle(fv)} className="py-2.5 rounded-xl text-sm text-center" style={{ backgroundColor:"#1e1e1e", border: fontStyle===fv ? "2px solid #3D7BFF" : "2px solid transparent", fontFamily: FONT_MAP[fv], color:"#fff" }}>{fv}</button>
+                      <button key={fv} onClick={() => setFontStyle(fv)} className="py-2.5 rounded-xl text-sm text-center" style={{ backgroundColor:"#1e1e1e", border: fontStyle===fv ? "2px solid #2563eb" : "2px solid transparent", fontFamily: FONT_MAP[fv], color:"#fff" }}>{fv}</button>
                     ))}
                   </div>
                 </div>
@@ -2844,7 +2844,7 @@ const HostEvent = () => {
                   <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-2.5">Size</p>
                   <div className="flex gap-2">
                     {(["Small","Medium","Large"] as const).map((sz, i) => (
-                      <button key={sz} onClick={() => setTextSize(sz)} className="flex-1 py-2.5 rounded-xl font-bold" style={{ backgroundColor:"#1e1e1e", border: textSize===sz ? "2px solid #3D7BFF" : "2px solid transparent", color:"#fff", fontSize:[12,14,16][i] }}>
+                      <button key={sz} onClick={() => setTextSize(sz)} className="flex-1 py-2.5 rounded-xl font-bold" style={{ backgroundColor:"#1e1e1e", border: textSize===sz ? "2px solid #2563eb" : "2px solid transparent", color:"#fff", fontSize:[12,14,16][i] }}>
                         {["S","M","L"][i]}
                       </button>
                     ))}
@@ -2854,7 +2854,7 @@ const HostEvent = () => {
                   <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-2.5">Font colour</p>
                   <div className="flex flex-wrap gap-2.5">
                     {FONT_COLORS.map(c => (
-                      <button key={c.value} onClick={() => setFontColor(c.value)} title={c.label} style={{ width:32,height:32,borderRadius:"50%",backgroundColor:c.value,border:fontColor===c.value?"3px solid #3D7BFF":"2px solid rgba(255,255,255,0.2)",flexShrink:0 }} />
+                      <button key={c.value} onClick={() => setFontColor(c.value)} title={c.label} style={{ width:32,height:32,borderRadius:"50%",backgroundColor:c.value,border:fontColor===c.value?"3px solid #2563eb":"2px solid rgba(255,255,255,0.2)",flexShrink:0 }} />
                     ))}
                     <label title="Custom" style={{ width:32,height:32,borderRadius:"50%",background:"conic-gradient(red,yellow,lime,cyan,blue,magenta,red)",border:"2px solid rgba(255,255,255,0.2)",cursor:"pointer",flexShrink:0,display:"block",position:"relative" }}>
                       <input type="color" value={fontColor} onChange={e => setFontColor(e.target.value)} style={{ position:"absolute",inset:0,opacity:0,cursor:"pointer",width:"100%",height:"100%" }} />
@@ -2865,7 +2865,7 @@ const HostEvent = () => {
                   <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-2.5">Accent colour</p>
                   <div className="flex flex-wrap gap-2.5">
                     {(["#ffffff","#ffd700","#ff70b0","#38bdf8","#aaee44","#ff6b6b","#4ade80","#c084fc"] as const).map(hex => (
-                      <button key={hex} onClick={() => setCustomAccentHex(hex)} style={{ width:32,height:32,borderRadius:"50%",backgroundColor:hex,border:customAccentHex===hex?"3px solid #3D7BFF":"2px solid rgba(255,255,255,0.2)",flexShrink:0 }} />
+                      <button key={hex} onClick={() => setCustomAccentHex(hex)} style={{ width:32,height:32,borderRadius:"50%",backgroundColor:hex,border:customAccentHex===hex?"3px solid #2563eb":"2px solid rgba(255,255,255,0.2)",flexShrink:0 }} />
                     ))}
                     <label style={{ width:32,height:32,borderRadius:"50%",background:"conic-gradient(red,yellow,lime,cyan,blue,magenta,red)",border:"2px solid rgba(255,255,255,0.2)",cursor:"pointer",flexShrink:0,display:"block",position:"relative" }}>
                       <input type="color" value={customAccentHex||"#aaee44"} onChange={e => setCustomAccentHex(e.target.value)} style={{ position:"absolute",inset:0,opacity:0,cursor:"pointer",width:"100%",height:"100%" }} />
@@ -2876,7 +2876,7 @@ const HostEvent = () => {
                   <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-2.5">Info cards</p>
                   <div className="grid grid-cols-3 gap-2">
                     {([ ["frosted","Frosted"], ["solid","Solid"], ["outlined","Outlined"] ] as const).map(([val, label]) => (
-                      <button key={val} onClick={() => setBubbleStyle(val)} className="py-2.5 rounded-xl text-sm text-center" style={{ backgroundColor:"#1e1e1e", border: bubbleStyle===val ? "2px solid #3D7BFF" : "2px solid transparent", color:"#fff" }}>{label}</button>
+                      <button key={val} onClick={() => setBubbleStyle(val)} className="py-2.5 rounded-xl text-sm text-center" style={{ backgroundColor:"#1e1e1e", border: bubbleStyle===val ? "2px solid #2563eb" : "2px solid transparent", color:"#fff" }}>{label}</button>
                     ))}
                   </div>
                 </div>
@@ -2884,7 +2884,7 @@ const HostEvent = () => {
                   <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-2.5">Layout</p>
                   <div className="grid grid-cols-3 gap-2">
                     {([ ["ocean","Date"], ["editorial","Column"], ["cards","Pill"] ] as const).map(([val, label]) => (
-                      <button key={val} onClick={() => setCustomLayout(val)} className="py-2.5 rounded-xl text-sm text-center" style={{ backgroundColor:"#1e1e1e", border: customLayout===val ? "2px solid #3D7BFF" : "2px solid transparent", color:"#fff" }}>{label}</button>
+                      <button key={val} onClick={() => setCustomLayout(val)} className="py-2.5 rounded-xl text-sm text-center" style={{ backgroundColor:"#1e1e1e", border: customLayout===val ? "2px solid #2563eb" : "2px solid transparent", color:"#fff" }}>{label}</button>
                     ))}
                   </div>
                 </div>
@@ -2909,7 +2909,7 @@ const HostEvent = () => {
                         key={c.name}
                         onClick={() => { buildItAppliedRef.current = false; setBgColor(c.hsl); setBgPreset(null); setBgPhoto(null); setBgPresetIsImage(false); }}
                         className="w-9 h-9 rounded-full shrink-0 transition-all"
-                        style={{ backgroundColor: c.hex, border: bgColor === c.hsl && !bgPreset && !bgPhoto ? "3px solid #3D7BFF" : "2px solid rgba(255,255,255,0.18)", transform: bgColor === c.hsl && !bgPreset && !bgPhoto ? "scale(1.15)" : "scale(1)" }}
+                        style={{ backgroundColor: c.hex, border: bgColor === c.hsl && !bgPreset && !bgPhoto ? "3px solid #2563eb" : "2px solid rgba(255,255,255,0.18)", transform: bgColor === c.hsl && !bgPreset && !bgPhoto ? "scale(1.15)" : "scale(1)" }}
                         title={c.name}
                       />
                     ))}
@@ -2926,7 +2926,7 @@ const HostEvent = () => {
                           key={p.key}
                           onClick={() => { buildItAppliedRef.current = false; setBgPreset(p.key); setBgPhoto(null); setBgPresetIsImage(false); }}
                           className="shrink-0 flex flex-col items-center gap-1 rounded-lg overflow-hidden transition-all"
-                          style={{ border: isActive ? "2px solid #3D7BFF" : "2px solid rgba(255,255,255,0.12)", width: 52 }}
+                          style={{ border: isActive ? "2px solid #2563eb" : "2px solid rgba(255,255,255,0.12)", width: 52 }}
                           title={p.name}
                         >
                           <div style={{ width: "100%", height: 36, ...patStyle }} />
@@ -2953,17 +2953,17 @@ const HostEvent = () => {
                       { label:"Hot Pink", hex:"#ff70b0" }, { label:"Sky Blue", hex:"#38bdf8" },
                       { label:"Lime",     hex:"#aaee44" }, { label:"Black",    hex:"#111111" },
                     ]).map(({ label, hex }) => (
-                      <button key={hex} onClick={() => setFontColor(hex)} className="w-9 h-9 rounded-full shrink-0 transition-all" style={{ backgroundColor: hex, border: fontColor===hex ? "3px solid #3D7BFF" : "2px solid rgba(255,255,255,0.18)", transform: fontColor===hex ? "scale(1.15)" : "scale(1)" }} title={label} />
+                      <button key={hex} onClick={() => setFontColor(hex)} className="w-9 h-9 rounded-full shrink-0 transition-all" style={{ backgroundColor: hex, border: fontColor===hex ? "3px solid #2563eb" : "2px solid rgba(255,255,255,0.18)", transform: fontColor===hex ? "scale(1.15)" : "scale(1)" }} title={label} />
                     ))}
                   </div>
                   <div className="flex gap-2 mb-3">
                     {(["Bold","Elegant","Handwritten"] as const).map(fv => (
-                      <button key={fv} onClick={() => setFontStyle(fv)} className="flex-1 py-2.5 rounded-xl text-sm text-center" style={{ backgroundColor:"#1e1e1e", border: fontStyle===fv ? "2px solid #3D7BFF" : "2px solid transparent", fontFamily: FONT_MAP[fv], color:"#fff" }}>{fv}</button>
+                      <button key={fv} onClick={() => setFontStyle(fv)} className="flex-1 py-2.5 rounded-xl text-sm text-center" style={{ backgroundColor:"#1e1e1e", border: fontStyle===fv ? "2px solid #2563eb" : "2px solid transparent", fontFamily: FONT_MAP[fv], color:"#fff" }}>{fv}</button>
                     ))}
                   </div>
                   <div className="flex gap-2">
                     {(["Small","Medium","Large"] as const).map((sz, i) => (
-                      <button key={sz} onClick={() => setTextSize(sz)} className="flex-1 py-2.5 rounded-xl font-bold" style={{ backgroundColor:"#1e1e1e", border: textSize===sz ? "2px solid #3D7BFF" : "2px solid transparent", color:"#fff", fontSize:[12,14,16][i] }}>
+                      <button key={sz} onClick={() => setTextSize(sz)} className="flex-1 py-2.5 rounded-xl font-bold" style={{ backgroundColor:"#1e1e1e", border: textSize===sz ? "2px solid #2563eb" : "2px solid transparent", color:"#fff", fontSize:[12,14,16][i] }}>
                         {["S","M","L"][i]}
                       </button>
                     ))}
@@ -2975,7 +2975,7 @@ const HostEvent = () => {
                   <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-3">Accent colour</p>
                   <div className="flex flex-wrap gap-2.5">
                     {(["#ffffff","#ffd700","#ff70b0","#38bdf8","#aaee44","#ff6b6b","#4ade80","#c084fc"] as const).map(hex => (
-                      <button key={hex} onClick={() => setCustomAccentHex(hex)} style={{ width:36,height:36,borderRadius:"50%",backgroundColor:hex,border:customAccentHex===hex?"3px solid #3D7BFF":"2px solid rgba(255,255,255,0.18)",flexShrink:0 }} />
+                      <button key={hex} onClick={() => setCustomAccentHex(hex)} style={{ width:36,height:36,borderRadius:"50%",backgroundColor:hex,border:customAccentHex===hex?"3px solid #2563eb":"2px solid rgba(255,255,255,0.18)",flexShrink:0 }} />
                     ))}
                     <label style={{ width:36,height:36,borderRadius:"50%",background:"conic-gradient(red,yellow,lime,cyan,blue,magenta,red)",border:"2px solid rgba(255,255,255,0.18)",cursor:"pointer",flexShrink:0,display:"block",position:"relative" }}>
                       <input type="color" value={customAccentHex||"#aaee44"} onChange={e => setCustomAccentHex(e.target.value)} style={{ position:"absolute",inset:0,opacity:0,cursor:"pointer",width:"100%",height:"100%" }} />
@@ -2988,7 +2988,7 @@ const HostEvent = () => {
                   <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-3">Bubbles</p>
                   <div className="flex gap-2">
                     {([ ["frosted","Frosted"], ["solid","Solid"], ["outlined","Outlined"] ] as const).map(([val, label]) => (
-                      <button key={val} onClick={() => setBubbleStyle(val)} className="flex-1 py-2.5 rounded-xl text-sm text-center" style={{ backgroundColor:"#1e1e1e", border: bubbleStyle===val ? "2px solid #3D7BFF" : "2px solid transparent", color:"#fff" }}>{label}</button>
+                      <button key={val} onClick={() => setBubbleStyle(val)} className="flex-1 py-2.5 rounded-xl text-sm text-center" style={{ backgroundColor:"#1e1e1e", border: bubbleStyle===val ? "2px solid #2563eb" : "2px solid transparent", color:"#fff" }}>{label}</button>
                     ))}
                   </div>
                 </div>
@@ -3050,7 +3050,7 @@ const HostEvent = () => {
                           setShowStyleScreen(false);
                         }}
                         className="flex flex-col rounded-xl overflow-hidden transition-all"
-                        style={{ border: isSelected ? "2px solid #3D7BFF" : "2px solid transparent" }}
+                        style={{ border: isSelected ? "2px solid #2563eb" : "2px solid transparent" }}
                       >
                         <div
                           style={{
@@ -3124,7 +3124,7 @@ const HostEvent = () => {
                     <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "16px", fontWeight: 700, color: "#fff", lineHeight: 1.2 }}>Templates</p>
                     <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "12px", color: "#666", marginTop: "3px" }}>7 ready-made styles</p>
                   </div>
-                  <span style={{ marginLeft: "auto", color: "#3D7BFF", fontSize: "20px" }}>›</span>
+                  <span style={{ marginLeft: "auto", color: "#2563eb", fontSize: "20px" }}>›</span>
                 </button>
                 <button
                   onClick={() => {

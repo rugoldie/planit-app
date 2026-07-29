@@ -31,7 +31,7 @@ const SignUp = () => {
     if (password.length >= 10) score++;
     if (score <= 1) return { label: "weak", percent: 25, color: "#ef4444" };
     if (score <= 3) return { label: "medium", percent: 60, color: "#f97316" };
-    return { label: "strong", percent: 100, color: "#3D7BFF" };
+    return { label: "strong", percent: 100, color: "#2563eb" };
   }, [password, hasMinLength, hasNumber]);
 
   const handleBack = () => {
@@ -146,11 +146,11 @@ const SignUp = () => {
               placeholder="At least 6 characters"
             />
             <ul className="mt-4 space-y-1.5 text-sm">
-              <li className="flex items-center gap-2" style={{ color: hasMinLength ? "#3D7BFF" : "#999" }}>
+              <li className="flex items-center gap-2" style={{ color: hasMinLength ? "#2563eb" : "#999" }}>
                 {hasMinLength ? <Check className="w-4 h-4" /> : <span className="w-4 h-4 inline-block" />}
                 At least 6 characters
               </li>
-              <li className="flex items-center gap-2" style={{ color: hasNumber ? "#3D7BFF" : "#999" }}>
+              <li className="flex items-center gap-2" style={{ color: hasNumber ? "#2563eb" : "#999" }}>
                 {hasNumber ? <Check className="w-4 h-4" /> : <span className="w-4 h-4 inline-block" />}
                 At least one number
               </li>

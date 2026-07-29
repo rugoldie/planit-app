@@ -4,9 +4,9 @@ import { ArrowLeft, Bell, Check, X, Eye } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
-const COVO_BLUE = "#3D7BFF";
-const COVO_CYAN = "#22D3EE";
-const COVO_GRAD = "linear-gradient(120deg, #3D7BFF, #22D3EE)";
+const COVO_BLUE = "#2563eb";
+const COVO_CYAN = "#2563eb";
+const COVO_GRAD = "#2563eb";
 
 type Notification = {
   id: string;
@@ -156,7 +156,7 @@ const Notifications = () => {
                       type="button"
                       onClick={() => handleAcceptFriend(n)}
                       className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full"
-                      style={{ background: COVO_GRAD, color: "#06121f", border: "none" }}
+                      style={{ background: COVO_GRAD, color: "#ffffff", border: "none" }}
                     >
                       <Check className="w-3 h-3" /> Accept
                     </button>
@@ -176,7 +176,7 @@ const Notifications = () => {
                       type="button"
                       onClick={() => navigate(`/guest/${n.data.event_code}`)}
                       className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full"
-                      style={{ background: COVO_GRAD, color: "#06121f", border: "none" }}
+                      style={{ background: COVO_GRAD, color: "#ffffff", border: "none" }}
                     >
                       <Eye className="w-3 h-3" /> View invite
                     </button>

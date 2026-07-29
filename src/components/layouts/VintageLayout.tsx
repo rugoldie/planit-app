@@ -199,7 +199,7 @@ export const VintageSharedSections = ({
       {/* Who's going */}
       <div className="mt-4 rounded-2xl p-4" style={{ backgroundColor: DARK_BROWN }}>
         <button onClick={() => setGuestListExpanded(!guestListExpanded)} className="flex items-center justify-between w-full mb-3">
-          <h2 style={{ fontFamily: FF, fontSize: "14px", fontWeight: 700, color: CREAM }}>Who's going</h2>
+          <h2 style={{ fontFamily: "'Fredoka', sans-serif", fontSize: "14px", fontWeight: 700, color: CREAM }}>Who's going</h2>
           <div className="flex items-center gap-2">
             {goingList.length > 0 && <span style={{ fontFamily: FF, fontSize: "12px", fontWeight: 700, color }}>{goingList.length} going</span>}
             {guestListExpanded ? <ChevronUp className="w-4 h-4" style={{ color }} /> : <ChevronDown className="w-4 h-4" style={{ color }} />}

@@ -159,7 +159,7 @@ const formatDate = (dt: string | null) => {
 };
 
 const RoleBadge = ({ role, accentColor }: { role: "host" | "going" | "maybe"; accentColor?: string }) => {
-  const bg = accentColor || "#3D7BFF";
+  const bg = accentColor || "#2563eb";
   if (role === "host")
     return (
       <span
@@ -490,7 +490,7 @@ const NoirNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate: R
           style={{
             backgroundColor: accent,
             color: btnText,
-            fontFamily: "'Playfair Display', serif",
+            fontFamily: "'Fredoka', sans-serif",
             letterSpacing: "0.03em",
           }}
           onClick={(e) => {
@@ -693,7 +693,7 @@ const GalaxyNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate:
           style={{
             background: `linear-gradient(90deg, ${accent}, #ec4899)`,
             color: "#fff",
-            fontFamily: "sans-serif",
+            fontFamily: "'Fredoka', sans-serif",
             letterSpacing: "0.03em",
           }}
           onClick={(e) => {
@@ -933,7 +933,7 @@ const SunnyNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate: 
           style={{
             backgroundColor: "rgba(255,255,255,0.9)",
             color: "#c8440a",
-            fontFamily: "'Caveat', cursive",
+            fontFamily: "'Fredoka', sans-serif",
             fontSize: "16px",
           }}
           onClick={(e) => {
@@ -1158,7 +1158,7 @@ const VintageNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate
           style={{
             backgroundColor: "#2c1810",
             color: "#f5f0e8",
-            fontFamily: "'Playfair Display', serif",
+            fontFamily: "'Fredoka', sans-serif",
             letterSpacing: "0.03em",
           }}
           onClick={(e) => {
@@ -1256,7 +1256,7 @@ const BlushNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate: 
             <span className="truncate" style={{ fontFamily: "'Playfair Display', serif", fontSize: "15px", fontWeight: 700, color: "#fff", display: "block" }}>{event.location}</span>
           </div>
         )}
-        <button className="w-full rounded-lg py-2 text-xs font-bold tracking-wide" style={{ backgroundColor: "#f472b6", color: "#1a0a10", fontFamily: "'Inter', sans-serif" }} onClick={(e) => { e.stopPropagation(); navigate(navPath); }}>
+        <button className="w-full rounded-lg py-2 text-xs font-bold tracking-wide" style={{ backgroundColor: "#f472b6", color: "#1a0a10", fontFamily: "'Fredoka', sans-serif" }} onClick={(e) => { e.stopPropagation(); navigate(navPath); }}>
           View event →
         </button>
       </div>
@@ -1318,7 +1318,7 @@ const ForestNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate:
           </div>
         )}
 
-        <button className="w-full rounded-lg py-2 text-xs font-bold tracking-wide" style={{ backgroundColor: "#4ade80", color: "#0a1f0a", fontFamily: "'Inter', sans-serif" }} onClick={(e) => { e.stopPropagation(); navigate(navPath); }}>
+        <button className="w-full rounded-lg py-2 text-xs font-bold tracking-wide" style={{ backgroundColor: "#4ade80", color: "#0a1f0a", fontFamily: "'Fredoka', sans-serif" }} onClick={(e) => { e.stopPropagation(); navigate(navPath); }}>
           View event →
         </button>
       </div>
@@ -1369,7 +1369,7 @@ const MidnightNextUpCard = ({ event, navigate }: { event: EventWithRole; navigat
             <span className="truncate" style={{ fontFamily: "'Playfair Display', serif", fontSize: "15px", fontWeight: 700, color: "#111", display: "block" }}>{event.location}</span>
           </div>
         )}
-        <button className="w-full rounded-lg py-2 text-xs font-bold tracking-wide" style={{ backgroundColor: "#111", color: "#fff", fontFamily: "'Inter', sans-serif" }} onClick={(e) => { e.stopPropagation(); navigate(navPath); }}>View event →</button>
+        <button className="w-full rounded-lg py-2 text-xs font-bold tracking-wide" style={{ backgroundColor: "#111", color: "#fff", fontFamily: "'Fredoka', sans-serif" }} onClick={(e) => { e.stopPropagation(); navigate(navPath); }}>View event →</button>
       </div>
     </div>
   );
@@ -1663,7 +1663,7 @@ const OceanNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate: 
           style={{
             backgroundColor: accent,
             color: "#0c1929",
-            fontFamily: "'Inter', sans-serif",
+            fontFamily: "'Fredoka', sans-serif",
             letterSpacing: "0.03em",
           }}
           onClick={(e) => {
@@ -1888,7 +1888,7 @@ const UpcomingSection = ({
           <button
             onClick={() => setShowAll(true)}
             className="rounded-full px-4 py-1.5 text-xs font-semibold"
-            style={{ backgroundColor: "#383838", color: "#3D7BFF" }}
+            style={{ backgroundColor: "#383838", color: "#2563eb" }}
           >
             See all events →
           </button>
@@ -2014,7 +2014,7 @@ const Home = () => {
         <div className="flex items-center justify-between px-[18px] pt-[54px] mb-5">
           <div>
             <div style={{ fontFamily: "'Space Grotesk', monospace", fontSize: 11, letterSpacing: ".5px", color: "#7a8088" }}>{getGreeting()}</div>
-            <div style={{ fontWeight: 700, fontSize: 24, color: "#fff", lineHeight: 1.1 }}>{firstName}</div>
+            <div style={{ fontFamily: "'Fredoka', sans-serif", fontWeight: 700, fontSize: 24, color: "#fff", lineHeight: 1.1 }}>{firstName}</div>
           </div>
           <div className="flex items-center gap-[10px]">
             <div className="relative">
@@ -2027,7 +2027,7 @@ const Home = () => {
                 </span>
               )}
             </div>
-            <button type="button" onClick={() => navigate("/profile")} style={{ width: 38, height: 38, borderRadius: "50%", padding: 2, background: "linear-gradient(150deg,#3D7BFF,#22D3EE)", border: "none" }}>
+            <button type="button" onClick={() => navigate("/profile")} style={{ width: 38, height: 38, borderRadius: "50%", padding: 2, background: "#2563eb", border: "none" }}>
               <div style={{ width: "100%", height: "100%", borderRadius: "50%", overflow: "hidden", background: "#2a2d34", display: "flex", alignItems: "center", justifyContent: "center" }}>
                 {profile?.avatar_url ? <img src={profile.avatar_url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <span style={{ fontWeight: 700, color: "#fff", fontSize: 14 }}>{profile?.name?.charAt(0)?.toUpperCase() || "?"}</span>}
               </div>
@@ -2036,34 +2036,34 @@ const Home = () => {
         </div>
         {/* Create bar */}
         <div className="flex gap-[10px] px-[18px] mb-10">
-          <button onClick={() => navigate("/host")} style={{ flex: 1, height: 48, borderRadius: 13, background: "linear-gradient(120deg,#3D7BFF,#22D3EE)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontWeight: 700, fontSize: 15, color: "#06121f", border: "none" }}>
-            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="#06121f" strokeWidth="2.6" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>Host
+          <button onClick={() => navigate("/host")} style={{ flex: 1, height: 48, borderRadius: 13, background: "#2563eb", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontFamily: "'Fredoka', sans-serif", fontWeight: 700, fontSize: 15, color: "#ffffff", border: "none" }}>
+            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="#ffffff" strokeWidth="2.6" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>Host
           </button>
-          <button onClick={() => navigate("/join")} style={{ flex: 1, height: 48, borderRadius: 13, background: "#16181d", border: "1px solid #23262e", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontWeight: 600, fontSize: 15, color: "#cfd3da" }}>
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#C6F24E" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg>Join code
+          <button onClick={() => navigate("/join")} style={{ flex: 1, height: 48, borderRadius: 13, background: "#16181d", border: "1px solid #2563eb", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontFamily: "'Fredoka', sans-serif", fontWeight: 600, fontSize: 15, color: "#2563eb" }}>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#2563eb" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg>Join code
           </button>
         </div>
         <div className="flex flex-col items-center justify-center flex-1 gap-4 px-6">
-          <h1 className="text-7xl font-extrabold tracking-tight" style={{ background: "linear-gradient(120deg, #3D7BFF, #22D3EE)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>covo</h1>
+          <h1 className="text-7xl font-extrabold tracking-tight" style={{ background: "#2563eb", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>covo</h1>
           <p className="text-muted-foreground text-center text-sm">Host or join an event to get started</p>
         </div>
         {/* Tab bar */}
         <div style={{ position: "fixed", left: 0, right: 0, bottom: 0, height: 80, background: "rgba(12,13,16,.92)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", borderTop: "1px solid #1a1c22", display: "flex", alignItems: "flex-start", justifyContent: "space-around", paddingTop: 14, zIndex: 50 }}>
           <button type="button" onClick={() => navigate("/home")} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5, background: "none", border: "none" }}>
-            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#22D3EE" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 11l9-8 9 8M5 10v10h14V10"/></svg>
-            <span style={{ fontFamily: "'Space Grotesk',monospace", fontSize: 10, color: "#22D3EE" }}>Home</span>
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#2563eb" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 11l9-8 9 8M5 10v10h14V10"/></svg>
+            <span style={{ fontFamily: "'Fredoka', sans-serif", fontSize: 10, color: "#2563eb" }}>Home</span>
           </button>
           <button type="button" onClick={() => navigate("/events")} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5, background: "none", border: "none" }}>
             <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#6a7078" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-            <span style={{ fontFamily: "'Space Grotesk',monospace", fontSize: 10, color: "#6a7078" }}>Events</span>
+            <span style={{ fontFamily: "'Fredoka', sans-serif", fontSize: 10, color: "#6a7078" }}>Events</span>
           </button>
           <button type="button" onClick={() => navigate("/messages")} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5, background: "none", border: "none" }}>
             <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#6a7078" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-            <span style={{ fontFamily: "'Space Grotesk',monospace", fontSize: 10, color: "#6a7078" }}>Chats</span>
+            <span style={{ fontFamily: "'Fredoka', sans-serif", fontSize: 10, color: "#6a7078" }}>Chats</span>
           </button>
           <button type="button" onClick={() => navigate("/profile")} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5, background: "none", border: "none" }}>
             <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#6a7078" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
-            <span style={{ fontFamily: "'Space Grotesk',monospace", fontSize: 10, color: "#6a7078" }}>Profile</span>
+            <span style={{ fontFamily: "'Fredoka', sans-serif", fontSize: 10, color: "#6a7078" }}>Profile</span>
           </button>
         </div>
       </div>
@@ -2100,7 +2100,7 @@ const Home = () => {
         <div className="flex items-center justify-between px-[18px] pt-[54px] mb-5">
           <div>
             <div style={{ fontFamily: "'Space Grotesk', monospace", fontSize: 11, letterSpacing: ".5px", color: "#7a8088" }}>{getGreeting()}</div>
-            <div style={{ fontWeight: 700, fontSize: 24, color: "#fff", lineHeight: 1.1 }}>{firstName}</div>
+            <div style={{ fontFamily: "'Fredoka', sans-serif", fontWeight: 700, fontSize: 24, color: "#fff", lineHeight: 1.1 }}>{firstName}</div>
           </div>
           <div className="flex items-center gap-[10px]">
             {/* Bell */}
@@ -2122,7 +2122,7 @@ const Home = () => {
             <button
               type="button"
               onClick={() => navigate("/profile")}
-              style={{ width: 38, height: 38, borderRadius: "50%", padding: 2, background: "linear-gradient(150deg,#3D7BFF,#22D3EE)", border: "none" }}
+              style={{ width: 38, height: 38, borderRadius: "50%", padding: 2, background: "#2563eb", border: "none" }}
             >
               <div style={{ width: "100%", height: "100%", borderRadius: "50%", overflow: "hidden", background: "#2a2d34", display: "flex", alignItems: "center", justifyContent: "center" }}>
                 {profile?.avatar_url
@@ -2137,16 +2137,16 @@ const Home = () => {
         <div className="flex gap-[10px] px-[18px] mb-6">
           <button
             onClick={() => navigate("/host")}
-            style={{ flex: 1, height: 48, borderRadius: 13, background: "linear-gradient(120deg,#3D7BFF,#22D3EE)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontWeight: 700, fontSize: 15, color: "#06121f", border: "none" }}
+            style={{ flex: 1, height: 48, borderRadius: 13, background: "#2563eb", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontFamily: "'Fredoka', sans-serif", fontWeight: 700, fontSize: 15, color: "#ffffff", border: "none" }}
           >
-            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="#06121f" strokeWidth="2.6" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>
+            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="#ffffff" strokeWidth="2.6" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>
             Host
           </button>
           <button
             onClick={() => navigate("/join")}
-            style={{ flex: 1, height: 48, borderRadius: 13, background: "#16181d", border: "1px solid #23262e", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontWeight: 600, fontSize: 15, color: "#cfd3da" }}
+            style={{ flex: 1, height: 48, borderRadius: 13, background: "#16181d", border: "1px solid #2563eb", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontFamily: "'Fredoka', sans-serif", fontWeight: 600, fontSize: 15, color: "#2563eb" }}
           >
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#C6F24E" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#2563eb" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
             Join code
           </button>
         </div>
@@ -2154,7 +2154,7 @@ const Home = () => {
         {/* Next Up hero */}
         {nextEvent && (
           <div className="px-[18px] mb-6">
-            <div style={{ fontFamily: "'Space Grotesk',monospace", fontSize: 11, letterSpacing: "2px", color: "#7a8088", marginBottom: 10 }}>{nextUpLabel}</div>
+            <div style={{ fontFamily: "'Fredoka', sans-serif", fontSize: 11, letterSpacing: "2px", color: "#7a8088", marginBottom: 10 }}>{nextUpLabel}</div>
             {isGalaxy(nextEvent.template_name) ? (
               <GalaxyNextUpCard event={nextEvent} navigate={navigate} />
             ) : isSunny(nextEvent.template_name) ? (
@@ -2223,8 +2223,8 @@ const Home = () => {
         {upcomingEvents.length > 0 && (
           <div className="px-[18px] mb-6">
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-              <div style={{ fontFamily: "'Space Grotesk',monospace", fontSize: 11, letterSpacing: "2px", color: "#7a8088" }}>UPCOMING</div>
-              <button type="button" onClick={() => navigate("/events")} style={{ fontFamily: "'Space Grotesk',monospace", fontSize: 12, color: "#22D3EE", background: "none", border: "none", padding: 0 }}>See all →</button>
+              <div style={{ fontFamily: "'Fredoka', sans-serif", fontSize: 11, letterSpacing: "2px", color: "#7a8088" }}>UPCOMING</div>
+              <button type="button" onClick={() => navigate("/events")} style={{ fontFamily: "'Space Grotesk',monospace", fontSize: 12, color: "#2563eb", background: "none", border: "none", padding: 0 }}>See all →</button>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {upcomingEvents.map((event) => {
@@ -2272,14 +2272,14 @@ const Home = () => {
             <div style={{ borderRadius: 16, background: "#101116", border: "1px solid #1c1e24", padding: 16 }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
-                  <div style={{ fontFamily: "'Space Grotesk',monospace", fontSize: 11, letterSpacing: "1.5px", color: "#7a8088" }}>FRIEND REQUESTS</div>
+                  <div style={{ fontFamily: "'Fredoka', sans-serif", fontSize: 11, letterSpacing: "1.5px", color: "#7a8088" }}>FRIEND REQUESTS</div>
                   <span style={{ minWidth: 20, height: 20, padding: "0 6px", borderRadius: 999, background: "#C6F24E", color: "#0a0b0e", fontWeight: 700, fontSize: 11, display: "flex", alignItems: "center", justifyContent: "center" }}>{pendingCount}</span>
                 </div>
-                <button type="button" onClick={() => navigate("/friends")} style={{ fontFamily: "'Space Grotesk',monospace", fontSize: 12, color: "#22D3EE", background: "none", border: "none", padding: 0 }}>See all →</button>
+                <button type="button" onClick={() => navigate("/friends")} style={{ fontFamily: "'Space Grotesk',monospace", fontSize: 12, color: "#2563eb", background: "none", border: "none", padding: 0 }}>See all →</button>
               </div>
               {topFriendRequest && (
                 <div style={{ display: "flex", alignItems: "center", gap: 11 }}>
-                  <div style={{ width: 40, height: 40, borderRadius: "50%", background: "#3D7BFF", flex: "none", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, color: "#fff", fontSize: 16 }}>
+                  <div style={{ width: 40, height: 40, borderRadius: "50%", background: "#2563eb", flex: "none", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, color: "#fff", fontSize: 16 }}>
                     {topFriendRequest.profile?.avatar_url
                       ? <img src={topFriendRequest.profile.avatar_url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                       : (topFriendRequest.profile?.name?.charAt(0)?.toUpperCase() || "?")}
@@ -2291,9 +2291,9 @@ const Home = () => {
                   <button
                     type="button"
                     onClick={() => handleAcceptFriend(topFriendRequest.friendshipId)}
-                    style={{ width: 34, height: 34, borderRadius: 10, background: "linear-gradient(120deg,#3D7BFF,#22D3EE)", display: "flex", alignItems: "center", justifyContent: "center", flex: "none", border: "none" }}
+                    style={{ width: 34, height: 34, borderRadius: 10, background: "#2563eb", display: "flex", alignItems: "center", justifyContent: "center", flex: "none", border: "none" }}
                   >
-                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#06121f" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#ffffff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
                   </button>
                   <button
                     type="button"
@@ -2312,20 +2312,20 @@ const Home = () => {
       {/* Bottom tab bar */}
       <div style={{ position: "fixed", left: 0, right: 0, bottom: 0, height: 80, background: "rgba(12,13,16,.92)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", borderTop: "1px solid #1a1c22", display: "flex", alignItems: "flex-start", justifyContent: "space-around", paddingTop: 14, zIndex: 50 }}>
         <button type="button" onClick={() => navigate("/home")} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5, background: "none", border: "none" }}>
-          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#22D3EE" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 11l9-8 9 8M5 10v10h14V10"/></svg>
-          <span style={{ fontFamily: "'Space Grotesk',monospace", fontSize: 10, color: "#22D3EE" }}>Home</span>
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#2563eb" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 11l9-8 9 8M5 10v10h14V10"/></svg>
+          <span style={{ fontFamily: "'Fredoka', sans-serif", fontSize: 10, color: "#2563eb" }}>Home</span>
         </button>
         <button type="button" onClick={() => navigate("/events")} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5, background: "none", border: "none" }}>
           <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#6a7078" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-          <span style={{ fontFamily: "'Space Grotesk',monospace", fontSize: 10, color: "#6a7078" }}>Events</span>
+          <span style={{ fontFamily: "'Fredoka', sans-serif", fontSize: 10, color: "#6a7078" }}>Events</span>
         </button>
         <button type="button" onClick={() => navigate("/messages")} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5, background: "none", border: "none" }}>
           <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#6a7078" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-          <span style={{ fontFamily: "'Space Grotesk',monospace", fontSize: 10, color: "#6a7078" }}>Chats</span>
+          <span style={{ fontFamily: "'Fredoka', sans-serif", fontSize: 10, color: "#6a7078" }}>Chats</span>
         </button>
         <button type="button" onClick={() => navigate("/profile")} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5, background: "none", border: "none" }}>
           <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#6a7078" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
-          <span style={{ fontFamily: "'Space Grotesk',monospace", fontSize: 10, color: "#6a7078" }}>Profile</span>
+          <span style={{ fontFamily: "'Fredoka', sans-serif", fontSize: 10, color: "#6a7078" }}>Profile</span>
         </button>
       </div>
     </div>

@@ -4,8 +4,8 @@ import { ArrowLeft, Send } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
-const COVO_CYAN = "#22D3EE";
-const COVO_GRAD = "linear-gradient(120deg, #3D7BFF, #22D3EE)";
+const COVO_CYAN = "#2563eb";
+const COVO_GRAD = "#2563eb";
 
 type Message = {
   id: string;
@@ -226,7 +226,7 @@ const Conversation = () => {
                 className="max-w-[75%] rounded-2xl px-4 py-2.5"
                 style={
                   mine
-                    ? { background: COVO_GRAD, color: "#06121f" }
+                    ? { background: COVO_GRAD, color: "#ffffff" }
                     : { backgroundColor: "#2a2a2a", color: "white" }
                 }
               >
@@ -262,7 +262,7 @@ const Conversation = () => {
             className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 disabled:opacity-40 transition-opacity"
             style={{ background: COVO_GRAD }}
           >
-            <Send className="w-4 h-4" style={{ color: "#06121f" }} />
+            <Send className="w-4 h-4" style={{ color: "#ffffff" }} />
           </button>
         </div>
       </div>

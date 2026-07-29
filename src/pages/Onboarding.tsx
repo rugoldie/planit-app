@@ -5,8 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
-const COVO_BLUE = "#3D7BFF";
-const COVO_GRAD = "linear-gradient(120deg, #3D7BFF, #22D3EE)";
+const COVO_BLUE = "#2563eb";
+const COVO_GRAD = "#2563eb";
 
 const Onboarding = () => {
   const navigate = useNavigate();
@@ -265,7 +265,7 @@ const Onboarding = () => {
           onClick={handleNext}
           disabled={!canNext() || saving || uploading}
           className="w-full py-4 rounded-[var(--radius)] text-base font-bold disabled:opacity-40 transition-opacity"
-          style={{ background: COVO_GRAD, color: "#06121f", border: "none" }}
+          style={{ background: COVO_GRAD, color: "#ffffff", border: "none" }}
         >
           {saving ? "Saving..." : step === 2 ? "Get started" : "Continue"}
         </button>

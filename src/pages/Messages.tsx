@@ -5,8 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
 const LIME = "#C6F24E";
-const COVO_GRAD = "linear-gradient(120deg, #3D7BFF, #22D3EE)";
-const COVO_CYAN = "#22D3EE";
+const COVO_GRAD = "#2563eb";
+const COVO_CYAN = "#2563eb";
 
 type Convo = {
   key: string;

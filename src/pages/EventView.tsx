@@ -1468,7 +1468,7 @@ const EventView = () => {
                   onClick={() => setGuestListExpanded(!guestListExpanded)}
                   className="flex items-center justify-between w-full mb-2"
                 >
-                  <h2 style={{ fontSize: "14px", fontWeight: 700, color: "#fff", fontFamily: "sans-serif" }}>
+                  <h2 style={{ fontSize: "14px", fontWeight: 700, color: "#fff", fontFamily: "'Fredoka', sans-serif" }}>
                     Who's going
                   </h2>
                   <div className="flex items-center gap-2">
@@ -1878,7 +1878,7 @@ const EventView = () => {
                   onClick={() => setGuestListExpanded(!guestListExpanded)}
                   className="flex items-center justify-between w-full mb-2"
                 >
-                  <h2 style={{ fontFamily: "'Caveat', cursive", fontSize: "18px", fontWeight: 700, color: "#fff" }}>
+                  <h2 style={{ fontFamily: "'Fredoka', sans-serif", fontSize: "18px", fontWeight: 700, color: "#fff" }}>
                     Who's going
                   </h2>
                   <div className="flex items-center gap-2">
@@ -2324,7 +2324,7 @@ const EventView = () => {
                   className="flex items-center justify-between w-full mb-2"
                 >
                   <h2
-                    style={{ fontFamily: "'Inter', sans-serif", fontSize: "13px", fontWeight: 700, color: bgTextColor }}
+                    style={{ fontFamily: "'Fredoka', sans-serif", fontSize: "13px", fontWeight: 700, color: bgTextColor }}
                   >
                     Who's going
                   </h2>
@@ -2648,7 +2648,7 @@ const EventView = () => {
               {/* Who's going */}
               <div style={{ backgroundColor: "rgba(56,189,248,0.06)", border: "1px solid rgba(56,189,248,0.12)", borderRadius: "16px", padding: "12px 14px" }}>
                 <button onClick={() => setGuestListExpanded(!guestListExpanded)} className="flex items-center justify-between w-full mb-2">
-                  <h2 style={{ fontFamily: "'Inter', sans-serif", fontSize: "13px", fontWeight: 700, color: "#ffffff" }}>Who's going</h2>
+                  <h2 style={{ fontFamily: "'Fredoka', sans-serif", fontSize: "13px", fontWeight: 700, color: "#ffffff" }}>Who's going</h2>
                   <div className="flex items-center gap-2">
                     {goingList.length > 0 && <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "11px", fontWeight: 700, color: "rgb(56,189,248)" }}>{goingList.length} going</span>}
                     {guestListExpanded ? <ChevronUp className="w-4 h-4" style={{ color: "rgb(56,189,248)" }} /> : <ChevronDown className="w-4 h-4" style={{ color: "rgb(56,189,248)" }} />}
@@ -2795,7 +2795,7 @@ const EventView = () => {
               {/* Who's going */}
               <div style={{ backgroundColor: "rgba(244,114,182,0.06)", border: "1px solid rgba(244,114,182,0.15)", borderRadius: "12px", padding: "12px 14px" }}>
                 <button onClick={() => setGuestListExpanded(!guestListExpanded)} className="flex items-center justify-between w-full mb-2">
-                  <h2 style={{ fontFamily: "'Inter', sans-serif", fontSize: "13px", fontWeight: 700, color: "#fff" }}>Who's going</h2>
+                  <h2 style={{ fontFamily: "'Fredoka', sans-serif", fontSize: "13px", fontWeight: 700, color: "#fff" }}>Who's going</h2>
                   <div className="flex items-center gap-2">
                     {goingList.length > 0 && <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "11px", fontWeight: 700, color: "#f472b6" }}>{goingList.length} going</span>}
                     {guestListExpanded ? <ChevronUp className="w-4 h-4" style={{ color: "#f472b6" }} /> : <ChevronDown className="w-4 h-4" style={{ color: "#f472b6" }} />}
@@ -2941,7 +2941,7 @@ const EventView = () => {
               {/* Who's going */}
               <div style={{ border: "1px solid rgba(74,222,128,0.18)", borderRadius: "12px", padding: "12px 14px" }}>
                 <button onClick={() => setGuestListExpanded(!guestListExpanded)} className="flex items-center justify-between w-full mb-2">
-                  <h2 style={{ fontFamily: "'Inter', sans-serif", fontSize: "13px", fontWeight: 700, color: "#fff" }}>Who's going</h2>
+                  <h2 style={{ fontFamily: "'Fredoka', sans-serif", fontSize: "13px", fontWeight: 700, color: "#fff" }}>Who's going</h2>
                   <div className="flex items-center gap-2">
                     {goingList.length > 0 && <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "11px", fontWeight: 700, color: "#4ade80" }}>{goingList.length} going</span>}
                     {guestListExpanded ? <ChevronUp className="w-4 h-4" style={{ color: "#4ade80" }} /> : <ChevronDown className="w-4 h-4" style={{ color: "#4ade80" }} />}
@@ -3118,7 +3118,7 @@ const EventView = () => {
                       {event.location && <div style={{ ...infoBubbleStyle,borderRadius:"50px",padding:"14px 22px" }}><p style={{ fontFamily:"'Inter',sans-serif",fontSize:"8px",fontWeight:700,letterSpacing:"0.18em",textTransform:"uppercase" as const,color:infoLabelColor,marginBottom:"3px" }}>📍 Location</p><p style={{ fontFamily:eventFontFamily,fontSize:"14px",fontWeight:600,color:infoTextColor }}>{event.location}</p></div>}
                       {event.dress_code && <div style={{ ...infoBubbleStyle,borderRadius:"50px",padding:"14px 22px" }}><p style={{ fontFamily:"'Inter',sans-serif",fontSize:"8px",fontWeight:700,letterSpacing:"0.18em",textTransform:"uppercase" as const,color:infoLabelColor,marginBottom:"3px" }}>👗 Dress Code</p><p style={{ fontFamily:eventFontFamily,fontSize:"14px",fontWeight:600,color:infoTextColor }}>{event.dress_code}</p></div>}
                       {event.extra && <div style={{ ...infoBubbleStyle,borderRadius:"16px",padding:"14px 16px" }}><p style={{ fontFamily:"'Inter',sans-serif",fontSize:"8px",fontWeight:700,letterSpacing:"0.18em",textTransform:"uppercase" as const,color:infoLabelColor,marginBottom:"6px" }}>From the host</p><p style={{ fontFamily:"'Inter',sans-serif",fontSize:"13px",color:infoTextColor,lineHeight:1.5 }}>{event.extra}</p></div>}
-                      {goingList.length > 0 && (<div style={{ borderRadius:"20px",border:`1px solid ${frostBorder}`,padding:"16px 18px",backgroundColor:frostBg,backdropFilter:"blur(12px)",WebkitBackdropFilter:"blur(12px)" }}><p style={{ fontFamily:"'Inter',sans-serif",fontSize:"8px",fontWeight:700,letterSpacing:"0.22em",textTransform:"uppercase" as const,color:accentColor,marginBottom:"8px" }}>Who's going</p><div style={{ display:"flex",flexWrap:"wrap" as const,gap:"8px",justifyContent:"center" }}>{goingList.map((r)=>(<div key={r.user_id} style={{ width:"30px",height:"30px",borderRadius:"50%",backgroundColor:accentColor,display:"flex",alignItems:"center",justifyContent:"center" }}><span style={{ fontFamily:"'Inter',sans-serif",fontSize:"11px",fontWeight:700,color:accentText }}>{getInitials(r.name)}</span></div>))}</div></div>)}
+                      {goingList.length > 0 && (<div style={{ borderRadius:"20px",border:`1px solid ${frostBorder}`,padding:"16px 18px",backgroundColor:frostBg,backdropFilter:"blur(12px)",WebkitBackdropFilter:"blur(12px)" }}><p style={{ fontFamily:"'Fredoka', sans-serif",fontSize:"8px",fontWeight:700,letterSpacing:"0.22em",textTransform:"uppercase" as const,color:accentColor,marginBottom:"8px" }}>Who's going</p><div style={{ display:"flex",flexWrap:"wrap" as const,gap:"8px",justifyContent:"center" }}>{goingList.map((r)=>(<div key={r.user_id} style={{ width:"30px",height:"30px",borderRadius:"50%",backgroundColor:accentColor,display:"flex",alignItems:"center",justifyContent:"center" }}><span style={{ fontFamily:"'Inter',sans-serif",fontSize:"11px",fontWeight:700,color:accentText }}>{getInitials(r.name)}</span></div>))}</div></div>)}
                       {renderPolls()}
                       <div style={{ borderRadius:"20px",border:`1px solid ${frostBorder}`,padding:"16px 18px",backgroundColor:frostBg,backdropFilter:"blur(12px)",WebkitBackdropFilter:"blur(12px)" }}>
                         <div style={{ display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"10px" }}><p style={{ fontFamily:"'Inter',sans-serif",fontSize:"8px",fontWeight:700,letterSpacing:"0.22em",textTransform:"uppercase" as const,color:accentColor,margin:0 }}>Chat</p><button onClick={()=>setShowFullComments(true)}><Maximize2 className="w-4 h-4" style={{ color:accentColor }} /></button></div>
@@ -3146,7 +3146,7 @@ const EventView = () => {
                       {event.location && <div style={infoBubbleStyle}><p style={{ fontFamily:"'Inter',sans-serif",fontSize:customLabelSz,fontWeight:700,letterSpacing:"0.22em",textTransform:"uppercase" as const,color:infoLabelColor,marginBottom:"5px" }}>Location</p><p style={{ fontFamily:eventFontFamily,fontSize:customValueSz,fontWeight:titleWt,color:infoTextColor,lineHeight:1.2 }}>{event.location}</p></div>}
                       {event.dress_code && <div style={infoBubbleStyle}><p style={{ fontFamily:"'Inter',sans-serif",fontSize:customLabelSz,fontWeight:700,letterSpacing:"0.22em",textTransform:"uppercase" as const,color:infoLabelColor,marginBottom:"5px" }}>Dress Code</p><p style={{ fontFamily:eventFontFamily,fontSize:customValueSz,fontWeight:titleWt,color:infoTextColor,lineHeight:1.2 }}>{event.dress_code}</p></div>}
                       {event.extra && <div style={infoBubbleStyle}><p style={{ fontFamily:"'Inter',sans-serif",fontSize:customLabelSz,fontWeight:700,letterSpacing:"0.22em",textTransform:"uppercase" as const,color:infoLabelColor,marginBottom:"5px" }}>From the host</p><p style={{ fontFamily:"'Inter',sans-serif",fontSize:customValueSz,color:infoTextColor,lineHeight:1.5 }}>{event.extra}</p></div>}
-                      {goingList.length > 0 && (<div style={{ borderRadius:"20px",border:`1px solid ${frostBorder}`,padding:"16px 18px",backgroundColor:frostBg,backdropFilter:"blur(12px)",WebkitBackdropFilter:"blur(12px)" }}><p style={{ fontFamily:"'Inter',sans-serif",fontSize:"8px",fontWeight:700,letterSpacing:"0.22em",textTransform:"uppercase" as const,color:accentColor,marginBottom:"8px" }}>Who's going</p><div style={{ display:"flex",flexWrap:"wrap" as const,gap:"8px" }}>{goingList.map((r)=>(<div key={r.user_id} style={{ width:"30px",height:"30px",borderRadius:"50%",backgroundColor:accentColor,display:"flex",alignItems:"center",justifyContent:"center" }}><span style={{ fontFamily:"'Inter',sans-serif",fontSize:"11px",fontWeight:700,color:accentText }}>{getInitials(r.name)}</span></div>))}</div></div>)}
+                      {goingList.length > 0 && (<div style={{ borderRadius:"20px",border:`1px solid ${frostBorder}`,padding:"16px 18px",backgroundColor:frostBg,backdropFilter:"blur(12px)",WebkitBackdropFilter:"blur(12px)" }}><p style={{ fontFamily:"'Fredoka', sans-serif",fontSize:"8px",fontWeight:700,letterSpacing:"0.22em",textTransform:"uppercase" as const,color:accentColor,marginBottom:"8px" }}>Who's going</p><div style={{ display:"flex",flexWrap:"wrap" as const,gap:"8px" }}>{goingList.map((r)=>(<div key={r.user_id} style={{ width:"30px",height:"30px",borderRadius:"50%",backgroundColor:accentColor,display:"flex",alignItems:"center",justifyContent:"center" }}><span style={{ fontFamily:"'Inter',sans-serif",fontSize:"11px",fontWeight:700,color:accentText }}>{getInitials(r.name)}</span></div>))}</div></div>)}
                       {renderPolls()}
                       <div style={{ borderRadius:"20px",border:`1px solid ${frostBorder}`,padding:"16px 18px",backgroundColor:frostBg,backdropFilter:"blur(12px)",WebkitBackdropFilter:"blur(12px)" }}>
                         <div style={{ display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"10px" }}><p style={{ fontFamily:"'Inter',sans-serif",fontSize:"8px",fontWeight:700,letterSpacing:"0.22em",textTransform:"uppercase" as const,color:accentColor,margin:0 }}>Chat</p><button onClick={()=>setShowFullComments(true)}><Maximize2 className="w-4 h-4" style={{ color:accentColor }} /></button></div>
@@ -3174,7 +3174,7 @@ const EventView = () => {
                       {event.location && <div style={infoBubbleStyle}><p style={{ fontFamily:"'Inter',sans-serif",fontSize:customLabelSz,fontWeight:700,letterSpacing:"0.22em",textTransform:"uppercase" as const,color:infoLabelColor,marginBottom:"5px" }}>Location</p><p style={{ fontFamily:eventFontFamily,fontSize:customValueSz,fontWeight:titleWt,color:infoTextColor,lineHeight:1.2 }}>{event.location}</p></div>}
                       {event.dress_code && <div style={infoBubbleStyle}><p style={{ fontFamily:"'Inter',sans-serif",fontSize:customLabelSz,fontWeight:700,letterSpacing:"0.22em",textTransform:"uppercase" as const,color:infoLabelColor,marginBottom:"5px" }}>Dress Code</p><p style={{ fontFamily:eventFontFamily,fontSize:customValueSz,fontWeight:titleWt,color:infoTextColor,lineHeight:1.2 }}>{event.dress_code}</p></div>}
                       {event.extra && <div style={infoBubbleStyle}><p style={{ fontFamily:"'Inter',sans-serif",fontSize:customLabelSz,fontWeight:700,letterSpacing:"0.22em",textTransform:"uppercase" as const,color:infoLabelColor,marginBottom:"5px" }}>From the host</p><p style={{ fontFamily:"'Inter',sans-serif",fontSize:customValueSz,color:infoTextColor,lineHeight:1.5 }}>{event.extra}</p></div>}
-                      {goingList.length > 0 && (<div style={{ borderRadius:"20px",border:`1px solid ${frostBorder}`,padding:"16px 18px",backgroundColor:frostBg,backdropFilter:"blur(12px)",WebkitBackdropFilter:"blur(12px)" }}><p style={{ fontFamily:"'Inter',sans-serif",fontSize:"8px",fontWeight:700,letterSpacing:"0.22em",textTransform:"uppercase" as const,color:accentColor,marginBottom:"8px" }}>Who's going</p><div style={{ display:"flex",flexWrap:"wrap" as const,gap:"8px",justifyContent:"center" }}>{goingList.map((r)=>(<div key={r.user_id} style={{ width:"30px",height:"30px",borderRadius:"50%",backgroundColor:accentColor,display:"flex",alignItems:"center",justifyContent:"center" }}><span style={{ fontFamily:"'Inter',sans-serif",fontSize:"11px",fontWeight:700,color:accentText }}>{getInitials(r.name)}</span></div>))}</div></div>)}
+                      {goingList.length > 0 && (<div style={{ borderRadius:"20px",border:`1px solid ${frostBorder}`,padding:"16px 18px",backgroundColor:frostBg,backdropFilter:"blur(12px)",WebkitBackdropFilter:"blur(12px)" }}><p style={{ fontFamily:"'Fredoka', sans-serif",fontSize:"8px",fontWeight:700,letterSpacing:"0.22em",textTransform:"uppercase" as const,color:accentColor,marginBottom:"8px" }}>Who's going</p><div style={{ display:"flex",flexWrap:"wrap" as const,gap:"8px",justifyContent:"center" }}>{goingList.map((r)=>(<div key={r.user_id} style={{ width:"30px",height:"30px",borderRadius:"50%",backgroundColor:accentColor,display:"flex",alignItems:"center",justifyContent:"center" }}><span style={{ fontFamily:"'Inter',sans-serif",fontSize:"11px",fontWeight:700,color:accentText }}>{getInitials(r.name)}</span></div>))}</div></div>)}
                       {renderPolls()}
                       <div style={{ borderRadius:"20px",border:`1px solid ${frostBorder}`,padding:"16px 18px",backgroundColor:frostBg,backdropFilter:"blur(12px)",WebkitBackdropFilter:"blur(12px)" }}>
                         <div style={{ display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"10px" }}><p style={{ fontFamily:"'Inter',sans-serif",fontSize:"8px",fontWeight:700,letterSpacing:"0.22em",textTransform:"uppercase" as const,color:accentColor,margin:0 }}>Chat</p><button onClick={()=>setShowFullComments(true)}><Maximize2 className="w-4 h-4" style={{ color:accentColor }} /></button></div>
@@ -3466,7 +3466,7 @@ const EventView = () => {
               onClick={() => setGuestListExpanded(!guestListExpanded)}
               className="flex items-center justify-between w-full mb-3"
             >
-              <h2 className="text-white font-bold text-sm">Who's going</h2>
+              <h2 className="text-white font-bold text-sm" style={{ fontFamily: "'Fredoka', sans-serif" }}>Who's going</h2>
               <div className="flex items-center gap-2">
                 {goingList.length > 0 && (
                   <span className="font-bold text-xs" style={{ color: accentColor }}>
@@ -3640,7 +3640,7 @@ const EventView = () => {
           <button
             onClick={() => setBarMinimised(false)}
             className="mx-auto block backdrop-blur-sm rounded-full px-5 py-2.5 text-sm font-bold border border-border"
-            style={{ backgroundColor: "rgba(56,56,56,0.95)", color: "#3D7BFF" }}
+            style={{ backgroundColor: "rgba(56,56,56,0.95)", color: "#2563eb" }}
           >
             {rsvpLabel}
           </button>
@@ -3939,7 +3939,7 @@ const EventView = () => {
             <h2 className="text-lg font-bold text-foreground">Guest list</h2>
             <div className="flex gap-2 mt-3">
               {(["going", "waitlist"] as const).map(tab => (
-                <button key={tab} onClick={() => setGuestListTab(tab)} className="px-4 py-1.5 rounded-full text-sm font-semibold" style={{ background: guestListTab === tab ? "linear-gradient(120deg, #3D7BFF, #22D3EE)" : "#1e1e1e", color: guestListTab === tab ? "#06121f" : "#fff", border: "none" }}>
+                <button key={tab} onClick={() => setGuestListTab(tab)} className="px-4 py-1.5 rounded-full text-sm font-semibold" style={{ background: guestListTab === tab ? "#2563eb" : "#1e1e1e", color: guestListTab === tab ? "#ffffff" : "#fff", border: "none" }}>
                   {tab === "going"
                     ? (eventCapacity ? `Going · ${goingList.length}/${eventCapacity}` : `Going · ${goingList.length}`)
                     : "Waitlist"}
@@ -3978,7 +3978,7 @@ const EventView = () => {
                         </div>
                         <div className="flex-1 min-w-0"><p className="font-semibold text-sm text-foreground truncate">{p.name}</p></div>
                         <div className="flex gap-2">
-                          <button onClick={() => approveWaitlist(p.user_id)} className="text-xs font-bold px-3 py-1.5 rounded-full" style={{ background: "linear-gradient(120deg, #3D7BFF, #22D3EE)", color: "#06121f", border: "none" }}>Approve</button>
+                          <button onClick={() => approveWaitlist(p.user_id)} className="text-xs font-bold px-3 py-1.5 rounded-full" style={{ background: "#2563eb", color: "#ffffff", border: "none" }}>Approve</button>
                           <button onClick={() => declineWaitlist(p.user_id)} className="text-xs font-bold px-3 py-1.5 rounded-full border border-red-500/50 text-red-400">Decline</button>
                         </div>
                       </div>
@@ -4040,7 +4040,7 @@ const EventView = () => {
           <div className="px-5 pt-5 pb-8">
             <h2 className="text-lg font-bold text-foreground mb-4">RSVP deadline</h2>
             <input type="datetime-local" value={deadlineInput} onChange={e => setDeadlineInput(e.target.value)} className="w-full bg-card border border-border rounded-xl px-4 py-3 text-sm text-foreground outline-none mb-4" />
-            <button onClick={saveRsvpDeadline} className="w-full py-3.5 rounded-xl text-sm font-bold" style={{ background: "linear-gradient(120deg, #3D7BFF, #22D3EE)", color: "#06121f", border: "none" }}>Save deadline</button>
+            <button onClick={saveRsvpDeadline} className="w-full py-3.5 rounded-xl text-sm font-bold" style={{ background: "#2563eb", color: "#ffffff", border: "none" }}>Save deadline</button>
           </div>
         </DrawerContent>
       </Drawer>

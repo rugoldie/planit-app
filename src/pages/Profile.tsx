@@ -8,8 +8,8 @@ import { toast } from "sonner";
 const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 const DAYS = ["S","M","T","W","T","F","S"];
 const ACCENT = "#C6F24E";
-const COVO_GRAD = "linear-gradient(120deg, #3D7BFF, #22D3EE)";
-const COVO_CYAN = "#22D3EE";
+const COVO_GRAD = "#2563eb";
+const COVO_CYAN = "#2563eb";
 
 type EventEntry = { name: string; date: string; code: string; role: "Host" | "Going" | "Maybe" | "Not going" };
 
@@ -313,7 +313,7 @@ const Profile = () => {
                   onClick={() => setEventsTab("upcoming")}
                   className="flex-1 py-2.5 rounded-full text-sm font-semibold transition-colors"
                   style={eventsTab === "upcoming"
-                    ? { background: COVO_GRAD, color: "#06121f", border: "none" }
+                    ? { background: COVO_GRAD, color: "#ffffff", border: "none" }
                     : { background: "#141519", color: "#8a9098", border: "none" }}
                 >
                   Upcoming
@@ -323,7 +323,7 @@ const Profile = () => {
                   onClick={() => setEventsTab("past")}
                   className="flex-1 py-2.5 rounded-full text-sm font-semibold transition-colors"
                   style={eventsTab === "past"
-                    ? { background: COVO_GRAD, color: "#06121f", border: "none" }
+                    ? { background: COVO_GRAD, color: "#ffffff", border: "none" }
                     : { background: "#141519", color: "#8a9098", border: "none" }}
                 >
                   Past
