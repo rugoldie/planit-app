@@ -1,0 +1,211 @@
+{
+  "version": 1,
+  "sdk_version": "0.26.1",
+  "path": "/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://vugjjbtmcwfycqoykfgz.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "planit-your-social-events",
+      "version": "0.1.0",
+      "title": "Planit: Your Social Events"
+    },
+    "tools": [
+      {
+        "name": "list_my_events",
+        "title": "List my events",
+        "description": "List events the signed-in user is hosting or attending, with RSVP status.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "limit": {
+              "type": "integer",
+              "description": "Max events to return (default 20)."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_event",
+        "title": "Get event details",
+        "description": "Get full details for one event by its share code, including guest list and RSVP counts.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "description": "The event share code, e.g. ABC123."
+            }
+          },
+          "required": [
+            "code"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "create_event",
+        "title": "Create an event",
+        "description": "Create a new event hosted by the signed-in user and return its share code.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string",
+              "description": "Event name."
+            },
+            "date_time": {
+              "type": "string",
+              "description": "Event start as an ISO 8601 timestamp, e.g. 2026-06-05T19:00:00Z."
+            },
+            "location": {
+              "type": "string",
+              "description": "Venue or address."
+            },
+            "vibe": {
+              "type": "string",
+              "description": "Short vibe or description line."
+            },
+            "dress_code": {
+              "type": "string",
+              "description": "Dress code / theme."
+            },
+            "extra": {
+              "type": "string",
+              "description": "Notes from the host."
+            }
+          },
+          "required": [
+            "title",
+            "date_time"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "set_rsvp",
+        "title": "Set my RSVP",
+        "description": "Set the signed-in user's RSVP status for an event identified by its share code.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "description": "The event share code."
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "yes",
+                "no",
+                "maybe"
+              ],
+              "description": "RSVP status."
+            }
+          },
+          "required": [
+            "code",
+            "status"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_event_chat",
+        "title": "List event chat",
+        "description": "Read recent chat messages posted on an event, newest last.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "description": "The event share code."
+            },
+            "limit": {
+              "type": "integer",
+              "description": "Max messages to return (default 30)."
+            }
+          },
+          "required": [
+            "code"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "post_event_chat",
+        "title": "Post event chat message",
+        "description": "Post a chat message to an event as the signed-in user.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "description": "The event share code."
+            },
+            "text": {
+              "type": "string",
+              "description": "Message text to post."
+            }
+          },
+          "required": [
+            "code",
+            "text"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
