@@ -26,7 +26,7 @@ type Comment = { id: string; user_name: string; text: string; created_at: string
 type RsvpEntry = { name: string; avatar_url?: string; status: string; user_id: string };
 type StickerItem = { id: string; emoji: string; x: number; y: number; size: number };
 
-const TABLER_ICON_MAP: Record<string, React.ComponentType<{size?: number; stroke?: number; color?: string}>> = {
+const TABLER_ICON_MAP: Record<string, React.ComponentType<any>> = {
   "confetti": IconConfetti, "glass-full": IconGlassFull, "music": IconMusic, "star": IconStar, "cake": IconCake, "crown": IconCrown,
   "sun": IconSun, "wave-sine": IconWaveSine, "trees": IconTrees, "flower": IconFlower, "mountain": IconMountain, "snowflake": IconSnowflake,
   "pizza": IconPizza, "beer": IconBeer, "coffee": IconCoffee, "meat": IconMeat, "fish": IconFish, "salad": IconSalad,
