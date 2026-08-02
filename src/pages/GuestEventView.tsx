@@ -178,7 +178,7 @@ const GuestEventView = () => {
   const [showCapacityFull, setShowCapacityFull] = useState(false);
   const [onWaitlist, setOnWaitlist] = useState(false);
   const [polls, setPolls] = useState<any[]>([]);
-  const [myVotes, setMyVotes] = useState<Record<string, string>>({});
+  const [myVotes, setMyVotes] = useState<Record<string, number>>({});
   const [dismissedPolls, setDismissedPolls] = useState<Set<string>>(new Set());
 
   const fetchPolls = useCallback(async () => {
@@ -195,7 +195,7 @@ const GuestEventView = () => {
     if (user && pollData.length) {
       const { data: voteData } = await (supabase as any).from("poll_votes").select("poll_id, option").eq("user_id", user.id).in("poll_id", pollData.map((p: any) => p.id));
       if (voteData) {
-        const map: Record<string, string> = {};
+        const map: Record<string, number> = {};
         voteData.forEach((v: any) => { map[v.poll_id] = v.option; });
         setMyVotes(map);
       }
