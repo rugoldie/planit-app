@@ -148,17 +148,23 @@ export type Database = {
           bg_color: string | null
           bg_photo: string | null
           bubble_color: string | null
+          bubble_style: string | null
           bubble_text_color: string | null
+          capacity: number | null
           code: string
           created_at: string
+          custom_layout: string | null
           date_time: string | null
           dress_code: string | null
           extra: string | null
+          font_color: string | null
           font_style: string | null
           gradient_color: string | null
           host_id: string
           id: string
           location: string | null
+          rsvp_deadline: string | null
+          stickers: string | null
           template_name: string | null
           text_size: string | null
           title: string
@@ -169,17 +175,23 @@ export type Database = {
           bg_color?: string | null
           bg_photo?: string | null
           bubble_color?: string | null
+          bubble_style?: string | null
           bubble_text_color?: string | null
+          capacity?: number | null
           code: string
           created_at?: string
+          custom_layout?: string | null
           date_time?: string | null
           dress_code?: string | null
           extra?: string | null
+          font_color?: string | null
           font_style?: string | null
           gradient_color?: string | null
           host_id: string
           id?: string
           location?: string | null
+          rsvp_deadline?: string | null
+          stickers?: string | null
           template_name?: string | null
           text_size?: string | null
           title?: string
@@ -190,17 +202,23 @@ export type Database = {
           bg_color?: string | null
           bg_photo?: string | null
           bubble_color?: string | null
+          bubble_style?: string | null
           bubble_text_color?: string | null
+          capacity?: number | null
           code?: string
           created_at?: string
+          custom_layout?: string | null
           date_time?: string | null
           dress_code?: string | null
           extra?: string | null
+          font_color?: string | null
           font_style?: string | null
           gradient_color?: string | null
           host_id?: string
           id?: string
           location?: string | null
+          rsvp_deadline?: string | null
+          stickers?: string | null
           template_name?: string | null
           text_size?: string | null
           title?: string
@@ -210,10 +228,154 @@ export type Database = {
         Relationships: []
       }
       friendships: {
-        Row: { id: string; requester_id: string; recipient_id: string; status: string; created_at: string }
-        Insert: { id?: string; requester_id: string; recipient_id: string; status?: string; created_at?: string }
-        Update: { id?: string; requester_id?: string; recipient_id?: string; status?: string; created_at?: string }
+        Row: {
+          created_at: string | null
+          id: string
+          recipient_id: string | null
+          requester_id: string | null
+          status: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          recipient_id?: string | null
+          requester_id?: string | null
+          status?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          recipient_id?: string | null
+          requester_id?: string | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "friendships_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "friendships_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "friendships_requester_id_fkey"
+            columns: ["requester_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "friendships_requester_id_fkey"
+            columns: ["requester_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          body: string
+          created_at: string | null
+          data: Json | null
+          id: string
+          read: boolean | null
+          title: string
+          type: string
+          user_id: string | null
+        }
+        Insert: {
+          body: string
+          created_at?: string | null
+          data?: Json | null
+          id?: string
+          read?: boolean | null
+          title: string
+          type: string
+          user_id?: string | null
+        }
+        Update: {
+          body?: string
+          created_at?: string | null
+          data?: Json | null
+          id?: string
+          read?: boolean | null
+          title?: string
+          type?: string
+          user_id?: string | null
+        }
         Relationships: []
+      }
+      poll_votes: {
+        Row: {
+          created_at: string | null
+          id: string
+          option: number
+          poll_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          option: number
+          poll_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          option?: number
+          poll_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "poll_votes_poll_id_fkey"
+            columns: ["poll_id"]
+            isOneToOne: false
+            referencedRelation: "polls"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      polls: {
+        Row: {
+          created_at: string | null
+          event_id: string
+          id: string
+          options: Json
+          question: string
+        }
+        Insert: {
+          created_at?: string | null
+          event_id: string
+          id?: string
+          options: Json
+          question: string
+        }
+        Update: {
+          created_at?: string | null
+          event_id?: string
+          id?: string
+          options?: Json
+          question?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "polls_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {

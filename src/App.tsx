@@ -20,6 +20,7 @@ import EventsList from "./pages/EventsList";
 import Notifications from "./pages/Notifications";
 import Messages from "./pages/Messages";
 import Conversation from "./pages/Conversation";
+import OAuthConsent from "./pages/OAuthConsent";
 
 const queryClient = new QueryClient();
 
@@ -46,6 +47,7 @@ const App = () => (
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/messages" element={<Messages />} />
             <Route path="/messages/:conversationId" element={<Conversation />} />
+            <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

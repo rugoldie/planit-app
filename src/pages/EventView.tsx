@@ -69,7 +69,7 @@ type RsvpEntry = { name: string; avatar_url?: string; status: string; user_id: s
 type DM = { id: string; sender_id: string; text: string; created_at: string; sender_name?: string };
 type StickerItem = { id: string; emoji: string; x: number; y: number; size: number };
 
-const TABLER_ICON_MAP: Record<string, React.ComponentType<{size?: number; stroke?: number; color?: string}>> = {
+const TABLER_ICON_MAP: Record<string, React.ComponentType<any>> = {
   "confetti": IconConfetti, "glass-full": IconGlassFull, "music": IconMusic, "star": IconStar, "cake": IconCake, "crown": IconCrown,
   "sun": IconSun, "wave-sine": IconWaveSine, "trees": IconTrees, "flower": IconFlower, "mountain": IconMountain, "snowflake": IconSnowflake,
   "pizza": IconPizza, "beer": IconBeer, "coffee": IconCoffee, "meat": IconMeat, "fish": IconFish, "salad": IconSalad,
@@ -216,7 +216,7 @@ const EventView = () => {
   const [pollMenuOpenId, setPollMenuOpenId] = useState<string | null>(null);
   const [editingPollId, setEditingPollId] = useState<string | null>(null);
   const [polls, setPolls] = useState<any[]>([]);
-  const [myVotes, setMyVotes] = useState<Record<string, string>>({});
+  const [myVotes, setMyVotes] = useState<Record<string, number>>({});
   const [pollKeyboardHeight, setPollKeyboardHeight] = useState(0);
 
   // RSVP deadline editor
@@ -283,7 +283,7 @@ const EventView = () => {
     if (user && pollData.length) {
       const { data: voteData } = await (supabase as any).from("poll_votes").select("poll_id, option").eq("user_id", user.id).in("poll_id", pollData.map((p: any) => p.id));
       if (voteData) {
-        const map: Record<string, string> = {};
+        const map: Record<string, number> = {};
         voteData.forEach((v: any) => { map[v.poll_id] = v.option; });
         setMyVotes(map);
       }
