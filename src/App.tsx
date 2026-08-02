@@ -20,6 +20,7 @@ import EventsList from "./pages/EventsList";
 import Notifications from "./pages/Notifications";
 import Messages from "./pages/Messages";
 import Conversation from "./pages/Conversation";
+import OAuthConsent from "./pages/OAuthConsent";
 
 const queryClient = new QueryClient();
 
