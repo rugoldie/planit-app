@@ -14,6 +14,25 @@ const buildFullPhone = (countryCode: string, phone: string) => {
   return `${countryCode}${digits}`;
 };
 
+// supabase.functions.invoke() throws a FunctionsHttpError for any non-2xx
+// response and returns `data: null` - the edge function's own JSON error
+// body is never placed on `data`, only on `error.context` (the raw,
+// unread Response). Without this, every specific message our edge
+// functions return (wrong code, expired code, too many attempts, etc.)
+// is invisible and callers only ever see the generic fallback text.
+const extractInvokeErrorMessage = async (fnError: unknown, fallback: string): Promise<string> => {
+  const context = (fnError as { context?: Response } | null)?.context;
+  if (context && typeof context.json === "function") {
+    try {
+      const body = await context.json();
+      if (body?.error) return body.error;
+    } catch {
+      // response body wasn't JSON or already consumed - fall through
+    }
+  }
+  return fallback;
+};
+
 const SignUp = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
@@ -66,7 +85,7 @@ const SignUp = () => {
       });
       setLoading(false);
       if (fnError || data?.error) {
-        setError(data?.error || "Failed to send code. Check your number and try again.");
+        setError(data?.error || (await extractInvokeErrorMessage(fnError, "Failed to send code. Check your number and try again.")));
         return;
       }
       setStep(3);
@@ -78,7 +97,7 @@ const SignUp = () => {
       });
       setLoading(false);
       if (fnError || data?.error) {
-        setError(data?.error || "Incorrect code. Please try again.");
+        setError(data?.error || (await extractInvokeErrorMessage(fnError, "Incorrect code. Please try again.")));
         return;
       }
       setStep(4);
@@ -225,7 +244,7 @@ const SignUp = () => {
                   body: { phone: fullPhone },
                 });
                 if (fnError || data?.error) {
-                  setError(data?.error || "Failed to resend code.");
+                  setError(data?.error || (await extractInvokeErrorMessage(fnError, "Failed to resend code.")));
                 }
               }}
               className="text-sm text-muted-foreground underline w-full text-center"
