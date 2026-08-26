@@ -40,10 +40,10 @@ const Onboarding = () => {
     if (!username || username.length < 3) { setUsernameStatus("idle"); return; }
     setUsernameStatus("checking");
     const t = setTimeout(async () => {
-      const { data } = await (supabase as any)
+      const { data } = await supabase
         .from("profiles")
         .select("id")
-        .eq("username" as any, username as any)
+        .eq("username" as any, username)
         .maybeSingle();
       setUsernameStatus(data ? "taken" : "available");
     }, 400);
@@ -99,7 +99,7 @@ const Onboarding = () => {
 
       const { error, data } = await supabase
         .from("profiles")
-        .update(update as any)
+        .update(update)
         .eq("user_id", user.id)
         .select();
 
@@ -115,7 +115,7 @@ const Onboarding = () => {
           if (withAvatar && avatarUrl) fallback.avatar_url = avatarUrl;
           const { error: err2 } = await supabase
             .from("profiles")
-            .update(fallback as any)
+            .update(fallback)
             .eq("user_id", user.id);
           if (err2) {
             setSaveError(`Save failed: ${err2.message} (run the Supabase migrations)`);

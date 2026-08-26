@@ -26,7 +26,7 @@ type Comment = { id: string; user_name: string; text: string; created_at: string
 type RsvpEntry = { name: string; avatar_url?: string; status: string; user_id: string };
 type StickerItem = { id: string; emoji: string; x: number; y: number; size: number };
 
-const TABLER_ICON_MAP: Record<string, React.ComponentType<any>> = {
+const TABLER_ICON_MAP: Record<string, React.ComponentType<{size?: number; stroke?: number; color?: string}>> = {
   "confetti": IconConfetti, "glass-full": IconGlassFull, "music": IconMusic, "star": IconStar, "cake": IconCake, "crown": IconCrown,
   "sun": IconSun, "wave-sine": IconWaveSine, "trees": IconTrees, "flower": IconFlower, "mountain": IconMountain, "snowflake": IconSnowflake,
   "pizza": IconPizza, "beer": IconBeer, "coffee": IconCoffee, "meat": IconMeat, "fish": IconFish, "salad": IconSalad,
@@ -178,7 +178,7 @@ const GuestEventView = () => {
   const [showCapacityFull, setShowCapacityFull] = useState(false);
   const [onWaitlist, setOnWaitlist] = useState(false);
   const [polls, setPolls] = useState<any[]>([]);
-  const [myVotes, setMyVotes] = useState<Record<string, number>>({});
+  const [myVotes, setMyVotes] = useState<Record<string, string>>({});
   const [dismissedPolls, setDismissedPolls] = useState<Set<string>>(new Set());
 
   const fetchPolls = useCallback(async () => {
@@ -195,7 +195,7 @@ const GuestEventView = () => {
     if (user && pollData.length) {
       const { data: voteData } = await (supabase as any).from("poll_votes").select("poll_id, option").eq("user_id", user.id).in("poll_id", pollData.map((p: any) => p.id));
       if (voteData) {
-        const map: Record<string, number> = {};
+        const map: Record<string, string> = {};
         voteData.forEach((v: any) => { map[v.poll_id] = v.option; });
         setMyVotes(map);
       }
