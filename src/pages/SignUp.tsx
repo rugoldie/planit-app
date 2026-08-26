@@ -6,6 +6,14 @@ import PasswordInput from "@/components/PasswordInput";
 import CountryCodeSelector from "@/components/CountryCodeSelector";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 
+// Combine a country code (e.g. "+44") with a national number, stripping
+// non-digit characters and a leading trunk "0" (e.g. "07911 123456" -> "7911123456")
+// so the result is a valid E.164 number instead of "+440..." or "+44 7911 123456".
+const buildFullPhone = (countryCode: string, phone: string) => {
+  const digits = phone.replace(/\D/g, "").replace(/^0+/, "");
+  return `${countryCode}${digits}`;
+};
+
 const SignUp = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
@@ -52,7 +60,7 @@ const SignUp = () => {
       setStep(2);
     } else if (step === 2) {
       setLoading(true);
-      const fullPhone = `${countryCode}${phone}`;
+      const fullPhone = buildFullPhone(countryCode, phone);
       const { data, error: fnError } = await supabase.functions.invoke("send-otp", {
         body: { phone: fullPhone },
       });
@@ -64,7 +72,7 @@ const SignUp = () => {
       setStep(3);
     } else if (step === 3) {
       setLoading(true);
-      const fullPhone = `${countryCode}${phone}`;
+      const fullPhone = buildFullPhone(countryCode, phone);
       const { data, error: fnError } = await supabase.functions.invoke("verify-otp", {
         body: { phone: fullPhone, code: otpValue },
       });
@@ -80,7 +88,7 @@ const SignUp = () => {
         return;
       }
       setLoading(true);
-      const fullPhone = `${countryCode}${phone}`;
+      const fullPhone = buildFullPhone(countryCode, phone);
       const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
@@ -212,7 +220,7 @@ const SignUp = () => {
               onClick={async () => {
                 setError("");
                 setOtpValue("");
-                const fullPhone = `${countryCode}${phone}`;
+                const fullPhone = buildFullPhone(countryCode, phone);
                 const { data, error: fnError } = await supabase.functions.invoke("send-otp", {
                   body: { phone: fullPhone },
                 });

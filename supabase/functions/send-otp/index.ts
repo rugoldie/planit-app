@@ -33,6 +33,8 @@ serve(async (req) => {
     const credentials = btoa(`${accountSid}:${authToken}`);
     const url = `https://verify.twilio.com/v2/Services/${serviceSid}/Verifications`;
 
+    console.log("send-otp: sending Verification to Twilio for phone:", phone);
+
     const body = new URLSearchParams({ To: phone, Channel: "sms" });
 
     const res = await fetch(url, {
@@ -47,6 +49,7 @@ serve(async (req) => {
     const data = await res.json();
 
     if (!res.ok) {
+      console.error("send-otp: Twilio rejected phone:", phone, "response:", data);
       return new Response(JSON.stringify({ error: data.message || "Failed to send OTP" }), {
         status: res.status,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
