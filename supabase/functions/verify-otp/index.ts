@@ -33,6 +33,8 @@ serve(async (req) => {
     const credentials = btoa(`${accountSid}:${authToken}`);
     const url = `https://verify.twilio.com/v2/Services/${serviceSid}/VerificationChecks`;
 
+    console.log("verify-otp: checking code against Twilio for phone:", phone);
+
     const body = new URLSearchParams({ To: phone, Code: code });
 
     const res = await fetch(url, {
@@ -47,6 +49,10 @@ serve(async (req) => {
     const data = await res.json();
 
     if (!res.ok) {
+      // A 404 here typically means Twilio has no pending verification for this
+      // exact phone string - i.e. it doesn't match what send-otp used - rather
+      // than the code itself being wrong.
+      console.error("verify-otp: Twilio rejected check for phone:", phone, "response:", data);
       return new Response(JSON.stringify({ error: data.message || "Verification failed" }), {
         status: res.status,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -54,6 +60,7 @@ serve(async (req) => {
     }
 
     if (data.status !== "approved") {
+      console.log("verify-otp: code did not match for phone:", phone, "Twilio status:", data.status);
       return new Response(JSON.stringify({ error: "Incorrect code" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
