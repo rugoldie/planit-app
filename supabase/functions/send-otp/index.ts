@@ -23,12 +23,16 @@ serve(async (req) => {
     const authToken  = Deno.env.get("TWILIO_AUTH_TOKEN");
     const serviceSid = Deno.env.get("TWILIO_VERIFY_SERVICE_SID");
 
-    // TEMPORARY DEBUG LOG - remove after comparing against verify-otp's log.
-    console.log("send-otp: TWILIO_VERIFY_SERVICE_SID prefix:", serviceSid?.slice(0, 8) ?? "undefined");
-    console.log("send-otp: TWILIO_ACCOUNT_SID prefix:", accountSid?.slice(0, 8) ?? "undefined");
+    // TEMPORARY DEBUG - returned in the response body (not just logged) since
+    // the logs panel doesn't surface curl-triggered edge function invocations.
+    // Remove once compared against verify-otp's _debug output.
+    const _debug = {
+      serviceSidPrefix: serviceSid?.slice(0, 8) ?? "undefined",
+      accountSidPrefix: accountSid?.slice(0, 8) ?? "undefined",
+    };
 
     if (!accountSid || !authToken || !serviceSid) {
-      return new Response(JSON.stringify({ error: "Twilio credentials not configured" }), {
+      return new Response(JSON.stringify({ error: "Twilio credentials not configured", _debug }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -54,13 +58,13 @@ serve(async (req) => {
 
     if (!res.ok) {
       console.error("send-otp: Twilio rejected phone:", phone, "response:", data);
-      return new Response(JSON.stringify({ error: data.message || "Failed to send OTP" }), {
+      return new Response(JSON.stringify({ error: data.message || "Failed to send OTP", _debug }), {
         status: res.status,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    return new Response(JSON.stringify({ success: true, status: data.status }), {
+    return new Response(JSON.stringify({ success: true, status: data.status, verificationSid: data.sid, _debug }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

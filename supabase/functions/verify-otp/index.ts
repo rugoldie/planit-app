@@ -23,12 +23,16 @@ serve(async (req) => {
     const authToken  = Deno.env.get("TWILIO_AUTH_TOKEN");
     const serviceSid = Deno.env.get("TWILIO_VERIFY_SERVICE_SID");
 
-    // TEMPORARY DEBUG LOG - remove after comparing against send-otp's log.
-    console.log("verify-otp: TWILIO_VERIFY_SERVICE_SID prefix:", serviceSid?.slice(0, 8) ?? "undefined");
-    console.log("verify-otp: TWILIO_ACCOUNT_SID prefix:", accountSid?.slice(0, 8) ?? "undefined");
+    // TEMPORARY DEBUG - returned in the response body (not just logged) since
+    // the logs panel doesn't surface curl-triggered edge function invocations.
+    // Remove once compared against send-otp's _debug output.
+    const _debug = {
+      serviceSidPrefix: serviceSid?.slice(0, 8) ?? "undefined",
+      accountSidPrefix: accountSid?.slice(0, 8) ?? "undefined",
+    };
 
     if (!accountSid || !authToken || !serviceSid) {
-      return new Response(JSON.stringify({ error: "Twilio credentials not configured" }), {
+      return new Response(JSON.stringify({ error: "Twilio credentials not configured", _debug }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -66,7 +70,10 @@ serve(async (req) => {
           : data.code === 20404
             ? "This code has expired or is no longer valid. Please request a new code."
             : data.message || "Verification failed";
-      return new Response(JSON.stringify({ error: message }), {
+      // twilioRaw includes Twilio's own error message, which embeds the exact
+      // Service SID it tried to query in its URL - an independent cross-check
+      // against _debug.serviceSidPrefix (which is just what Deno.env.get read).
+      return new Response(JSON.stringify({ error: message, _debug, twilioRaw: data }), {
         status: res.status,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -77,13 +84,13 @@ serve(async (req) => {
     // submitted code against the current verification and it didn't match.
     if (data.status !== "approved") {
       console.log("verify-otp: code did not match for phone:", phone, "Twilio status:", data.status);
-      return new Response(JSON.stringify({ error: `Incorrect code (status: ${data.status})` }), {
+      return new Response(JSON.stringify({ error: `Incorrect code (status: ${data.status})`, _debug }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    return new Response(JSON.stringify({ success: true }), {
+    return new Response(JSON.stringify({ success: true, _debug }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
