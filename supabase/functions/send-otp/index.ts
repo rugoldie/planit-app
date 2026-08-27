@@ -23,6 +23,9 @@ serve(async (req) => {
     const authToken  = Deno.env.get("TWILIO_AUTH_TOKEN");
     const serviceSid = Deno.env.get("TWILIO_VERIFY_SERVICE_SID");
 
+    // TEMPORARY DEBUG LOG - remove after comparing against verify-otp's log.
+    console.log("send-otp: TWILIO_VERIFY_SERVICE_SID prefix:", serviceSid?.slice(0, 8) ?? "undefined");
+
     if (!accountSid || !authToken || !serviceSid) {
       return new Response(JSON.stringify({ error: "Twilio credentials not configured" }), {
         status: 500,
