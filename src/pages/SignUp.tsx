@@ -3,44 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import PasswordInput from "@/components/PasswordInput";
-import CountryCodeSelector from "@/components/CountryCodeSelector";
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
-
-// Combine a country code (e.g. "+44") with a national number, stripping
-// non-digit characters and a leading trunk "0" (e.g. "07911 123456" -> "7911123456")
-// so the result is a valid E.164 number instead of "+440..." or "+44 7911 123456".
-const buildFullPhone = (countryCode: string, phone: string) => {
-  const digits = phone.replace(/\D/g, "").replace(/^0+/, "");
-  return `${countryCode}${digits}`;
-};
-
-// supabase.functions.invoke() throws a FunctionsHttpError for any non-2xx
-// response and returns `data: null` - the edge function's own JSON error
-// body is never placed on `data`, only on `error.context` (the raw,
-// unread Response). Without this, every specific message our edge
-// functions return (wrong code, expired code, too many attempts, etc.)
-// is invisible and callers only ever see the generic fallback text.
-const extractInvokeErrorMessage = async (fnError: unknown, fallback: string): Promise<string> => {
-  const context = (fnError as { context?: Response } | null)?.context;
-  if (context && typeof context.json === "function") {
-    try {
-      const body = await context.json();
-      if (body?.error) return body.error;
-    } catch {
-      // response body wasn't JSON or already consumed - fall through
-    }
-  }
-  return fallback;
-};
 
 const SignUp = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [countryCode, setCountryCode] = useState("+44");
-  const [phone, setPhone] = useState("");
-  const [otpValue, setOtpValue] = useState("");
   const [name, setName] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -78,36 +46,11 @@ const SignUp = () => {
       }
       setStep(2);
     } else if (step === 2) {
-      setLoading(true);
-      const fullPhone = buildFullPhone(countryCode, phone);
-      const { data, error: fnError } = await supabase.functions.invoke("send-otp", {
-        body: { phone: fullPhone },
-      });
-      setLoading(false);
-      if (fnError || data?.error) {
-        setError(data?.error || (await extractInvokeErrorMessage(fnError, "Failed to send code. Check your number and try again.")));
-        return;
-      }
-      setStep(3);
-    } else if (step === 3) {
-      setLoading(true);
-      const fullPhone = buildFullPhone(countryCode, phone);
-      const { data, error: fnError } = await supabase.functions.invoke("verify-otp", {
-        body: { phone: fullPhone, code: otpValue },
-      });
-      setLoading(false);
-      if (fnError || data?.error) {
-        setError(data?.error || (await extractInvokeErrorMessage(fnError, "Incorrect code. Please try again.")));
-        return;
-      }
-      setStep(4);
-    } else if (step === 4) {
       if (!name.trim()) {
         setError("Please enter your name.");
         return;
       }
       setLoading(true);
-      const fullPhone = buildFullPhone(countryCode, phone);
       const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
@@ -123,7 +66,7 @@ const SignUp = () => {
       if (data.user) {
         await supabase
           .from("profiles")
-          .update({ phone: fullPhone, name })
+          .update({ name })
           .eq("user_id", data.user.id);
       }
       setLoading(false);
@@ -134,9 +77,7 @@ const SignUp = () => {
   const isButtonDisabled = () => {
     if (step === 0) return !email;
     if (step === 1) return !passwordValid;
-    if (step === 2) return !phone;
-    if (step === 3) return otpValue.length < 6;
-    if (step === 4) return !name.trim();
+    if (step === 2) return !name.trim();
     return false;
   };
 
@@ -194,69 +135,6 @@ const SignUp = () => {
         {step === 2 && (
           <div className="bg-card rounded-[var(--radius)] p-8 w-full max-w-xs border border-border">
             <h2 className="text-xl font-bold text-card-foreground mb-4">
-              What's your number?
-            </h2>
-            <div className="flex gap-2">
-              <CountryCodeSelector value={countryCode} onChange={setCountryCode} />
-              <input
-                type="tel"
-                placeholder="Phone number"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                className="flex-1 bg-muted text-card-foreground rounded-[var(--radius)] px-4 py-3 text-base outline-none placeholder:text-muted-foreground border border-border"
-              />
-            </div>
-          </div>
-        )}
-
-        {step === 3 && (
-          <div className="bg-card rounded-[var(--radius)] p-8 w-full max-w-xs border border-border">
-            <h2 className="text-xl font-bold text-card-foreground mb-4">
-              Enter your code
-            </h2>
-            <p className="text-sm text-muted-foreground mb-6">
-              We sent a 6 digit code to your number
-            </p>
-            <div className="flex justify-center mb-4">
-              <InputOTP
-                maxLength={6}
-                value={otpValue}
-                onChange={setOtpValue}
-                autoFocus
-              >
-                <InputOTPGroup>
-                  {[0, 1, 2, 3, 4, 5].map((index) => (
-                    <InputOTPSlot
-                      key={index}
-                      index={index}
-                      className="w-10 h-12 bg-muted text-card-foreground text-lg font-bold border-border"
-                    />
-                  ))}
-                </InputOTPGroup>
-              </InputOTP>
-            </div>
-            <button
-              onClick={async () => {
-                setError("");
-                setOtpValue("");
-                const fullPhone = buildFullPhone(countryCode, phone);
-                const { data, error: fnError } = await supabase.functions.invoke("send-otp", {
-                  body: { phone: fullPhone },
-                });
-                if (fnError || data?.error) {
-                  setError(data?.error || (await extractInvokeErrorMessage(fnError, "Failed to resend code.")));
-                }
-              }}
-              className="text-sm text-muted-foreground underline w-full text-center"
-            >
-              Resend code
-            </button>
-          </div>
-        )}
-
-        {step === 4 && (
-          <div className="bg-card rounded-[var(--radius)] p-8 w-full max-w-xs border border-border">
-            <h2 className="text-xl font-bold text-card-foreground mb-4">
               What's your name?
             </h2>
             <input
@@ -277,7 +155,7 @@ const SignUp = () => {
         disabled={isButtonDisabled() || loading}
         className="w-full max-w-xs mx-auto bg-primary text-primary-foreground rounded-[var(--radius)] py-4 text-lg font-bold disabled:opacity-50"
       >
-        {loading ? "Please wait..." : step === 3 ? "Verify" : step === 4 ? "Let's go" : "Continue"}
+        {loading ? "Please wait..." : step === 2 ? "Let's go" : "Continue"}
       </button>
     </div>
   );
