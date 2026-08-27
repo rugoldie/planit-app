@@ -3,13 +3,25 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import PasswordInput from "@/components/PasswordInput";
+import CountryCodeSelector from "@/components/CountryCodeSelector";
+
+// Combine a country code (e.g. "+44") with a national number, stripping
+// non-digit characters and a leading trunk "0" (e.g. "07911 123456" -> "7911123456")
+// so the result is a valid E.164 number instead of "+440..." or "+44 7911 123456".
+const buildFullPhone = (countryCode: string, phone: string) => {
+  const digits = phone.replace(/\D/g, "").replace(/^0+/, "");
+  return `${countryCode}${digits}`;
+};
 
 const SignUp = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [countryCode, setCountryCode] = useState("+44");
+  const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -38,19 +50,28 @@ const SignUp = () => {
   const handleContinue = async () => {
     setError("");
     if (step === 0) {
-      setStep(1);
-    } else if (step === 1) {
-      if (!passwordValid) {
-        setError("Please meet all requirements above.");
-        return;
-      }
-      setStep(2);
-    } else if (step === 2) {
       if (!name.trim()) {
         setError("Please enter your name.");
         return;
       }
+      setStep(1);
+    } else if (step === 1) {
+      if (!username.trim()) {
+        setError("Please choose a username.");
+        return;
+      }
+      setStep(2);
+    } else if (step === 2) {
+      setStep(3);
+    } else if (step === 3) {
+      setStep(4);
+    } else if (step === 4) {
+      if (!passwordValid) {
+        setError("Please meet all requirements above.");
+        return;
+      }
       setLoading(true);
+      const fullPhone = buildFullPhone(countryCode, phone);
       const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
@@ -66,7 +87,7 @@ const SignUp = () => {
       if (data.user) {
         await supabase
           .from("profiles")
-          .update({ name })
+          .update({ name, username, phone: fullPhone })
           .eq("user_id", data.user.id);
       }
       setLoading(false);
@@ -75,9 +96,11 @@ const SignUp = () => {
   };
 
   const isButtonDisabled = () => {
-    if (step === 0) return !email;
-    if (step === 1) return !passwordValid;
-    if (step === 2) return !name.trim();
+    if (step === 0) return !name.trim();
+    if (step === 1) return !username.trim();
+    if (step === 2) return !email;
+    if (step === 3) return !phone;
+    if (step === 4) return !passwordValid;
     return false;
   };
 
@@ -89,6 +112,36 @@ const SignUp = () => {
 
       <div className="flex flex-col items-center justify-center flex-1">
         {step === 0 && (
+          <div className="bg-card rounded-[var(--radius)] p-8 w-full max-w-xs border border-border">
+            <h2 className="text-xl font-bold text-card-foreground mb-4">
+              What's your name?
+            </h2>
+            <input
+              type="text"
+              placeholder="Your name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full bg-muted text-card-foreground rounded-[var(--radius)] px-4 py-3 text-base outline-none placeholder:text-muted-foreground border border-border"
+            />
+          </div>
+        )}
+
+        {step === 1 && (
+          <div className="bg-card rounded-[var(--radius)] p-8 w-full max-w-xs border border-border">
+            <h2 className="text-xl font-bold text-card-foreground mb-4">
+              Pick a username
+            </h2>
+            <input
+              type="text"
+              placeholder="username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="w-full bg-muted text-card-foreground rounded-[var(--radius)] px-4 py-3 text-base outline-none placeholder:text-muted-foreground border border-border"
+            />
+          </div>
+        )}
+
+        {step === 2 && (
           <div className="bg-card rounded-[var(--radius)] p-8 w-full max-w-xs border border-border">
             <h2 className="text-xl font-bold text-card-foreground mb-4">
               What's your email?
@@ -103,7 +156,25 @@ const SignUp = () => {
           </div>
         )}
 
-        {step === 1 && (
+        {step === 3 && (
+          <div className="bg-card rounded-[var(--radius)] p-8 w-full max-w-xs border border-border">
+            <h2 className="text-xl font-bold text-card-foreground mb-4">
+              What's your number?
+            </h2>
+            <div className="flex gap-2">
+              <CountryCodeSelector value={countryCode} onChange={setCountryCode} />
+              <input
+                type="tel"
+                placeholder="Phone number"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                className="flex-1 bg-muted text-card-foreground rounded-[var(--radius)] px-4 py-3 text-base outline-none placeholder:text-muted-foreground border border-border"
+              />
+            </div>
+          </div>
+        )}
+
+        {step === 4 && (
           <div className="bg-card rounded-[var(--radius)] p-8 w-full max-w-xs border border-border">
             <h2 className="text-xl font-bold text-card-foreground mb-4">
               Create a password
@@ -132,21 +203,6 @@ const SignUp = () => {
           </div>
         )}
 
-        {step === 2 && (
-          <div className="bg-card rounded-[var(--radius)] p-8 w-full max-w-xs border border-border">
-            <h2 className="text-xl font-bold text-card-foreground mb-4">
-              What's your name?
-            </h2>
-            <input
-              type="text"
-              placeholder="Your name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full bg-muted text-card-foreground rounded-[var(--radius)] px-4 py-3 text-base outline-none placeholder:text-muted-foreground border border-border"
-            />
-          </div>
-        )}
-
         {error && <p className="text-destructive text-xs mt-3 font-semibold">{error}</p>}
       </div>
 
@@ -155,7 +211,7 @@ const SignUp = () => {
         disabled={isButtonDisabled() || loading}
         className="w-full max-w-xs mx-auto bg-primary text-primary-foreground rounded-[var(--radius)] py-4 text-lg font-bold disabled:opacity-50"
       >
-        {loading ? "Please wait..." : step === 2 ? "Let's go" : "Continue"}
+        {loading ? "Please wait..." : step === 4 ? "Let's go" : "Continue"}
       </button>
     </div>
   );
