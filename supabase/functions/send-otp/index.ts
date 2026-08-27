@@ -5,6 +5,13 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// One-way hash so we can compare TWILIO_AUTH_TOKEN across functions without
+// ever exposing the actual secret value.
+const shortHash = async (value: string) => {
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
+  return Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, "0")).join("").slice(0, 8);
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -29,6 +36,7 @@ serve(async (req) => {
     const _debug = {
       serviceSidPrefix: serviceSid?.slice(0, 8) ?? "undefined",
       accountSidPrefix: accountSid?.slice(0, 8) ?? "undefined",
+      authTokenHash: authToken ? await shortHash(authToken) : "undefined",
     };
 
     if (!accountSid || !authToken || !serviceSid) {
