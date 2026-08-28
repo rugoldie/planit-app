@@ -154,11 +154,9 @@ const Onboarding = () => {
     <div className="flex flex-col min-h-screen bg-background px-6 py-8">
       {/* Header */}
       <div className="flex items-center justify-between mb-10">
-        {step > 0 ? (
-          <button type="button" onClick={() => setStep(step - 1)}>
-            <ArrowLeft className="w-6 h-6 text-muted-foreground" />
-          </button>
-        ) : <div className="w-6" />}
+        <button type="button" onClick={() => (step > 0 ? setStep(step - 1) : navigate("/"))}>
+          <ArrowLeft className="w-6 h-6 text-muted-foreground" />
+        </button>
         <div className="flex gap-2">
           {[0, 1, 2].map((i) => (
             <div
