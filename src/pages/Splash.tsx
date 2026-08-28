@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEffect } from "react";
 
@@ -97,6 +97,22 @@ const Splash = () => {
         >
           Sign up
         </button>
+
+        {/* Privacy notice */}
+        <p
+          style={{
+            margin: 0,
+            textAlign: "center",
+            fontFamily: "'Fredoka', sans-serif",
+            fontSize: 12,
+            color: "rgba(255,255,255,0.7)",
+          }}
+        >
+          By signing up, you agree to our{" "}
+          <Link to="/privacy" style={{ color: "#ffffff", fontWeight: 700, textDecoration: "underline" }}>
+            Privacy Policy
+          </Link>
+        </p>
 
         {/* Log in — secondary */}
         <button
