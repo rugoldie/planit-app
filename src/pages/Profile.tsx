@@ -458,7 +458,7 @@ const Profile = () => {
                 type="button"
                 onClick={() => editPhotoRef.current?.click()}
                 className="w-20 h-20 rounded-full overflow-hidden border-2 relative"
-                style={{ borderColor: ACCENT }}
+                style={{ borderColor: "#2563eb" }}
               >
                 {editAvatarPreview ? (
                   <img src={editAvatarPreview} alt="" className="w-full h-full object-cover" />
@@ -516,7 +516,7 @@ const Profile = () => {
               onClick={saveEdit}
               disabled={savingEdit || usernameStatus === "taken"}
               className="w-full py-4 rounded-[var(--radius)] text-base font-bold disabled:opacity-40"
-              style={{ backgroundColor: ACCENT, color: "#111" }}
+              style={{ backgroundColor: "#2563eb", color: "#ffffff" }}
             >
               {savingEdit ? "Saving..." : "Save changes"}
             </button>
