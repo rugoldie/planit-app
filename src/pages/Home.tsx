@@ -2017,6 +2017,9 @@ const Home = () => {
             <div style={{ fontFamily: "'Fredoka', sans-serif", fontWeight: 700, fontSize: 24, color: "#fff", lineHeight: 1.1 }}>{firstName}</div>
           </div>
           <div className="flex items-center gap-[10px]">
+            <button type="button" onClick={() => navigate("/friends")} style={{ width: 38, height: 38, borderRadius: "50%", background: "#16181d", display: "flex", alignItems: "center", justifyContent: "center", border: "none" }}>
+              <Users className="w-[18px] h-[18px]" style={{ color: "#aeb4bc" }} />
+            </button>
             <div className="relative">
               <button type="button" onClick={() => navigate("/notifications")} style={{ width: 38, height: 38, borderRadius: "50%", background: "#16181d", display: "flex", alignItems: "center", justifyContent: "center", border: "none" }}>
                 <Bell className="w-[18px] h-[18px]" style={{ color: "#aeb4bc" }} />
@@ -2103,6 +2106,14 @@ const Home = () => {
             <div style={{ fontFamily: "'Fredoka', sans-serif", fontWeight: 700, fontSize: 24, color: "#fff", lineHeight: 1.1 }}>{firstName}</div>
           </div>
           <div className="flex items-center gap-[10px]">
+            {/* Friends */}
+            <button
+              type="button"
+              onClick={() => navigate("/friends")}
+              style={{ width: 38, height: 38, borderRadius: "50%", background: "#16181d", display: "flex", alignItems: "center", justifyContent: "center", border: "none" }}
+            >
+              <Users className="w-[18px] h-[18px]" style={{ color: "#aeb4bc" }} />
+            </button>
             {/* Bell */}
             <div className="relative">
               <button
