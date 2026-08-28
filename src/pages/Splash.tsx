@@ -4,13 +4,16 @@ import { useEffect } from "react";
 
 const Splash = () => {
   const navigate = useNavigate();
-  const { user, loading } = useAuth();
+  const { user, profile, loading } = useAuth();
 
   useEffect(() => {
-    if (!loading && user) {
+    // Only skip the splash screen for a fully onboarded user (username set).
+    // Otherwise an incomplete/abandoned signup session would silently bounce
+    // straight through to /home -> /onboarding instead of showing Splash.
+    if (!loading && user && profile?.username) {
       navigate("/home");
     }
-  }, [user, loading, navigate]);
+  }, [user, profile, loading, navigate]);
 
   if (loading) return null;
 
