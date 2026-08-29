@@ -4,6 +4,7 @@ import { ArrowLeft, Search, Check, X, UserPlus, Contact } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { createNotification } from "@/lib/notifications";
+import { toast } from "sonner";
 
 const COVO_BLUE = "#2563eb";
 const CARD_BG = "#1a1a1a";
@@ -257,13 +258,44 @@ const Friends = () => {
   };
 
   const accept = async (friendshipId: string) => {
-    await (supabase as any).from("friendships").update({ status: "accepted" }).eq("id", friendshipId);
-    loadFriendships();
+    const { data, error } = await (supabase as any)
+      .from("friendships")
+      .update({ status: "accepted" })
+      .eq("id", friendshipId)
+      .select();
+    console.log("accept friend request:", friendshipId, "data=", data, "error=", error);
+    if (error) {
+      toast.error(`Couldn't accept request: ${error.message}`);
+      return;
+    }
+    if (!data || data.length === 0) {
+      // No error, but no row came back either - the update matched nothing,
+      // most likely because auth.uid() didn't match what RLS expects (e.g. a
+      // stale/expired session) rather than the request itself being invalid.
+      console.error("accept friend request: update affected 0 rows for id", friendshipId);
+      toast.error("Couldn't accept request — try logging out and back in.");
+      return;
+    }
+    await loadFriendships();
   };
 
   const decline = async (friendshipId: string) => {
-    await (supabase as any).from("friendships").delete().eq("id", friendshipId);
-    loadFriendships();
+    const { data, error } = await (supabase as any)
+      .from("friendships")
+      .delete()
+      .eq("id", friendshipId)
+      .select();
+    console.log("decline friend request:", friendshipId, "data=", data, "error=", error);
+    if (error) {
+      toast.error(`Couldn't decline request: ${error.message}`);
+      return;
+    }
+    if (!data || data.length === 0) {
+      console.error("decline friend request: delete affected 0 rows for id", friendshipId);
+      toast.error("Couldn't decline request — try logging out and back in.");
+      return;
+    }
+    await loadFriendships();
   };
 
   const findFromContacts = async () => {
