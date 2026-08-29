@@ -724,8 +724,8 @@ const GuestEventView = () => {
       } as Record<string, string>
     )[event.font_style] || "'Bebas Neue', sans-serif";
 
-  const accentColor = bubbleBg || "#aaee44";
-  const accentText = bubbleText || "#111";
+  const accentColor = bubbleBg || "#2563eb";
+  const accentText = bubbleText || "#ffffff";
 
   // Auto-contrast for default template
   const isLightBg = (() => {
