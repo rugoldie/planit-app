@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Search, X } from "lucide-react";
-
-const GIPHY_API_KEY = import.meta.env.VITE_GIPHY_API_KEY as string | undefined;
+import { supabase } from "@/integrations/supabase/client";
+import { extractInvokeErrorMessage } from "@/lib/invokeError";
 
 type GifResult = {
   id: string;
@@ -10,23 +10,17 @@ type GifResult = {
   title: string;
 };
 
-const parseGifs = (data: any[]): GifResult[] =>
-  (data || [])
-    .map((g) => ({
-      id: g.id,
-      previewUrl: g.images?.fixed_width_small?.url || g.images?.fixed_width?.url,
-      fullUrl: g.images?.fixed_width?.url || g.images?.original?.url,
-      title: g.title || "GIF",
-    }))
-    .filter((g) => g.previewUrl && g.fullUrl);
-
 // Panel opens positioned above the message input (its parent must be
 // `position: relative`) - a search bar, a grid of results (trending by
 // default, GIPHY search once the user types), and the required attribution.
+// The GIPHY API key lives server-side in the giphy-proxy edge function
+// (Vite VITE_ env vars are build-time only and end up in the client bundle,
+// which isn't safe for a real API key).
 const GifPicker = ({ onSelect, onClose }: { onSelect: (url: string) => void; onClose: () => void }) => {
   const [query, setQuery] = useState("");
   const [gifs, setGifs] = useState<GifResult[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -34,22 +28,17 @@ const GifPicker = ({ onSelect, onClose }: { onSelect: (url: string) => void; onC
   }, []);
 
   useEffect(() => {
-    if (!GIPHY_API_KEY) {
-      setLoading(false);
-      return;
-    }
     setLoading(true);
+    setError(null);
     const t = setTimeout(async () => {
-      try {
-        const url = query.trim()
-          ? `https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&q=${encodeURIComponent(query.trim())}&limit=24&rating=pg-13`
-          : `https://api.giphy.com/v1/gifs/trending?api_key=${GIPHY_API_KEY}&limit=24&rating=pg-13`;
-        const res = await fetch(url);
-        const json = await res.json();
-        setGifs(parseGifs(json.data));
-      } catch (err) {
-        console.error("GifPicker: fetch failed:", err);
+      const { data, error: fnError } = await supabase.functions.invoke("giphy-proxy", {
+        body: { query: query.trim() },
+      });
+      if (fnError || data?.error) {
+        setError(data?.error || (await extractInvokeErrorMessage(fnError, "Couldn't load GIFs")));
         setGifs([]);
+      } else {
+        setGifs(data?.gifs || []);
       }
       setLoading(false);
     }, query.trim() ? 400 : 0);
@@ -79,10 +68,8 @@ const GifPicker = ({ onSelect, onClose }: { onSelect: (url: string) => void; onC
       </div>
 
       <div className="flex-1 overflow-y-auto px-3">
-        {!GIPHY_API_KEY ? (
-          <p className="text-xs text-muted-foreground text-center py-8 px-4">
-            GIF picker isn't configured — missing VITE_GIPHY_API_KEY.
-          </p>
+        {error ? (
+          <p className="text-xs text-muted-foreground text-center py-8 px-4">{error}</p>
         ) : loading ? (
           <p className="text-xs text-muted-foreground text-center py-8">Loading GIFs...</p>
         ) : gifs.length === 0 ? (
