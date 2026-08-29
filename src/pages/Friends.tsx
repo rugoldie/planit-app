@@ -170,13 +170,18 @@ const Friends = () => {
     const candidateIds = Array.from(mutualCounts.keys()).filter((id) => !excludeIds.has(id));
 
     (async () => {
+      // Same reason as the search query below: candidates here are, by
+      // definition, not-yet-friends, so the base `profiles` table's RLS
+      // (own row only) would silently return nothing for all of them.
       const profileMap = new Map<string, FriendProfile>();
       if (candidateIds.length > 0) {
         const { data } = await supabase
-          .from("profiles")
-          .select("id, user_id, name, username, avatar_url")
+          .from("profiles_public")
+          .select("user_id, name, avatar_url")
           .in("user_id", candidateIds);
-        (data || []).forEach((p: any) => profileMap.set(p.user_id, p));
+        (data || []).forEach((p: any) =>
+          profileMap.set(p.user_id, { id: p.user_id, user_id: p.user_id, name: p.name || "", username: null, avatar_url: p.avatar_url })
+        );
       }
 
       const list: Suggestion[] = candidateIds
@@ -195,19 +200,36 @@ const Friends = () => {
     })();
   }, [user, friends, sentIds, pendingIn, mutualCounts, contactsMatched]);
 
-  // Search by name or username with debounce
+  // Search by name with debounce.
+  //
+  // This queries `profiles_public`, not `profiles` - the base `profiles`
+  // table's RLS only allows reading your own row (confirmed: an unfiltered
+  // query against it returns zero rows for any other user), so searching it
+  // for someone else always silently returned []. `profiles_public` is a
+  // view exposing just (user_id, name, avatar_url) specifically for
+  // cross-user discovery like this, which is also why it has no `username`
+  // column - search can only match on name until a search-by-username path
+  // is exposed (e.g. a security-definer RPC).
   useEffect(() => {
     if (!search.trim() || !user) { setSearchResults([]); return; }
     const q = search.replace(/^@/, "").toLowerCase();
     setSearching(true);
     const t = setTimeout(async () => {
-      const { data } = await supabase
-        .from("profiles")
-        .select("id, user_id, name, username, avatar_url")
-        .or(`name.ilike.%${q}%,username.ilike.%${q}%`)
+      const { data, error } = await supabase
+        .from("profiles_public")
+        .select("user_id, name, avatar_url")
+        .ilike("name", `%${q}%`)
         .neq("user_id", user.id)
         .limit(20);
-      setSearchResults((data || []) as FriendProfile[]);
+      console.log("Friends search: query=", q, "data=", data, "error=", error);
+      const results: FriendProfile[] = (data || []).map((p: any) => ({
+        id: p.user_id,
+        user_id: p.user_id,
+        name: p.name || "",
+        username: null,
+        avatar_url: p.avatar_url,
+      }));
+      setSearchResults(results);
       setSearching(false);
     }, 400);
     return () => clearTimeout(t);
