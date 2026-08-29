@@ -27,6 +27,8 @@ import {
   IconTrophy, IconBallFootball, IconHorseToy, IconSwimming, IconBike, IconRun,
 } from "@tabler/icons-react";
 import { supabase } from "@/integrations/supabase/client";
+import GifPicker from "@/components/GifPicker";
+import { isGifUrl } from "@/lib/gif";
 import {
   ConcentricCircles,
   StyledTitle,
@@ -233,6 +235,7 @@ const EventView = () => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [commentDraft, setCommentDraft] = useState("");
   const [showFullComments, setShowFullComments] = useState(false);
+  const [showGifPicker, setShowGifPicker] = useState(false);
   const fullCommentInputRef = useRef<HTMLInputElement>(null);
 
   // DMs - host sees all conversations
@@ -631,15 +634,14 @@ const EventView = () => {
     setTimeout(() => setBarMinimised(true), 1500);
   };
 
-  const sendComment = async () => {
-    if (!commentDraft.trim() || !event) return;
+  const sendCommentText = async (text: string) => {
+    if (!text.trim() || !event) return;
     if (!user) {
       console.error("sendComment: no authenticated user");
       toast.error("You must be logged in to send messages");
       return;
     }
-    const text = commentDraft.trim();
-    const payload = { event_id: event.id, user_id: user.id, user_name: profile?.name || "Host", text };
+    const payload = { event_id: event.id, user_id: user.id, user_name: profile?.name || "Host", text: text.trim() };
     console.log("sendComment payload:", payload);
     const result = await supabase.from("comments").insert(payload).select();
     console.log("sendComment full result:", JSON.stringify(result));
@@ -649,8 +651,18 @@ const EventView = () => {
       toast.error(`Message failed: ${commentError.message}`);
     } else {
       await fetchComments();
-      setCommentDraft("");
     }
+  };
+
+  const sendComment = async () => {
+    if (!commentDraft.trim()) return;
+    await sendCommentText(commentDraft);
+    setCommentDraft("");
+  };
+
+  const sendGif = async (gifUrl: string) => {
+    setShowGifPicker(false);
+    await sendCommentText(gifUrl);
   };
 
   const sendDM = async () => {
@@ -1559,7 +1571,7 @@ const EventView = () => {
                         </span>
                       </div>
                       <p style={{ fontSize: "13px", color: "#e9d5ff", marginTop: "2px", fontFamily: "sans-serif" }}>
-                        {c.text}
+                        {isGifUrl(c.text) ? <img src={c.text} alt="GIF" style={{ maxWidth: 160, maxHeight: 160, borderRadius: 10, marginTop: 4, display: "block" }} /> : c.text}
                       </p>
                     </div>
                   ))}
@@ -1985,7 +1997,7 @@ const EventView = () => {
                           marginTop: "2px",
                         }}
                       >
-                        {c.text}
+                        {isGifUrl(c.text) ? <img src={c.text} alt="GIF" style={{ maxWidth: 160, maxHeight: 160, borderRadius: 10, marginTop: 4, display: "block" }} /> : c.text}
                       </p>
                     </div>
                   ))}
@@ -2456,7 +2468,7 @@ const EventView = () => {
                           marginTop: "2px",
                         }}
                       >
-                        {c.text}
+                        {isGifUrl(c.text) ? <img src={c.text} alt="GIF" style={{ maxWidth: 160, maxHeight: 160, borderRadius: 10, marginTop: 4, display: "block" }} /> : c.text}
                       </p>
                     </div>
                   ))}
@@ -2682,7 +2694,7 @@ const EventView = () => {
                         <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "11px", fontWeight: 700, color: "rgb(56,189,248)" }}>{c.user_name}</span>
                         <span style={{ fontSize: "10px", color: "rgba(56,189,248,0.35)" }}>{formatTime(c.created_at)}</span>
                       </div>
-                      <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "13px", color: "rgba(255,255,255,0.8)", marginTop: "2px" }}>{c.text}</p>
+                      <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "13px", color: "rgba(255,255,255,0.8)", marginTop: "2px" }}>{isGifUrl(c.text) ? <img src={c.text} alt="GIF" style={{ maxWidth: 160, maxHeight: 160, borderRadius: 10, marginTop: 4, display: "block" }} /> : c.text}</p>
                     </div>
                   ))}
                 </div>
@@ -2829,7 +2841,7 @@ const EventView = () => {
                         <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "11px", fontWeight: 700, color: "#f472b6" }}>{c.user_name}</span>
                         <span style={{ fontSize: "10px", color: "rgba(244,114,182,0.4)" }}>{formatTime(c.created_at)}</span>
                       </div>
-                      <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "13px", color: "rgba(255,255,255,0.8)", marginTop: "2px" }}>{c.text}</p>
+                      <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "13px", color: "rgba(255,255,255,0.8)", marginTop: "2px" }}>{isGifUrl(c.text) ? <img src={c.text} alt="GIF" style={{ maxWidth: 160, maxHeight: 160, borderRadius: 10, marginTop: 4, display: "block" }} /> : c.text}</p>
                     </div>
                   ))}
                 </div>
@@ -2975,7 +2987,7 @@ const EventView = () => {
                         <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "11px", fontWeight: 700, color: "#4ade80" }}>{c.user_name}</span>
                         <span style={{ fontSize: "10px", color: "rgba(74,222,128,0.4)" }}>{formatTime(c.created_at)}</span>
                       </div>
-                      <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "13px", color: "rgba(255,255,255,0.8)", marginTop: "2px" }}>{c.text}</p>
+                      <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "13px", color: "rgba(255,255,255,0.8)", marginTop: "2px" }}>{isGifUrl(c.text) ? <img src={c.text} alt="GIF" style={{ maxWidth: 160, maxHeight: 160, borderRadius: 10, marginTop: 4, display: "block" }} /> : c.text}</p>
                     </div>
                   ))}
                 </div>
@@ -3122,7 +3134,7 @@ const EventView = () => {
                       {renderPolls()}
                       <div style={{ borderRadius:"20px",border:`1px solid ${frostBorder}`,padding:"16px 18px",backgroundColor:frostBg,backdropFilter:"blur(12px)",WebkitBackdropFilter:"blur(12px)" }}>
                         <div style={{ display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"10px" }}><p style={{ fontFamily:"'Inter',sans-serif",fontSize:"8px",fontWeight:700,letterSpacing:"0.22em",textTransform:"uppercase" as const,color:accentColor,margin:0 }}>Chat</p><button onClick={()=>setShowFullComments(true)}><Maximize2 className="w-4 h-4" style={{ color:accentColor }} /></button></div>
-                        <div className="space-y-2 max-h-48 overflow-y-auto mb-3">{comments.length===0&&<p style={{ fontFamily:"'Inter',sans-serif",fontSize:"12px",color:tMuted,textAlign:"center",padding:"12px 0" }}>No messages yet — be the first!</p>}{comments.map((c,i)=>(<div key={i} className="rounded-xl px-3 py-2" style={{ backgroundColor:isLight?"rgba(0,0,0,0.06)":"rgba(255,255,255,0.08)" }}><div className="flex items-center gap-2"><span style={{ fontFamily:"'Inter',sans-serif",fontSize:"11px",fontWeight:700,color:accentColor }}>{c.user_name}</span><span style={{ fontSize:"10px",color:tMuted }}>{formatTime(c.created_at)}</span></div><p style={{ fontFamily:"'Inter',sans-serif",fontSize:"13px",color:tCol,marginTop:"2px" }}>{c.text}</p></div>))}</div>
+                        <div className="space-y-2 max-h-48 overflow-y-auto mb-3">{comments.length===0&&<p style={{ fontFamily:"'Inter',sans-serif",fontSize:"12px",color:tMuted,textAlign:"center",padding:"12px 0" }}>No messages yet — be the first!</p>}{comments.map((c,i)=>(<div key={i} className="rounded-xl px-3 py-2" style={{ backgroundColor:isLight?"rgba(0,0,0,0.06)":"rgba(255,255,255,0.08)" }}><div className="flex items-center gap-2"><span style={{ fontFamily:"'Inter',sans-serif",fontSize:"11px",fontWeight:700,color:accentColor }}>{c.user_name}</span><span style={{ fontSize:"10px",color:tMuted }}>{formatTime(c.created_at)}</span></div><p style={{ fontFamily:"'Inter',sans-serif",fontSize:"13px",color:tCol,marginTop:"2px" }}>{isGifUrl(c.text) ? <img src={c.text} alt="GIF" style={{ maxWidth: 160, maxHeight: 160, borderRadius: 10, marginTop: 4, display: "block" }} /> : c.text}</p></div>))}</div>
                         <div className="flex gap-2"><input value={commentDraft} onChange={(e)=>setCommentDraft(e.target.value)} enterKeyHint="send" onKeyDown={(e)=>{if(e.key==="Enter"){e.preventDefault();sendComment();}}} placeholder="Write a message..." className="flex-1 rounded-full px-4 py-2 text-sm outline-none" style={{ backgroundColor:isLight?"rgba(0,0,0,0.06)":"rgba(255,255,255,0.08)",color:tCol,border:`1px solid ${frostBorder}`,fontFamily:"'Inter',sans-serif" }} /><button type="button" onClick={(e)=>{e.preventDefault();e.stopPropagation();sendComment();}} className="w-11 h-11 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor:accentColor }}><Send className="w-4 h-4" style={{ color:accentText }} /></button></div>
                       </div>
                       <div style={{ borderRadius:"20px",border:`1px solid ${frostBorder}`,padding:"16px 18px",backgroundColor:frostBg,backdropFilter:"blur(12px)",WebkitBackdropFilter:"blur(12px)" }}>
@@ -3150,7 +3162,7 @@ const EventView = () => {
                       {renderPolls()}
                       <div style={{ borderRadius:"20px",border:`1px solid ${frostBorder}`,padding:"16px 18px",backgroundColor:frostBg,backdropFilter:"blur(12px)",WebkitBackdropFilter:"blur(12px)" }}>
                         <div style={{ display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"10px" }}><p style={{ fontFamily:"'Inter',sans-serif",fontSize:"8px",fontWeight:700,letterSpacing:"0.22em",textTransform:"uppercase" as const,color:accentColor,margin:0 }}>Chat</p><button onClick={()=>setShowFullComments(true)}><Maximize2 className="w-4 h-4" style={{ color:accentColor }} /></button></div>
-                        <div className="space-y-2 max-h-48 overflow-y-auto mb-3">{comments.length===0&&<p style={{ fontFamily:"'Inter',sans-serif",fontSize:"12px",color:tMuted,textAlign:"center",padding:"12px 0" }}>No messages yet — be the first!</p>}{comments.map((c,i)=>(<div key={i} className="rounded-xl px-3 py-2" style={{ backgroundColor:isLight?"rgba(0,0,0,0.06)":"rgba(255,255,255,0.08)" }}><div className="flex items-center gap-2"><span style={{ fontFamily:"'Inter',sans-serif",fontSize:"11px",fontWeight:700,color:accentColor }}>{c.user_name}</span><span style={{ fontSize:"10px",color:tMuted }}>{formatTime(c.created_at)}</span></div><p style={{ fontFamily:"'Inter',sans-serif",fontSize:"13px",color:tCol,marginTop:"2px" }}>{c.text}</p></div>))}</div>
+                        <div className="space-y-2 max-h-48 overflow-y-auto mb-3">{comments.length===0&&<p style={{ fontFamily:"'Inter',sans-serif",fontSize:"12px",color:tMuted,textAlign:"center",padding:"12px 0" }}>No messages yet — be the first!</p>}{comments.map((c,i)=>(<div key={i} className="rounded-xl px-3 py-2" style={{ backgroundColor:isLight?"rgba(0,0,0,0.06)":"rgba(255,255,255,0.08)" }}><div className="flex items-center gap-2"><span style={{ fontFamily:"'Inter',sans-serif",fontSize:"11px",fontWeight:700,color:accentColor }}>{c.user_name}</span><span style={{ fontSize:"10px",color:tMuted }}>{formatTime(c.created_at)}</span></div><p style={{ fontFamily:"'Inter',sans-serif",fontSize:"13px",color:tCol,marginTop:"2px" }}>{isGifUrl(c.text) ? <img src={c.text} alt="GIF" style={{ maxWidth: 160, maxHeight: 160, borderRadius: 10, marginTop: 4, display: "block" }} /> : c.text}</p></div>))}</div>
                         <div className="flex gap-2"><input value={commentDraft} onChange={(e)=>setCommentDraft(e.target.value)} enterKeyHint="send" onKeyDown={(e)=>{if(e.key==="Enter"){e.preventDefault();sendComment();}}} placeholder="Write a message..." className="flex-1 rounded-full px-4 py-2 text-sm outline-none" style={{ backgroundColor:isLight?"rgba(0,0,0,0.06)":"rgba(255,255,255,0.08)",color:tCol,border:`1px solid ${frostBorder}`,fontFamily:"'Inter',sans-serif" }} /><button type="button" onClick={(e)=>{e.preventDefault();e.stopPropagation();sendComment();}} className="w-11 h-11 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor:accentColor }}><Send className="w-4 h-4" style={{ color:accentText }} /></button></div>
                       </div>
                       <div style={{ borderRadius:"20px",border:`1px solid ${frostBorder}`,padding:"16px 18px",backgroundColor:frostBg,backdropFilter:"blur(12px)",WebkitBackdropFilter:"blur(12px)" }}>
@@ -3178,7 +3190,7 @@ const EventView = () => {
                       {renderPolls()}
                       <div style={{ borderRadius:"20px",border:`1px solid ${frostBorder}`,padding:"16px 18px",backgroundColor:frostBg,backdropFilter:"blur(12px)",WebkitBackdropFilter:"blur(12px)" }}>
                         <div style={{ display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"10px" }}><p style={{ fontFamily:"'Inter',sans-serif",fontSize:"8px",fontWeight:700,letterSpacing:"0.22em",textTransform:"uppercase" as const,color:accentColor,margin:0 }}>Chat</p><button onClick={()=>setShowFullComments(true)}><Maximize2 className="w-4 h-4" style={{ color:accentColor }} /></button></div>
-                        <div className="space-y-2 max-h-48 overflow-y-auto mb-3">{comments.length===0&&<p style={{ fontFamily:"'Inter',sans-serif",fontSize:"12px",color:tMuted,textAlign:"center",padding:"12px 0" }}>No messages yet — be the first!</p>}{comments.map((c,i)=>(<div key={i} className="rounded-xl px-3 py-2" style={{ backgroundColor:isLight?"rgba(0,0,0,0.06)":"rgba(255,255,255,0.08)" }}><div className="flex items-center gap-2"><span style={{ fontFamily:"'Inter',sans-serif",fontSize:"11px",fontWeight:700,color:accentColor }}>{c.user_name}</span><span style={{ fontSize:"10px",color:tMuted }}>{formatTime(c.created_at)}</span></div><p style={{ fontFamily:"'Inter',sans-serif",fontSize:"13px",color:tCol,marginTop:"2px" }}>{c.text}</p></div>))}</div>
+                        <div className="space-y-2 max-h-48 overflow-y-auto mb-3">{comments.length===0&&<p style={{ fontFamily:"'Inter',sans-serif",fontSize:"12px",color:tMuted,textAlign:"center",padding:"12px 0" }}>No messages yet — be the first!</p>}{comments.map((c,i)=>(<div key={i} className="rounded-xl px-3 py-2" style={{ backgroundColor:isLight?"rgba(0,0,0,0.06)":"rgba(255,255,255,0.08)" }}><div className="flex items-center gap-2"><span style={{ fontFamily:"'Inter',sans-serif",fontSize:"11px",fontWeight:700,color:accentColor }}>{c.user_name}</span><span style={{ fontSize:"10px",color:tMuted }}>{formatTime(c.created_at)}</span></div><p style={{ fontFamily:"'Inter',sans-serif",fontSize:"13px",color:tCol,marginTop:"2px" }}>{isGifUrl(c.text) ? <img src={c.text} alt="GIF" style={{ maxWidth: 160, maxHeight: 160, borderRadius: 10, marginTop: 4, display: "block" }} /> : c.text}</p></div>))}</div>
                         <div className="flex gap-2"><input value={commentDraft} onChange={(e)=>setCommentDraft(e.target.value)} enterKeyHint="send" onKeyDown={(e)=>{if(e.key==="Enter"){e.preventDefault();sendComment();}}} placeholder="Write a message..." className="flex-1 rounded-full px-4 py-2 text-sm outline-none" style={{ backgroundColor:isLight?"rgba(0,0,0,0.06)":"rgba(255,255,255,0.08)",color:tCol,border:`1px solid ${frostBorder}`,fontFamily:"'Inter',sans-serif" }} /><button type="button" onClick={(e)=>{e.preventDefault();e.stopPropagation();sendComment();}} className="w-11 h-11 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor:accentColor }}><Send className="w-4 h-4" style={{ color:accentText }} /></button></div>
                       </div>
                       <div style={{ borderRadius:"20px",border:`1px solid ${frostBorder}`,padding:"16px 18px",backgroundColor:frostBg,backdropFilter:"blur(12px)",WebkitBackdropFilter:"blur(12px)" }}>
@@ -3578,7 +3590,7 @@ const EventView = () => {
                     </span>
                     <span className="text-muted-foreground text-[10px]">{formatTime(c.created_at)}</span>
                   </div>
-                  <p className="text-white text-sm mt-0.5">{c.text}</p>
+                  <p className="text-white text-sm mt-0.5">{isGifUrl(c.text) ? <img src={c.text} alt="GIF" style={{ maxWidth: 160, maxHeight: 160, borderRadius: 10, marginTop: 4, display: "block" }} /> : c.text}</p>
                 </div>
               ))}
             </div>
@@ -3707,13 +3719,16 @@ const EventView = () => {
                     className="rounded-2xl rounded-tl-sm px-3 py-2 inline-block"
                     style={{ backgroundColor: "#383838" }}
                   >
-                    <p className="text-white text-sm">{c.text}</p>
+                    <p className="text-white text-sm">{isGifUrl(c.text) ? <img src={c.text} alt="GIF" style={{ maxWidth: 160, maxHeight: 160, borderRadius: 10, marginTop: 4, display: "block" }} /> : c.text}</p>
                   </div>
                 </div>
               </div>
             ))}
           </div>
-          <div className="px-4 py-3 border-t border-border flex gap-2" style={{ paddingBottom: "max(12px, env(safe-area-inset-bottom))" }}>
+          <div className="relative px-4 py-3 border-t border-border flex gap-2" style={{ paddingBottom: "max(12px, env(safe-area-inset-bottom))" }}>
+            {showGifPicker && (
+              <GifPicker onSelect={sendGif} onClose={() => setShowGifPicker(false)} />
+            )}
             <input
               ref={fullCommentInputRef}
               value={commentDraft}
@@ -3724,6 +3739,14 @@ const EventView = () => {
               className="flex-1 rounded-full px-4 py-2.5 text-sm text-white placeholder:text-muted-foreground outline-none border border-border"
               style={{ backgroundColor: "#383838" }}
             />
+            <button
+              type="button"
+              onClick={() => setShowGifPicker((v) => !v)}
+              className="w-11 h-11 rounded-full flex items-center justify-center shrink-0 border border-border"
+              style={{ backgroundColor: "#383838" }}
+            >
+              <span className="text-[11px] font-extrabold text-white">GIF</span>
+            </button>
             <button
               type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); sendComment(); }}
               className="w-11 h-11 rounded-full bg-primary flex items-center justify-center shrink-0"
