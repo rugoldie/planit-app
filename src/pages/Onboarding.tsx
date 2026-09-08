@@ -4,6 +4,7 @@ import { Camera, Check, X, ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import PasswordInput from "@/components/PasswordInput";
 
 const COVO_BLUE = "#2563eb";
 const COVO_GRAD = "#2563eb";
@@ -11,16 +12,40 @@ const COVO_GRAD = "#2563eb";
 const Onboarding = () => {
   const navigate = useNavigate();
   const { user, profile, loading, refreshProfile } = useAuth();
+
+  // Brand-new visitors (arriving straight from Splash) have no session yet
+  // and need an account created as part of this flow; users who already have
+  // a session (e.g. bounced here from Home for a missing username) don't.
+  // Decide this once, when auth state first settles, so the step list
+  // doesn't shift under the user mid-flow.
+  const [needsAccount, setNeedsAccount] = useState<boolean | null>(null);
+  useEffect(() => {
+    if (!loading && needsAccount === null) setNeedsAccount(!user);
+  }, [loading, user, needsAccount]);
+
+  const steps = needsAccount ? (["name", "username", "credentials", "avatar"] as const) : (["name", "username", "avatar"] as const);
+
   const [step, setStep] = useState(0);
   const [fullName, setFullName] = useState("");
   const [username, setUsername] = useState("");
   const [usernameStatus, setUsernameStatus] = useState<"idle" | "checking" | "available" | "taken">("idle");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [authUserId, setAuthUserId] = useState<string | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const photoRef = useRef<HTMLInputElement>(null);
+
+  const uid = user?.id ?? authUserId;
+  const currentKind = steps[step];
+
+  const hasMinLength = password.length >= 6;
+  const hasNumber = /\d/.test(password);
+  const passwordValid = hasMinLength && hasNumber;
+  const emailValid = /\S+@\S+\.\S+/.test(email);
 
   // Pre-fill name from existing profile
   useEffect(() => {
@@ -52,11 +77,11 @@ const Onboarding = () => {
 
   const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file || !user) return;
+    if (!file || !uid) return;
     setUploading(true);
     setAvatarPreview(URL.createObjectURL(file));
     const ext = file.name.split(".").pop() || "jpg";
-    const path = `${user.id}/avatar_${Date.now()}.${ext}`;
+    const path = `${uid}/avatar_${Date.now()}.${ext}`;
     const { error } = await supabase.storage.from("avatars").upload(path, file, { upsert: true });
     if (!error) {
       const { data } = supabase.storage.from("avatars").getPublicUrl(path);
@@ -70,19 +95,41 @@ const Onboarding = () => {
   };
 
   const canNext = () => {
-    if (step === 0) return fullName.trim().length > 0;
-    if (step === 1) return usernameStatus === "available" && username.length >= 3;
+    if (currentKind === "name") return fullName.trim().length > 0;
+    if (currentKind === "username") return usernameStatus === "available" && username.length >= 3;
+    if (currentKind === "credentials") return emailValid && passwordValid;
     return true;
+  };
+
+  const createAccount = async () => {
+    setSaveError(null);
+    setSaving(true);
+    const { data, error } = await supabase.auth.signUp({
+      email: email.trim(),
+      password,
+      options: { data: { name: fullName.trim() } },
+    });
+    setSaving(false);
+    if (error) {
+      setSaveError(error.message);
+      return;
+    }
+    if (data.user) setAuthUserId(data.user.id);
+    setStep(step + 1);
   };
 
   const handleNext = async () => {
     setSaveError(null);
-    if (step < 2) { setStep(step + 1); return; }
+    if (currentKind === "credentials") {
+      await createAccount();
+      return;
+    }
+    if (step < steps.length - 1) { setStep(step + 1); return; }
     await save(true);
   };
 
   const save = async (withAvatar: boolean) => {
-    if (!user) {
+    if (!uid) {
       setSaveError("Not logged in — please restart the app.");
       return;
     }
@@ -95,12 +142,12 @@ const Onboarding = () => {
       if (username) update.username = username;
       if (withAvatar && avatarUrl) update.avatar_url = avatarUrl;
 
-      console.log("Onboarding save: payload", update, "user_id", user.id);
+      console.log("Onboarding save: payload", update, "user_id", uid);
 
       const { error, data } = await supabase
         .from("profiles")
         .update(update)
-        .eq("user_id", user.id)
+        .eq("user_id", uid)
         .select();
 
       console.log("Onboarding save: result", { error: error ? JSON.stringify(error) : null, data });
@@ -116,7 +163,7 @@ const Onboarding = () => {
           const { error: err2 } = await supabase
             .from("profiles")
             .update(fallback)
-            .eq("user_id", user.id);
+            .eq("user_id", uid);
           if (err2) {
             setSaveError(`Save failed: ${err2.message} (run the Supabase migrations)`);
             setSaving(false);
@@ -140,7 +187,7 @@ const Onboarding = () => {
 
       // Mark onboarding complete so Home.tsx never redirects back here,
       // even if the username column is missing and username wasn't saved.
-      localStorage.setItem(`planit_onboarding_${user.id}`, "1");
+      localStorage.setItem(`planit_onboarding_${uid}`, "1");
       setSaving(false);
       navigate("/home", { replace: true });
     } catch (e: any) {
@@ -150,15 +197,26 @@ const Onboarding = () => {
     }
   };
 
+  // Once the account has been created, going "back" into the credentials
+  // step would re-submit signUp with the same email and just error out —
+  // so lock the back arrow once we're past that point.
+  const canGoBack = !(needsAccount && currentKind === "avatar");
+
+  if (needsAccount === null) return null;
+
   return (
     <div className="flex flex-col min-h-screen bg-background px-6 py-8">
       {/* Header */}
       <div className="flex items-center justify-between mb-10">
-        <button type="button" onClick={() => (step > 0 ? setStep(step - 1) : navigate("/"))}>
-          <ArrowLeft className="w-6 h-6 text-muted-foreground" />
-        </button>
+        {canGoBack ? (
+          <button type="button" onClick={() => (step > 0 ? setStep(step - 1) : navigate("/"))}>
+            <ArrowLeft className="w-6 h-6 text-muted-foreground" />
+          </button>
+        ) : (
+          <div className="w-6" />
+        )}
         <div className="flex gap-2">
-          {[0, 1, 2].map((i) => (
+          {steps.map((_, i) => (
             <div
               key={i}
               className="h-1.5 rounded-full transition-all duration-300"
@@ -173,7 +231,7 @@ const Onboarding = () => {
       </div>
 
       <div className="flex-1 flex flex-col justify-center">
-        {step === 0 && (
+        {currentKind === "name" && (
           <div className="w-full max-w-xs mx-auto">
             <h1 className="text-2xl font-bold text-foreground mb-2">What's your full name?</h1>
             <p className="text-muted-foreground text-sm mb-6">This is how friends will see you</p>
@@ -189,7 +247,7 @@ const Onboarding = () => {
           </div>
         )}
 
-        {step === 1 && (
+        {currentKind === "username" && (
           <div className="w-full max-w-xs mx-auto">
             <h1 className="text-2xl font-bold text-foreground mb-2">Pick a username</h1>
             <p className="text-muted-foreground text-sm mb-6">Lowercase, numbers and underscores only</p>
@@ -226,7 +284,37 @@ const Onboarding = () => {
           </div>
         )}
 
-        {step === 2 && (
+        {currentKind === "credentials" && (
+          <div className="w-full max-w-xs mx-auto">
+            <h1 className="text-2xl font-bold text-foreground mb-2">Secure your account</h1>
+            <p className="text-muted-foreground text-sm mb-6">You'll use this email and password to log back in</p>
+            <input
+              type="email"
+              placeholder="Email address"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              autoFocus
+              className="w-full bg-card text-foreground rounded-[var(--radius)] px-4 py-3.5 text-base outline-none placeholder:text-muted-foreground border border-border mb-3"
+            />
+            <PasswordInput
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="At least 6 characters"
+            />
+            <ul className="mt-4 space-y-1.5 text-sm">
+              <li className="flex items-center gap-2" style={{ color: hasMinLength ? COVO_BLUE : "#999" }}>
+                {hasMinLength ? <Check className="w-4 h-4" /> : <span className="w-4 h-4 inline-block" />}
+                At least 6 characters
+              </li>
+              <li className="flex items-center gap-2" style={{ color: hasNumber ? COVO_BLUE : "#999" }}>
+                {hasNumber ? <Check className="w-4 h-4" /> : <span className="w-4 h-4 inline-block" />}
+                At least one number
+              </li>
+            </ul>
+          </div>
+        )}
+
+        {currentKind === "avatar" && (
           <div className="flex flex-col items-center w-full max-w-xs mx-auto">
             <h1 className="text-2xl font-bold text-foreground mb-2 text-center">Add a profile photo</h1>
             <p className="text-muted-foreground text-sm mb-8 text-center">Optional — you can always change it later</p>
@@ -265,9 +353,9 @@ const Onboarding = () => {
           className="w-full py-4 rounded-[var(--radius)] text-base font-bold disabled:opacity-40 transition-opacity"
           style={{ background: COVO_GRAD, color: "#ffffff", border: "none" }}
         >
-          {saving ? "Saving..." : step === 2 ? "Get started" : "Continue"}
+          {saving ? "Please wait..." : currentKind === "avatar" ? "Get started" : "Continue"}
         </button>
-        {step === 2 && (
+        {currentKind === "avatar" && (
           <button
             type="button"
             onClick={() => save(false)}

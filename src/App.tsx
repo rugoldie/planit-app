@@ -4,7 +4,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
 import Splash from "./pages/Splash";
 import Privacy from "./pages/Privacy";
-import SignUp from "./pages/SignUp";
 import Login from "./pages/Login";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
@@ -32,7 +31,6 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Splash />} />
             <Route path="/privacy" element={<Privacy />} />
-            <Route path="/signup" element={<SignUp />} />
             <Route path="/login" element={<Login />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />

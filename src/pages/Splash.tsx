@@ -82,7 +82,7 @@ const Splash = () => {
       }}>
         {/* Sign up — primary */}
         <button
-          onClick={() => navigate("/signup")}
+          onClick={() => navigate("/onboarding")}
           style={{
             height: 56,
             border: "none",
