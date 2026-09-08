@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Bell, Check, X, Eye } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 const COVO_BLUE = "#2563eb";
 const COVO_CYAN = "#2563eb";
@@ -37,6 +38,9 @@ const Notifications = () => {
   const { user } = useAuth();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
+  // friendship_id -> current status ("pending" | "accepted"); missing key
+  // means the friendship row is gone (declined, or never existed).
+  const [friendshipStatus, setFriendshipStatus] = useState<Record<string, string>>({});
 
   const fetchNotifications = async () => {
     if (!user) return;
@@ -46,7 +50,21 @@ const Notifications = () => {
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
       .limit(50);
-    setNotifications((data || []) as Notification[]);
+    const list = (data || []) as Notification[];
+    setNotifications(list);
+
+    const friendshipIds = list
+      .filter(n => n.type === "friend_request" && n.data?.friendship_id)
+      .map(n => n.data.friendship_id);
+    if (friendshipIds.length > 0) {
+      const { data: friendships } = await (supabase as any)
+        .from("friendships")
+        .select("id, status")
+        .in("id", friendshipIds);
+      const map: Record<string, string> = {};
+      (friendships || []).forEach((f: any) => { map[f.id] = f.status; });
+      setFriendshipStatus(map);
+    }
     setLoading(false);
   };
 
@@ -64,16 +82,49 @@ const Notifications = () => {
   };
 
   const handleAcceptFriend = async (n: Notification) => {
-    if (!n.data?.friendship_id) return;
-    await (supabase as any).from("friendships").update({ status: "accepted" }).eq("id", n.data.friendship_id);
+    const friendshipId = n.data?.friendship_id;
+    if (!friendshipId) return;
+    const { data, error } = await (supabase as any)
+      .from("friendships")
+      .update({ status: "accepted" })
+      .eq("id", friendshipId)
+      .select();
+    if (error) {
+      toast.error(`Couldn't accept request: ${error.message}`);
+      return;
+    }
+    if (!data || data.length === 0) {
+      // No error, but no row came back either - the request is gone (already
+      // declined) or RLS didn't recognize this session as the recipient.
+      toast.error("Couldn't accept request — it may no longer be available.");
+      return;
+    }
+    setFriendshipStatus(prev => ({ ...prev, [friendshipId]: "accepted" }));
     await markRead(n.id);
   };
 
   const handleDeclineFriend = async (n: Notification) => {
-    if (!n.data?.friendship_id) return;
-    await (supabase as any).from("friendships").delete().eq("id", n.data.friendship_id);
+    const friendshipId = n.data?.friendship_id;
+    if (!friendshipId) return;
+    const { data, error } = await (supabase as any)
+      .from("friendships")
+      .delete()
+      .eq("id", friendshipId)
+      .select();
+    if (error) {
+      toast.error(`Couldn't decline request: ${error.message}`);
+      return;
+    }
+    if (!data || data.length === 0) {
+      toast.error("Couldn't decline request — it may no longer be available.");
+      return;
+    }
+    setFriendshipStatus(prev => {
+      const next = { ...prev };
+      delete next[friendshipId];
+      return next;
+    });
     await markRead(n.id);
-    setNotifications(prev => prev.filter(x => x.id !== n.id));
   };
 
   const handleTap = async (n: Notification) => {
@@ -121,11 +172,16 @@ const Notifications = () => {
           </div>
         ) : (
           notifications.map(n => (
-            <button
+            // Not a <button> - the friend-request row nests real <button>s
+            // (Accept/Decline) inside it, and interactive elements can't
+            // nest inside a <button> without the browser breaking the DOM.
+            <div
               key={n.id}
-              type="button"
+              role="button"
+              tabIndex={0}
               onClick={() => handleTap(n)}
-              className="w-full text-left px-5 py-4 border-b border-border flex gap-3 items-start"
+              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") handleTap(n); }}
+              className="w-full text-left px-5 py-4 border-b border-border flex gap-3 items-start cursor-pointer"
               style={{ backgroundColor: n.read ? "transparent" : "rgba(61,123,255,0.04)" }}
             >
               {/* Unread dot */}
@@ -150,24 +206,30 @@ const Notifications = () => {
                 <p className="text-xs text-muted-foreground leading-relaxed">{n.body}</p>
 
                 {/* Inline actions */}
-                {n.type === "friend_request" && (
-                  <div className="flex gap-2 mt-2" onClick={e => e.stopPropagation()}>
-                    <button
-                      type="button"
-                      onClick={() => handleAcceptFriend(n)}
-                      className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full"
-                      style={{ background: COVO_GRAD, color: "#ffffff", border: "none" }}
-                    >
-                      <Check className="w-3 h-3" /> Accept
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleDeclineFriend(n)}
-                      className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full bg-secondary border border-border text-muted-foreground"
-                    >
-                      <X className="w-3 h-3" /> Decline
-                    </button>
-                  </div>
+                {n.type === "friend_request" && n.data?.friendship_id && (
+                  friendshipStatus[n.data.friendship_id] === "accepted" ? (
+                    <p className="text-xs font-semibold mt-2" style={{ color: COVO_BLUE }}>Friend request accepted</p>
+                  ) : friendshipStatus[n.data.friendship_id] === "pending" ? (
+                    <div className="flex gap-2 mt-2" onClick={e => e.stopPropagation()}>
+                      <button
+                        type="button"
+                        onClick={() => handleAcceptFriend(n)}
+                        className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full"
+                        style={{ background: COVO_GRAD, color: "#ffffff", border: "none" }}
+                      >
+                        <Check className="w-3 h-3" /> Accept
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDeclineFriend(n)}
+                        className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full bg-secondary border border-border text-muted-foreground"
+                      >
+                        <X className="w-3 h-3" /> Decline
+                      </button>
+                    </div>
+                  ) : (
+                    <p className="text-xs text-muted-foreground mt-2">Request no longer available</p>
+                  )
                 )}
 
                 {n.type === "event_invite" && n.data?.event_code && (
@@ -183,7 +245,7 @@ const Notifications = () => {
                   </div>
                 )}
               </div>
-            </button>
+            </div>
           ))
         )}
       </div>

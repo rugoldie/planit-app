@@ -92,13 +92,17 @@ const Friends = () => {
       f.requester_id === user.id ? f.recipient_id : f.requester_id
     );
 
+    // `profiles` RLS only allows reading your own row, so a plain `profiles`
+    // query here silently drops every other party's profile (e.g. whoever
+    // sent you a pending request) - same issue fixed for search. Use
+    // `profiles_public` instead, which is readable cross-user.
     const profileMap = new Map<string, FriendProfile>();
     if (otherIds.length > 0) {
       const { data: profiles } = await supabase
-        .from("profiles")
-        .select("id, user_id, name, username, avatar_url")
+        .from("profiles_public")
+        .select("user_id, name, username, avatar_url")
         .in("user_id", otherIds);
-      (profiles || []).forEach((p: any) => profileMap.set(p.user_id, p));
+      (profiles || []).forEach((p: any) => profileMap.set(p.user_id, { id: p.user_id, ...p }));
     }
 
     const pending: Friendship[] = [];
