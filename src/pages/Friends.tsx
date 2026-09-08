@@ -201,16 +201,14 @@ const Friends = () => {
     })();
   }, [user, friends, sentIds, pendingIn, mutualCounts, contactsMatched]);
 
-  // Search by name with debounce.
+  // Search by username with debounce.
   //
   // This queries `profiles_public`, not `profiles` - the base `profiles`
   // table's RLS only allows reading your own row (confirmed: an unfiltered
   // query against it returns zero rows for any other user), so searching it
   // for someone else always silently returned []. `profiles_public` is a
-  // view exposing just (user_id, name, avatar_url) specifically for
-  // cross-user discovery like this, which is also why it has no `username`
-  // column - search can only match on name until a search-by-username path
-  // is exposed (e.g. a security-definer RPC).
+  // view exposing (user_id, name, username, avatar_url) specifically for
+  // cross-user discovery like this.
   useEffect(() => {
     if (!search.trim() || !user) { setSearchResults([]); return; }
     const q = search.replace(/^@/, "").toLowerCase();
@@ -218,8 +216,8 @@ const Friends = () => {
     const t = setTimeout(async () => {
       const { data, error } = await supabase
         .from("profiles_public")
-        .select("user_id, name, avatar_url")
-        .ilike("name", `%${q}%`)
+        .select("user_id, name, username, avatar_url")
+        .ilike("username", `%${q}%`)
         .neq("user_id", user.id)
         .limit(20);
       console.log("Friends search: query=", q, "data=", data, "error=", error);
@@ -227,7 +225,7 @@ const Friends = () => {
         id: p.user_id,
         user_id: p.user_id,
         name: p.name || "",
-        username: null,
+        username: p.username || null,
         avatar_url: p.avatar_url,
       }));
       setSearchResults(results);
@@ -344,7 +342,7 @@ const Friends = () => {
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <input
             type="text"
-            placeholder="Search by name or @username..."
+            placeholder="Search by @username..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full text-foreground rounded-full pl-10 pr-4 py-2.5 text-sm outline-none placeholder:text-muted-foreground"
