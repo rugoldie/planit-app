@@ -535,8 +535,12 @@ const HostEvent = () => {
       const otherIds = friendships.map((f: any) =>
         f.requester_id === user.id ? f.recipient_id : f.requester_id
       );
+      // `profiles` RLS only allows reading your own row, so a plain
+      // `profiles` query here silently dropped every friend - same RLS
+      // gotcha documented in Friends.tsx. `profiles_public` is readable
+      // cross-user.
       const { data: profiles } = await supabase
-        .from("profiles")
+        .from("profiles_public")
         .select("user_id, name, avatar_url")
         .in("user_id", otherIds);
       setInviteFriends(profiles || []);
@@ -557,7 +561,12 @@ const HostEvent = () => {
         user_id: uid,
         rsvp_status: "invited",
       }));
-      await supabase.from("event_guests").upsert(rows, { onConflict: "event_id,user_id" });
+      const { error } = await supabase.from("event_guests").upsert(rows, { onConflict: "event_id,user_id" });
+      if (error) {
+        toast({ title: "Couldn't send invites", description: error.message, variant: "destructive" });
+        setInviting(false);
+        return;
+      }
     }
     setInviting(false);
     setShowInviteDrawer(false);

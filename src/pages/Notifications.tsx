@@ -70,6 +70,21 @@ const Notifications = () => {
 
   useEffect(() => { fetchNotifications(); }, [user]);
 
+  // Realtime: new notifications (e.g. an incoming friend request) and
+  // friendship status changes (accepted/declined from elsewhere, e.g. the
+  // Friends screen or the other user's own session) must show up here
+  // without a manual reload.
+  useEffect(() => {
+    if (!user) return;
+    const channel = supabase
+      .channel(`notifications-${user.id}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "notifications", filter: `user_id=eq.${user.id}` }, () => fetchNotifications())
+      .on("postgres_changes", { event: "*", schema: "public", table: "friendships", filter: `requester_id=eq.${user.id}` }, () => fetchNotifications())
+      .on("postgres_changes", { event: "*", schema: "public", table: "friendships", filter: `recipient_id=eq.${user.id}` }, () => fetchNotifications())
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [user]);
+
   const markRead = async (id: string) => {
     await (supabase as any).from("notifications").update({ read: true }).eq("id", id);
     setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));

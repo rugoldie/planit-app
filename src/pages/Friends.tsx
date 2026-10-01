@@ -130,6 +130,19 @@ const Friends = () => {
 
   useEffect(() => { loadFriendships(); }, [loadFriendships]);
 
+  // Realtime: accept/decline on either side (this screen, Notifications,
+  // or the other user's own session) must reflect here instantly - without
+  // this, "Requested" never flips to "Friends" until a manual reload.
+  useEffect(() => {
+    if (!user) return;
+    const channel = supabase
+      .channel(`friendships-${user.id}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "friendships", filter: `requester_id=eq.${user.id}` }, () => loadFriendships())
+      .on("postgres_changes", { event: "*", schema: "public", table: "friendships", filter: `recipient_id=eq.${user.id}` }, () => loadFriendships())
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [user, loadFriendships]);
+
   // Build the mutual-friend-count map via a "friends of friends" query: any
   // accepted friendship touching one of my friends contributes +1 to the
   // *other* side's mutual count, as long as that other side isn't me or
@@ -381,7 +394,7 @@ const Friends = () => {
                     </span>
                   ) : isPending ? (
                     <span className="text-xs font-semibold text-muted-foreground px-3 py-1 rounded-full bg-secondary">
-                      Pending
+                      Requested
                     </span>
                   ) : (
                     <button

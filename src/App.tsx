@@ -13,6 +13,7 @@ import EventView from "./pages/EventView";
 import JoinEvent from "./pages/JoinEvent";
 import GuestEventView from "./pages/GuestEventView";
 import Profile from "./pages/Profile";
+import UserProfile from "./pages/UserProfile";
 import NotFound from "./pages/NotFound";
 import Onboarding from "./pages/Onboarding";
 import Friends from "./pages/Friends";
@@ -40,6 +41,7 @@ const App = () => (
             <Route path="/join" element={<JoinEvent />} />
             <Route path="/guest/:code" element={<GuestEventView />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/u/:userId" element={<UserProfile />} />
             <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/friends" element={<Friends />} />
             <Route path="/events" element={<EventsList />} />

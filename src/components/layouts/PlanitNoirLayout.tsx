@@ -389,12 +389,21 @@ export const NoirAttendeeStrip = ({
   goingList,
   accentColor,
   getInitials,
+  onClick,
 }: {
   goingList: { name: string; avatar_url?: string }[];
   accentColor: string;
   getInitials: (name: string) => string;
+  onClick?: () => void;
 }) => (
-  <div className="flex items-center justify-between mt-5 px-1">
+  <div
+    className="flex items-center justify-between mt-5 px-1"
+    role={onClick ? "button" : undefined}
+    tabIndex={onClick ? 0 : undefined}
+    onClick={onClick}
+    onKeyDown={onClick ? (e) => { if (e.key === "Enter" || e.key === " ") onClick(); } : undefined}
+    style={onClick ? { cursor: "pointer" } : undefined}
+  >
     <span
       style={{
         fontFamily: "'Playfair Display', serif",

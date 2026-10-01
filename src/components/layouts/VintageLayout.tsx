@@ -122,14 +122,23 @@ export const VintageAttendeeStrip = ({
   goingList,
   getInitials,
   accentColor,
+  onClick,
 }: {
   goingList: { name: string; avatar_url?: string }[];
   getInitials: (name: string) => string;
   accentColor?: string;
+  onClick?: () => void;
 }) => {
   const color = accentColor || DEFAULT_GOLD;
   return (
-    <div className="flex items-center justify-between mt-5 px-1">
+    <div
+      className="flex items-center justify-between mt-5 px-1"
+      role={onClick ? "button" : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onClick={onClick}
+      onKeyDown={onClick ? (e) => { if (e.key === "Enter" || e.key === " ") onClick(); } : undefined}
+      style={onClick ? { cursor: "pointer" } : undefined}
+    >
       <span style={{ fontFamily: FF, fontSize: "9px", fontWeight: 600, color, textTransform: "uppercase", letterSpacing: "0.15em" }}>
         {goingList.length > 0 ? `${goingList.length} going` : "No one yet"}
       </span>
@@ -164,7 +173,7 @@ export const VintageSharedSections = ({
   rsvpList,
   rsvp,
   guestListExpanded,
-  setGuestListExpanded,
+  onOpenGuestList,
   comments,
   commentDraft,
   setCommentDraft,
@@ -198,7 +207,7 @@ export const VintageSharedSections = ({
     <>
       {/* Who's going */}
       <div className="mt-4 rounded-2xl p-4" style={{ backgroundColor: DARK_BROWN }}>
-        <button onClick={() => setGuestListExpanded(!guestListExpanded)} className="flex items-center justify-between w-full mb-3">
+        <button onClick={onOpenGuestList} className="flex items-center justify-between w-full mb-3">
           <h2 style={{ fontFamily: "'Fredoka', sans-serif", fontSize: "14px", fontWeight: 700, color: CREAM }}>Who's going</h2>
           <div className="flex items-center gap-2">
             {goingList.length > 0 && <span style={{ fontFamily: FF, fontSize: "12px", fontWeight: 700, color }}>{goingList.length} going</span>}

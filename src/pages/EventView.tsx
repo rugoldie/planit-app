@@ -67,7 +67,7 @@ import { createNotification } from "@/lib/notifications";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
 
 type Comment = { id: string; user_name: string; text: string; created_at: string; avatar_url?: string };
-type RsvpEntry = { name: string; avatar_url?: string; status: string; user_id: string };
+type RsvpEntry = { name: string; avatar_url?: string; status: string; user_id: string; username?: string | null };
 type DM = { id: string; sender_id: string; text: string; created_at: string; sender_name?: string };
 type StickerItem = { id: string; emoji: string; x: number; y: number; size: number };
 
@@ -230,6 +230,12 @@ const EventView = () => {
   const [barMinimised, setBarMinimised] = useState(false);
   const [rsvpList, setRsvpList] = useState<RsvpEntry[]>([]);
   const [guestListExpanded, setGuestListExpanded] = useState(false);
+  // Accepted-friend user ids for the viewer, used to sort attendee lists
+  // friends-first. Kept in a ref too so the RSVP fetch (defined once per
+  // event/user change) always reads the latest set without re-subscribing.
+  const [friendIds, setFriendIds] = useState<Set<string>>(new Set());
+  const friendIdsRef = useRef<Set<string>>(new Set());
+  useEffect(() => { friendIdsRef.current = friendIds; }, [friendIds]);
 
   // Comments
   const [comments, setComments] = useState<Comment[]>([]);
@@ -335,6 +341,22 @@ const EventView = () => {
     autoRsvp();
   }, [event, user]);
 
+  // Fetch the viewer's accepted friends, used to sort attendee lists
+  // friends-first (kept fresh via friendIdsRef so fetchRsvps doesn't need
+  // to resubscribe its realtime channel whenever this changes).
+  useEffect(() => {
+    if (!user) { setFriendIds(new Set()); return; }
+    (async () => {
+      const { data } = await (supabase as any)
+        .from("friendships")
+        .select("requester_id, recipient_id")
+        .eq("status", "accepted")
+        .or(`requester_id.eq.${user.id},recipient_id.eq.${user.id}`);
+      const ids = new Set<string>((data || []).map((f: any) => (f.requester_id === user.id ? f.recipient_id : f.requester_id)));
+      setFriendIds(ids);
+    })();
+  }, [user]);
+
   // Fetch RSVPs
   useEffect(() => {
     if (!event) return;
@@ -344,13 +366,16 @@ const EventView = () => {
         const userIds = data.map((d: any) => d.user_id);
         const { data: profiles } = await supabase
           .from("profiles_public" as any)
-          .select("user_id, name, avatar_url")
+          .select("user_id, name, username, avatar_url")
           .in("user_id", userIds);
         const profileMap = new Map((profiles || []).map((p: any) => [p.user_id, p]));
+        const myFriendIds = friendIdsRef.current;
         const list: RsvpEntry[] = data.map((d: any) => {
           const p = profileMap.get(d.user_id);
-          return { name: p?.name || "Guest", avatar_url: p?.avatar_url, status: d.rsvp_status, user_id: d.user_id };
+          return { name: p?.name || "Guest", username: p?.username || null, avatar_url: p?.avatar_url, status: d.rsvp_status, user_id: d.user_id };
         });
+        // Friends-first, otherwise keep arrival order.
+        list.sort((a, b) => Number(myFriendIds.has(b.user_id)) - Number(myFriendIds.has(a.user_id)));
         setRsvpList(list);
         if (user) {
           const mine = data.find((d: any) => d.user_id === user.id);
@@ -1078,7 +1103,7 @@ const EventView = () => {
                 </div>
               )}
               {event.extra && <VintageNotesCard notes={event.extra} accentColor={vintageAccent} />}
-              <VintageAttendeeStrip goingList={goingList} getInitials={getInitials} accentColor={vintageAccent} />
+              <VintageAttendeeStrip goingList={goingList} getInitials={getInitials} accentColor={vintageAccent} onClick={() => setShowGuestList(true)} />
             </div>
           </div>
 
@@ -1107,7 +1132,7 @@ const EventView = () => {
               rsvpList={rsvpList}
               rsvp={rsvp}
               guestListExpanded={guestListExpanded}
-              setGuestListExpanded={setGuestListExpanded}
+              onOpenGuestList={() => setShowGuestList(true)}
               comments={comments}
               commentDraft={commentDraft}
               setCommentDraft={setCommentDraft}
@@ -1477,7 +1502,7 @@ const EventView = () => {
               )}
               <div>
                 <button
-                  onClick={() => setGuestListExpanded(!guestListExpanded)}
+                  onClick={() => setShowGuestList(true)}
                   className="flex items-center justify-between w-full mb-2"
                 >
                   <h2 style={{ fontSize: "14px", fontWeight: 700, color: "#fff", fontFamily: "'Fredoka', sans-serif" }}>
@@ -1887,7 +1912,7 @@ const EventView = () => {
                 }}
               >
                 <button
-                  onClick={() => setGuestListExpanded(!guestListExpanded)}
+                  onClick={() => setShowGuestList(true)}
                   className="flex items-center justify-between w-full mb-2"
                 >
                   <h2 style={{ fontFamily: "'Fredoka', sans-serif", fontSize: "18px", fontWeight: 700, color: "#fff" }}>
@@ -2332,7 +2357,7 @@ const EventView = () => {
                 style={{ backgroundColor: isLightBg ? "#f5f5f5" : "#111", borderRadius: "12px", padding: "12px 14px" }}
               >
                 <button
-                  onClick={() => setGuestListExpanded(!guestListExpanded)}
+                  onClick={() => setShowGuestList(true)}
                   className="flex items-center justify-between w-full mb-2"
                 >
                   <h2
@@ -2659,7 +2684,7 @@ const EventView = () => {
 
               {/* Who's going */}
               <div style={{ backgroundColor: "rgba(56,189,248,0.06)", border: "1px solid rgba(56,189,248,0.12)", borderRadius: "16px", padding: "12px 14px" }}>
-                <button onClick={() => setGuestListExpanded(!guestListExpanded)} className="flex items-center justify-between w-full mb-2">
+                <button onClick={() => setShowGuestList(true)} className="flex items-center justify-between w-full mb-2">
                   <h2 style={{ fontFamily: "'Fredoka', sans-serif", fontSize: "13px", fontWeight: 700, color: "#ffffff" }}>Who's going</h2>
                   <div className="flex items-center gap-2">
                     {goingList.length > 0 && <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "11px", fontWeight: 700, color: "rgb(56,189,248)" }}>{goingList.length} going</span>}
@@ -2806,7 +2831,7 @@ const EventView = () => {
 
               {/* Who's going */}
               <div style={{ backgroundColor: "rgba(244,114,182,0.06)", border: "1px solid rgba(244,114,182,0.15)", borderRadius: "12px", padding: "12px 14px" }}>
-                <button onClick={() => setGuestListExpanded(!guestListExpanded)} className="flex items-center justify-between w-full mb-2">
+                <button onClick={() => setShowGuestList(true)} className="flex items-center justify-between w-full mb-2">
                   <h2 style={{ fontFamily: "'Fredoka', sans-serif", fontSize: "13px", fontWeight: 700, color: "#fff" }}>Who's going</h2>
                   <div className="flex items-center gap-2">
                     {goingList.length > 0 && <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "11px", fontWeight: 700, color: "#f472b6" }}>{goingList.length} going</span>}
@@ -2952,7 +2977,7 @@ const EventView = () => {
 
               {/* Who's going */}
               <div style={{ border: "1px solid rgba(74,222,128,0.18)", borderRadius: "12px", padding: "12px 14px" }}>
-                <button onClick={() => setGuestListExpanded(!guestListExpanded)} className="flex items-center justify-between w-full mb-2">
+                <button onClick={() => setShowGuestList(true)} className="flex items-center justify-between w-full mb-2">
                   <h2 style={{ fontFamily: "'Fredoka', sans-serif", fontSize: "13px", fontWeight: 700, color: "#fff" }}>Who's going</h2>
                   <div className="flex items-center gap-2">
                     {goingList.length > 0 && <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "11px", fontWeight: 700, color: "#4ade80" }}>{goingList.length} going</span>}
@@ -3301,7 +3326,7 @@ const EventView = () => {
               )}
               {event.location && <NoirLocationCard location={event.location} accentColor={accentColor} />}
               {event.extra && <NoirNotesCard notes={event.extra} accentColor={accentColor} />}
-              <NoirAttendeeStrip goingList={goingList} accentColor={accentColor} getInitials={getInitials} />
+              <NoirAttendeeStrip goingList={goingList} accentColor={accentColor} getInitials={getInitials} onClick={() => setShowGuestList(true)} />
             </div>
           </div>
         </>
@@ -3475,7 +3500,7 @@ const EventView = () => {
           {/* Who's going section */}
           <div className="mt-4 rounded-2xl p-4" style={{ backgroundColor: "#1e1e1e" }}>
             <button
-              onClick={() => setGuestListExpanded(!guestListExpanded)}
+              onClick={() => setShowGuestList(true)}
               className="flex items-center justify-between w-full mb-3"
             >
               <h2 className="text-white font-bold text-sm" style={{ fontFamily: "'Fredoka', sans-serif" }}>Who's going</h2>
@@ -3976,16 +4001,29 @@ const EventView = () => {
                 ? <p className="text-muted-foreground text-sm text-center py-8">No guests yet</p>
                 : <div className="space-y-2">
                     {rsvpList.map(r => (
-                      <div key={r.user_id} className="flex items-center gap-3 bg-card rounded-2xl px-4 py-3 border border-border">
+                      <div
+                        key={r.user_id}
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => { setShowGuestList(false); navigate(r.user_id === user?.id ? "/profile" : `/u/${r.user_id}`); }}
+                        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { setShowGuestList(false); navigate(r.user_id === user?.id ? "/profile" : `/u/${r.user_id}`); } }}
+                        className="flex items-center gap-3 bg-card rounded-2xl px-4 py-3 border border-border cursor-pointer"
+                      >
                         <div className="w-9 h-9 rounded-full bg-secondary flex items-center justify-center shrink-0 overflow-hidden">
                           {r.avatar_url ? <img src={r.avatar_url} alt="" className="w-full h-full object-cover" /> : <span className="font-bold text-sm text-foreground">{r.name.charAt(0).toUpperCase()}</span>}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-sm text-foreground truncate">{r.name}</p>
+                          <div className="flex items-center gap-1.5">
+                            <p className="font-semibold text-sm text-foreground truncate">{r.name}</p>
+                            {friendIds.has(r.user_id) && (
+                              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0" style={{ backgroundColor: "rgba(37,99,235,0.15)", color: "#2563eb" }}>Friend</span>
+                            )}
+                          </div>
+                          {r.username && <p className="text-xs text-muted-foreground truncate">@{r.username}</p>}
                           <p className="text-xs text-muted-foreground">{r.status === "yes" ? "Going" : r.status === "maybe" ? "Maybe" : "Not going"}</p>
                         </div>
                         {r.user_id !== user?.id && (
-                          <button onClick={() => removeGuest(r.user_id)} className="text-xs text-red-400 font-semibold px-2 py-1 rounded hover:bg-red-500/10">Remove</button>
+                          <button onClick={(e) => { e.stopPropagation(); removeGuest(r.user_id); }} className="text-xs text-red-400 font-semibold px-2 py-1 rounded hover:bg-red-500/10 shrink-0">Remove</button>
                         )}
                       </div>
                     ))}
