@@ -221,7 +221,7 @@ const EventView = () => {
   const [pollMenuOpenId, setPollMenuOpenId] = useState<string | null>(null);
   const [editingPollId, setEditingPollId] = useState<string | null>(null);
   const [polls, setPolls] = useState<any[]>([]);
-  const [myVotes, setMyVotes] = useState<Record<string, string>>({});
+  const [myVotes, setMyVotes] = useState<Record<string, any>>({});
   const [pollKeyboardHeight, setPollKeyboardHeight] = useState(0);
 
   // RSVP deadline editor

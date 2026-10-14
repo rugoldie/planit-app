@@ -191,7 +191,7 @@ const GuestEventView = () => {
   const [showCapacityFull, setShowCapacityFull] = useState(false);
   const [onWaitlist, setOnWaitlist] = useState(false);
   const [polls, setPolls] = useState<any[]>([]);
-  const [myVotes, setMyVotes] = useState<Record<string, string>>({});
+  const [myVotes, setMyVotes] = useState<Record<string, any>>({});
   const [dismissedPolls, setDismissedPolls] = useState<Set<string>>(new Set());
 
   const fetchPolls = useCallback(async () => {
