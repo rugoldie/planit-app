@@ -150,7 +150,7 @@ const Profile = () => {
     if (!editUsername || editUsername.length < 3 || editUsername === current) { setUsernameStatus("idle"); return; }
     setUsernameStatus("checking");
     const t = setTimeout(async () => {
-      const { data } = await supabase.from("profiles").select("id").eq("username" as any, editUsername).maybeSingle();
+      const { data } = await (supabase as any).from("profiles").select("id").eq("username" as any, editUsername).maybeSingle();
       setUsernameStatus(data ? "taken" : "available");
     }, 400);
     return () => clearTimeout(t);
