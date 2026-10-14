@@ -230,7 +230,7 @@ const Conversation = () => {
                     : { backgroundColor: "#2a2a2a", color: "white" }
                 }
               >
-                <p className="text-sm">{m.text}</p>
+                <p className="text-sm break-words">{m.text}</p>
               </div>
             </div>
           );

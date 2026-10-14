@@ -5,7 +5,6 @@ import { ArrowLeft, Upload, Copy, Share2, Users, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { supabase } from "@/integrations/supabase/client";
-import { extractInvokeErrorMessage } from "@/lib/invokeError";
 import { useAuth } from "@/contexts/AuthContext";
 import bgNeonCity from "@/assets/bg-neon-city.jpg";
 import bgStarryNight from "@/assets/bg-starry-night.jpg";
@@ -373,7 +372,7 @@ const HostEvent = () => {
   const [extra, setExtra] = useState("");
   const [bgColor, setBgColor] = useState("0 0% 4%");
   const [bgPhoto, setBgPhoto] = useState<string | null>(null);
-  const [bgPreset, _setBgPreset] = useState<string | null>(null);
+  const [bgPreset, setBgPreset] = useState<string | null>(null);
   const [bgPresetIsImage, setBgPresetIsImage] = useState(false);
   const [textSize, setTextSize] = useState<(typeof TEXT_SIZES)[number]>("Medium");
   const [bubbleColor, setBubbleColor] = useState("82 100% 48%");
@@ -386,34 +385,13 @@ const HostEvent = () => {
   const [eventId, setEventId] = useState<string | null>(null);
   const [gradientColor, setGradientColor] = useState(GRADIENT_COLORS[0].color);
   const [fontStyle, setFontStyle] = useState<string>("Elegant");
-  const [templateName, _setTemplateName] = useState<string>("planit-noir");
-  const setTemplateName = (value: string) => {
-    if (buildItAppliedRef.current && value !== "planit-custom") {
-      console.log("[templateName] BLOCKED — Build It is active, refusing overwrite to:", value);
-      return;
-    }
-    _setTemplateName(value);
-  };
+  const [templateName, setTemplateName] = useState<string>("planit-noir");
   const [showStyleScreen, setShowStyleScreen] = useState(!editCode);
   const [showTemplatePicker, setShowTemplatePicker] = useState(false);
   const [showCustomiseDrawer, setShowCustomiseDrawer] = useState(false);
   const { toast } = useToast();
   const [editLoading, setEditLoading] = useState(!!editCode);
   const [titleError, setTitleError] = useState("");
-  const [showBuildIt, setShowBuildIt] = useState(false);
-  const [buildItPrompt, setBuildItPrompt] = useState("");
-  const [buildItGenerating, setBuildItGenerating] = useState(false);
-  const [buildItResult, setBuildItResult] = useState<{
-    template: string;
-    bubbleColor: string;
-    bubbleTextColor: string;
-    bgColor: string;
-    fontStyle: string;
-    gradientColor: string;
-    customCSS: string;
-    customLayout?: "cards" | "editorial" | "ocean";
-  } | null>(null);
-  const [buildItError, setBuildItError] = useState<string | null>(null);
   const [fontColor, setFontColor] = useState<string>("#ffffff");
   const [customLayout, setCustomLayout] = useState<"cards" | "editorial" | "ocean">("cards");
   const [bubbleStyle, setBubbleStyle] = useState<"frosted" | "solid" | "outlined">("frosted");
@@ -425,19 +403,6 @@ const HostEvent = () => {
   const [inviting, setInviting] = useState(false);
   const [loadingFriends, setLoadingFriends] = useState(false);
   const customContainerRef = useRef<HTMLDivElement>(null);
-  // Prevents a stale Supabase load callback from overwriting state after the user applies a Build It style
-  const buildItAppliedRef = useRef(false);
-
-  // Guarded setter: once Build It applies a CSS gradient, null writes are blocked
-  // until the user explicitly picks a new template/bg (which clears buildItAppliedRef).
-  const setBgPreset = (value: string | null) => {
-    console.log("[bgPreset] SET TO:", value ? value.slice(0, 100) + (value.length > 100 ? "…" : "") : "null");
-    if (buildItAppliedRef.current && value === null) {
-      console.log("[bgPreset] BLOCKED — Build It gradient is active, refusing null overwrite");
-      return;
-    }
-    _setBgPreset(value);
-  };
 
   // Load event data if editing
   useEffect(() => {
@@ -450,7 +415,7 @@ const HostEvent = () => {
       .eq("code", editCode)
       .single()
       .then(({ data }) => {
-        if (cancelled || buildItAppliedRef.current) return;
+        if (cancelled) return;
         if (data) {
           console.log("[HostEvent edit] loaded from DB:", JSON.stringify({
             template_name: (data as any).template_name,
@@ -493,9 +458,10 @@ const HostEvent = () => {
             setBgPreset(bp);
             setBgPresetIsImage(false);
           } else if (isCssGradient) {
-            // Any CSS gradient — linear, radial, conic, repeating — produced by
-            // Build It or the preset picker must be restored as bgPreset so the
-            // planit-custom template preview renders identically to the guest view.
+            // Any CSS gradient — linear, radial, conic, repeating — from the
+            // preset picker (or carried over from the old Build It styles) must
+            // be restored as bgPreset so the planit-custom template preview
+            // renders identically to the guest view.
             setBgPreset(bp!);
             setBgPresetIsImage(false);
           } else if (bp?.startsWith("url(")) {
@@ -611,7 +577,7 @@ const HostEvent = () => {
     // On ANY column error (PGRST116 or message mentioning a specific column)
     // we strip every field that might not exist in older DB schemas, keeping
     // all core style fields (bg_color, bg_photo, bubble_color, font_style,
-    // gradient_color, template_name) so the Build It style is always saved.
+    // gradient_color, template_name) so the chosen style is always saved.
     const withFallback = (data: any, err: any) => {
       if (!err) return null;
       const msg: string = err?.message || "";
@@ -693,7 +659,6 @@ const HostEvent = () => {
     const file = e.target.files?.[0];
     if (file) {
       const url = URL.createObjectURL(file);
-      buildItAppliedRef.current = false;
       setUploadedPhoto(url);
       setBgPhoto(url);
       setBgPreset(null);
@@ -701,77 +666,6 @@ const HostEvent = () => {
     }
   };
 
-  const generateStyle = async () => {
-    if (!buildItPrompt.trim()) return;
-    setBuildItGenerating(true);
-    setBuildItError(null);
-    setBuildItResult(null);
-    try {
-      console.log("[BuildIt] Calling build-it edge function. Prompt:", buildItPrompt.trim());
-
-      const { data, error: fnError } = await supabase.functions.invoke("build-it", {
-        body: { prompt: buildItPrompt.trim() },
-      });
-
-      if (fnError || data?.error) {
-        throw new Error(data?.error || (await extractInvokeErrorMessage(fnError, "Something went wrong. Please try again.")));
-      }
-
-      const style = data?.style;
-      if (!style) throw new Error("Empty response from build-it");
-
-      console.log("[BuildIt] Style ready — customCSS length:", style.customCSS?.length);
-      setBuildItResult(style);
-    } catch (err: any) {
-      console.error("[BuildIt] generateStyle failed:", err?.message ?? err);
-      setBuildItError(err.message ?? "Something went wrong. Please try again.");
-    } finally {
-      setBuildItGenerating(false);
-    }
-  };
-
-  // Log whenever Build It style state actually changes after a render
-  useEffect(() => {
-    console.log("[BuildIt] ★ STATE RENDER — templateName:", templateName, "| bgColor:", bgColor, "| bubbleColor:", bubbleColor, "| fontStyle:", fontStyle, "| bgPreset:", bgPreset);
-  }, [templateName, bgColor, bubbleColor, fontStyle, bgPreset]);
-
-  const applyStyle = () => {
-    if (!buildItResult) return;
-    // Mark that the user has applied a Build It style so any in-flight DB load callback won't overwrite it
-    buildItAppliedRef.current = true;
-    console.log("[BuildIt] applyStyle CALLED with:", JSON.stringify(buildItResult));
-    console.log("[BuildIt] → setTemplateName('planit-custom')");
-    setTemplateName("planit-custom");
-    console.log("[BuildIt] → setBubbleColor:", buildItResult.bubbleColor);
-    setBubbleColor(buildItResult.bubbleColor);
-    console.log("[BuildIt] → setBubbleTextColor:", buildItResult.bubbleTextColor);
-    setBubbleTextColor(buildItResult.bubbleTextColor);
-    console.log("[BuildIt] → setBgColor:", buildItResult.bgColor);
-    setBgColor(buildItResult.bgColor);
-    // Compute font color based on whether bgColor is light or dark
-    const bgLParts = buildItResult.bgColor.trim().split(/[\s,]+/);
-    const bgL = parseFloat(bgLParts[2] ?? "0");
-    const computedFontColor = bgL > 55 ? "#111111" : "#ffffff";
-    console.log("[BuildIt] → setFontColor:", computedFontColor, "(bgL:", bgL, ")");
-    setFontColor(computedFontColor);
-    console.log("[BuildIt] → setFontStyle:", buildItResult.fontStyle);
-    setFontStyle(buildItResult.fontStyle);
-    console.log("[BuildIt] → setGradientColor:", buildItResult.gradientColor);
-    setGradientColor(buildItResult.gradientColor);
-    console.log("[BuildIt] → setBgPhoto(null), setBgPreset (customCSS):", buildItResult.customCSS.slice(0, 60));
-    setBgPhoto(null);
-    setBgPreset(buildItResult.customCSS);
-    setCustomAccentHex(null);
-    setBgPresetIsImage(false);
-    if (buildItResult.customLayout) setCustomLayout(buildItResult.customLayout);
-    console.log("[BuildIt] → setShowBuildIt(false) — closing modal");
-    setShowBuildIt(false);
-    setBuildItResult(null);
-    setBuildItPrompt("");
-    // Scroll to top so the user sees the updated layout
-    window.scrollTo({ top: 0, behavior: "smooth" });
-    console.log("[BuildIt] applyStyle dispatched — waiting for React re-render (see ★ STATE RENDER log)");
-  };
 
   const eventUrl = eventCode ? `${window.location.origin}/event/${eventCode}` : "";
 
@@ -2711,7 +2605,8 @@ const HostEvent = () => {
           >
             <div className="mx-auto w-10 h-1 rounded-full mb-4" style={{ backgroundColor: "#333" }} />
             {customCssGradient ? (
-              /* ─── Build It panel ─── */
+              /* ─── Gradient-background customise panel (gradient presets, and
+                     events still carrying a gradient from the old Build It) ─── */
               <div className="flex flex-col gap-5 pb-2">
                 <div>
                   <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-2.5">Font</p>
@@ -2769,13 +2664,6 @@ const HostEvent = () => {
                     ))}
                   </div>
                 </div>
-                <button
-                  onClick={() => { setShowCustomiseDrawer(false); setTimeout(() => { setShowBuildIt(true); setBuildItError(null); }, 200); }}
-                  className="w-full rounded-2xl py-3.5 text-sm font-bold"
-                  style={{ background:"linear-gradient(135deg,#7c3aed,#db2777)",color:"#fff",border:"none" }}
-                >
-                  ✦ Regenerate Background
-                </button>
               </div>
             ) : (
               /* ─── Start Blank / canvas customise panel ─── */
@@ -2788,14 +2676,14 @@ const HostEvent = () => {
                     {BLANK_BG_COLORS.map((c) => (
                       <button
                         key={c.name}
-                        onClick={() => { buildItAppliedRef.current = false; setBgColor(c.hsl); setBgPreset(null); setBgPhoto(null); setBgPresetIsImage(false); }}
+                        onClick={() => { setBgColor(c.hsl); setBgPreset(null); setBgPhoto(null); setBgPresetIsImage(false); }}
                         className="w-9 h-9 rounded-full shrink-0 transition-all"
                         style={{ backgroundColor: c.hex, border: bgColor === c.hsl && !bgPreset && !bgPhoto ? "3px solid #2563eb" : "2px solid rgba(255,255,255,0.18)", transform: bgColor === c.hsl && !bgPreset && !bgPhoto ? "scale(1.15)" : "scale(1)" }}
                         title={c.name}
                       />
                     ))}
                     <label title="Custom colour" className="w-9 h-9 rounded-full shrink-0 cursor-pointer relative" style={{ background: "conic-gradient(red,yellow,lime,cyan,blue,magenta,red)", border: "2px solid rgba(255,255,255,0.18)" }}>
-                      <input type="color" onChange={e => { buildItAppliedRef.current = false; const hex = e.target.value; const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16); const max=Math.max(r,g,b)/255,min=Math.min(r,g,b)/255,l=(max+min)/2; const s=max===min?0:(max-min)/(l<0.5?max+min:2-max-min); const h=max===r?((g/255-b/255)/(max-min)*60+360)%360:max===g?(b/255-r/255)/(max-min)*60+120:(r/255-g/255)/(max-min)*60+240; setBgColor(`${Math.round(h)} ${Math.round(s*100)}% ${Math.round(l*100)}%`); setBgPreset(null); setBgPhoto(null); setBgPresetIsImage(false); }} style={{ position:"absolute",inset:0,opacity:0,cursor:"pointer",width:"100%",height:"100%" }} />
+                      <input type="color" onChange={e => { const hex = e.target.value; const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16); const max=Math.max(r,g,b)/255,min=Math.min(r,g,b)/255,l=(max+min)/2; const s=max===min?0:(max-min)/(l<0.5?max+min:2-max-min); const h=max===r?((g/255-b/255)/(max-min)*60+360)%360:max===g?(b/255-r/255)/(max-min)*60+120:(r/255-g/255)/(max-min)*60+240; setBgColor(`${Math.round(h)} ${Math.round(s*100)}% ${Math.round(l*100)}%`); setBgPreset(null); setBgPhoto(null); setBgPresetIsImage(false); }} style={{ position:"absolute",inset:0,opacity:0,cursor:"pointer",width:"100%",height:"100%" }} />
                     </label>
                   </div>
                   <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
@@ -2805,7 +2693,7 @@ const HostEvent = () => {
                       return (
                         <button
                           key={p.key}
-                          onClick={() => { buildItAppliedRef.current = false; setBgPreset(p.key); setBgPhoto(null); setBgPresetIsImage(false); }}
+                          onClick={() => { setBgPreset(p.key); setBgPhoto(null); setBgPresetIsImage(false); }}
                           className="shrink-0 flex flex-col items-center gap-1 rounded-lg overflow-hidden transition-all"
                           style={{ border: isActive ? "2px solid #2563eb" : "2px solid rgba(255,255,255,0.12)", width: 52 }}
                           title={p.name}
@@ -2917,8 +2805,7 @@ const HostEvent = () => {
                       <button
                         key={t.name}
                         onClick={() => {
-                          buildItAppliedRef.current = false;
-                          setBgColor(t.bgColor);
+                                setBgColor(t.bgColor);
                           setBubbleColor(t.bubbleColor);
                           setBubbleTextColor(t.bubbleTextColor);
                           setGradientColor(t.gradientColor);
@@ -2985,17 +2872,6 @@ const HostEvent = () => {
               </div>
               <div className="flex flex-col gap-3">
                 <button
-                  onClick={() => { setShowStyleScreen(false); setShowBuildIt(true); setBuildItError(null); }}
-                  className="w-full rounded-2xl px-5 py-5 flex items-center gap-4 text-left"
-                  style={{ background: "linear-gradient(135deg, #7c3aed, #db2777)", border: "none" }}
-                >
-                  <span style={{ fontSize: "28px" }}>🪄</span>
-                  <div>
-                    <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "16px", fontWeight: 700, color: "#fff", lineHeight: 1.2 }}>✦ Build It</p>
-                    <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "12px", color: "rgba(255,255,255,0.7)", marginTop: "3px" }}>Describe the vibe, AI designs the page</p>
-                  </div>
-                </button>
-                <button
                   onClick={() => setShowTemplatePicker(true)}
                   className="w-full rounded-2xl px-5 py-5 flex items-center gap-4 text-left"
                   style={{ backgroundColor: "#1a1a1a", border: "1px solid rgba(255,255,255,0.08)" }}
@@ -3009,8 +2885,7 @@ const HostEvent = () => {
                 </button>
                 <button
                   onClick={() => {
-                    buildItAppliedRef.current = false;
-                    _setTemplateName("planit-custom");
+                    setTemplateName("planit-custom");
                     setBgColor("0 0% 4%");
                     setBgPreset(null);
                     setBgPhoto(null);
@@ -3027,159 +2902,21 @@ const HostEvent = () => {
                     <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "12px", color: "#666", marginTop: "3px" }}>A clean page, fully yours to customise</p>
                   </div>
                 </button>
+                {/* Build It needs a saved event to attach the page to, so it
+                    lives on the event page rather than in this create flow. */}
+                <p
+                  className="text-center px-4 mt-1"
+                  style={{ fontFamily: "'Inter', sans-serif", fontSize: "12px", color: "#555", lineHeight: 1.5 }}
+                >
+                  ✦ Want AI to design the whole page? Create your event, then tap{" "}
+                  <span style={{ color: "#777", fontWeight: 600 }}>Build It</span> on it.
+                </p>
               </div>
             </div>
           )}
         </div>
       )}
 
-      {/* ─── Build It modal ─── */}
-      {showBuildIt && (
-        <div
-          className="fixed inset-0 z-50 flex items-end justify-center"
-          style={{ backgroundColor: "rgba(0,0,0,0.7)" }}
-          onClick={(e) => { if (e.target === e.currentTarget) { setShowBuildIt(false); } }}
-        >
-          <div
-            className="w-full rounded-t-3xl px-5 pt-5 pb-10"
-            style={{ backgroundColor: "#141414", maxHeight: "90vh", overflowY: "auto" }}
-          >
-            {/* Handle */}
-            <div className="mx-auto w-10 h-1 rounded-full mb-5" style={{ backgroundColor: "#333" }} />
-
-            {/* Header */}
-            <div className="flex items-center justify-between mb-5">
-              <div>
-                <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "18px", fontWeight: 700, color: "#fff" }}>✦ Build It</p>
-                <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "12px", color: "#666", marginTop: "2px" }}>Describe your event, we'll generate the art</p>
-              </div>
-              <button
-                onClick={() => setShowBuildIt(false)}
-                style={{ color: "#666", fontSize: "22px", lineHeight: 1, background: "none", border: "none", padding: "4px" }}
-              >
-                ✕
-              </button>
-            </div>
-
-            {/* Prompt input */}
-            <textarea
-              value={buildItPrompt}
-              onChange={(e) => setBuildItPrompt(e.target.value)}
-              placeholder="e.g. a tropical birthday party on the beach at sunset with palm trees and fairy lights"
-              rows={3}
-              className="w-full rounded-2xl px-4 py-3 text-sm resize-none outline-none"
-              style={{
-                backgroundColor: "#1e1e1e",
-                border: "1px solid #333",
-                color: "#fff",
-                fontFamily: "'Inter', sans-serif",
-              }}
-            />
-
-            {/* Error */}
-            {buildItError && (
-              <div className="mt-3 rounded-xl px-4 py-3" style={{ backgroundColor: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.35)" }}>
-                <p className="text-sm font-semibold mb-1" style={{ color: "#f87171" }}>Generation failed</p>
-                <p className="text-xs" style={{ color: "rgba(248,113,113,0.8)", wordBreak: "break-word" }}>{buildItError}</p>
-              </div>
-            )}
-
-            {/* Style preview */}
-            {buildItResult && !buildItGenerating && (
-              <div className="mt-4 rounded-2xl overflow-hidden" style={{ border: "1px solid #333" }}>
-                {/* Background swatch */}
-                <div
-                  style={{
-                    height: "100px",
-                    backgroundImage: buildItResult.customCSS,
-                    backgroundSize: "auto",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    position: "relative",
-                    overflow: "hidden",
-                  }}
-                >
-                  <span
-                    style={{
-                      fontFamily: FONT_MAP[buildItResult.fontStyle] || FONT_MAP["Bold"],
-                      fontSize: "20px",
-                      color: `hsl(${buildItResult.bubbleColor})`,
-                      position: "relative",
-                      zIndex: 1,
-                      textShadow: "0 1px 6px rgba(0,0,0,0.5)",
-                    }}
-                  >
-                    Your Event
-                  </span>
-                </div>
-                {/* Details row */}
-                <div className="flex items-center gap-2 px-4 py-3" style={{ backgroundColor: "#1a1a1a" }}>
-                  <div
-                    className="w-5 h-5 rounded-full shrink-0"
-                    style={{ backgroundColor: `hsl(${buildItResult.bubbleColor})`, border: "1px solid rgba(255,255,255,0.15)" }}
-                  />
-                  <div
-                    className="w-4 h-4 rounded-full shrink-0"
-                    style={{ backgroundColor: buildItResult.gradientColor, border: "1px solid rgba(255,255,255,0.15)" }}
-                  />
-                  <span style={{ color: "#ccc", fontSize: "12px", marginLeft: "2px" }}>
-                    {buildItResult.fontStyle}
-                  </span>
-                </div>
-              </div>
-            )}
-
-            {/* Loading spinner */}
-            {buildItGenerating && (
-              <div className="flex flex-col items-center justify-center py-10 gap-3">
-                <div
-                  className="w-10 h-10 rounded-full border-4 animate-spin"
-                  style={{ borderColor: "#333", borderTopColor: "#7c3aed" }}
-                />
-                <p style={{ color: "#999", fontSize: "13px" }}>Styling your event…</p>
-              </div>
-            )}
-
-            {/* Action buttons */}
-            {!buildItGenerating && (
-              <div className="flex gap-3 mt-4">
-                {!buildItResult ? (
-                  <button
-                    onClick={generateStyle}
-                    disabled={!buildItPrompt.trim()}
-                    className="flex-1 rounded-2xl py-3.5 text-sm font-bold"
-                    style={{
-                      background: buildItPrompt.trim() ? "linear-gradient(135deg, #7c3aed, #db2777)" : "#2b2b2b",
-                      color: buildItPrompt.trim() ? "#fff" : "#555",
-                      border: "none",
-                    }}
-                  >
-                    Generate
-                  </button>
-                ) : (
-                  <>
-                    <button
-                      onClick={generateStyle}
-                      className="flex-1 rounded-2xl py-3.5 text-sm font-bold"
-                      style={{ backgroundColor: "#1e1e1e", border: "1px solid #333", color: "#ccc" }}
-                    >
-                      Try again
-                    </button>
-                    <button
-                      onClick={applyStyle}
-                      className="flex-1 rounded-2xl py-3.5 text-sm font-bold"
-                      style={{ background: "linear-gradient(135deg, #7c3aed, #db2777)", color: "#fff", border: "none" }}
-                    >
-                      Use this ✓
-                    </button>
-                  </>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
     </div>
   );
 };

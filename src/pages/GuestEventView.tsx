@@ -24,6 +24,8 @@ import {
 import { useAuth } from "@/contexts/AuthContext";
 import { createNotification } from "@/lib/notifications";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
+import { useBuildIt } from "@/hooks/useBuildIt";
+import BuiltPageFrame from "@/components/buildit/BuiltPageFrame";
 
 type Comment = { id: string; user_name: string; text: string; created_at: string; avatar_url?: string };
 type RsvpEntry = { name: string; avatar_url?: string; status: string; user_id: string; username?: string | null };
@@ -451,6 +453,11 @@ const GuestEventView = () => {
     return () => document.removeEventListener("fullscreenchange", handler);
   }, []);
 
+  // Build It — guests only ever read the page, so `isHost: false` keeps every
+  // editing affordance out of this view. Called before the early returns below
+  // to satisfy rules of hooks.
+  const buildIt = useBuildIt({ event, isHost: false });
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-background">
@@ -812,7 +819,32 @@ const GuestEventView = () => {
           : { backgroundColor: containerBg }
       }
     >
-      {isNoir ? (
+      {buildIt.hasBuiltPage ? (
+        /* ═══ BUILT PAGE (Build It) — read-only for guests ═══ */
+        <>
+          <div
+            className="flex items-center justify-between px-5 relative z-20"
+            style={{
+              paddingTop: "max(14px, env(safe-area-inset-top, 0px))",
+              paddingBottom: "10px",
+              backgroundColor: "#0a0a0a",
+            }}
+          >
+            <button onClick={() => navigate("/home")} aria-label="Back">
+              <ArrowLeft className="w-6 h-6 text-white/50" />
+            </button>
+            <button
+              onClick={() => setShowChat(true)}
+              aria-label="Message the host"
+              className="w-9 h-9 rounded-full flex items-center justify-center"
+              style={{ backgroundColor: "rgba(255,255,255,0.08)" }}
+            >
+              <MessageCircle className="w-4 h-4 text-white/50" />
+            </button>
+          </div>
+          <BuiltPageFrame html={buildIt.builtHtml!} title={event.title || "Event page"} offsetPx={58} />
+        </>
+      ) : isNoir ? (
         /* ═══ PLANIT NOIR LAYOUT ═══ */
         <>
           <div className="relative" style={{ minHeight: "280px" }}>
@@ -3290,7 +3322,10 @@ const GuestEventView = () => {
         </>
       ) : null}
 
-      {!isVintage && !isSunny && !isGalaxy && !isMidnight && !isOcean && !isBlush && !isForest && !isCustom && (
+      {/* Shared content area — also used by the built page, whose own layout
+          replaces the invitation but not the rest of the event. */}
+      {(buildIt.hasBuiltPage ||
+        (!isVintage && !isSunny && !isGalaxy && !isMidnight && !isOcean && !isBlush && !isForest && !isCustom)) && (
         <div className="px-5">
           {/* Who's going section */}
           <div className="mt-4 rounded-2xl p-4" style={{ backgroundColor: "#1e1e1e" }}>
@@ -3525,7 +3560,7 @@ const GuestEventView = () => {
 
       {/* Full-screen chat overlay */}
       {showFullComments && (
-        <div className="fixed inset-0 z-[60] flex flex-col" style={{ backgroundColor: "#2b2b2b" }}>
+        <div className="fixed inset-0 z-[60] flex flex-col overflow-x-hidden" style={{ backgroundColor: "#2b2b2b" }}>
           <div className="flex items-center justify-between px-5 py-4 border-b border-border">
             <h2 className="text-white font-bold text-base">Chat</h2>
             <button onClick={() => setShowFullComments(false)}>
@@ -3546,16 +3581,16 @@ const GuestEventView = () => {
                     <span className="text-[10px] font-bold text-muted-foreground">{getInitials(c.user_name)}</span>
                   )}
                 </div>
-                <div className="flex-1">
+                <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-0.5">
                     <span className="text-primary text-xs font-bold">{c.user_name}</span>
                     <span className="text-muted-foreground text-[10px]">{formatTime(c.created_at)}</span>
                   </div>
                   <div
-                    className="rounded-2xl rounded-tl-sm px-3 py-2 inline-block"
+                    className="rounded-2xl rounded-tl-sm px-3 py-2 inline-block max-w-full"
                     style={{ backgroundColor: "#383838" }}
                   >
-                    <p className="text-white text-sm">{isGifUrl(c.text) ? <img src={c.text} alt="GIF" style={{ maxWidth: 160, maxHeight: 160, borderRadius: 10, marginTop: 4, display: "block" }} /> : c.text}</p>
+                    <p className="text-white text-sm break-words">{isGifUrl(c.text) ? <img src={c.text} alt="GIF" style={{ maxWidth: 160, maxHeight: 160, borderRadius: 10, marginTop: 4, display: "block" }} /> : c.text}</p>
                   </div>
                 </div>
               </div>
@@ -3596,7 +3631,7 @@ const GuestEventView = () => {
 
       {/* DM overlay */}
       {showChat && (
-        <div className="fixed inset-0 z-[60] bg-background flex flex-col">
+        <div className="fixed inset-0 z-[60] bg-background flex flex-col overflow-x-hidden">
           <div className="flex items-center justify-between px-5 py-4 border-b border-border">
             <h2 className="text-secondary-foreground font-bold text-base">Message the host</h2>
             <button onClick={() => setShowChat(false)}>
@@ -3615,7 +3650,7 @@ const GuestEventView = () => {
                 <div
                   className={`max-w-[75%] rounded-2xl px-4 py-2.5 ${m.from === "guest" ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground border border-border"}`}
                 >
-                  <p className="text-sm">{m.text}</p>
+                  <p className="text-sm break-words">{m.text}</p>
                   <p className="text-[10px] opacity-50 mt-0.5">{m.time}</p>
                 </div>
               </div>

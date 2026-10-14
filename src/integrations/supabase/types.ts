@@ -150,6 +150,7 @@ export type Database = {
           bubble_color: string | null
           bubble_style: string | null
           bubble_text_color: string | null
+          built_page_html: string | null
           capacity: number | null
           code: string
           created_at: string
@@ -177,6 +178,7 @@ export type Database = {
           bubble_color?: string | null
           bubble_style?: string | null
           bubble_text_color?: string | null
+          built_page_html?: string | null
           capacity?: number | null
           code: string
           created_at?: string
@@ -204,6 +206,7 @@ export type Database = {
           bubble_color?: string | null
           bubble_style?: string | null
           bubble_text_color?: string | null
+          built_page_html?: string | null
           capacity?: number | null
           code?: string
           created_at?: string

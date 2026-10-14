@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { Toaster } from "sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
 import Splash from "./pages/Splash";
@@ -28,6 +29,9 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <AuthProvider>
+        {/* Nothing was rendering sonner's toasts, so every toast() call in the
+            app (errors included) was silently invisible. */}
+        <Toaster theme="dark" position="top-center" richColors />
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Splash />} />

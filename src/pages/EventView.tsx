@@ -65,6 +65,9 @@ import {
 import { toast } from "sonner";
 import { createNotification } from "@/lib/notifications";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
+import { useBuildIt } from "@/hooks/useBuildIt";
+import BuildItOverlays from "@/components/buildit/BuildItOverlays";
+import BuiltPageFrame from "@/components/buildit/BuiltPageFrame";
 
 type Comment = { id: string; user_name: string; text: string; created_at: string; avatar_url?: string };
 type RsvpEntry = { name: string; avatar_url?: string; status: string; user_id: string; username?: string | null };
@@ -600,6 +603,14 @@ const EventView = () => {
     return () => document.removeEventListener("fullscreenchange", handler);
   }, []);
 
+  // Build It — called before the early returns below to satisfy rules of hooks,
+  // so the host check is inlined here rather than reusing `isHost` (which is
+  // derived further down, after those returns).
+  const buildIt = useBuildIt({
+    event,
+    isHost: !authLoading && !!user && !!event && user.id === event.host_id,
+  });
+
   if (loading)
     return (
       <div className="flex items-center justify-center min-h-screen bg-background">
@@ -1014,7 +1025,54 @@ const EventView = () => {
 
   return (
     <div className="flex flex-col min-h-screen pb-28" style={{ backgroundColor: containerBg }}>
-      {isVintage ? (
+      {buildIt.hasBuiltPage ? (
+        /* ─── Built page (Build It) — stands in for the template invitation.
+               Everything below it (who's going, polls, chat, gallery, RSVP)
+               still renders via the shared content area. ─── */
+        <>
+          <div
+            className="flex items-center justify-between px-5 relative z-20"
+            style={{
+              paddingTop: "max(14px, env(safe-area-inset-top, 0px))",
+              paddingBottom: "10px",
+              backgroundColor: "#0a0a0a",
+            }}
+          >
+            <button onClick={() => navigate("/home")} aria-label="Back">
+              <ArrowLeft className="w-6 h-6 text-white/50" />
+            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={copyCode}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold"
+                style={{ backgroundColor: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.6)" }}
+              >
+                {codeCopied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                {event.code}
+              </button>
+              <button
+                onClick={() => setShowDMs(true)}
+                aria-label="Messages"
+                className="w-9 h-9 rounded-full flex items-center justify-center"
+                style={{ backgroundColor: "rgba(255,255,255,0.08)" }}
+              >
+                <MessageCircle className="w-4 h-4 text-white/50" />
+              </button>
+              {isHost && (
+                <button
+                  onClick={() => setShowMenu(!showMenu)}
+                  aria-label="Event menu"
+                  className="w-9 h-9 rounded-full flex items-center justify-center"
+                  style={{ backgroundColor: "rgba(255,255,255,0.08)" }}
+                >
+                  <MoreVertical className="w-4 h-4 text-white/50" />
+                </button>
+              )}
+            </div>
+          </div>
+          <BuiltPageFrame html={buildIt.builtHtml!} title={event.title || "Event page"} offsetPx={58} />
+        </>
+      ) : isVintage ? (
         /* ═══ VINTAGE LAYOUT ═══ */
         <>
           <div className="relative" style={{ minHeight: "260px" }}>
@@ -3494,8 +3552,10 @@ const EventView = () => {
         </>
       )}
 
-      {/* Shared content area */}
-      {!isVintage && !isGalaxy && !isSunny && !isMidnight && !isOcean && !isBlush && !isForest && !isCustom && (
+      {/* Shared content area — also used by the built page, whose own layout
+          replaces the invitation but not the rest of the event. */}
+      {(buildIt.hasBuiltPage ||
+        (!isVintage && !isGalaxy && !isSunny && !isMidnight && !isOcean && !isBlush && !isForest && !isCustom)) && (
         <div className="px-5 pt-4">
           {/* Who's going section */}
           <div className="mt-4 rounded-2xl p-4" style={{ backgroundColor: "#1e1e1e" }}>
@@ -3715,7 +3775,7 @@ const EventView = () => {
 
       {/* Full-screen chat overlay - all templates */}
       {showFullComments && (
-        <div className="fixed inset-0 z-[60] flex flex-col" style={{ backgroundColor: "#2b2b2b" }}>
+        <div className="fixed inset-0 z-[60] flex flex-col overflow-x-hidden" style={{ backgroundColor: "#2b2b2b" }}>
           <div className="flex items-center justify-between px-5 py-4 border-b border-border">
             <h2 className="text-white font-bold text-base">Chat</h2>
             <button onClick={() => setShowFullComments(false)}>
@@ -3735,16 +3795,16 @@ const EventView = () => {
                     <span className="text-[10px] font-bold text-muted-foreground">{getInitials(c.user_name)}</span>
                   )}
                 </div>
-                <div className="flex-1">
+                <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-0.5">
                     <span className="text-primary text-xs font-bold">{c.user_name}</span>
                     <span className="text-muted-foreground text-[10px]">{formatTime(c.created_at)}</span>
                   </div>
                   <div
-                    className="rounded-2xl rounded-tl-sm px-3 py-2 inline-block"
+                    className="rounded-2xl rounded-tl-sm px-3 py-2 inline-block max-w-full"
                     style={{ backgroundColor: "#383838" }}
                   >
-                    <p className="text-white text-sm">{isGifUrl(c.text) ? <img src={c.text} alt="GIF" style={{ maxWidth: 160, maxHeight: 160, borderRadius: 10, marginTop: 4, display: "block" }} /> : c.text}</p>
+                    <p className="text-white text-sm break-words">{isGifUrl(c.text) ? <img src={c.text} alt="GIF" style={{ maxWidth: 160, maxHeight: 160, borderRadius: 10, marginTop: 4, display: "block" }} /> : c.text}</p>
                   </div>
                 </div>
               </div>
@@ -3784,7 +3844,7 @@ const EventView = () => {
 
       {/* DM overlay - all templates */}
       {showDMs && (
-        <div className="fixed inset-0 z-[60] flex flex-col" style={{ backgroundColor: "#2b2b2b" }}>
+        <div className="fixed inset-0 z-[60] flex flex-col overflow-x-hidden" style={{ backgroundColor: "#2b2b2b" }}>
           {!activeThread ? (
             <>
               <div className="flex items-center justify-between px-5 py-4 border-b border-border">
@@ -3849,7 +3909,7 @@ const EventView = () => {
                       className={`max-w-[75%] rounded-2xl px-4 py-2.5 ${m.sender_id === user?.id ? "bg-primary text-primary-foreground" : "border border-border"}`}
                       style={m.sender_id !== user?.id ? { backgroundColor: "#383838" } : undefined}
                     >
-                      <p className="text-sm" style={m.sender_id !== user?.id ? { color: "white" } : undefined}>
+                      <p className="text-sm break-words" style={m.sender_id !== user?.id ? { color: "white" } : undefined}>
                         {m.text}
                       </p>
                       <p className="text-[10px] opacity-50 mt-0.5">{formatTime(m.created_at)}</p>
@@ -3910,6 +3970,19 @@ const EventView = () => {
             <div className="mx-3" style={{ height: "1px", backgroundColor: "rgba(255,255,255,0.08)" }} />
 
             {/* Group 2: Event management */}
+            <button
+              onClick={() => {
+                setShowMenu(false);
+                if (buildIt.hasBuiltPage) buildIt.openEdit();
+                else buildIt.openSheet();
+              }}
+              className="flex items-center gap-3 px-4 py-3.5 w-full text-left transition-colors hover:bg-white/5"
+            >
+              <span className="w-4 shrink-0 text-center" style={{ color: accentColor, fontSize: 14 }}>✦</span>
+              <span className="text-sm font-semibold text-white">
+                {buildIt.hasBuiltPage ? "Edit built page" : "Build It"}
+              </span>
+            </button>
             <button
               onClick={() => { setShowMenu(false); navigate(`/host?edit=${event.code}`); }}
               className="flex items-center gap-3 px-4 py-3.5 w-full text-left transition-colors hover:bg-white/5"
@@ -4123,6 +4196,9 @@ const EventView = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Build It: entry button / editor FAB / form sheet / edit chat panel */}
+      <BuildItOverlays buildIt={buildIt} />
     </div>
   );
 };

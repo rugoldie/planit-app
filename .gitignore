@@ -27,3 +27,12 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Claude Code local tool state
+.claude/
+
+# Supabase CLI local cache
+supabase/.temp/
+
+# Stray Vite config timestamp files
+vite.config.ts.timestamp-*.mjs
