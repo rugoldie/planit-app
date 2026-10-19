@@ -1,8 +1,10 @@
+import type { ReactNode } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes, useParams } from "react-router-dom";
 import { Toaster } from "sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
+import ErrorBoundary from "@/components/ErrorBoundary";
 import Splash from "./pages/Splash";
 import Privacy from "./pages/Privacy";
 import Login from "./pages/Login";
@@ -25,6 +27,17 @@ import Conversation from "./pages/Conversation";
 
 const queryClient = new QueryClient();
 
+/**
+ * Keys the boundary by the route's :code param so a crash on one event
+ * doesn't permanently wedge the page for every event visited afterward -
+ * EventView/GuestEventView reuse the same component instance across an
+ * :codeA -> :codeB navigation, and an ErrorBoundary only resets on remount.
+ */
+const EventErrorBoundary = ({ children }: { children: ReactNode }) => {
+  const { code } = useParams();
+  return <ErrorBoundary key={code}>{children}</ErrorBoundary>;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -41,9 +54,23 @@ const App = () => (
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/home" element={<Home />} />
             <Route path="/host" element={<HostEvent />} />
-            <Route path="/event/:code" element={<EventView />} />
+            <Route
+              path="/event/:code"
+              element={
+                <EventErrorBoundary>
+                  <EventView />
+                </EventErrorBoundary>
+              }
+            />
             <Route path="/join" element={<JoinEvent />} />
-            <Route path="/guest/:code" element={<GuestEventView />} />
+            <Route
+              path="/guest/:code"
+              element={
+                <EventErrorBoundary>
+                  <GuestEventView />
+                </EventErrorBoundary>
+              }
+            />
             <Route path="/profile" element={<Profile />} />
             <Route path="/u/:userId" element={<UserProfile />} />
             <Route path="/onboarding" element={<Onboarding />} />

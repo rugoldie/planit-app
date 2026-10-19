@@ -7,6 +7,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format, isPast, parseISO } from "date-fns";
 import { ConcentricCircles } from "@/components/layouts/PlanitNoirLayout";
 import { VintageCircles } from "@/components/layouts/VintageLayout";
+import { extractBuiltPagePreviewBackground } from "@/lib/buildIt";
 
 type EventWithRole = {
   id: string;
@@ -22,6 +23,7 @@ type EventWithRole = {
   bg_photo: string | null;
   font_style: string | null;
   template_name: string | null;
+  built_page_html: string | null;
 };
 
 const FONT_MAP: Record<string, string> = {
@@ -35,13 +37,13 @@ const useUserEvents = (userId: string | undefined) => {
     queryKey: ["user-events", userId],
     enabled: !!userId,
     refetchInterval: 5000,
-    queryFn: async (): Promise<EventWithRole[]> => {
-      if (!userId) return [];
+    queryFn: async (): Promise<{ upcoming: EventWithRole[]; pastHostedEvents: EventWithRole[] }> => {
+      if (!userId) return { upcoming: [], pastHostedEvents: [] };
 
       const { data: hosted } = await supabase
         .from("events")
         .select(
-          "id, code, title, date_time, location, gradient_color, bubble_color, bg_color, bg_photo, font_style, template_name",
+          "id, code, title, date_time, location, gradient_color, bubble_color, bg_color, bg_photo, font_style, template_name, built_page_html",
         )
         .eq("host_id", userId);
 
@@ -60,7 +62,7 @@ const useUserEvents = (userId: string | undefined) => {
         const { data } = await supabase
           .from("events")
           .select(
-            "id, code, title, date_time, location, gradient_color, bubble_color, bg_color, bg_photo, font_style, template_name",
+            "id, code, title, date_time, location, gradient_color, bubble_color, bg_color, bg_photo, font_style, template_name, built_page_html",
           )
           .in("id", guestEventIds);
         guestEvents = data || [];
@@ -100,13 +102,23 @@ const useUserEvents = (userId: string | undefined) => {
         });
       });
 
-      return events
+      const upcoming = events
         .filter((e) => !e.date_time || !isPast(parseISO(e.date_time)))
         .sort((a, b) => {
           if (!a.date_time) return 1;
           if (!b.date_time) return -1;
           return new Date(a.date_time).getTime() - new Date(b.date_time).getTime();
         });
+
+      // Past events the user hosted are deliberately kept out of `upcoming`
+      // (a stale date sorting to the front would wrongly become the "next
+      // up" hero card) but still need to be reachable from somewhere, or the
+      // host has no way back in to manage/delete them. Most recent first.
+      const pastHostedEvents = events
+        .filter((e) => e.role === "host" && e.date_time && isPast(parseISO(e.date_time)))
+        .sort((a, b) => new Date(b.date_time!).getTime() - new Date(a.date_time!).getTime());
+
+      return { upcoming, pastHostedEvents };
     },
   });
 };
@@ -118,9 +130,14 @@ const getGreeting = () => {
   return "Good evening 👋";
 };
 
-/** Pick the best representative CSS color for an event card.
- *  Priority: bg_color (HSL, set by Build It) → template signature → gradient_color accent */
+/** Pick the best representative CSS `background` value for an event card.
+ *  Priority: Build It's actual generated page colours → bg_color (HSL) →
+ *  template signature → gradient_color accent.
+ *  A Build It event's own bg_color is just a near-black canvas colour (the
+ *  real design lives in built_page_html), so it must be checked first or
+ *  every Build It card in the feed would show the same flat near-black. */
 const getEventCardColor = (event: EventWithRole): string => {
+  if (event.built_page_html) return extractBuiltPagePreviewBackground(event.built_page_html);
   if (event.bg_color) return `hsl(${event.bg_color})`;
   const tn = event.template_name;
   if (isNoir(tn))    return "#0a0a0a";
@@ -1397,7 +1414,18 @@ const CUSTOM_SOLID_COLOR_MAP: Record<string, string> = {
 };
 const CUSTOM_SOLID_LIGHT_KEYS = new Set(Object.keys(CUSTOM_SOLID_COLOR_MAP));
 
-const getCustomCardBg = (bgPhoto: string | null, bgColor?: string | null): { style: React.CSSProperties; isLight: boolean; hasStars: boolean } => {
+const getCustomCardBg = (
+  bgPhoto: string | null,
+  bgColor?: string | null,
+  builtPageHtml?: string | null,
+): { style: React.CSSProperties; isLight: boolean; hasStars: boolean } => {
+  // Build It events carry their real design in built_page_html, not
+  // bg_photo/bg_color (those are just a near-black placeholder canvas) - so
+  // this has to come before the "flat colour" fallback below, or every
+  // Build It card in the feed shows the same boring near-black.
+  if (builtPageHtml) {
+    return { style: { background: extractBuiltPagePreviewBackground(builtPageHtml) }, isLight: false, hasStars: false };
+  }
   if (!bgPhoto) {
     const solidBg = bgColor ? `hsl(${bgColor})` : "#111111";
     const solidLight = bgColor ? parseFloat(bgColor.trim().split(/[\s,]+/)[2] ?? "0") > 55 : false;
@@ -1436,7 +1464,7 @@ const getCustomCardBg = (bgPhoto: string | null, bgColor?: string | null): { sty
 const CustomNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate: ReturnType<typeof useNavigate> }) => {
   const accent = hslToColor(event.bubble_color, "#aaee44");
   const accentTxt = textForBubble(event.bubble_color) || "#111";
-  const { style: bgStyle, isLight: bgIsLight, hasStars } = getCustomCardBg(event.bg_photo, event.bg_color);
+  const { style: bgStyle, isLight: bgIsLight, hasStars } = getCustomCardBg(event.bg_photo, event.bg_color, event.built_page_html);
   const textCol = bgIsLight ? "#111111" : "#ffffff";
   const textMuted = bgIsLight ? "rgba(17,17,17,0.6)" : "rgba(255,255,255,0.6)";
   const fontFamily = FONT_MAP[event.font_style || "Bold"] || FONT_MAP.Bold;
@@ -1454,7 +1482,7 @@ const CustomNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate:
       ))}
       <div className="p-3.5 pb-0">
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "4px" }}>
-          <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase" as const, color: accent }}>Custom ✦</span>
+          <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase" as const, color: accent }}>{event.built_page_html ? "Built ✦" : "Custom ✦"}</span>
           <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 700, color: accent, border: `1px solid rgba(255,255,255,.18)`, borderRadius: "4px", padding: "2px 6px" }}>{event.role === "host" ? "Host" : event.role === "going" ? "Going" : "Maybe"}</span>
         </div>
         <h2 style={{ fontFamily, fontSize: "34px", fontWeight: 700, color: textCol, lineHeight: 1.0, marginBottom: "10px" }}>{event.title || "Untitled Event"}</h2>
@@ -1489,7 +1517,7 @@ const CustomNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate:
 
 const CustomUpcomingCard = ({ event, navigate }: { event: EventWithRole; navigate: ReturnType<typeof useNavigate> }) => {
   const accent = hslToColor(event.bubble_color, "#aaee44");
-  const { style: bgStyle, isLight: bgIsLight } = getCustomCardBg(event.bg_photo, event.bg_color);
+  const { style: bgStyle, isLight: bgIsLight } = getCustomCardBg(event.bg_photo, event.bg_color, event.built_page_html);
   const textCol = bgIsLight ? "#111111" : "#ffffff";
   const textMuted = bgIsLight ? "rgba(17,17,17,0.5)" : "rgba(255,255,255,0.35)";
   const fontFamily = FONT_MAP[event.font_style || "Bold"] || FONT_MAP.Bold;
@@ -1502,7 +1530,7 @@ const CustomUpcomingCard = ({ event, navigate }: { event: EventWithRole; navigat
     >
       <div className="flex items-center justify-between">
         <div className="flex-1 mr-3 min-w-0">
-          <div style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 700, color: accent, letterSpacing: "1.5px", textTransform: "uppercase" as const, marginBottom: "2px" }}>Custom ✦</div>
+          <div style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 700, color: accent, letterSpacing: "1.5px", textTransform: "uppercase" as const, marginBottom: "2px" }}>{event.built_page_html ? "Built ✦" : "Custom ✦"}</div>
           <h3 className="truncate" style={{ fontFamily, fontSize: "16px", fontWeight: 700, color: textCol }}>{event.title || "Untitled Event"}</h3>
           <p className="truncate mt-0.5" style={{ fontFamily: "'Inter', sans-serif", fontSize: "11px", color: textMuted }}>{formatDate(event.date_time)} · {event.location || "Location TBD"}</p>
         </div>
@@ -1902,7 +1930,9 @@ const Home = () => {
   const navigate = useNavigate();
   const { user, profile, loading } = useAuth();
   const queryClient = useQueryClient();
-  const { data: events, isLoading } = useUserEvents(user?.id);
+  const { data: userEventsData, isLoading } = useUserEvents(user?.id);
+  const events = userEventsData?.upcoming ?? [];
+  const pastHostedEvents = userEventsData?.pastHostedEvents ?? [];
 
   React.useEffect(() => {
     const channel = supabase
@@ -2270,6 +2300,50 @@ const Home = () => {
                       </div>
                       <span style={{ flex: "none", background: roleBg, color: roleColor, fontWeight: 700, fontSize: 12, padding: "6px 14px", borderRadius: 999 }}>{event.role === "host" ? "Host" : event.role === "going" ? "Going" : "Maybe"}</span>
                     </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Past events you hosted — kept out of the upcoming/hero list (a
+            stale date sorting first would wrongly become "next up"), but
+            still need a way back in to manage or delete them. */}
+        {pastHostedEvents.length > 0 && (
+          <div className="px-[18px] mb-6">
+            <div style={{ fontFamily: "'Fredoka', sans-serif", fontSize: 11, letterSpacing: "2px", color: "#7a8088", marginBottom: 10 }}>
+              PAST EVENTS
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {pastHostedEvents.slice(0, 3).map((event) => {
+                const dt = event.date_time ? parseISO(event.date_time) : null;
+                return (
+                  <div
+                    key={event.id}
+                    onClick={() => navigate(`/event/${event.code}`)}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      borderRadius: 14,
+                      background: "#101116",
+                      border: "1px solid #1c1e24",
+                      padding: "12px 14px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ fontFamily: "'Fraunces',serif", fontSize: 15, color: "#fff", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                        {event.title || "Untitled"}
+                      </div>
+                      {dt && (
+                        <div style={{ fontSize: 11, color: "#7a8088", marginTop: 2 }}>
+                          {format(dt, "MMM d, yyyy")}
+                        </div>
+                      )}
+                    </div>
+                    <span style={{ color: "#4a4f58", fontSize: 18, flex: "none" }}>›</span>
                   </div>
                 );
               })}

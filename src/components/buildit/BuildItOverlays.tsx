@@ -1,7 +1,7 @@
 import { Check, RotateCcw } from "lucide-react";
 import BuildItSheet from "@/components/buildit/BuildItSheet";
 import BuildItEditPanel from "@/components/buildit/BuildItEditPanel";
-import BuildItFab from "@/components/buildit/BuildItFab";
+import BuildItFab, { BuildItTextEditFab } from "@/components/buildit/BuildItFab";
 import type { useBuildIt } from "@/hooks/useBuildIt";
 
 const COVO_ACCENT = "#2563eb";
@@ -66,6 +66,10 @@ const ResultBar = ({ onRegenerate, onSave }: { onRegenerate: () => void; onSave:
  * Every Build It surface for an event page, driven by `useBuildIt`.
  * Renders nothing for guests except (implicitly) nothing at all — the built
  * page itself is rendered by the parent via BuiltPageFrame.
+ *
+ * Text-edit mode's own top bar (Cancel / Done) is rendered by the page, not
+ * here — it replaces the page's normal nav header in place, and needs the
+ * BuiltPageFrame ref this component doesn't have access to.
  */
 const BuildItOverlays = ({ buildIt }: { buildIt: ReturnType<typeof useBuildIt> }) => {
   if (!buildIt.canEdit) return null;
@@ -74,9 +78,14 @@ const BuildItOverlays = ({ buildIt }: { buildIt: ReturnType<typeof useBuildIt> }
     <>
       {!buildIt.hasBuiltPage && !buildIt.sheetOpen && <EntryButton onClick={buildIt.openSheet} />}
 
-      {buildIt.hasBuiltPage && !buildIt.editOpen && <BuildItFab onClick={buildIt.openEdit} />}
+      {buildIt.hasBuiltPage && !buildIt.editOpen && !buildIt.textEditOpen && (
+        <>
+          <BuildItFab onClick={buildIt.openEdit} />
+          <BuildItTextEditFab onClick={buildIt.openTextEdit} />
+        </>
+      )}
 
-      {buildIt.hasBuiltPage && buildIt.justGenerated && (
+      {buildIt.hasBuiltPage && buildIt.justGenerated && !buildIt.textEditOpen && (
         <ResultBar onRegenerate={buildIt.regenerate} onSave={buildIt.confirmSaved} />
       )}
 

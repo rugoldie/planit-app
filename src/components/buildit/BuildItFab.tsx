@@ -35,4 +35,30 @@ const BuildItFab = ({ onClick, label = "Edit your page" }: { onClick: () => void
   </>
 );
 
+/** Secondary host-only entry point, sitting just left of the main FAB —
+ *  jumps straight into tap-to-edit text mode, skipping the AI chat. */
+export const BuildItTextEditFab = ({ onClick, label = "Edit text directly" }: { onClick: () => void; label?: string }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    aria-label={label}
+    title={label}
+    className="fixed rounded-full flex items-center justify-center z-[55]"
+    style={{
+      right: 84,
+      bottom: "calc(96px + env(safe-area-inset-bottom, 0px))",
+      width: 44,
+      height: 44,
+      backgroundColor: "rgba(13,11,22,0.9)",
+      border: "1px solid rgba(168,85,247,0.4)",
+      color: "#e9d5ff",
+      fontSize: 17,
+      lineHeight: 1,
+      padding: 0,
+    }}
+  >
+    ✏️
+  </button>
+);
+
 export default BuildItFab;

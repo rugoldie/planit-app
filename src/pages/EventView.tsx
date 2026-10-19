@@ -67,7 +67,8 @@ import { createNotification } from "@/lib/notifications";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { useBuildIt } from "@/hooks/useBuildIt";
 import BuildItOverlays from "@/components/buildit/BuildItOverlays";
-import BuiltPageFrame from "@/components/buildit/BuiltPageFrame";
+import BuiltPageFrame, { type BuiltPageFrameHandle } from "@/components/buildit/BuiltPageFrame";
+import BuildItTextEditBar from "@/components/buildit/BuildItTextEditBar";
 
 type Comment = { id: string; user_name: string; text: string; created_at: string; avatar_url?: string };
 type RsvpEntry = { name: string; avatar_url?: string; status: string; user_id: string; username?: string | null };
@@ -313,6 +314,14 @@ const EventView = () => {
   // Fetch event
   useEffect(() => {
     if (!code) return;
+    // React Router reuses this component instance across a /event/:codeA ->
+    // /event/:codeB navigation (same route, same component) - without this
+    // reset, the PREVIOUS event's data (and whatever it rendered, Build It
+    // included) stays fully visible and interactive until the new fetch
+    // resolves, which is also the one case `useBuildIt`'s own per-eventId
+    // reset can't catch in time.
+    setLoading(true);
+    setEvent(null);
     supabase
       .from("events")
       .select("*")
@@ -610,6 +619,7 @@ const EventView = () => {
     event,
     isHost: !authLoading && !!user && !!event && user.id === event.host_id,
   });
+  const builtPageFrameRef = useRef<BuiltPageFrameHandle>(null);
 
   if (loading)
     return (
@@ -717,10 +727,22 @@ const EventView = () => {
   };
 
   const deleteEvent = async () => {
-    if (!event || !isHost) return;
-    const { error } = await supabase.from("events").delete().eq("id", event.id).eq("host_id", user!.id);
+    if (!event || !isHost || !user) return;
+    // `.select()` so a zero-row match (RLS rejected it, or `user`/`event` were
+    // stale) surfaces as a visible error instead of silently doing nothing -
+    // a plain delete() returns no error at all when it matches zero rows.
+    const { data, error } = await supabase
+      .from("events")
+      .delete()
+      .eq("id", event.id)
+      .eq("host_id", user.id)
+      .select("id");
     if (error) {
-      toast.error("Could not delete event");
+      toast.error(`Could not delete event: ${error.message}`);
+      return;
+    }
+    if (!data || data.length === 0) {
+      toast.error("Could not delete event — try logging out and back in.");
       return;
     }
     toast.success("Event deleted");
@@ -1023,6 +1045,20 @@ const EventView = () => {
               : "#1a1a1a";
   const noirFontSize = event.text_size === "Small" ? "28px" : event.text_size === "Large" ? "44px" : "36px";
 
+  // Who's going / Chat / Gallery sit below an arbitrary AI-generated design on
+  // Build It pages, so the flat Covo-grey card styling used everywhere else
+  // reads as bolted-on leftover UI. A deliberate dark-glass "Covo overlay"
+  // look (purple-tinted border, blur) reads as an intentional layer instead,
+  // regardless of what palette the generated page above happens to use.
+  const sharedSectionCardStyle: React.CSSProperties = buildIt.hasBuiltPage
+    ? {
+        backgroundColor: "rgba(17,14,26,0.82)",
+        backdropFilter: "blur(14px)",
+        WebkitBackdropFilter: "blur(14px)",
+        border: "1px solid rgba(168,85,247,0.28)",
+      }
+    : { backgroundColor: "#1e1e1e" };
+
   return (
     <div className="flex flex-col min-h-screen pb-28" style={{ backgroundColor: containerBg }}>
       {buildIt.hasBuiltPage ? (
@@ -1030,47 +1066,67 @@ const EventView = () => {
                Everything below it (who's going, polls, chat, gallery, RSVP)
                still renders via the shared content area. ─── */
         <>
-          <div
-            className="flex items-center justify-between px-5 relative z-20"
-            style={{
-              paddingTop: "max(14px, env(safe-area-inset-top, 0px))",
-              paddingBottom: "10px",
-              backgroundColor: "#0a0a0a",
-            }}
-          >
-            <button onClick={() => navigate("/home")} aria-label="Back">
-              <ArrowLeft className="w-6 h-6 text-white/50" />
-            </button>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={copyCode}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold"
-                style={{ backgroundColor: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.6)" }}
-              >
-                {codeCopied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-                {event.code}
+          {buildIt.textEditOpen ? (
+            <BuildItTextEditBar
+              saving={buildIt.textEditSaving}
+              onCancel={buildIt.closeTextEdit}
+              onDone={() => buildIt.saveTextEdit(builtPageFrameRef.current?.extractHtml() ?? buildIt.builtHtml!)}
+            />
+          ) : (
+            // Fixed (not just in normal flow) so the way out is never scrolled
+            // out of view once the page beneath it (iframe plus who's going/
+            // chat/gallery) gets tall enough to scroll, and so it stays
+            // reachable above the chat edit panel's backdrop even while that's open.
+            <div
+              className="fixed top-0 inset-x-0 z-[90] flex items-center justify-between px-5"
+              style={{
+                paddingTop: "max(14px, env(safe-area-inset-top, 0px))",
+                paddingBottom: "10px",
+                backgroundColor: "#0a0a0a",
+              }}
+            >
+              <button onClick={() => navigate("/home")} aria-label="Back">
+                <ArrowLeft className="w-6 h-6 text-white/50" />
               </button>
-              <button
-                onClick={() => setShowDMs(true)}
-                aria-label="Messages"
-                className="w-9 h-9 rounded-full flex items-center justify-center"
-                style={{ backgroundColor: "rgba(255,255,255,0.08)" }}
-              >
-                <MessageCircle className="w-4 h-4 text-white/50" />
-              </button>
-              {isHost && (
+              <div className="flex items-center gap-2">
                 <button
-                  onClick={() => setShowMenu(!showMenu)}
-                  aria-label="Event menu"
+                  onClick={copyCode}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold"
+                  style={{ backgroundColor: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.6)" }}
+                >
+                  {codeCopied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                  {event.code}
+                </button>
+                <button
+                  onClick={() => setShowDMs(true)}
+                  aria-label="Messages"
                   className="w-9 h-9 rounded-full flex items-center justify-center"
                   style={{ backgroundColor: "rgba(255,255,255,0.08)" }}
                 >
-                  <MoreVertical className="w-4 h-4 text-white/50" />
+                  <MessageCircle className="w-4 h-4 text-white/50" />
                 </button>
-              )}
+                {isHost && (
+                  <button
+                    onClick={() => setShowMenu(!showMenu)}
+                    aria-label="Event menu"
+                    className="w-9 h-9 rounded-full flex items-center justify-center"
+                    style={{ backgroundColor: "rgba(255,255,255,0.08)" }}
+                  >
+                    <MoreVertical className="w-4 h-4 text-white/50" />
+                  </button>
+                )}
+              </div>
             </div>
+          )}
+          <div style={{ paddingTop: 58 }}>
+            <BuiltPageFrame
+              ref={builtPageFrameRef}
+              html={buildIt.builtHtml!}
+              title={event.title || "Event page"}
+              offsetPx={58}
+              editable={buildIt.textEditOpen}
+            />
           </div>
-          <BuiltPageFrame html={buildIt.builtHtml!} title={event.title || "Event page"} offsetPx={58} />
         </>
       ) : isVintage ? (
         /* ═══ VINTAGE LAYOUT ═══ */
@@ -3557,8 +3613,20 @@ const EventView = () => {
       {(buildIt.hasBuiltPage ||
         (!isVintage && !isGalaxy && !isSunny && !isMidnight && !isOcean && !isBlush && !isForest && !isCustom)) && (
         <div className="px-5 pt-4">
+          {buildIt.hasBuiltPage && (
+            <div className="flex items-center gap-2.5 pt-2 pb-1">
+              <div className="flex-1 h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(168,85,247,0.35))" }} />
+              <span
+                className="text-[10px] font-bold uppercase tracking-widest shrink-0"
+                style={{ color: "rgba(233,213,255,0.65)" }}
+              >
+                ✦ Event activity
+              </span>
+              <div className="flex-1 h-px" style={{ background: "linear-gradient(90deg, rgba(168,85,247,0.35), transparent)" }} />
+            </div>
+          )}
           {/* Who's going section */}
-          <div className="mt-4 rounded-2xl p-4" style={{ backgroundColor: "#1e1e1e" }}>
+          <div className="mt-4 rounded-2xl p-4" style={sharedSectionCardStyle}>
             <button
               onClick={() => setShowGuestList(true)}
               className="flex items-center justify-between w-full mb-3"
@@ -3656,7 +3724,7 @@ const EventView = () => {
 
           {renderPolls()}
           {/* Chat section */}
-          <div className="mt-4 rounded-2xl p-4" style={{ backgroundColor: "#1e1e1e" }}>
+          <div className="mt-4 rounded-2xl p-4" style={sharedSectionCardStyle}>
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-white font-bold text-sm">Chat</h2>
               <button onClick={() => setShowFullComments(true)}>
@@ -3699,7 +3767,7 @@ const EventView = () => {
           </div>
 
           {/* Gallery section */}
-          <div className="mt-4 rounded-2xl p-4" style={{ backgroundColor: "#1e1e1e" }}>
+          <div className="mt-4 rounded-2xl p-4" style={sharedSectionCardStyle}>
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-white font-bold text-sm">Gallery</h2>
               <button

@@ -37,6 +37,49 @@ export const generateBuiltPage = (input: GenerateInput) =>
 export const editBuiltPage = (input: EditInput) =>
   invokeBuildIt({ mode: "edit", ...input }, "Couldn't apply that change. Please try again.");
 
+/**
+ * Persists a direct text edit (from "Edit text" inline mode) without an AI
+ * round-trip — the host already has the exact HTML they want. Goes straight
+ * through the authenticated client, so the existing "Hosts can update their
+ * events" RLS policy is what enforces host-only writes, same as any other
+ * event field edit.
+ */
+export const saveBuiltPageHtml = async (eventId: string, html: string): Promise<void> => {
+  const { error } = await supabase.from("events").update({ built_page_html: html }).eq("id", eventId);
+  if (error) throw new Error(error.message || "Couldn't save your changes. Please try again.");
+};
+
+const BUILD_IT_BRAND_FALLBACK = "linear-gradient(135deg, #7c3aed 0%, #db2777 100%)";
+
+/**
+ * Pulls a representative CSS `background` value out of a generated page's
+ * <style> block, for use as a lightweight feed-card preview — without
+ * embedding a live iframe per card (expensive for a scrolling list, and the
+ * sandboxed frame can't be screenshotted from here anyway).
+ *
+ * Heuristic: generated pages are instructed to layer 6+ gradients into one
+ * `background` declaration for their atmosphere, so the single LONGEST
+ * `background`/`background-image` value in the stylesheet is almost always
+ * that hero background, wherever it's actually applied (body, a wrapper div,
+ * a hero section - selector doesn't matter, only the declaration does).
+ * Falls back to the Build It brand gradient so even a page this can't parse
+ * still reads as "AI-designed," not generic.
+ */
+export const extractBuiltPagePreviewBackground = (html: string | null | undefined): string => {
+  if (!html) return BUILD_IT_BRAND_FALLBACK;
+  const styleMatch = html.match(/<style[^>]*>([\s\S]*?)<\/style>/i);
+  const css = styleMatch?.[1] ?? "";
+  const declarations = css.matchAll(/background(?:-image)?\s*:\s*([^;]+);/gi);
+  let best = "";
+  for (const m of declarations) {
+    const value = m[1].trim();
+    if (value.length > best.length) best = value;
+  }
+  // Below this length it's almost always a flat `background: #111` or
+  // `background: white` - not worth showing over the brand fallback.
+  return best.length > 40 ? best : BUILD_IT_BRAND_FALLBACK;
+};
+
 /** Human-readable date for the generate prompt, e.g. "Sat 14 Nov 2026 at 20:00". */
 export const describeDateTime = (date: string, time: string): string => {
   if (!date) return time ? `Time: ${time}` : "";

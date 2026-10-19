@@ -218,6 +218,14 @@ const GuestEventView = () => {
   // Fetch event
   useEffect(() => {
     if (!code) return;
+    // React Router reuses this component instance across a /guest/:codeA ->
+    // /guest/:codeB navigation (same route, same component) - without this
+    // reset, the PREVIOUS event's data (and whatever it rendered, Build It
+    // included) stays fully visible and interactive until the new fetch
+    // resolves, which is also the one case `useBuildIt`'s own per-eventId
+    // reset can't catch in time.
+    setLoading(true);
+    setEvent(null);
     supabase
       .from("events")
       .select("*")
@@ -805,6 +813,20 @@ const GuestEventView = () => {
             : "#1a1a1a";
   const noirFontSize = event.text_size === "Small" ? "28px" : event.text_size === "Large" ? "44px" : "36px";
 
+  // Who's going / Chat / Gallery sit below an arbitrary AI-generated design on
+  // Build It pages, so the flat Covo-grey card styling used everywhere else
+  // reads as bolted-on leftover UI. A deliberate dark-glass "Covo overlay"
+  // look (purple-tinted border, blur) reads as an intentional layer instead,
+  // regardless of what palette the generated page above happens to use.
+  const sharedSectionCardStyle: React.CSSProperties = buildIt.hasBuiltPage
+    ? {
+        backgroundColor: "rgba(17,14,26,0.82)",
+        backdropFilter: "blur(14px)",
+        WebkitBackdropFilter: "blur(14px)",
+        border: "1px solid rgba(168,85,247,0.28)",
+      }
+    : { backgroundColor: "#1e1e1e" };
+
   const SUNNY_ORANGE = "#ff6b35";
   const SUNNY_AMBER = "#ff8c00";
   const SUNNY_DARK = "#1a0a00";
@@ -822,8 +844,11 @@ const GuestEventView = () => {
       {buildIt.hasBuiltPage ? (
         /* ═══ BUILT PAGE (Build It) — read-only for guests ═══ */
         <>
+          {/* Fixed (not just in normal flow) so the way back out is never
+              scrolled out of view once the page beneath it gets tall enough
+              to scroll (iframe plus who's going/chat/gallery). */}
           <div
-            className="flex items-center justify-between px-5 relative z-20"
+            className="fixed top-0 inset-x-0 z-[90] flex items-center justify-between px-5"
             style={{
               paddingTop: "max(14px, env(safe-area-inset-top, 0px))",
               paddingBottom: "10px",
@@ -842,7 +867,9 @@ const GuestEventView = () => {
               <MessageCircle className="w-4 h-4 text-white/50" />
             </button>
           </div>
-          <BuiltPageFrame html={buildIt.builtHtml!} title={event.title || "Event page"} offsetPx={58} />
+          <div style={{ paddingTop: 58 }}>
+            <BuiltPageFrame html={buildIt.builtHtml!} title={event.title || "Event page"} offsetPx={58} />
+          </div>
         </>
       ) : isNoir ? (
         /* ═══ PLANIT NOIR LAYOUT ═══ */
@@ -3327,8 +3354,20 @@ const GuestEventView = () => {
       {(buildIt.hasBuiltPage ||
         (!isVintage && !isSunny && !isGalaxy && !isMidnight && !isOcean && !isBlush && !isForest && !isCustom)) && (
         <div className="px-5">
+          {buildIt.hasBuiltPage && (
+            <div className="flex items-center gap-2.5 pt-4 pb-1">
+              <div className="flex-1 h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(168,85,247,0.35))" }} />
+              <span
+                className="text-[10px] font-bold uppercase tracking-widest shrink-0"
+                style={{ color: "rgba(233,213,255,0.65)" }}
+              >
+                ✦ Event activity
+              </span>
+              <div className="flex-1 h-px" style={{ background: "linear-gradient(90deg, rgba(168,85,247,0.35), transparent)" }} />
+            </div>
+          )}
           {/* Who's going section */}
-          <div className="mt-4 rounded-2xl p-4" style={{ backgroundColor: "#1e1e1e" }}>
+          <div className="mt-4 rounded-2xl p-4" style={sharedSectionCardStyle}>
             <button
               onClick={() => setShowGuestList(true)}
               className="flex items-center justify-between w-full mb-3"
@@ -3445,7 +3484,7 @@ const GuestEventView = () => {
           {renderPolls()}
 
           {/* Chat section */}
-          <div className="mt-4 rounded-2xl p-4" style={{ backgroundColor: "#1e1e1e" }}>
+          <div className="mt-4 rounded-2xl p-4" style={sharedSectionCardStyle}>
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-white font-bold text-sm">Chat</h2>
               <button onClick={() => setShowFullComments(true)}>
@@ -3488,7 +3527,7 @@ const GuestEventView = () => {
           </div>
 
           {/* Gallery section */}
-          <div className="mt-4 rounded-2xl p-4" style={{ backgroundColor: "#1e1e1e" }}>
+          <div className="mt-4 rounded-2xl p-4" style={sharedSectionCardStyle}>
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-white font-bold text-sm">Gallery</h2>
               <button

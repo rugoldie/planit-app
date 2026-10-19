@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { describeDateTime, editBuiltPage, generateBuiltPage } from "@/lib/buildIt";
+import { describeDateTime, editBuiltPage, generateBuiltPage, saveBuiltPageHtml } from "@/lib/buildIt";
 import type { BuildItFormValues } from "@/components/buildit/BuildItSheet";
 import type { EditEntry } from "@/components/buildit/BuildItEditPanel";
 
@@ -36,6 +36,8 @@ export const useBuildIt = ({ event, isHost }: { event: EventLike; isHost: boolea
   const [editOpen, setEditOpen] = useState(false);
   const [editBusy, setEditBusy] = useState(false);
   const [editHistory, setEditHistory] = useState<EditEntry[]>([]);
+  const [textEditOpen, setTextEditOpen] = useState(false);
+  const [textEditSaving, setTextEditSaving] = useState(false);
   const [justGenerated, setJustGenerated] = useState(false);
   // What the host last submitted, so "Re-generate" reopens the form as they
   // left it instead of making them retype their description.
@@ -50,6 +52,8 @@ export const useBuildIt = ({ event, isHost }: { event: EventLike; isHost: boolea
     setJustGenerated(false);
     setEditHistory([]);
     setLastForm(null);
+    setEditOpen(false);
+    setTextEditOpen(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [eventId]);
 
@@ -125,8 +129,37 @@ export const useBuildIt = ({ event, isHost }: { event: EventLike; isHost: boolea
     [eventId, builtHtml],
   );
 
-  const openEdit = useCallback(() => setEditOpen(true), []);
+  // Chat-edit and text-edit are mutually exclusive overlays on the same page.
+  const openEdit = useCallback(() => {
+    setTextEditOpen(false);
+    setEditOpen(true);
+  }, []);
   const closeEdit = useCallback(() => setEditOpen(false), []);
+
+  const openTextEdit = useCallback(() => {
+    setEditOpen(false);
+    setTextEditOpen(true);
+  }, []);
+  // Cancel: just closes - BuiltPageFrame drops contentEditable and any
+  // in-progress, unsaved DOM edits are discarded along with it.
+  const closeTextEdit = useCallback(() => setTextEditOpen(false), []);
+
+  const saveTextEdit = useCallback(
+    async (html: string) => {
+      if (!eventId) return;
+      setTextEditSaving(true);
+      try {
+        await saveBuiltPageHtml(eventId, html);
+        setBuiltHtml(html);
+        setTextEditOpen(false);
+      } catch (err: any) {
+        toast.error(err?.message ?? "Couldn't save your changes. Please try again.");
+      } finally {
+        setTextEditSaving(false);
+      }
+    },
+    [eventId],
+  );
 
   const regenerate = useCallback(() => {
     setJustGenerated(false);
@@ -156,6 +189,11 @@ export const useBuildIt = ({ event, isHost }: { event: EventLike; isHost: boolea
     editBusy,
     editHistory,
     handleEdit,
+    textEditOpen,
+    openTextEdit,
+    closeTextEdit,
+    textEditSaving,
+    saveTextEdit,
     justGenerated,
     regenerate,
     confirmSaved,

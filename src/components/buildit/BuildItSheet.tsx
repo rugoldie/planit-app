@@ -12,7 +12,10 @@ export type BuildItFormValues = {
 
 const SHEET_BG = "#07060f";
 
-const STATUS_MESSAGES = ["Reading your vibe...", "Designing your page...", "Adding the finishing touches..."];
+// "Your page is ready ✦" (as suggested) reads as a lie while this overlay is
+// still up waiting on the actual response - swapped for something that stays
+// true for however long generation takes.
+const STATUS_MESSAGES = ["Cooking something up...", "Almost there...", "Adding the final sparkle ✦"];
 
 /**
  * Keyframes live here rather than in tailwind.config so this screen stays
@@ -74,7 +77,7 @@ const GenerationOverlay = () => {
 
   useEffect(() => {
     // Advance through the messages and hold on the last one, rather than
-    // looping — looping back to "Reading your vibe..." reads as a stall.
+    // looping — looping back to "Cooking something up..." reads as a stall.
     const timers = [
       window.setTimeout(() => setStep(1), 6000),
       window.setTimeout(() => setStep(2), 15000),
