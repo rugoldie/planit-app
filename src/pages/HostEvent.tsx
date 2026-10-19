@@ -387,6 +387,12 @@ const HostEvent = () => {
   const [fontStyle, setFontStyle] = useState<string>("Elegant");
   const [templateName, setTemplateName] = useState<string>("planit-noir");
   const [showStyleScreen, setShowStyleScreen] = useState(!editCode);
+  // Set when "✦ Build It" is tapped on the style screen. Build It needs a
+  // saved event to attach its generated page to, so there's nothing to do
+  // yet — this just remembers the intent through the normal detail-filling
+  // screen so handleCreate can skip the share-code screen and land the host
+  // straight on the event page with Build It's form already open.
+  const [pendingBuildIt, setPendingBuildIt] = useState(false);
   const [showTemplatePicker, setShowTemplatePicker] = useState(false);
   const [showCustomiseDrawer, setShowCustomiseDrawer] = useState(false);
   const { toast } = useToast();
@@ -638,6 +644,18 @@ const HostEvent = () => {
       } else {
         console.log("[handleCreate] insert succeeded with full payload");
       }
+      // A Build It-originated create skips the share-code screen entirely —
+      // the host asked to jump straight into designing, so land them on the
+      // event page with Build It's form already open instead.
+      const finishCreate = (finalCode: string) => {
+        if (pendingBuildIt) {
+          navigate("/event/" + finalCode, { state: { openBuildIt: true } });
+        } else {
+          setEventCode(finalCode);
+          setShowCode(true);
+        }
+      };
+
       if (error) {
         if (error.code === "23505") {
           const newCode = generateCode();
@@ -646,12 +664,11 @@ const HostEvent = () => {
             const fallback = withFallback({ ...eventData, code: newCode }, retryError);
             if (fallback) ({ error: retryError } = await supabase.from("events").insert(fallback));
           }
-          if (!retryError) { setEventCode(newCode); setShowCode(true); }
+          if (!retryError) finishCreate(newCode);
         }
         return;
       }
-      setEventCode(code);
-      setShowCode(true);
+      finishCreate(code);
     }
   };
 
@@ -2872,6 +2889,30 @@ const HostEvent = () => {
               </div>
               <div className="flex flex-col gap-3">
                 <button
+                  onClick={() => {
+                    // Build It needs a saved event to attach its generated
+                    // page to, so there's no style to apply here yet — just
+                    // start from a clean slate (same defaults as "Start
+                    // blank") and flag the intent for handleCreate to pick up.
+                    setTemplateName("planit-custom");
+                    setBgColor("0 0% 4%");
+                    setBgPreset(null);
+                    setBgPhoto(null);
+                    setBgPresetIsImage(false);
+                    setCustomLayout("cards");
+                    setPendingBuildIt(true);
+                    setShowStyleScreen(false);
+                  }}
+                  className="w-full rounded-2xl px-5 py-5 flex items-center gap-4 text-left"
+                  style={{ background: "linear-gradient(135deg, #7c3aed, #db2777)", border: "none" }}
+                >
+                  <span style={{ fontSize: "28px" }}>✦</span>
+                  <div>
+                    <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "16px", fontWeight: 700, color: "#fff", lineHeight: 1.2 }}>Build It</p>
+                    <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "12px", color: "rgba(255,255,255,0.75)", marginTop: "3px" }}>AI designs the whole page for you</p>
+                  </div>
+                </button>
+                <button
                   onClick={() => setShowTemplatePicker(true)}
                   className="w-full rounded-2xl px-5 py-5 flex items-center gap-4 text-left"
                   style={{ backgroundColor: "#1a1a1a", border: "1px solid rgba(255,255,255,0.08)" }}
@@ -2902,15 +2943,6 @@ const HostEvent = () => {
                     <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "12px", color: "#666", marginTop: "3px" }}>A clean page, fully yours to customise</p>
                   </div>
                 </button>
-                {/* Build It needs a saved event to attach the page to, so it
-                    lives on the event page rather than in this create flow. */}
-                <p
-                  className="text-center px-4 mt-1"
-                  style={{ fontFamily: "'Inter', sans-serif", fontSize: "12px", color: "#555", lineHeight: 1.5 }}
-                >
-                  ✦ Want AI to design the whole page? Create your event, then tap{" "}
-                  <span style={{ color: "#777", fontWeight: 600 }}>Build It</span> on it.
-                </p>
               </div>
             </div>
           )}
