@@ -36,3 +36,12 @@ export const generateBuiltPage = (input: GenerateInput) =>
 
 export const editBuiltPage = (input: EditInput) =>
   invokeBuildIt({ mode: "edit", ...input }, "Couldn't apply that change. Please try again.");
+
+/** Human-readable date for the generate prompt, e.g. "Sat 14 Nov 2026 at 20:00". */
+export const describeDateTime = (date: string, time: string): string => {
+  if (!date) return time ? `Time: ${time}` : "";
+  const d = new Date(`${date}T${time || "00:00"}`);
+  if (Number.isNaN(d.getTime())) return [date, time].filter(Boolean).join(" ");
+  const pretty = d.toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "long", year: "numeric" });
+  return time ? `${pretty} at ${time}` : pretty;
+};

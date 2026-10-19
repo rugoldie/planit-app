@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { editBuiltPage, generateBuiltPage } from "@/lib/buildIt";
+import { describeDateTime, editBuiltPage, generateBuiltPage } from "@/lib/buildIt";
 import type { BuildItFormValues } from "@/components/buildit/BuildItSheet";
 import type { EditEntry } from "@/components/buildit/BuildItEditPanel";
 
@@ -16,15 +16,6 @@ const splitDateTime = (iso: string | null | undefined): { date: string; time: st
     date: `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`,
     time: `${pad(d.getHours())}:${pad(d.getMinutes())}`,
   };
-};
-
-/** Human-readable date for the prompt, e.g. "Sat 14 Nov 2026 at 20:00". */
-const describeDateTime = (date: string, time: string): string => {
-  if (!date) return time ? `Time: ${time}` : "";
-  const d = new Date(`${date}T${time || "00:00"}`);
-  if (Number.isNaN(d.getTime())) return [date, time].filter(Boolean).join(" ");
-  const pretty = d.toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "long", year: "numeric" });
-  return time ? `${pretty} at ${time}` : pretty;
 };
 
 type EventLike = { id: string; title?: string | null; location?: string | null; dress_code?: string | null; date_time?: string | null; built_page_html?: string | null } | null;

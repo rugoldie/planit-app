@@ -19,6 +19,8 @@ import {
   NoirNotesCard,
 } from "@/components/layouts/PlanitNoirLayout";
 import { VintageCircles, VintageDivider, VintageHostDivider } from "@/components/layouts/VintageLayout";
+import BuildItSheet, { type BuildItFormValues } from "@/components/buildit/BuildItSheet";
+import { describeDateTime, generateBuiltPage } from "@/lib/buildIt";
 
 const PALETTE_COLORS = [
   { name: "White", hsl: "0 0% 100%" },
@@ -387,12 +389,13 @@ const HostEvent = () => {
   const [fontStyle, setFontStyle] = useState<string>("Elegant");
   const [templateName, setTemplateName] = useState<string>("planit-noir");
   const [showStyleScreen, setShowStyleScreen] = useState(!editCode);
-  // Set when "✦ Build It" is tapped on the style screen. Build It needs a
-  // saved event to attach its generated page to, so there's nothing to do
-  // yet — this just remembers the intent through the normal detail-filling
-  // screen so handleCreate can skip the share-code screen and land the host
-  // straight on the event page with Build It's form already open.
-  const [pendingBuildIt, setPendingBuildIt] = useState(false);
+  // "✦ Build It" on the style screen opens this sheet directly — Build It
+  // needs its own date/location/dress-code/about/look fields regardless of
+  // whether the event exists yet, so it can't reuse the canvas-editing
+  // screen that "Start blank"/"Templates" lead to.
+  const [showBuildItSheet, setShowBuildItSheet] = useState(false);
+  const [buildItGenerating, setBuildItGenerating] = useState(false);
+  const [buildItGenError, setBuildItGenError] = useState<string | null>(null);
   const [showTemplatePicker, setShowTemplatePicker] = useState(false);
   const [showCustomiseDrawer, setShowCustomiseDrawer] = useState(false);
   const { toast } = useToast();
@@ -644,18 +647,6 @@ const HostEvent = () => {
       } else {
         console.log("[handleCreate] insert succeeded with full payload");
       }
-      // A Build It-originated create skips the share-code screen entirely —
-      // the host asked to jump straight into designing, so land them on the
-      // event page with Build It's form already open instead.
-      const finishCreate = (finalCode: string) => {
-        if (pendingBuildIt) {
-          navigate("/event/" + finalCode, { state: { openBuildIt: true } });
-        } else {
-          setEventCode(finalCode);
-          setShowCode(true);
-        }
-      };
-
       if (error) {
         if (error.code === "23505") {
           const newCode = generateCode();
@@ -664,11 +655,82 @@ const HostEvent = () => {
             const fallback = withFallback({ ...eventData, code: newCode }, retryError);
             if (fallback) ({ error: retryError } = await supabase.from("events").insert(fallback));
           }
-          if (!retryError) finishCreate(newCode);
+          if (!retryError) { setEventCode(newCode); setShowCode(true); }
         }
         return;
       }
-      finishCreate(code);
+      setEventCode(code);
+      setShowCode(true);
+    }
+  };
+
+  // Remembers the event created for this Build It session, so a failed
+  // generate + retry reuses the same row instead of leaving an orphan event
+  // behind each time. Cleared when the sheet is closed.
+  const buildItEventRef = useRef<{ id: string; code: string } | null>(null);
+
+  // Build It, tapped before any event exists: create a minimal event row
+  // first (title falls back to the "about" field, since that's usually a
+  // better description than an empty title at this point), then generate
+  // the page against that real eventId and go straight there. Deliberately
+  // bypasses handleCreate — that flow collects a title up front and ends on
+  // the share-code screen, neither of which fits "AI designs it for me".
+  const handleBuildItGenerate = async (values: BuildItFormValues) => {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+    setBuildItGenerating(true);
+    setBuildItGenError(null);
+    try {
+      const derivedTitle = values.about.trim() || title.trim() || "My Event";
+
+      let createdEvent = buildItEventRef.current;
+      if (!createdEvent) {
+        const parsed = values.date ? new Date(`${values.date}T${values.time || "00:00"}`) : null;
+        const eventData = {
+          host_id: user.id,
+          code: generateCode(),
+          title: derivedTitle,
+          location: values.location.trim() || null,
+          date_time: parsed && !Number.isNaN(parsed.getTime()) ? parsed.toISOString() : null,
+          dress_code: values.dresscode.trim() || null,
+          template_name: "planit-custom",
+          bg_color: "0 0% 4%",
+        };
+
+        let { data: inserted, error } = await supabase.from("events").insert(eventData).select("id, code").single();
+        if (error?.code === "23505") {
+          // Extremely unlikely collision on a freshly generated 6-char code,
+          // but handleCreate retries once for the same reason — stay consistent.
+          ({ data: inserted, error } = await supabase
+            .from("events")
+            .insert({ ...eventData, code: generateCode() })
+            .select("id, code")
+            .single());
+        }
+        if (error || !inserted) {
+          throw new Error(error?.message || "Couldn't create your event. Please try again.");
+        }
+        createdEvent = inserted;
+        buildItEventRef.current = inserted;
+      }
+
+      await generateBuiltPage({
+        eventId: createdEvent.id,
+        eventName: derivedTitle,
+        about: values.about.trim(),
+        date: describeDateTime(values.date, values.time),
+        location: values.location.trim(),
+        dresscode: values.dresscode.trim(),
+        visualDescription: values.look.trim(),
+      });
+      // generateBuiltPage's edge function already persisted built_page_html.
+      navigate("/event/" + createdEvent.code);
+    } catch (err: any) {
+      setBuildItGenError(err?.message ?? "Something went wrong. Please try again.");
+    } finally {
+      setBuildItGenerating(false);
     }
   };
 
@@ -2889,20 +2951,7 @@ const HostEvent = () => {
               </div>
               <div className="flex flex-col gap-3">
                 <button
-                  onClick={() => {
-                    // Build It needs a saved event to attach its generated
-                    // page to, so there's no style to apply here yet — just
-                    // start from a clean slate (same defaults as "Start
-                    // blank") and flag the intent for handleCreate to pick up.
-                    setTemplateName("planit-custom");
-                    setBgColor("0 0% 4%");
-                    setBgPreset(null);
-                    setBgPhoto(null);
-                    setBgPresetIsImage(false);
-                    setCustomLayout("cards");
-                    setPendingBuildIt(true);
-                    setShowStyleScreen(false);
-                  }}
+                  onClick={() => { setBuildItGenError(null); setShowBuildItSheet(true); }}
                   className="w-full rounded-2xl px-5 py-5 flex items-center gap-4 text-left"
                   style={{ background: "linear-gradient(135deg, #7c3aed, #db2777)", border: "none" }}
                 >
@@ -2949,6 +2998,26 @@ const HostEvent = () => {
         </div>
       )}
 
+      <BuildItSheet
+        open={showBuildItSheet}
+        initial={{
+          date: dateTime.slice(0, 10),
+          time: dateTime.slice(11, 16),
+          location,
+          dresscode: dressCode,
+          about: "",
+          look: "",
+        }}
+        generating={buildItGenerating}
+        error={buildItGenError}
+        onClose={() => {
+          if (buildItGenerating) return;
+          setShowBuildItSheet(false);
+          setBuildItGenError(null);
+          buildItEventRef.current = null;
+        }}
+        onGenerate={handleBuildItGenerate}
+      />
     </div>
   );
 };

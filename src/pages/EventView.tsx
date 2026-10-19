@@ -1,4 +1,4 @@
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
   MoreVertical,
@@ -199,7 +199,6 @@ const PatternOverlay = ({ patternKey }: { patternKey: string }) => {
 const EventView = () => {
   const { code } = useParams();
   const navigate = useNavigate();
-  const location = useLocation();
   const { user, profile, loading: authLoading } = useAuth();
 
   const [event, setEvent] = useState<any>(null);
@@ -611,22 +610,6 @@ const EventView = () => {
     event,
     isHost: !authLoading && !!user && !!event && user.id === event.host_id,
   });
-
-  // If the host just created this event via the "✦ Build It" entry on the
-  // style screen (HostEvent.tsx), open its form sheet immediately instead of
-  // making them find the entry button themselves. Guarded by a ref so a
-  // StrictMode double-effect or an unrelated re-render can't reopen it, and
-  // the history state is cleared right away so back/refresh won't retrigger.
-  const openedBuildItFromNav = useRef(false);
-  useEffect(() => {
-    if (openedBuildItFromNav.current) return;
-    if (!event || authLoading || !user || user.id !== event.host_id) return;
-    if (!(location.state as any)?.openBuildIt) return;
-    openedBuildItFromNav.current = true;
-    buildIt.openSheet();
-    navigate(location.pathname, { replace: true, state: {} });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [event, user, authLoading, location.state]);
 
   if (loading)
     return (
