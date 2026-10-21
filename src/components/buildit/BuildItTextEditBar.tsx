@@ -14,7 +14,7 @@ const BuildItTextEditBar = ({
   onDone: () => void;
 }) => (
   <div
-    className="fixed top-0 inset-x-0 z-[95] flex items-center justify-between px-4"
+    className="fixed top-0 inset-x-0 z-[41] flex items-center justify-between px-4"
     style={{
       paddingTop: "max(14px, env(safe-area-inset-top, 0px))",
       paddingBottom: 10,

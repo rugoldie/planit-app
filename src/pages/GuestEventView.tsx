@@ -848,7 +848,7 @@ const GuestEventView = () => {
               scrolled out of view once the page beneath it gets tall enough
               to scroll (iframe plus who's going/chat/gallery). */}
           <div
-            className="fixed top-0 inset-x-0 z-[90] flex items-center justify-between px-5"
+            className="fixed top-0 inset-x-0 z-[40] flex items-center justify-between px-5"
             style={{
               paddingTop: "max(14px, env(safe-area-inset-top, 0px))",
               paddingBottom: "10px",
@@ -868,7 +868,12 @@ const GuestEventView = () => {
             </button>
           </div>
           <div style={{ paddingTop: 58 }}>
-            <BuiltPageFrame html={buildIt.builtHtml!} title={event.title || "Event page"} offsetPx={58} />
+            <BuiltPageFrame
+              html={buildIt.builtHtml!}
+              title={event.title || "Event page"}
+              offsetPx={58}
+              onCtaClick={() => handleRsvp("yes")}
+            />
           </div>
         </>
       ) : isNoir ? (
@@ -3559,7 +3564,11 @@ const GuestEventView = () => {
         </div>
       )}
 
-      {/* RSVP floating bar */}
+      {/* RSVP floating bar - hidden on Build It pages, where the generated
+          page's own RSVP/join button (intercepted in BuiltPageFrame) is the
+          only RSVP affordance - a second, default Covo bar on top of it read
+          as two different RSVP buttons. */}
+      {!buildIt.hasBuiltPage && (
       <div className="fixed bottom-4 left-4 right-4 z-50">
         {barMinimised && rsvp ? (
           <button
@@ -3596,6 +3605,7 @@ const GuestEventView = () => {
           </div>
         )}
       </div>
+      )}
 
       {/* Full-screen chat overlay */}
       {showFullComments && (

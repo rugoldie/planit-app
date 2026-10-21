@@ -1,4 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   ArrowLeft,
   MoreVertical,
@@ -200,6 +201,7 @@ const PatternOverlay = ({ patternKey }: { patternKey: string }) => {
 const EventView = () => {
   const { code } = useParams();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { user, profile, loading: authLoading } = useAuth();
 
   const [event, setEvent] = useState<any>(null);
@@ -746,6 +748,11 @@ const EventView = () => {
       return;
     }
     toast.success("Event deleted");
+    setShowDeleteDialog(false);
+    // Home's event list is a separate, already-mounted query instance with
+    // its own cache - without this it keeps showing the just-deleted event
+    // until its next poll (every 5s), reading as "delete didn't work."
+    queryClient.invalidateQueries({ queryKey: ["user-events"] });
     navigate("/home", { replace: true });
   };
 
@@ -1078,7 +1085,7 @@ const EventView = () => {
             // chat/gallery) gets tall enough to scroll, and so it stays
             // reachable above the chat edit panel's backdrop even while that's open.
             <div
-              className="fixed top-0 inset-x-0 z-[90] flex items-center justify-between px-5"
+              className="fixed top-0 inset-x-0 z-[40] flex items-center justify-between px-5"
               style={{
                 paddingTop: "max(14px, env(safe-area-inset-top, 0px))",
                 paddingBottom: "10px",
@@ -1125,6 +1132,7 @@ const EventView = () => {
               title={event.title || "Event page"}
               offsetPx={58}
               editable={buildIt.textEditOpen}
+              onCtaClick={() => handleRsvp("yes")}
             />
           </div>
         </>
@@ -3799,7 +3807,11 @@ const EventView = () => {
         </div>
       )}
 
-      {/* RSVP floating bar - all templates */}
+      {/* RSVP floating bar - all templates except Build It, where the
+          generated page's own RSVP/join button (intercepted in
+          BuiltPageFrame) is the only RSVP affordance - a second, default
+          Covo bar on top of it read as two different RSVP buttons. */}
+      {!buildIt.hasBuiltPage && (
       <div className="fixed bottom-4 left-4 right-4 z-50">
         {barMinimised && rsvp ? (
           <button
@@ -3840,6 +3852,7 @@ const EventView = () => {
           </div>
         )}
       </div>
+      )}
 
       {/* Full-screen chat overlay - all templates */}
       {showFullComments && (
@@ -4051,13 +4064,19 @@ const EventView = () => {
                 {buildIt.hasBuiltPage ? "Edit built page" : "Build It"}
               </span>
             </button>
-            <button
-              onClick={() => { setShowMenu(false); navigate(`/host?edit=${event.code}`); }}
-              className="flex items-center gap-3 px-4 py-3.5 w-full text-left transition-colors hover:bg-white/5"
-            >
-              <Pencil className="w-4 h-4 shrink-0" style={{ color: accentColor }} />
-              <span className="text-sm font-semibold text-white">Edit event</span>
-            </button>
+            {/* On a Build It page, editing goes through the chat above - a
+                second "Edit event" entry into the old HostEvent.tsx form
+                would let title/date/location drift out of sync with what's
+                actually baked into the generated page. */}
+            {!buildIt.hasBuiltPage && (
+              <button
+                onClick={() => { setShowMenu(false); navigate(`/host?edit=${event.code}`); }}
+                className="flex items-center gap-3 px-4 py-3.5 w-full text-left transition-colors hover:bg-white/5"
+              >
+                <Pencil className="w-4 h-4 shrink-0" style={{ color: accentColor }} />
+                <span className="text-sm font-semibold text-white">Edit event</span>
+              </button>
+            )}
             <button
               onClick={shareEvent}
               className="flex items-center gap-3 px-4 py-3.5 w-full text-left transition-colors hover:bg-white/5"

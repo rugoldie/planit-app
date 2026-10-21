@@ -57,7 +57,7 @@ const BuildItEditPanel = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[75] flex flex-col justify-end" onClick={onClose}>
+    <div className="fixed inset-0 z-[35] flex flex-col justify-end" onClick={onClose}>
       <div className="absolute inset-0" style={{ backgroundColor: "rgba(0,0,0,0.5)" }} />
       <div
         className="buildit-panel relative rounded-t-3xl flex flex-col overflow-hidden"

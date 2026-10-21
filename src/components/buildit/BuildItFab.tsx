@@ -16,7 +16,7 @@ const BuildItFab = ({ onClick, label = "Edit your page" }: { onClick: () => void
       onClick={onClick}
       aria-label={label}
       title={label}
-      className="buildit-fab fixed rounded-full flex items-center justify-center z-[55]"
+      className="buildit-fab fixed rounded-full flex items-center justify-center z-[30]"
       style={{
         right: 18,
         bottom: "calc(96px + env(safe-area-inset-bottom, 0px))",
@@ -43,7 +43,7 @@ export const BuildItTextEditFab = ({ onClick, label = "Edit text directly" }: { 
     onClick={onClick}
     aria-label={label}
     title={label}
-    className="fixed rounded-full flex items-center justify-center z-[55]"
+    className="fixed rounded-full flex items-center justify-center z-[30]"
     style={{
       right: 84,
       bottom: "calc(96px + env(safe-area-inset-bottom, 0px))",

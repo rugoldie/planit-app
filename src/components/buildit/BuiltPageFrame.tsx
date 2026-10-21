@@ -87,6 +87,22 @@ const setTextEditable = (doc: Document, enabled: boolean) => {
   }
 };
 
+// The generate prompt requires "a visually distinct RSVP/join button" on
+// every page, but it's pure markup - no `allow-scripts`, so whatever the
+// model wired it to do (an empty/`#` href, a bare <button>, a form submit)
+// either does nothing or - worse - triggers a blocked navigation that leaves
+// the sandboxed frame showing blank. This intercepts taps on anything that
+// reads like that CTA and runs the real RSVP flow instead.
+const RSVP_CTA_KEYWORDS = ["rsvp", "i'm going", "i'm coming", "join", "attend"];
+const RSVP_CTA_SELECTOR = "button, a, [role='button'], [onclick]";
+
+const looksLikeRsvpCta = (el: Element): boolean => {
+  const text = (el.textContent || "").trim().toLowerCase();
+  if (RSVP_CTA_KEYWORDS.some((k) => text.includes(k))) return true;
+  const hint = `${el.id} ${(el as HTMLElement).className}`.toLowerCase();
+  return /rsvp|\bcta\b|\bjoin\b|\battend\b/.test(hint);
+};
+
 export type BuiltPageFrameHandle = {
   /** Serializes the (possibly hand-edited) document back to a clean HTML
    *  string, stripped of any editing affordances, ready to persist. */
@@ -110,8 +126,8 @@ export type BuiltPageFrameHandle = {
  */
 const BuiltPageFrame = forwardRef<
   BuiltPageFrameHandle,
-  { html: string; title?: string; offsetPx?: number; editable?: boolean }
->(({ html, title = "Event page", offsetPx = 56, editable = false }, ref) => {
+  { html: string; title?: string; offsetPx?: number; editable?: boolean; onCtaClick?: () => void }
+>(({ html, title = "Event page", offsetPx = 56, editable = false, onCtaClick }, ref) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const srcDoc = useMemo(() => withViewportMeta(html), [html]);
 
@@ -128,6 +144,56 @@ const BuiltPageFrame = forwardRef<
     if (iframe.contentDocument?.readyState === "complete") apply();
     iframe.addEventListener("load", apply);
     return () => iframe.removeEventListener("load", apply);
+  }, [editable, srcDoc]);
+
+  // `onCtaClick` is passed as an inline arrow function by both callers
+  // (`() => handleRsvp("yes")`), a fresh reference on every render of the
+  // parent. Reading it via ref rather than depending on it directly keeps
+  // the effect below from tearing down and rebinding its listener on every
+  // unrelated parent re-render - it only needs to resubscribe when the
+  // frame's own content or mode actually changes.
+  const onCtaClickRef = useRef(onCtaClick);
+  useEffect(() => {
+    onCtaClickRef.current = onCtaClick;
+  }, [onCtaClick]);
+
+  // Intercept taps on the generated page's own RSVP/join button. Capture
+  // phase + preventDefault/stopPropagation so this runs and cancels the
+  // element's native action (a link navigation, a form submit) before the
+  // sandboxed frame ever attempts it - that attempt is what was blanking the
+  // frame (verified directly: clicking an unintercepted `<a href="#">` in
+  // this sandbox leaves iframe.contentDocument null afterward). Suppressed
+  // in text-edit mode, where tapping that same button should let the host
+  // edit its label, not trigger an RSVP.
+  useEffect(() => {
+    if (editable) return;
+    const iframe = iframeRef.current;
+    if (!iframe) return;
+    const bind = () => {
+      const doc = iframe.contentDocument;
+      if (!doc) return;
+      const handleClick = (e: MouseEvent) => {
+        if (!onCtaClickRef.current) return;
+        const target = e.target as Element | null;
+        const cta = target?.closest(RSVP_CTA_SELECTOR);
+        if (!cta || !looksLikeRsvpCta(cta)) return;
+        e.preventDefault();
+        e.stopPropagation();
+        onCtaClickRef.current();
+      };
+      doc.addEventListener("click", handleClick, true);
+      return () => doc.removeEventListener("click", handleClick, true);
+    };
+    let cleanup = iframe.contentDocument?.readyState === "complete" ? bind() : undefined;
+    const onLoad = () => {
+      cleanup?.();
+      cleanup = bind();
+    };
+    iframe.addEventListener("load", onLoad);
+    return () => {
+      iframe.removeEventListener("load", onLoad);
+      cleanup?.();
+    };
   }, [editable, srcDoc]);
 
   useImperativeHandle(

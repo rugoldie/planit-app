@@ -11,7 +11,7 @@ const EntryButton = ({ onClick }: { onClick: () => void }) => (
   <button
     type="button"
     onClick={onClick}
-    className="fixed rounded-full flex items-center gap-2 px-5 z-[55] text-sm font-bold"
+    className="fixed rounded-full flex items-center gap-2 px-5 z-[30] text-sm font-bold"
     style={{
       right: 18,
       bottom: "calc(96px + env(safe-area-inset-bottom, 0px))",
@@ -34,7 +34,7 @@ const EntryButton = ({ onClick }: { onClick: () => void }) => (
 const ResultBar = ({ onRegenerate, onSave }: { onRegenerate: () => void; onSave: () => void }) => (
   <div
     // Sits below the event page's own nav row rather than on top of it.
-    className="fixed left-0 right-0 z-[56] flex items-center justify-center gap-2.5 px-4"
+    className="fixed left-0 right-0 z-[31] flex items-center justify-center gap-2.5 px-4"
     style={{ top: "calc(64px + env(safe-area-inset-top, 0px))" }}
   >
     <button
