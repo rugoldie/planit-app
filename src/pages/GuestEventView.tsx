@@ -25,6 +25,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { createNotification } from "@/lib/notifications";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { useBuildIt } from "@/hooks/useBuildIt";
+import { extractBuiltPagePalette, withAlpha } from "@/lib/buildIt";
 import BuiltPageFrame from "@/components/buildit/BuiltPageFrame";
 
 type Comment = { id: string; user_name: string; text: string; created_at: string; avatar_url?: string };
@@ -766,8 +767,12 @@ const GuestEventView = () => {
       } as Record<string, string>
     )[event.font_style] || "'Bebas Neue', sans-serif";
 
-  const accentColor = bubbleBg || "#2563eb";
-  const accentText = bubbleText || "#ffffff";
+  // On Build It pages the generated page's own palette stands in for the
+  // app's usual bubble-color theming, so Who's Going/Chat/Gallery below it
+  // read as part of the same designed page rather than a different screen.
+  const builtPalette = buildIt.hasBuiltPage ? extractBuiltPagePalette(buildIt.builtHtml) : null;
+  const accentColor = builtPalette ? builtPalette.accent : bubbleBg || "#2563eb";
+  const accentText = builtPalette ? builtPalette.accentText : bubbleText || "#ffffff";
 
   // Auto-contrast for default template
   const isLightBg = (() => {
@@ -798,34 +803,40 @@ const GuestEventView = () => {
   const isCustom = ((event as any).template_name || "").toLowerCase() === "planit-custom";
   const galaxyAccent = (event as any).bubble_color ? `hsl(${(event as any).bubble_color})` : "#a855f7";
   const vintageAccent = (event as any).gradient_color || "#8b7355";
-  const containerBg = isSunny
-    ? "transparent"
-    : isGalaxy
-      ? "#0d0d2b"
-      : isMidnight
-        ? event.bg_color
-          ? `hsl(${event.bg_color})`
-          : "#ffffff"
-        : event.bg_color
-          ? `hsl(${event.bg_color})`
-          : isNoir
-            ? "#0a0a0a"
-            : "#1a1a1a";
+  const containerBg = builtPalette
+    ? builtPalette.background
+    : isSunny
+      ? "transparent"
+      : isGalaxy
+        ? "#0d0d2b"
+        : isMidnight
+          ? event.bg_color
+            ? `hsl(${event.bg_color})`
+            : "#ffffff"
+          : event.bg_color
+            ? `hsl(${event.bg_color})`
+            : isNoir
+              ? "#0a0a0a"
+              : "#1a1a1a";
   const noirFontSize = event.text_size === "Small" ? "28px" : event.text_size === "Large" ? "44px" : "36px";
+  const builtTextColor = builtPalette?.textOnBackground ?? "#ffffff";
 
-  // Who's going / Chat / Gallery sit below an arbitrary AI-generated design on
-  // Build It pages, so the flat Covo-grey card styling used everywhere else
-  // reads as bolted-on leftover UI. A deliberate dark-glass "Covo overlay"
-  // look (purple-tinted border, blur) reads as an intentional layer instead,
-  // regardless of what palette the generated page above happens to use.
+  // Who's going / Chat / Gallery sit directly below the generated page on
+  // Build It pages, sharing its own extracted background (set on the
+  // scrolling container itself, below) — no card, no border, no break:
+  // the goal is that a viewer can't tell where the generated section ends.
   const sharedSectionCardStyle: React.CSSProperties = buildIt.hasBuiltPage
-    ? {
-        backgroundColor: "rgba(17,14,26,0.82)",
-        backdropFilter: "blur(14px)",
-        WebkitBackdropFilter: "blur(14px)",
-        border: "1px solid rgba(168,85,247,0.28)",
-      }
+    ? {}
     : { backgroundColor: "#1e1e1e" };
+  const sharedSectionClassName = buildIt.hasBuiltPage ? "mt-7 pt-5" : "mt-4 rounded-2xl p-4";
+  const sharedSectionBorderStyle: React.CSSProperties = buildIt.hasBuiltPage
+    ? { borderTop: `1px solid ${withAlpha(accentColor, 0.22)}` }
+    : {};
+  // Fills that read as "dark card" against the app's own default theme need
+  // to become a translucent tint of the page's own accent instead, or they'd
+  // reintroduce exactly the bolted-on-screen look this is fixing.
+  const builtInnerFill = withAlpha(accentColor, 0.1);
+  const builtInnerFillStrong = withAlpha(accentColor, 0.18);
 
   const SUNNY_ORANGE = "#ff6b35";
   const SUNNY_AMBER = "#ff8c00";
@@ -836,9 +847,9 @@ const GuestEventView = () => {
     <div
       className="flex flex-col min-h-screen pb-28"
       style={
-        isSunny
+        isSunny && !builtPalette
           ? { background: `linear-gradient(180deg, ${SUNNY_ORANGE} 0%, ${SUNNY_AMBER} 30%, ${SUNNY_DARK} 70%)` }
-          : { backgroundColor: containerBg }
+          : { background: containerBg }
       }
     >
       {buildIt.hasBuiltPage ? (
@@ -3355,29 +3366,26 @@ const GuestEventView = () => {
       ) : null}
 
       {/* Shared content area — also used by the built page, whose own layout
-          replaces the invitation but not the rest of the event. */}
+          replaces the invitation but not the rest of the event. On Build It
+          pages this whole area shares the generated page's own extracted
+          palette (set on the scrolling container above), so it reads as a
+          continuation of that page rather than a separate screen bolted on
+          below it — no divider, no card, no border at the seam. */}
       {(buildIt.hasBuiltPage ||
         (!isVintage && !isSunny && !isGalaxy && !isMidnight && !isOcean && !isBlush && !isForest && !isCustom)) && (
         <div className="px-5">
-          {buildIt.hasBuiltPage && (
-            <div className="flex items-center gap-2.5 pt-4 pb-1">
-              <div className="flex-1 h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(168,85,247,0.35))" }} />
-              <span
-                className="text-[10px] font-bold uppercase tracking-widest shrink-0"
-                style={{ color: "rgba(233,213,255,0.65)" }}
-              >
-                ✦ Event activity
-              </span>
-              <div className="flex-1 h-px" style={{ background: "linear-gradient(90deg, rgba(168,85,247,0.35), transparent)" }} />
-            </div>
-          )}
           {/* Who's going section */}
-          <div className="mt-4 rounded-2xl p-4" style={sharedSectionCardStyle}>
+          <div className={buildIt.hasBuiltPage ? "mt-6" : "mt-4 rounded-2xl p-4"} style={sharedSectionCardStyle}>
             <button
               onClick={() => setShowGuestList(true)}
               className="flex items-center justify-between w-full mb-3"
             >
-              <h2 className="text-white font-bold text-sm" style={{ fontFamily: "'Fredoka', sans-serif" }}>Who's going</h2>
+              <h2
+                className="font-bold text-sm"
+                style={{ fontFamily: "'Fredoka', sans-serif", color: buildIt.hasBuiltPage ? builtTextColor : "#ffffff" }}
+              >
+                Who's going
+              </h2>
               <div className="flex items-center gap-2">
                 {goingList.length > 0 && (
                   <span className="font-bold text-xs" style={{ color: accentColor }}>
@@ -3400,7 +3408,7 @@ const GuestEventView = () => {
                     <div key={i} className="flex flex-col items-center shrink-0">
                       <div
                         className="w-10 h-10 rounded-full flex items-center justify-center overflow-hidden"
-                        style={{ border: `2px solid ${accentColor}`, backgroundColor: "#2a2a2a" }}
+                        style={{ border: `2px solid ${accentColor}`, backgroundColor: buildIt.hasBuiltPage ? builtInnerFill : "#2a2a2a" }}
                       >
                         {r.avatar_url ? (
                           <img src={r.avatar_url} alt="" className="w-full h-full object-cover" />
@@ -3444,9 +3452,11 @@ const GuestEventView = () => {
                     <div
                       className="rounded-full px-4 py-1.5 text-xs font-bold"
                       style={{
-                        backgroundColor: bubbleBg
-                          ? bubbleBg.replace("hsl(", "hsla(").replace(")", ", 0.15)")
-                          : "rgba(170,238,68,0.15)",
+                        backgroundColor: buildIt.hasBuiltPage
+                          ? builtInnerFillStrong
+                          : bubbleBg
+                            ? bubbleBg.replace("hsl(", "hsla(").replace(")", ", 0.15)")
+                            : "rgba(170,238,68,0.15)",
                         color: accentColor,
                       }}
                     >
@@ -3464,11 +3474,11 @@ const GuestEventView = () => {
                   <div
                     key={i}
                     className="flex items-center gap-3 rounded-xl px-3 py-2"
-                    style={{ backgroundColor: "#2a2a2a" }}
+                    style={{ backgroundColor: buildIt.hasBuiltPage ? builtInnerFill : "#2a2a2a" }}
                   >
                     <div
                       className="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden shrink-0"
-                      style={{ border: `2px solid ${accentColor}`, backgroundColor: "#1a1a1a" }}
+                      style={{ border: `2px solid ${accentColor}`, backgroundColor: buildIt.hasBuiltPage ? builtInnerFillStrong : "#1a1a1a" }}
                     >
                       {r.avatar_url ? (
                         <img src={r.avatar_url} alt="" className="w-full h-full object-cover" />
@@ -3478,7 +3488,7 @@ const GuestEventView = () => {
                         </span>
                       )}
                     </div>
-                    <span className="text-white text-sm font-semibold flex-1">{r.name}</span>
+                    <span className="text-sm font-semibold flex-1" style={{ color: buildIt.hasBuiltPage ? builtTextColor : "#ffffff" }}>{r.name}</span>
                     {statusBadge(r.status)}
                   </div>
                 ))}
@@ -3489,9 +3499,9 @@ const GuestEventView = () => {
           {renderPolls()}
 
           {/* Chat section */}
-          <div className="mt-4 rounded-2xl p-4" style={sharedSectionCardStyle}>
+          <div className={sharedSectionClassName} style={{ ...sharedSectionCardStyle, ...sharedSectionBorderStyle }}>
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-white font-bold text-sm">Chat</h2>
+              <h2 className="font-bold text-sm" style={{ color: buildIt.hasBuiltPage ? builtTextColor : "#ffffff" }}>Chat</h2>
               <button onClick={() => setShowFullComments(true)}>
                 <Maximize2 className="w-4 h-4" style={{ color: accentColor }} />
               </button>
@@ -3501,14 +3511,14 @@ const GuestEventView = () => {
                 <p className="text-muted-foreground text-xs text-center py-3">No messages yet — be the first!</p>
               )}
               {comments.map((c, i) => (
-                <div key={i} className="rounded-xl px-3 py-2" style={{ backgroundColor: "#2a2a2a" }}>
+                <div key={i} className="rounded-xl px-3 py-2" style={{ backgroundColor: buildIt.hasBuiltPage ? builtInnerFill : "#2a2a2a" }}>
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-bold" style={{ color: accentColor }}>
                       {c.user_name}
                     </span>
                     <span className="text-muted-foreground text-[10px]">{formatTime(c.created_at)}</span>
                   </div>
-                  <p className="text-white text-sm mt-0.5">{isGifUrl(c.text) ? <img src={c.text} alt="GIF" style={{ maxWidth: 160, maxHeight: 160, borderRadius: 10, marginTop: 4, display: "block" }} /> : c.text}</p>
+                  <p className="text-sm mt-0.5" style={{ color: buildIt.hasBuiltPage ? builtTextColor : "#ffffff" }}>{isGifUrl(c.text) ? <img src={c.text} alt="GIF" style={{ maxWidth: 160, maxHeight: 160, borderRadius: 10, marginTop: 4, display: "block" }} /> : c.text}</p>
                 </div>
               ))}
             </div>
@@ -3518,27 +3528,27 @@ const GuestEventView = () => {
                 onChange={(e) => setCommentDraft(e.target.value)}
                 enterKeyHint="send" onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); sendComment(); } }}
                 placeholder="Write a message..."
-                className="flex-1 rounded-full px-4 py-2 text-sm text-white placeholder:text-muted-foreground outline-none"
-                style={{ backgroundColor: "#2a2a2a" }}
+                className="flex-1 rounded-full px-4 py-2 text-sm placeholder:text-muted-foreground outline-none"
+                style={{ backgroundColor: buildIt.hasBuiltPage ? builtInnerFill : "#2a2a2a", color: buildIt.hasBuiltPage ? builtTextColor : "#ffffff" }}
               />
               <button
                 type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); sendComment(); }}
                 className="w-11 h-11 rounded-full flex items-center justify-center shrink-0"
-                style={{ backgroundColor: "#b8f55a" }}
+                style={{ backgroundColor: buildIt.hasBuiltPage ? accentColor : "#b8f55a" }}
               >
-                <Send className="w-4 h-4" style={{ color: "#111" }} />
+                <Send className="w-4 h-4" style={{ color: buildIt.hasBuiltPage ? accentText : "#111" }} />
               </button>
             </div>
           </div>
 
           {/* Gallery section */}
-          <div className="mt-4 rounded-2xl p-4" style={sharedSectionCardStyle}>
+          <div className={sharedSectionClassName} style={{ ...sharedSectionCardStyle, ...sharedSectionBorderStyle }}>
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-white font-bold text-sm">Gallery</h2>
+              <h2 className="font-bold text-sm" style={{ color: buildIt.hasBuiltPage ? builtTextColor : "#ffffff" }}>Gallery</h2>
               <button
                 onClick={() => photoInput.current?.click()}
                 className="text-xs font-bold rounded-full px-3 py-1"
-                style={{ backgroundColor: "#b8f55a", color: "#111" }}
+                style={{ backgroundColor: buildIt.hasBuiltPage ? accentColor : "#b8f55a", color: buildIt.hasBuiltPage ? accentText : "#111" }}
               >
                 Add photo
               </button>

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { describeDateTime, editBuiltPage, generateBuiltPage, saveBuiltPageHtml } from "@/lib/buildIt";
 import type { BuildItFormValues } from "@/components/buildit/BuildItSheet";
@@ -28,7 +29,18 @@ type EventLike = { id: string; title?: string | null; location?: string | null; 
  * to realtime `events` changes, and re-syncing from the prop on every render
  * would flicker the iframe back to the pre-edit page.
  */
-export const useBuildIt = ({ event, isHost }: { event: EventLike; isHost: boolean }) => {
+export const useBuildIt = ({
+  event,
+  isHost,
+  onEventUpdated,
+}: {
+  event: EventLike;
+  isHost: boolean;
+  /** Called with the events-table fields the edge function detected as
+   *  changed (title/location/date_time), so the caller can merge them into
+   *  its own local event state for same-page immediacy without a refetch. */
+  onEventUpdated?: (patch: Record<string, unknown>) => void;
+}) => {
   const [builtHtml, setBuiltHtml] = useState<string | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [generating, setGenerating] = useState(false);
@@ -43,6 +55,7 @@ export const useBuildIt = ({ event, isHost }: { event: EventLike; isHost: boolea
   // left it instead of making them retype their description.
   const [lastForm, setLastForm] = useState<BuildItFormValues | null>(null);
   const entryId = useRef(0);
+  const queryClient = useQueryClient();
 
   const eventId = event?.id;
 
@@ -87,7 +100,7 @@ export const useBuildIt = ({ event, isHost }: { event: EventLike; isHost: boolea
       setGenError(null);
       setLastForm(values);
       try {
-        const html = await generateBuiltPage({
+        const { html } = await generateBuiltPage({
           eventId,
           eventName: (event?.title || values.about).trim(),
           about: values.about.trim(),
@@ -116,9 +129,17 @@ export const useBuildIt = ({ event, isHost }: { event: EventLike; isHost: boolea
       setEditHistory((prev) => [...prev, { id, instruction, status: "pending" }]);
       setEditBusy(true);
       try {
-        const html = await editBuiltPage({ eventId, currentHtml: builtHtml, instruction });
+        const { html, updatedFields } = await editBuiltPage({ eventId, currentHtml: builtHtml, instruction });
         setBuiltHtml(html);
         setEditHistory((prev) => prev.map((e) => (e.id === id ? { ...e, status: "done" } : e)));
+        if (updatedFields && Object.keys(updatedFields).length > 0) {
+          onEventUpdated?.(updatedFields);
+          // Home's feed query is React Query-cached (5s poll); invalidate so
+          // it reflects the new title/date/location immediately rather than
+          // waiting out the interval. Profile/EventsList fetch fresh on every
+          // mount, so they need no explicit invalidation here.
+          queryClient.invalidateQueries({ queryKey: ["user-events"] });
+        }
       } catch (err: any) {
         const message = err?.message ?? "Couldn't apply that change.";
         setEditHistory((prev) => prev.map((e) => (e.id === id ? { ...e, status: "failed", error: message } : e)));
@@ -126,7 +147,7 @@ export const useBuildIt = ({ event, isHost }: { event: EventLike; isHost: boolea
         setEditBusy(false);
       }
     },
-    [eventId, builtHtml],
+    [eventId, builtHtml, onEventUpdated, queryClient],
   );
 
   // Chat-edit and text-edit are mutually exclusive overlays on the same page.
