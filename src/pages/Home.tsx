@@ -7,7 +7,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format, isPast, parseISO } from "date-fns";
 import { ConcentricCircles } from "@/components/layouts/PlanitNoirLayout";
 import { VintageCircles } from "@/components/layouts/VintageLayout";
-import { extractBuiltPagePreviewBackground } from "@/lib/buildIt";
+import { extractBuiltPagePreviewBackground, extractBuiltPagePalette } from "@/lib/buildIt";
 
 type EventWithRole = {
   id: string;
@@ -130,25 +130,60 @@ const getGreeting = () => {
   return "Good evening 👋";
 };
 
-/** Pick the best representative CSS `background` value for an event card.
- *  Priority: Build It's actual generated page colours → bg_color (HSL) →
- *  template signature → gradient_color accent.
- *  A Build It event's own bg_color is just a near-black canvas colour (the
- *  real design lives in built_page_html), so it must be checked first or
- *  every Build It card in the feed would show the same flat near-black. */
-const getEventCardColor = (event: EventWithRole): string => {
-  if (event.built_page_html) return extractBuiltPagePreviewBackground(event.built_page_html);
-  if (event.bg_color) return `hsl(${event.bg_color})`;
-  const tn = event.template_name;
-  if (isNoir(tn))    return "#0a0a0a";
-  if (isGalaxy(tn)) return "#0d0d2b";
-  if (isSunny(tn))  return "#c45a20";
-  if (isVintage(tn)) return "#4a3728";
-  if (isOcean(tn))  return "#0d3060";
-  if (isBlush(tn))  return "#3d1020";
-  if (isForest(tn)) return "#0a2e0a";
-  if (isMidnight(tn)) return "#1a1a2e";
-  return event.gradient_color || "#1e1e2e";
+type EventCardPalette = { background: string; accent: string; textOnBg: string };
+
+/** Rich two-stop gradients per template, standing in for the old flat colour
+ *  swatches this file used to fall back to — "a mini version of the event"
+ *  needs more than a single flat hex to read as alive. */
+const TEMPLATE_CARD_GRADIENTS: Record<string, EventCardPalette> = {
+  "planit-noir": { background: "linear-gradient(160deg, #262626 0%, #0a0a0a 100%)", accent: "#e5e5e5", textOnBg: "#ffffff" },
+  galaxy: { background: "linear-gradient(160deg, #3b1f7a 0%, #0d0d2b 100%)", accent: "#c084fc", textOnBg: "#ffffff" },
+  sunny: { background: "linear-gradient(160deg, #ff9d4d 0%, #c45a20 100%)", accent: "#fff1c2", textOnBg: "#ffffff" },
+  vintage: { background: "linear-gradient(160deg, #a68a68 0%, #4a3728 100%)", accent: "#f3e6d2", textOnBg: "#ffffff" },
+  ocean: { background: "linear-gradient(160deg, #2a8fc7 0%, #0d3060 100%)", accent: "#8be8ef", textOnBg: "#ffffff" },
+  blush: { background: "linear-gradient(160deg, #e0548f 0%, #3d1020 100%)", accent: "#ffc6e0", textOnBg: "#ffffff" },
+  forest: { background: "linear-gradient(160deg, #3f8f3f 0%, #0a2e0a 100%)", accent: "#b7f08a", textOnBg: "#ffffff" },
+  midnight: { background: "linear-gradient(160deg, #35356b 0%, #1a1a2e 100%)", accent: "#a5b4ff", textOnBg: "#ffffff" },
+};
+
+/** Rich default so an untemplated event never falls back to flat grey. */
+const DEFAULT_CARD_GRADIENT: EventCardPalette = {
+  background: "linear-gradient(160deg, #7c3aed 0%, #db2777 100%)",
+  accent: "#f5abfc",
+  textOnBg: "#ffffff",
+};
+
+const isCssGradientValue = (s: string | null | undefined): boolean => !!s && /^(linear|radial|conic|repeating)/.test(s);
+
+/**
+ * The single source of truth for "what does this card look like": a
+ * background (flat colour or gradient — always applied via the `background`
+ * CSS property so either works), an accent colour for text/icons/badges, and
+ * a readable text colour for content sitting on that background.
+ *
+ * Priority: Build It's own extracted palette (it has a real design) → a
+ * custom CSS gradient the host picked → the template's signature gradient →
+ * the host's chosen gradient_color → a rich purple-to-pink default. Never
+ * flat grey — every branch returns a gradient or a page's own real colours.
+ */
+const getEventCardPalette = (event: EventWithRole): EventCardPalette => {
+  if (event.built_page_html) {
+    const p = extractBuiltPagePalette(event.built_page_html);
+    return { background: p.background, accent: p.accent, textOnBg: p.textOnBackground };
+  }
+  if (isCssGradientValue(event.bg_photo)) {
+    return {
+      background: event.bg_photo!,
+      accent: event.bubble_color ? hslToColor(event.bubble_color, DEFAULT_CARD_GRADIENT.accent) : DEFAULT_CARD_GRADIENT.accent,
+      textOnBg: "#ffffff",
+    };
+  }
+  const templ = TEMPLATE_CARD_GRADIENTS[(event.template_name || "").toLowerCase().trim()];
+  if (templ) return templ;
+  if (event.gradient_color) {
+    return { background: `linear-gradient(160deg, ${event.gradient_color} 0%, #1a1a2e 100%)`, accent: event.gradient_color, textOnBg: "#ffffff" };
+  }
+  return DEFAULT_CARD_GRADIENT;
 };
 
 /** Subtle warm bokeh dots — fixed positions, purely decorative */
@@ -1462,9 +1497,14 @@ const getCustomCardBg = (
 };
 
 const CustomNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate: ReturnType<typeof useNavigate> }) => {
-  const accent = hslToColor(event.bubble_color, "#aaee44");
-  const accentTxt = textForBubble(event.bubble_color) || "#111";
-  const { style: bgStyle, isLight: bgIsLight, hasStars } = getCustomCardBg(event.bg_photo, event.bg_color, event.built_page_html);
+  // Build It events carry their own accent/contrast in built_page_html's own
+  // CSS, not bubble_color (never set on a Build It event) or bg_color (just
+  // a near-black placeholder canvas) - without this, every Build It hero
+  // card showed the same default lime accent regardless of its real page.
+  const builtPalette = event.built_page_html ? extractBuiltPagePalette(event.built_page_html) : null;
+  const accent = builtPalette ? builtPalette.accent : hslToColor(event.bubble_color, "#aaee44");
+  const { style: bgStyle, isLight: bgIsLightFallback, hasStars } = getCustomCardBg(event.bg_photo, event.bg_color, event.built_page_html);
+  const bgIsLight = builtPalette ? builtPalette.textOnBackground === "#111111" : bgIsLightFallback;
   const textCol = bgIsLight ? "#111111" : "#ffffff";
   const textMuted = bgIsLight ? "rgba(17,17,17,0.6)" : "rgba(255,255,255,0.6)";
   const fontFamily = FONT_MAP[event.font_style || "Bold"] || FONT_MAP.Bold;
@@ -2219,8 +2259,7 @@ const Home = () => {
                 style={{ position: "relative", borderRadius: 28, overflow: "hidden", cursor: "pointer" }}
                 onClick={() => navigate(nextEvent.role === "host" ? `/event/${nextEvent.code}` : `/guest/${nextEvent.code}`)}
               >
-                {(() => { console.log(`[Home hero generic] "${nextEvent.title}" heroColor=${getEventCardColor(nextEvent)} filter=brightness(1.25)saturate(1.1) bottomVignette=rgba(6,7,9,.70→0)`); return null; })()}
-                <div style={{ position: "absolute", inset: 0, background: getEventCardColor(nextEvent), filter: "brightness(1.25) saturate(1.1)" }} />
+                <div style={{ position: "absolute", inset: 0, background: getEventCardPalette(nextEvent).background, filter: "brightness(1.25) saturate(1.1)" }} />
                 <div style={{ position: "absolute", inset: 0, background: BOKEH_OVERLAY }} />
                 <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(6,7,9,.70) 0%, rgba(6,7,9,.1) 40%, rgba(6,7,9,.0) 60%)" }} />
                 <div style={{ position: "relative", padding: "18px 18px 20px", display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: 240 }}>
@@ -2260,45 +2299,75 @@ const Home = () => {
           </div>
         )}
 
-        {/* Upcoming preview — max 2, from events[1..] */}
+        {/* Upcoming preview — max 2, from events[1..]. Poster-format cards in
+            a horizontally-flicked row (taller than wide, full-bleed gradient
+            from the event's own palette) rather than a flat list of rows. */}
         {upcomingEvents.length > 0 && (
-          <div className="px-[18px] mb-6">
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+          <div className="mb-6">
+            <style>{`.cv-poster-row::-webkit-scrollbar{display:none}`}</style>
+            <div className="px-[18px]" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
               <div style={{ fontFamily: "'Fredoka', sans-serif", fontSize: 11, letterSpacing: "2px", color: "#7a8088" }}>UPCOMING</div>
               <button type="button" onClick={() => navigate("/events")} style={{ fontFamily: "'Space Grotesk',monospace", fontSize: 12, color: "#2563eb", background: "none", border: "none", padding: 0 }}>See all →</button>
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <div
+              className="cv-poster-row px-[18px]"
+              style={{ display: "flex", gap: 14, overflowX: "auto", scrollSnapType: "x mandatory", scrollbarWidth: "none", paddingBottom: 2 }}
+            >
               {upcomingEvents.map((event) => {
-                // Use the same vivid CSS gradient the event page shows (bg_photo), not the dark canvas bg_color
-                const isCssGradient = (s: string | null) => !!s && /^(linear|radial|conic|repeating)/.test(s);
-                const cardBg = isCssGradient(event.bg_photo) ? event.bg_photo! : getEventCardColor(event);
-                console.log(`[Home upcoming] "${event.title}" bg_photo="${event.bg_photo?.slice(0,60)}" bg_color=${event.bg_color} gradient_color=${event.gradient_color} → using ${isCssGradient(event.bg_photo) ? "bg_photo CSS gradient" : cardBg}`);
+                const palette = getEventCardPalette(event);
                 const dt = event.date_time ? parseISO(event.date_time) : null;
-                const dayNum = dt ? format(dt, "dd") : "--";
-                const monthStr = dt ? format(dt, "MMM").toUpperCase() : "";
-                const timeStr = dt ? format(dt, "h:mm a") : "";
+                const timeStr = dt ? format(dt, "EEE · h:mm a") : "Date TBD";
                 const roleLabel = event.role === "host" ? "Hosting" : event.role === "going" ? "Going" : "Maybe";
                 const roleBg = event.role === "host" ? "rgba(255,255,255,0.14)" : "#C6F24E";
                 const roleColor = event.role === "host" ? "#fff" : "#0a0b0e";
                 return (
                   <div
                     key={event.id}
-                    style={{ position: "relative", height: 96, borderRadius: 24, overflow: "hidden", cursor: "pointer" }}
+                    style={{
+                      position: "relative",
+                      flex: "none",
+                      width: 152,
+                      height: 196,
+                      borderRadius: 22,
+                      overflow: "hidden",
+                      cursor: "pointer",
+                      scrollSnapAlign: "start",
+                    }}
                     onClick={() => navigate(event.role === "host" ? `/event/${event.code}` : `/guest/${event.code}`)}
                   >
-                    <div style={{ position: "absolute", inset: 0, background: cardBg, filter: "brightness(1.35) saturate(1.15)" }} />
-                    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, rgba(0,0,0,.28) 0%, rgba(0,0,0,.0) 40%)" }} />
-                    <div style={{ position: "absolute", inset: 0, padding: "0 18px", display: "flex", alignItems: "center", gap: 16 }}>
-                      <div style={{ textAlign: "center", flex: "none" }}>
-                        <div style={{ fontFamily: "'Fraunces',serif", fontWeight: 600, fontSize: 24, color: "#FFD27A", lineHeight: 1 }}>{dayNum}</div>
-                        <div style={{ fontFamily: "'Space Grotesk',monospace", fontSize: 10, color: "#b89a86", letterSpacing: 1 }}>{monthStr}</div>
+                    <div style={{ position: "absolute", inset: 0, background: palette.background, filter: "brightness(1.2) saturate(1.1)" }} />
+                    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(6,7,9,.85) 0%, rgba(6,7,9,.25) 48%, rgba(6,7,9,0) 68%)" }} />
+                    <div style={{ position: "absolute", top: 10, right: 10 }}>
+                      <span style={{ background: roleBg, color: roleColor, fontWeight: 700, fontSize: 10, padding: "4px 10px", borderRadius: 999, whiteSpace: "nowrap" as const }}>
+                        {roleLabel}
+                      </span>
+                    </div>
+                    <div style={{ position: "absolute", left: 14, right: 14, bottom: 12 }}>
+                      <div
+                        style={{
+                          fontFamily: "'Fraunces',serif",
+                          fontWeight: 600,
+                          fontSize: 18,
+                          color: "#fff",
+                          lineHeight: 1.12,
+                          display: "-webkit-box",
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: "vertical" as const,
+                          overflow: "hidden",
+                        }}
+                      >
+                        {event.title || "Untitled Event"}
                       </div>
-                      <div style={{ width: 1, height: 46, background: "rgba(255,255,255,0.12)", flex: "none" }} />
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontFamily: "'Fraunces',serif", fontWeight: 600, fontSize: 20, color: "#fff", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{event.title || "Untitled"}</div>
-                        <div style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", marginTop: 4 }}>{timeStr}{timeStr && " · "}{roleLabel}</div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 5, marginTop: 6 }}>
+                        <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke={palette.accent} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                        <span style={{ fontSize: 11, color: "rgba(255,255,255,0.7)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{timeStr}</span>
                       </div>
-                      <span style={{ flex: "none", background: roleBg, color: roleColor, fontWeight: 700, fontSize: 12, padding: "6px 14px", borderRadius: 999 }}>{event.role === "host" ? "Host" : event.role === "going" ? "Going" : "Maybe"}</span>
+                      {event.location && (
+                        <div style={{ display: "flex", alignItems: "center", gap: 5, marginTop: 3 }}>
+                          <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke={palette.accent} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                          <span style={{ fontSize: 11, color: "rgba(255,255,255,0.7)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{event.location}</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 );
@@ -2318,6 +2387,7 @@ const Home = () => {
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {pastHostedEvents.slice(0, 3).map((event) => {
                 const dt = event.date_time ? parseISO(event.date_time) : null;
+                const palette = getEventCardPalette(event);
                 return (
                   <div
                     key={event.id}
@@ -2326,24 +2396,26 @@ const Home = () => {
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "space-between",
-                      borderRadius: 14,
-                      background: "#101116",
-                      border: "1px solid #1c1e24",
-                      padding: "12px 14px",
+                      borderRadius: 20,
+                      // A dark scrim layered over the event's own palette, so
+                      // "past" still reads as muted/archival rather than
+                      // vivid, without falling back to flat grey.
+                      background: `linear-gradient(rgba(8,9,12,0.84), rgba(8,9,12,0.84)), ${palette.background}`,
+                      padding: "12px 16px",
                       cursor: "pointer",
                     }}
                   >
                     <div style={{ minWidth: 0 }}>
-                      <div style={{ fontFamily: "'Fraunces',serif", fontSize: 15, color: "#fff", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                      <div style={{ fontFamily: "'Fraunces',serif", fontSize: 15, fontWeight: 600, color: "#fff", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                         {event.title || "Untitled"}
                       </div>
                       {dt && (
-                        <div style={{ fontSize: 11, color: "#7a8088", marginTop: 2 }}>
+                        <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", marginTop: 2 }}>
                           {format(dt, "MMM d, yyyy")}
                         </div>
                       )}
                     </div>
-                    <span style={{ color: "#4a4f58", fontSize: 18, flex: "none" }}>›</span>
+                    <span style={{ color: palette.accent, fontSize: 18, flex: "none" }}>›</span>
                   </div>
                 );
               })}
