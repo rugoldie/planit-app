@@ -744,7 +744,12 @@ const EventView = () => {
       .eq("host_id", user.id)
       .select("id");
     if (error) {
-      toast.error(`Could not delete event: ${error.message}`);
+      // error.message alone (e.g. generic RLS/FK wording) isn't enough to
+      // diagnose a rejected delete - the Postgres error code/details/hint
+      // say exactly what was violated (23503 = FK violation naming the
+      // blocking table/constraint, 42501 = RLS/permission denied, etc).
+      console.error("[deleteEvent] delete failed:", JSON.stringify(error, null, 2));
+      toast.error(`Could not delete event: ${error.message || error.code || "unknown error"}`);
       return;
     }
     if (!data || data.length === 0) {
