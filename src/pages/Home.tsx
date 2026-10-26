@@ -7,7 +7,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format, isPast, parseISO } from "date-fns";
 import { ConcentricCircles } from "@/components/layouts/PlanitNoirLayout";
 import { VintageCircles } from "@/components/layouts/VintageLayout";
-import { extractBuiltPageCardGradient } from "@/lib/buildIt";
+import { extractBuiltPageCardGradient, withAlpha } from "@/lib/buildIt";
 
 type EventWithRole = {
   id: string;
@@ -244,6 +244,21 @@ const isLightHex = (hex: string): boolean => {
   const g = parseInt(c.substring(2, 4), 16);
   const b = parseInt(c.substring(4, 6), 16);
   return (r * 299 + g * 587 + b * 114) / 1000 > 150;
+};
+
+/** #111111 or #ffffff, whichever reads better on `color` — accepts either
+ *  `#hex` or `rgb()`/`rgba()`, since card accents come from both curated
+ *  hex gradients and the rgb() strings extractBuiltPageCardGradient()
+ *  returns. */
+const readableOn = (color: string): string => {
+  const hex = color.match(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i);
+  if (hex) return isLightHex(color) ? "#111111" : "#ffffff";
+  const rgb = color.match(/rgba?\(\s*([\d.]+)[,\s]+([\d.]+)[,\s]+([\d.]+)/i);
+  if (rgb) {
+    const [r, g, b] = [Number(rgb[1]), Number(rgb[2]), Number(rgb[3])];
+    return (r * 299 + g * 587 + b * 114) / 1000 > 150 ? "#111111" : "#ffffff";
+  }
+  return "#ffffff";
 };
 
 /** Check if an HSL string like "82 100% 48%" is light */
@@ -1519,6 +1534,9 @@ const HeroPosterCard = ({
   const roleBg = event.role === "host" ? "rgba(255,255,255,0.14)" : "#C6F24E";
   const roleColor = event.role === "host" ? "#fff" : "#0a0b0e";
   const navPath = event.role === "host" ? `/event/${event.code}` : `/guest/${event.code}`;
+  const daysUntil = getDaysUntil(event.date_time);
+  const eyebrow = daysUntil === 0 ? "Today" : daysUntil === 1 ? "Tomorrow" : daysUntil != null ? `In ${daysUntil} days` : null;
+  const titleGlow = withAlpha(accent, 0.55);
 
   return (
     <div
@@ -1560,36 +1578,55 @@ const HeroPosterCard = ({
         </span>
       </div>
       <div style={{ position: "absolute", left: 18, right: 18, bottom: 18 }}>
+        {eyebrow && (
+          <div
+            style={{
+              fontFamily: "'Bebas Neue', sans-serif",
+              fontSize: 13,
+              fontWeight: 700,
+              letterSpacing: "0.18em",
+              textTransform: "uppercase" as const,
+              color: accent,
+              textShadow: `0 0 16px ${titleGlow}`,
+              marginBottom: 6,
+            }}
+          >
+            ✦ {eyebrow}
+          </div>
+        )}
         {event.date_time && (
           <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 5 }}>
             <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke={accent} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-            <span style={{ fontSize: 13, color: "rgba(255,255,255,0.75)" }}>{formatDate(event.date_time)}</span>
+            <span style={{ fontSize: 13, color: "rgba(255,255,255,0.8)" }}>{formatDate(event.date_time)}</span>
           </div>
         )}
         {event.location && (
           <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 10 }}>
             <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke={accent} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            <span style={{ fontSize: 13, color: "rgba(255,255,255,0.75)" }}>{event.location}</span>
+            <span style={{ fontSize: 13, color: "rgba(255,255,255,0.8)" }}>{event.location}</span>
           </div>
         )}
         <div
           style={{
-            fontFamily: "'Fraunces',serif",
-            fontWeight: 600,
-            fontSize: 30,
-            color: "#fff",
-            lineHeight: 1.05,
+            fontFamily: "'Bebas Neue', sans-serif",
+            fontWeight: 400,
+            fontSize: 40,
+            letterSpacing: "0.01em",
+            color: accent,
+            textShadow: `0 2px 28px ${titleGlow}, 0 1px 0 rgba(0,0,0,0.3)`,
+            lineHeight: 1.0,
             display: "-webkit-box",
             WebkitLineClamp: 2,
             WebkitBoxOrient: "vertical" as const,
             overflow: "hidden",
+            marginBottom: 10,
           }}
         >
-          {event.title || "Untitled Event"}
+          {(event.title || "Untitled Event").toUpperCase()}
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 10 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 6 }}>
           <span style={{ fontSize: 13, color: "rgba(255,255,255,0.6)" }}>{event.guest_count} going</span>
-          <div style={{ marginLeft: "auto", background: "#fff", color: "#0a0b0e", fontWeight: 700, fontSize: 13, padding: "8px 18px", borderRadius: 12 }}>Open →</div>
+          <div style={{ marginLeft: "auto", background: accent, color: readableOn(accent), fontWeight: 700, fontSize: 13, padding: "8px 18px", borderRadius: 12 }}>Open →</div>
         </div>
       </div>
     </div>
@@ -2362,29 +2399,31 @@ const Home = () => {
                       {event.date_time && (
                         <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 3 }}>
                           <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke={palette.accent} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-                          <span style={{ fontSize: 11, color: "rgba(255,255,255,0.7)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{formatDate(event.date_time)}</span>
+                          <span style={{ fontSize: 11, color: "rgba(255,255,255,0.8)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{formatDate(event.date_time)}</span>
                         </div>
                       )}
                       {event.location && (
                         <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 6 }}>
                           <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke={palette.accent} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                          <span style={{ fontSize: 11, color: "rgba(255,255,255,0.7)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{event.location}</span>
+                          <span style={{ fontSize: 11, color: "rgba(255,255,255,0.8)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{event.location}</span>
                         </div>
                       )}
                       <div
                         style={{
-                          fontFamily: "'Fraunces',serif",
-                          fontWeight: 600,
-                          fontSize: 18,
-                          color: "#fff",
-                          lineHeight: 1.12,
+                          fontFamily: "'Bebas Neue', sans-serif",
+                          fontWeight: 400,
+                          fontSize: 22,
+                          letterSpacing: "0.01em",
+                          color: palette.accent,
+                          textShadow: `0 1px 16px ${withAlpha(palette.accent, 0.55)}`,
+                          lineHeight: 1.0,
                           display: "-webkit-box",
                           WebkitLineClamp: 2,
                           WebkitBoxOrient: "vertical" as const,
                           overflow: "hidden",
                         }}
                       >
-                        {event.title || "Untitled Event"}
+                        {(event.title || "Untitled Event").toUpperCase()}
                       </div>
                     </div>
                   </div>
