@@ -4,7 +4,7 @@ import BuildItEditPanel from "@/components/buildit/BuildItEditPanel";
 import BuildItFab, { BuildItTextEditFab } from "@/components/buildit/BuildItFab";
 import type { useBuildIt } from "@/hooks/useBuildIt";
 
-const COVO_ACCENT = "#2563eb";
+const COVO_ACCENT = "#3b82f6";
 
 /** Host-only entry point shown while the event has no built page yet. */
 const EntryButton = ({ onClick }: { onClick: () => void }) => (
@@ -19,7 +19,7 @@ const EntryButton = ({ onClick }: { onClick: () => void }) => (
       backgroundColor: COVO_ACCENT,
       border: "1px solid rgba(255,255,255,0.18)",
       color: "#fff",
-      boxShadow: "0 8px 24px -6px rgba(37,99,235,0.8)",
+      boxShadow: "0 8px 24px -6px rgba(59,130,246,0.8)",
     }}
   >
     <span style={{ fontSize: 16 }}>✦</span> Build It
@@ -55,7 +55,7 @@ const ResultBar = ({ onRegenerate, onSave }: { onRegenerate: () => void; onSave:
       type="button"
       onClick={onSave}
       className="flex items-center gap-1.5 rounded-full px-4 py-2.5 text-xs font-bold"
-      style={{ background: "linear-gradient(135deg, #7c3aed, #db2777)", border: "none", color: "#fff" }}
+      style={{ background: "linear-gradient(135deg, #3b82f6, #4f46e5)", border: "none", color: "#fff" }}
     >
       Save <Check className="w-3.5 h-3.5" />
     </button>

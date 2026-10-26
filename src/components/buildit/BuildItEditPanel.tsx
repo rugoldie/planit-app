@@ -62,8 +62,8 @@ const BuildItEditPanel = ({
       <div
         className="buildit-panel relative rounded-t-3xl flex flex-col overflow-hidden"
         style={{
-          backgroundColor: "#0d0b16",
-          borderTop: "1px solid rgba(168,85,247,0.3)",
+          backgroundColor: "#0a0e1a",
+          borderTop: "1px solid rgba(59,130,246,0.3)",
           maxHeight: "62vh",
           paddingBottom: "env(safe-area-inset-bottom, 0px)",
         }}
@@ -100,9 +100,9 @@ const BuildItEditPanel = ({
               onClick={() => send(chip)}
               className="shrink-0 rounded-full px-3.5 py-2 text-xs font-semibold whitespace-nowrap disabled:opacity-40"
               style={{
-                backgroundColor: "rgba(168,85,247,0.14)",
-                border: "1px solid rgba(168,85,247,0.3)",
-                color: "#e9d5ff",
+                backgroundColor: "rgba(59,130,246,0.14)",
+                border: "1px solid rgba(59,130,246,0.3)",
+                color: "#c7d2fe",
               }}
             >
               {chip}
@@ -122,7 +122,7 @@ const BuildItEditPanel = ({
               <div className="flex justify-end">
                 <div
                   className="rounded-2xl px-3.5 py-2 max-w-[85%]"
-                  style={{ background: "linear-gradient(135deg, #7c3aed, #db2777)" }}
+                  style={{ background: "linear-gradient(135deg, #3b82f6, #4f46e5)" }}
                 >
                   <p className="text-sm break-words" style={{ color: "#fff" }}>
                     {h.instruction}
@@ -145,7 +145,7 @@ const BuildItEditPanel = ({
                 <span
                   key={i}
                   className="buildit-dot rounded-full"
-                  style={{ width: 6, height: 6, backgroundColor: "#c084fc", animationDelay: `${i * 0.16}s` }}
+                  style={{ width: 6, height: 6, backgroundColor: "#818cf8", animationDelay: `${i * 0.16}s` }}
                 />
               ))}
               <span style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", marginLeft: 4 }}>
@@ -185,7 +185,7 @@ const BuildItEditPanel = ({
             disabled={busy || !draft.trim()}
             aria-label="Send"
             className="w-11 h-11 rounded-full flex items-center justify-center shrink-0 disabled:opacity-40"
-            style={{ background: "linear-gradient(135deg, #7c3aed, #db2777)", border: "none" }}
+            style={{ background: "linear-gradient(135deg, #3b82f6, #4f46e5)", border: "none" }}
           >
             <Send className="w-4 h-4" style={{ color: "#fff" }} />
           </button>

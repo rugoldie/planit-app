@@ -73,8 +73,8 @@ const setTextEditable = (doc: Document, enabled: boolean) => {
       const style = doc.createElement("style");
       style.setAttribute(EDIT_STYLE_MARK, "1");
       style.textContent = `
-        [${EDIT_MARK}] { outline: 2px dashed rgba(168,85,247,0.85); outline-offset: 3px; cursor: text; border-radius: 2px; }
-        [${EDIT_MARK}]:focus { outline-color: #ec4899; background: rgba(168,85,247,0.08); }
+        [${EDIT_MARK}] { outline: 2px dashed rgba(59,130,246,0.85); outline-offset: 3px; cursor: text; border-radius: 2px; }
+        [${EDIT_MARK}]:focus { outline-color: #4f46e5; background: rgba(59,130,246,0.08); }
       `;
       doc.head.appendChild(style);
     }

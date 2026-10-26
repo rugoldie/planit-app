@@ -1,7 +1,7 @@
 const FAB_CSS = `
 @keyframes buildit-fab-glow {
-  0%, 100% { box-shadow: 0 6px 20px -4px rgba(0,0,0,0.6), 0 0 0 0 rgba(168,85,247,0.55), 0 0 22px 2px rgba(168,85,247,0.45); }
-  50%      { box-shadow: 0 6px 20px -4px rgba(0,0,0,0.6), 0 0 0 10px rgba(168,85,247,0),  0 0 34px 8px rgba(219,39,119,0.55); }
+  0%, 100% { box-shadow: 0 6px 20px -4px rgba(0,0,0,0.6), 0 0 0 0 rgba(59,130,246,0.55), 0 0 22px 2px rgba(59,130,246,0.45); }
+  50%      { box-shadow: 0 6px 20px -4px rgba(0,0,0,0.6), 0 0 0 10px rgba(59,130,246,0),  0 0 34px 8px rgba(79,70,229,0.55); }
 }
 .buildit-fab { animation: buildit-fab-glow 2.8s ease-in-out infinite; }
 @media (prefers-reduced-motion: reduce) { .buildit-fab { animation: none; } }
@@ -22,7 +22,7 @@ const BuildItFab = ({ onClick, label = "Edit your page" }: { onClick: () => void
         bottom: "calc(96px + env(safe-area-inset-bottom, 0px))",
         width: 56,
         height: 56,
-        background: "linear-gradient(135deg, #7c3aed 0%, #db2777 100%)",
+        background: "linear-gradient(135deg, #3b82f6 0%, #4f46e5 100%)",
         border: "1px solid rgba(255,255,255,0.22)",
         color: "#fff",
         fontSize: 22,
@@ -49,9 +49,9 @@ export const BuildItTextEditFab = ({ onClick, label = "Edit text directly" }: { 
       bottom: "calc(96px + env(safe-area-inset-bottom, 0px))",
       width: 44,
       height: 44,
-      backgroundColor: "rgba(13,11,22,0.9)",
-      border: "1px solid rgba(168,85,247,0.4)",
-      color: "#e9d5ff",
+      backgroundColor: "rgba(10,14,26,0.9)",
+      border: "1px solid rgba(59,130,246,0.4)",
+      color: "#c7d2fe",
       fontSize: 17,
       lineHeight: 1,
       padding: 0,

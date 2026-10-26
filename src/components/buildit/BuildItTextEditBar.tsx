@@ -18,8 +18,8 @@ const BuildItTextEditBar = ({
     style={{
       paddingTop: "max(14px, env(safe-area-inset-top, 0px))",
       paddingBottom: 10,
-      backgroundColor: "#0d0b16",
-      borderBottom: "1px solid rgba(168,85,247,0.35)",
+      backgroundColor: "#0a0e1a",
+      borderBottom: "1px solid rgba(59,130,246,0.35)",
     }}
   >
     <button
@@ -31,7 +31,7 @@ const BuildItTextEditBar = ({
     >
       Cancel
     </button>
-    <span className="text-xs font-semibold" style={{ color: "#e9d5ff" }}>
+    <span className="text-xs font-semibold" style={{ color: "#c7d2fe" }}>
       ✏️ Tap any text to edit
     </span>
     <button
@@ -39,7 +39,7 @@ const BuildItTextEditBar = ({
       onClick={onDone}
       disabled={saving}
       className="rounded-full px-4 py-1.5 text-xs font-bold disabled:opacity-60"
-      style={{ background: "linear-gradient(135deg, #7c3aed, #db2777)", color: "#fff", border: "none" }}
+      style={{ background: "linear-gradient(135deg, #3b82f6, #4f46e5)", color: "#fff", border: "none" }}
     >
       {saving ? "Saving..." : "Done ✓"}
     </button>

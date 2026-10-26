@@ -10,7 +10,7 @@ export type BuildItFormValues = {
   look: string;
 };
 
-const SHEET_BG = "#07060f";
+const SHEET_BG = "#060a18";
 
 // "Your page is ready ✦" (as suggested) reads as a lie while this overlay is
 // still up waiting on the actual response - swapped for something that stays
@@ -52,6 +52,8 @@ const SHEET_CSS = `
 @media (prefers-reduced-motion: reduce) {
   .buildit-blob-a, .buildit-blob-b, .buildit-orb, .buildit-ring, .buildit-status { animation: none; }
 }
+.buildit-field { transition: border-color 0.15s ease, box-shadow 0.15s ease; }
+.buildit-field:focus { border-color: #3b82f6 !important; box-shadow: 0 0 0 3px rgba(59,130,246,0.25); }
 `;
 
 const Field = ({ icon, label, children }: { icon: string; label: string; children: React.ReactNode }) => (
@@ -88,20 +90,32 @@ const GenerationOverlay = () => {
   return (
     <div
       className="absolute inset-0 z-20 flex flex-col items-center justify-center px-8"
-      style={{ backgroundColor: "rgba(7,6,15,0.92)", backdropFilter: "blur(8px)" }}
+      style={{ backgroundColor: "rgba(6,10,24,0.92)", backdropFilter: "blur(8px)" }}
     >
+      <p
+        style={{
+          fontFamily: "'Fredoka', sans-serif",
+          fontWeight: 600,
+          fontSize: 22,
+          letterSpacing: "0.02em",
+          color: "#3b82f6",
+          marginBottom: 36,
+        }}
+      >
+        Covo
+      </p>
       <div className="relative flex items-center justify-center" style={{ width: 160, height: 160 }}>
         <div
           className="buildit-ring absolute rounded-full"
-          style={{ width: 96, height: 96, border: "1px solid rgba(219,39,119,0.5)" }}
+          style={{ width: 96, height: 96, border: "1px solid rgba(79,70,229,0.5)" }}
         />
         <div
           className="buildit-orb rounded-full"
           style={{
             width: 96,
             height: 96,
-            background: "radial-gradient(circle at 32% 28%, #f0abfc 0%, #c026d3 38%, #7c3aed 72%, #4c1d95 100%)",
-            boxShadow: "0 0 60px 12px rgba(168,85,247,0.55), 0 0 120px 30px rgba(219,39,119,0.3)",
+            background: "radial-gradient(circle at 32% 28%, #93c5fd 0%, #3b82f6 38%, #4f46e5 72%, #1e1b4b 100%)",
+            boxShadow: "0 0 60px 12px rgba(59,130,246,0.55), 0 0 120px 30px rgba(79,70,229,0.3)",
           }}
         />
       </div>
@@ -154,7 +168,7 @@ const BuildItSheet = ({
     <div className="fixed inset-0 z-[70] overflow-hidden" style={{ backgroundColor: SHEET_BG }}>
       <style>{SHEET_CSS}</style>
 
-      {/* Animated purple/pink wash behind the form */}
+      {/* Animated blue/indigo wash behind the form */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div
           className="buildit-blob-a absolute rounded-full"
@@ -163,7 +177,7 @@ const BuildItSheet = ({
             left: "-22%",
             width: "80vw",
             height: "80vw",
-            background: "radial-gradient(circle, rgba(124,58,237,0.42) 0%, rgba(124,58,237,0) 68%)",
+            background: "radial-gradient(circle, rgba(59,130,246,0.38) 0%, rgba(59,130,246,0) 68%)",
             filter: "blur(20px)",
           }}
         />
@@ -174,7 +188,7 @@ const BuildItSheet = ({
             right: "-20%",
             width: "88vw",
             height: "88vw",
-            background: "radial-gradient(circle, rgba(219,39,119,0.38) 0%, rgba(219,39,119,0) 70%)",
+            background: "radial-gradient(circle, rgba(79,70,229,0.34) 0%, rgba(79,70,229,0) 70%)",
             filter: "blur(20px)",
           }}
         />
@@ -195,10 +209,10 @@ const BuildItSheet = ({
               style={{
                 fontSize: 40,
                 lineHeight: 1,
-                fontWeight: 800,
-                letterSpacing: "-0.02em",
+                fontWeight: 600,
+                letterSpacing: "0.01em",
                 color: "#fff",
-                fontFamily: "'Bricolage Grotesque', sans-serif",
+                fontFamily: "'Fredoka', sans-serif",
               }}
             >
               BUILD IT
@@ -225,14 +239,14 @@ const BuildItSheet = ({
                 type="date"
                 value={values.date}
                 onChange={(e) => set("date", e.target.value)}
-                className="flex-1 min-w-0 rounded-xl px-3.5 py-3 text-sm outline-none"
+                className="flex-1 min-w-0 rounded-xl px-3.5 py-3 text-sm outline-none buildit-field"
                 style={inputStyle}
               />
               <input
                 type="time"
                 value={values.time}
                 onChange={(e) => set("time", e.target.value)}
-                className="flex-1 min-w-0 rounded-xl px-3.5 py-3 text-sm outline-none"
+                className="flex-1 min-w-0 rounded-xl px-3.5 py-3 text-sm outline-none buildit-field"
                 style={inputStyle}
               />
             </div>
@@ -244,7 +258,7 @@ const BuildItSheet = ({
               value={values.location}
               onChange={(e) => set("location", e.target.value)}
               placeholder="Where is it?"
-              className="w-full rounded-xl px-3.5 py-3 text-sm outline-none placeholder:text-white/25"
+              className="w-full rounded-xl px-3.5 py-3 text-sm outline-none placeholder:text-white/25 buildit-field"
               style={inputStyle}
             />
           </Field>
@@ -255,7 +269,7 @@ const BuildItSheet = ({
               value={values.dresscode}
               onChange={(e) => set("dresscode", e.target.value)}
               placeholder="Optional"
-              className="w-full rounded-xl px-3.5 py-3 text-sm outline-none placeholder:text-white/25"
+              className="w-full rounded-xl px-3.5 py-3 text-sm outline-none placeholder:text-white/25 buildit-field"
               style={inputStyle}
             />
           </Field>
@@ -266,7 +280,7 @@ const BuildItSheet = ({
               value={values.about}
               onChange={(e) => set("about", e.target.value)}
               placeholder="e.g. Jake's leaving do, Halloween house party, summer rooftop drinks"
-              className="w-full rounded-xl px-3.5 py-3 text-sm outline-none placeholder:text-white/25"
+              className="w-full rounded-xl px-3.5 py-3 text-sm outline-none placeholder:text-white/25 buildit-field"
               style={inputStyle}
             />
           </Field>
@@ -277,7 +291,7 @@ const BuildItSheet = ({
               onChange={(e) => set("look", e.target.value)}
               placeholder="Describe colours, mood, aesthetic — e.g. dark and electric, hot pink and black, chaotic neon energy"
               rows={4}
-              className="w-full rounded-xl px-3.5 py-3 text-sm outline-none resize-none placeholder:text-white/25"
+              className="w-full rounded-xl px-3.5 py-3 text-sm outline-none resize-none placeholder:text-white/25 buildit-field"
               style={inputStyle}
             />
           </Field>
@@ -302,10 +316,10 @@ const BuildItSheet = ({
             disabled={!canGenerate || generating}
             className="w-full rounded-2xl py-4 mt-1 text-base font-bold"
             style={{
-              background: canGenerate ? "linear-gradient(135deg, #7c3aed 0%, #db2777 100%)" : "rgba(255,255,255,0.07)",
+              background: canGenerate ? "linear-gradient(135deg, #3b82f6 0%, #4f46e5 100%)" : "rgba(255,255,255,0.07)",
               color: canGenerate ? "#fff" : "rgba(255,255,255,0.3)",
               border: "none",
-              boxShadow: canGenerate ? "0 10px 36px -10px rgba(168,85,247,0.8)" : "none",
+              boxShadow: canGenerate ? "0 10px 36px -10px rgba(59,130,246,0.7)" : "none",
             }}
           >
             ✦ Generate my event page

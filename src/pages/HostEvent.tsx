@@ -2953,7 +2953,7 @@ const HostEvent = () => {
                 <button
                   onClick={() => { setBuildItGenError(null); setShowBuildItSheet(true); }}
                   className="w-full rounded-2xl px-5 py-5 flex items-center gap-4 text-left"
-                  style={{ background: "linear-gradient(135deg, #7c3aed, #db2777)", border: "none" }}
+                  style={{ background: "linear-gradient(135deg, #3b82f6, #4f46e5)", border: "none" }}
                 >
                   <span style={{ fontSize: "28px" }}>✦</span>
                   <div>
