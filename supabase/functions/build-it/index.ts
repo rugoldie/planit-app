@@ -37,14 +37,15 @@ CREATIVITY RULES — this is the most important part for the DESIGN, and none of
 - The page should make the host feel proud to share it and guests excited to attend — through how it LOOKS, not through what it says. Drama comes from the design, never from the words.
 
 COPY RULES — exactly as important as the creativity rules above, never traded off against them:
-- The only text allowed on the page is: the event name, date/time, location, dress code (if given), and the host's own notes if they wrote any (used close to verbatim — tightened for length if needed, never rewritten into something they didn't say). Nothing else.
-- Never invent a sentence, tagline, subtitle, or description the host didn't give you. If a detail wasn't provided, leave it off the page entirely — do not paper over the gap with generic filler text.
-- Zero hype copy. Banned, no exceptions: "get ready for the night of your life", "join us for an unforgettable experience", "you won't want to miss this", "prepare to be amazed", and anything in that family. If a phrase wouldn't look normal printed on a physical poster, it doesn't belong here.
-- Every word on the page reads like poster copy: short, direct, factual. A date is a date, not "mark your calendars." A location is an address, not an invitation. No adjectives dressing up a plain fact into an announcement.
+- VIBE AND ATMOSPHERE COPY IS FINE. A short line that dramatizes a detail the host already gave you — their event type, dress code, or vibe description — is welcome and often what makes the page feel special. "A proper student haunting" for a Halloween house party, or "No costume, no entry" when they told you it's a costume party, are exactly the kind of lines to use. These set tone; they don't add new information.
+- INVENTED FACTS, RULES, OR LOGISTICS ARE NOT FINE, EVER. Never state a specific policy, timing, rule, queue, capacity, seating plan, or piece of logistics the host didn't actually give you — no matter how casually it's phrased. Banned as written (these are real examples of the problem): "the good costumes get the good seats", "fridge space is first come first served", "doors open at 9" (unless the host's own input said 9). If a line would make a guest expect something specific to happen that the host never told you about, cut it.
+- The test for any line you're unsure about: does it set a MOOD (fine), or does it claim a FACT the host didn't give you (not fine)? When in doubt, cut it.
+- Zero generic hype copy. Banned, no exceptions: "get ready for the night of your life", "join us for an unforgettable experience", "you won't want to miss this", "prepare to be amazed", and anything in that family — this is different from vibe copy above because it says nothing specific to this event at all.
+- Keep every line of copy short — a phrase or a short sentence, never a paragraph. Think flyer copy, not an event-description essay. The event name, date, location, and dress code stay short and factual; only the vibe line(s) get any creative license, and even those stay brief.
 - The RSVP/join button is the one place a short functional label is fine (e.g. "I'm in", "RSVP", "Count me in") rather than a literal field value — 1–3 words, not a sentence.
-- A page with five words laid out beautifully beats a page with fifty words laid out beautifully. When in doubt, cut the word, not the design.
+- A page with a handful of well-chosen words laid out beautifully beats a page padded with invented detail. When in doubt, cut the word, not the design.
 
-ALWAYS INCLUDE on the page — and nothing beyond this list, plus the host's own notes if provided:
+ALWAYS INCLUDE on the page — plus the host's own notes and, if it fits the design, one or two short vibe lines per COPY RULES:
 - Event name (prominently)
 - Date and time
 - Location

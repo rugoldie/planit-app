@@ -103,6 +103,34 @@ const looksLikeRsvpCta = (el: Element): boolean => {
   return /rsvp|\bcta\b|\bjoin\b|\battend\b/.test(hint);
 };
 
+/**
+ * Finds the actual RSVP CTA from a click's target element, if any.
+ *
+ * `RSVP_CTA_SELECTOR` only matches semantically-interactive tags, but the
+ * generate prompt never requires the CTA to be a real <button>/<a> — with no
+ * JavaScript allowed on the page, a plain <div>/<span> styled to look like a
+ * button is just as likely, and carries none of those selectors. That's the
+ * actual bug this fixes: `target.closest(RSVP_CTA_SELECTOR)` returned null
+ * for a div-based CTA, so `looksLikeRsvpCta` was never even reached and the
+ * tap silently did nothing - no amount of tuning its keywords would have
+ * helped, since it never ran.
+ *
+ * Tries the semantic selector first (unchanged behaviour for a real
+ * <button>/<a> CTA), then falls back to walking a few levels up from the
+ * exact click target checking any element's own text/class/id - capped
+ * shallow so a tap on unrelated content elsewhere in the same section can't
+ * pick up a distant sibling's "RSVP" text.
+ */
+const findRsvpCta = (target: Element | null): Element | null => {
+  const viaSelector = target?.closest(RSVP_CTA_SELECTOR);
+  if (viaSelector && looksLikeRsvpCta(viaSelector)) return viaSelector;
+  let el: Element | null = target;
+  for (let depth = 0; el && depth < 4; depth++, el = el.parentElement) {
+    if (looksLikeRsvpCta(el)) return el;
+  }
+  return null;
+};
+
 export type BuiltPageFrameHandle = {
   /** Serializes the (possibly hand-edited) document back to a clean HTML
    *  string, stripped of any editing affordances, ready to persist. */
@@ -175,8 +203,8 @@ const BuiltPageFrame = forwardRef<
       const handleClick = (e: MouseEvent) => {
         if (!onCtaClickRef.current) return;
         const target = e.target as Element | null;
-        const cta = target?.closest(RSVP_CTA_SELECTOR);
-        if (!cta || !looksLikeRsvpCta(cta)) return;
+        const cta = findRsvpCta(target);
+        if (!cta) return;
         e.preventDefault();
         e.stopPropagation();
         onCtaClickRef.current();

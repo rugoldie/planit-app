@@ -46,8 +46,6 @@ const CovoWordmark = ({ style }: { style?: React.CSSProperties }) => {
         <circle cx="290" cy="150" r="90" fill="none" stroke={`url(#${gloss})`} strokeWidth="104" />
         <path d="M 386 74 L 464 272 L 560 56" fill="none" stroke={`url(#${gloss})`} strokeWidth="104" strokeLinecap="round" strokeLinejoin="round" />
         <circle cx="650" cy="150" r="90" fill="none" stroke={`url(#${gloss})`} strokeWidth="104" />
-        <circle cx="290" cy="150" r="35" fill="#1c5bf7" opacity="0.9" />
-        <circle cx="650" cy="150" r="35" fill="#1c5bf7" opacity="0.9" />
         <ellipse cx="80" cy="87" rx="28" ry="12" fill="#ffffff" opacity="0.95" transform="rotate(-35 80 87)" filter={`url(#${glareBlur})`} />
         <ellipse cx="262" cy="93" rx="20" ry="9" fill="#ffffff" opacity="0.8" transform="rotate(-35 262 93)" filter={`url(#${glareBlur})`} />
         <ellipse cx="415" cy="80" rx="20" ry="9" fill="#ffffff" opacity="0.8" transform="rotate(-30 415 80)" filter={`url(#${glareBlur})`} />

@@ -235,6 +235,10 @@ const EventView = () => {
   // RSVP
   const [rsvp, setRsvp] = useState<string | null>(null);
   const [barMinimised, setBarMinimised] = useState(false);
+  // Build It pages hide the standard RSVP bar (their own CTA is the only
+  // affordance shown) until that CTA is actually tapped, at which point this
+  // shows the exact same yes/maybe/no bar every other event uses.
+  const [buildItRsvpOpen, setBuildItRsvpOpen] = useState(false);
   const [rsvpList, setRsvpList] = useState<RsvpEntry[]>([]);
   const [guestListExpanded, setGuestListExpanded] = useState(false);
   // Accepted-friend user ids for the viewer, used to sort attendee lists
@@ -1151,7 +1155,7 @@ const EventView = () => {
               title={event.title || "Event page"}
               offsetPx={58}
               editable={buildIt.textEditOpen}
-              onCtaClick={() => handleRsvp("yes")}
+              onCtaClick={() => setBuildItRsvpOpen(true)}
             />
           </div>
         </>
@@ -3823,11 +3827,12 @@ const EventView = () => {
         </div>
       )}
 
-      {/* RSVP floating bar - all templates except Build It, where the
-          generated page's own RSVP/join button (intercepted in
-          BuiltPageFrame) is the only RSVP affordance - a second, default
-          Covo bar on top of it read as two different RSVP buttons. */}
-      {!buildIt.hasBuiltPage && (
+      {/* RSVP floating bar - hidden by default on Build It pages (the
+          generated page's own CTA is the only affordance shown up front, so
+          there's never two RSVP buttons at once) but tapping that CTA
+          (intercepted in BuiltPageFrame) opens this exact same yes/maybe/no
+          bar, same as every other event. */}
+      {(!buildIt.hasBuiltPage || buildItRsvpOpen) && (
       <div className="fixed bottom-4 left-4 right-4 z-50">
         {barMinimised && rsvp ? (
           <button
