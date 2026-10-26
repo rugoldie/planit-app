@@ -89,46 +89,66 @@ const GenerationOverlay = () => {
 
   return (
     <div
-      className="absolute inset-0 z-20 flex flex-col items-center justify-center px-8"
-      style={{ backgroundColor: "rgba(6,10,24,0.92)", backdropFilter: "blur(8px)" }}
+      className="absolute inset-0 z-20 flex flex-col items-center px-8"
+      style={{ backgroundColor: "rgba(6,10,24,0.92)", backdropFilter: "blur(8px)", paddingTop: "max(11vh, 56px)" }}
     >
-      <p
-        style={{
-          fontFamily: "'Fredoka', sans-serif",
-          fontWeight: 600,
-          fontSize: 22,
-          letterSpacing: "0.02em",
-          color: "#3b82f6",
-          marginBottom: 36,
-        }}
-      >
-        Covo
-      </p>
-      <div className="relative flex items-center justify-center" style={{ width: 160, height: 160 }}>
-        <div
-          className="buildit-ring absolute rounded-full"
-          style={{ width: 96, height: 96, border: "1px solid rgba(79,70,229,0.5)" }}
-        />
-        <div
-          className="buildit-orb rounded-full"
+      {/* Logo block — anchored in the top third, not centred with the rest */}
+      <div className="flex flex-col items-center shrink-0">
+        <p
           style={{
-            width: 96,
-            height: 96,
-            background: "radial-gradient(circle at 32% 28%, #93c5fd 0%, #3b82f6 38%, #4f46e5 72%, #1e1b4b 100%)",
-            boxShadow: "0 0 60px 12px rgba(59,130,246,0.55), 0 0 120px 30px rgba(79,70,229,0.3)",
+            fontFamily: "'Fredoka', sans-serif",
+            fontWeight: 700,
+            fontSize: 46,
+            lineHeight: 1,
+            letterSpacing: "0.01em",
+            color: "#ffffff",
           }}
-        />
+        >
+          Covo
+        </p>
+        <p
+          style={{
+            fontFamily: "'Fredoka', sans-serif",
+            fontWeight: 600,
+            fontSize: 19,
+            letterSpacing: "0.14em",
+            textTransform: "uppercase" as const,
+            color: "rgba(255,255,255,0.85)",
+            marginTop: 6,
+          }}
+        >
+          Build It
+        </p>
       </div>
-      <p
-        key={step}
-        className="buildit-status mt-8 text-center"
-        style={{ fontSize: 17, fontWeight: 600, color: "#fff", letterSpacing: "0.01em" }}
-      >
-        {STATUS_MESSAGES[step]}
-      </p>
-      <p className="mt-2 text-center" style={{ fontSize: 12.5, color: "rgba(255,255,255,0.4)" }}>
-        This can take up to a minute — worth the wait.
-      </p>
+
+      {/* Spinner + status — centred in the remaining space below the logo */}
+      <div className="flex-1 flex flex-col items-center justify-center min-h-0">
+        <div className="relative flex items-center justify-center" style={{ width: 160, height: 160 }}>
+          <div
+            className="buildit-ring absolute rounded-full"
+            style={{ width: 96, height: 96, border: "1px solid rgba(79,70,229,0.5)" }}
+          />
+          <div
+            className="buildit-orb rounded-full"
+            style={{
+              width: 96,
+              height: 96,
+              background: "radial-gradient(circle at 32% 28%, #93c5fd 0%, #3b82f6 38%, #4f46e5 72%, #1e1b4b 100%)",
+              boxShadow: "0 0 60px 12px rgba(59,130,246,0.55), 0 0 120px 30px rgba(79,70,229,0.3)",
+            }}
+          />
+        </div>
+        <p
+          key={step}
+          className="buildit-status mt-8 text-center"
+          style={{ fontSize: 17, fontWeight: 600, color: "#fff", letterSpacing: "0.01em" }}
+        >
+          {STATUS_MESSAGES[step]}
+        </p>
+        <p className="mt-2 text-center" style={{ fontSize: 12.5, color: "rgba(255,255,255,0.4)" }}>
+          This can take up to a minute — worth the wait.
+        </p>
+      </div>
     </div>
   );
 };
