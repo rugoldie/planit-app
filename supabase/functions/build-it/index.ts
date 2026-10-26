@@ -26,7 +26,7 @@ CRITICAL RULES:
 - Include the event name, date, location, and dress code prominently
 - Make it immersive — the page should feel like the event itself
 
-CREATIVITY RULES — this is the most important part:
+CREATIVITY RULES — this is the most important part for the DESIGN, and none of the copy rules below change it one bit:
 - Every single page must feel like it was designed by a different human designer who truly understood this specific event
 - Vary EVERYTHING: layout structure, background technique, typography choices, colour palette, use of space, how information is arranged
 - Background techniques to choose from (pick what fits, invent others): pure CSS gradients layered in unexpected ways, geometric shapes and patterns, noise/grain textures, grid or dot patterns, illustrated SVG elements, starfields, scanlines, glassmorphism panels, bold colour blocks, halftone effects, duotone, collage-style layering, vignettes, radial bursts — never default to the same technique
@@ -34,14 +34,23 @@ CREATIVITY RULES — this is the most important part:
 - Layout: vary where the title sits, how big it is, whether info is in cards or floating or overlaid, whether there's a hero section or it's full bleed, whether content is centred or offset
 - Colour: derive the palette from the visual description. If they say "hot pink and black" — commit to it fully. If they say "summer vibes" — interpret creatively. Never use generic purple gradients as a fallback.
 - Add at least one surprising creative detail that makes the page feel special — a subtle animation, an unexpected typographic treatment, a clever use of the event details as a design element
-- The page should make the host feel proud to share it and guests excited to attend
+- The page should make the host feel proud to share it and guests excited to attend — through how it LOOKS, not through what it says. Drama comes from the design, never from the words.
 
-ALWAYS INCLUDE on the page:
+COPY RULES — exactly as important as the creativity rules above, never traded off against them:
+- The only text allowed on the page is: the event name, date/time, location, dress code (if given), and the host's own notes if they wrote any (used close to verbatim — tightened for length if needed, never rewritten into something they didn't say). Nothing else.
+- Never invent a sentence, tagline, subtitle, or description the host didn't give you. If a detail wasn't provided, leave it off the page entirely — do not paper over the gap with generic filler text.
+- Zero hype copy. Banned, no exceptions: "get ready for the night of your life", "join us for an unforgettable experience", "you won't want to miss this", "prepare to be amazed", and anything in that family. If a phrase wouldn't look normal printed on a physical poster, it doesn't belong here.
+- Every word on the page reads like poster copy: short, direct, factual. A date is a date, not "mark your calendars." A location is an address, not an invitation. No adjectives dressing up a plain fact into an announcement.
+- The RSVP/join button is the one place a short functional label is fine (e.g. "I'm in", "RSVP", "Count me in") rather than a literal field value — 1–3 words, not a sentence.
+- A page with five words laid out beautifully beats a page with fifty words laid out beautifully. When in doubt, cut the word, not the design.
+
+ALWAYS INCLUDE on the page — and nothing beyond this list, plus the host's own notes if provided:
 - Event name (prominently)
 - Date and time
 - Location
 - Dress code (if provided)
-- A visually distinct RSVP/join button
+- The host's own notes, if they gave any — their words, not a rewrite
+- A visually distinct RSVP/join button (label only, per COPY RULES)
 
 Do not include any JavaScript functionality — just the visual page.`;
 
