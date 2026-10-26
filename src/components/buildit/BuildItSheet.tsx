@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
+import CovoWordmark from "@/components/CovoWordmark";
 
 export type BuildItFormValues = {
   date: string;
@@ -92,32 +93,24 @@ const GenerationOverlay = () => {
       className="absolute inset-0 z-20 flex flex-col items-center px-8"
       style={{ backgroundColor: "rgba(6,10,24,0.92)", backdropFilter: "blur(8px)", paddingTop: "max(11vh, 56px)" }}
     >
-      {/* Logo block — anchored in the top third, not centred with the rest */}
-      <div className="flex flex-col items-center shrink-0">
-        <p
-          style={{
-            fontFamily: "'Fredoka', sans-serif",
-            fontWeight: 700,
-            fontSize: 46,
-            lineHeight: 1,
-            letterSpacing: "0.01em",
-            color: "#ffffff",
-          }}
-        >
-          Covo
-        </p>
+      {/* Logo block — anchored in the top third, not centred with the rest.
+          Same COVO mark as the pre-login splash screen (not a typeset
+          approximation of it), with "BUILD IT" set the same way as the
+          form header beneath it. */}
+      <div className="flex flex-col items-center shrink-0 w-full">
+        <CovoWordmark style={{ maxWidth: 240 }} />
         <p
           style={{
             fontFamily: "'Fredoka', sans-serif",
             fontWeight: 600,
-            fontSize: 19,
-            letterSpacing: "0.14em",
-            textTransform: "uppercase" as const,
-            color: "rgba(255,255,255,0.85)",
-            marginTop: 6,
+            fontSize: 24,
+            lineHeight: 1,
+            letterSpacing: "0.01em",
+            color: "#ffffff",
+            marginTop: 14,
           }}
         >
-          Build It
+          BUILD IT
         </p>
       </div>
 
