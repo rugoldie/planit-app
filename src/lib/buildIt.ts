@@ -326,6 +326,45 @@ export const extractBuiltPageCardGradient = (html: string | null | undefined): B
   return { gradient: `linear-gradient(160deg, ${rgbToCss(baseRgb)} 0%, ${rgbToCss(accentRgb)} 100%)`, accent: rgbToCss(accentRgb) };
 };
 
+export type BuiltPageFont = {
+  /** The exact family name as requested from Google Fonts, e.g. "Playfair Display". */
+  family: string;
+  /** Generic CSS fallback (serif/sans-serif/cursive/monospace) to pair with `family`. */
+  cssFallback: string;
+  /** The Google Fonts stylesheet URL this came from - load it (e.g. via a
+   *  dynamically injected <link>) before using `family`, or the browser has
+   *  nothing to render it with and silently falls back anyway. */
+  googleFontHref: string;
+};
+
+const FONT_FALLBACK_HINTS: Array<{ re: RegExp; fallback: string }> = [
+  { re: /mono|code|courier/i, fallback: "monospace" },
+  { re: /caveat|pacifico|dancing|satisfy|sacramento|handwrit|kalam|shadows|indie/i, fallback: "cursive" },
+  { re: /serif|playfair|merriweather|lora|fraunces|cormorant|georgia|garamond/i, fallback: "serif" },
+];
+
+/**
+ * Finds the Google Font a generated page loads for itself (the generate
+ * prompt explicitly asks Claude to pick one matching the event's
+ * personality), so home-feed cards can use the event's own real typography
+ * instead of a one-size-fits-all font - this is a large part of a card
+ * actually "looking like" its page rather than just sharing its colours.
+ * Works whether the page loaded it via a <link> or an `@import url(...)` -
+ * both end up as a literal fonts.googleapis.com URL somewhere in the HTML.
+ */
+export const extractBuiltPageFont = (html: string | null | undefined): BuiltPageFont | null => {
+  if (!html) return null;
+  const urlMatch = html.match(/https:\/\/fonts\.googleapis\.com\/css2?\?[^"')\s]+/i);
+  if (!urlMatch) return null;
+  const href = urlMatch[0];
+  const familyMatch = href.match(/family=([^&]+)/i);
+  if (!familyMatch) return null;
+  const rawFamily = decodeURIComponent(familyMatch[1].split("|")[0]).split(":")[0].replace(/\+/g, " ").trim();
+  if (!rawFamily) return null;
+  const cssFallback = FONT_FALLBACK_HINTS.find((f) => f.re.test(rawFamily))?.fallback ?? "sans-serif";
+  return { family: rawFamily, cssFallback, googleFontHref: href };
+};
+
 /** Human-readable date for the generate prompt, e.g. "Sat 14 Nov 2026 at 20:00". */
 export const describeDateTime = (date: string, time: string): string => {
   if (!date) return time ? `Time: ${time}` : "";

@@ -7,7 +7,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format, isPast, parseISO } from "date-fns";
 import { ConcentricCircles } from "@/components/layouts/PlanitNoirLayout";
 import { VintageCircles } from "@/components/layouts/VintageLayout";
-import { extractBuiltPageCardGradient, withAlpha } from "@/lib/buildIt";
+import { extractBuiltPageCardGradient, extractBuiltPageFont, withAlpha } from "@/lib/buildIt";
 
 type EventWithRole = {
   id: string;
@@ -187,6 +187,51 @@ const getEventCardPalette = (event: EventWithRole): EventCardPalette => {
   if (tn in TEMPLATE_GRADIENT_INDEX) return CURATED_GRADIENTS[TEMPLATE_GRADIENT_INDEX[tn]];
   if (!event.id) return DEFAULT_GRADIENT;
   return CURATED_GRADIENTS[hashToIndex(event.id, CURATED_GRADIENTS.length)];
+};
+
+type EventCardFont = { family: string; cssFallback: string; googleFontHref: string | null };
+
+/** Already loaded globally (index.html) - no dynamic fetch needed for these. */
+const CURATED_FONTS: EventCardFont[] = [
+  { family: "Bebas Neue", cssFallback: "sans-serif", googleFontHref: null },
+  { family: "Fraunces", cssFallback: "serif", googleFontHref: null },
+  { family: "Playfair Display", cssFallback: "serif", googleFontHref: null },
+  { family: "Caveat", cssFallback: "cursive", googleFontHref: null },
+];
+const TEMPLATE_FONT_INDEX: Record<string, number> = {
+  "planit-noir": 0, galaxy: 0, midnight: 0, sunny: 3, vintage: 2, blush: 2, ocean: 1, forest: 1,
+};
+
+/**
+ * The event's own typography, not a one-size-fits-all font: Build It pages
+ * explicitly pick a Google Font matching the event's personality (see
+ * extractBuiltPageFont), so reusing it is a big part of a card actually
+ * reading as "a mini version of that page" rather than just sharing its
+ * colours. Non-Build-It events get a curated, already-loaded font chosen
+ * the same deterministic way as their gradient.
+ */
+const getEventCardFont = (event: EventWithRole): EventCardFont => {
+  if (event.built_page_html) {
+    const built = extractBuiltPageFont(event.built_page_html);
+    if (built) return built;
+  }
+  const tn = (event.template_name || "").toLowerCase().trim();
+  if (tn in TEMPLATE_FONT_INDEX) return CURATED_FONTS[TEMPLATE_FONT_INDEX[tn]];
+  if (!event.id) return CURATED_FONTS[0];
+  return CURATED_FONTS[hashToIndex(event.id, CURATED_FONTS.length)];
+};
+
+/** Google Fonts stylesheets injected so far this page-load - a page-level
+ *  cache (not per-component state) since the same font is often shared by
+ *  several cards and should only ever be fetched once. */
+const loadedFontHrefs = new Set<string>();
+const ensureGoogleFontLoaded = (href: string | null) => {
+  if (!href || loadedFontHrefs.has(href)) return;
+  loadedFontHrefs.add(href);
+  const link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.href = href;
+  document.head.appendChild(link);
 };
 
 const getDaysUntil = (dt: string | null): number | null => {
@@ -1507,6 +1552,78 @@ const getCustomCardBg = (
   }
 };
 
+/** Smaller poster card for the horizontally-flicked "Upcoming" row — same
+ *  glow/shine/real-font treatment as HeroPosterCard, scaled down. */
+const UpcomingPosterCard = ({ event, navigate }: { event: EventWithRole; navigate: ReturnType<typeof useNavigate> }) => {
+  const palette = getEventCardPalette(event);
+  const font = getEventCardFont(event);
+  useEffect(() => ensureGoogleFontLoaded(font.googleFontHref), [font.googleFontHref]);
+
+  const roleLabel = event.role === "host" ? "Hosting" : event.role === "going" ? "Going" : "Maybe";
+  const roleBg = event.role === "host" ? "rgba(255,255,255,0.14)" : "#C6F24E";
+  const roleColor = event.role === "host" ? "#fff" : "#0a0b0e";
+  const titleUppercase = font.cssFallback === "sans-serif";
+  const titleWeight = font.cssFallback === "cursive" || font.cssFallback === "serif" ? 700 : 400;
+  const titleGlow = withAlpha(palette.accent, 0.55);
+
+  return (
+    <div
+      style={{
+        position: "relative",
+        flex: "none",
+        width: 150,
+        aspectRatio: "3 / 4",
+        borderRadius: 22,
+        overflow: "hidden",
+        cursor: "pointer",
+        scrollSnapAlign: "start",
+        background: palette.gradient,
+      }}
+      onClick={() => navigate(event.role === "host" ? `/event/${event.code}` : `/guest/${event.code}`)}
+    >
+      <div style={{ position: "absolute", left: "-20%", right: "-20%", bottom: "-15%", height: "70%", background: `radial-gradient(60% 100% at 50% 100%, ${withAlpha(palette.accent, 0.5)} 0%, transparent 70%)`, filter: "blur(2px)" }} />
+      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(115deg, transparent 40%, rgba(255,255,255,0.08) 48%, transparent 58%)" }} />
+      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(6,7,9,.85) 0%, rgba(6,7,9,.25) 48%, rgba(6,7,9,0) 68%)" }} />
+      <div style={{ position: "absolute", top: 10, right: 10 }}>
+        <span style={{ background: roleBg, color: roleColor, fontWeight: 700, fontSize: 10, padding: "4px 10px", borderRadius: 999, whiteSpace: "nowrap" as const }}>
+          {roleLabel}
+        </span>
+      </div>
+      <div style={{ position: "absolute", left: 14, right: 14, bottom: 12 }}>
+        {event.date_time && (
+          <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 3 }}>
+            <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke={palette.accent} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            <span style={{ fontSize: 11, color: "rgba(255,255,255,0.8)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{formatDate(event.date_time)}</span>
+          </div>
+        )}
+        {event.location && (
+          <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 6 }}>
+            <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke={palette.accent} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <span style={{ fontSize: 11, color: "rgba(255,255,255,0.8)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{event.location}</span>
+          </div>
+        )}
+        <div
+          style={{
+            fontFamily: `'${font.family}', ${font.cssFallback}`,
+            fontWeight: titleWeight,
+            fontSize: titleUppercase ? 22 : 19,
+            letterSpacing: titleUppercase ? "0.01em" : "normal",
+            color: palette.accent,
+            textShadow: `0 1px 16px ${titleGlow}`,
+            lineHeight: 1.05,
+            display: "-webkit-box",
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: "vertical" as const,
+            overflow: "hidden",
+          }}
+        >
+          {titleUppercase ? (event.title || "Untitled Event").toUpperCase() : event.title || "Untitled Event"}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 /**
  * Shared "hero" poster card — used for both Build It events and the
  * untemplated default, so the one most prominent card on the home screen
@@ -1522,14 +1639,18 @@ const HeroPosterCard = ({
   navigate,
   bgStyle,
   accent,
+  font,
   hasStars = false,
 }: {
   event: EventWithRole;
   navigate: ReturnType<typeof useNavigate>;
   bgStyle: React.CSSProperties;
   accent: string;
+  font: EventCardFont;
   hasStars?: boolean;
 }) => {
+  useEffect(() => ensureGoogleFontLoaded(font.googleFontHref), [font.googleFontHref]);
+
   const roleLabel = event.role === "host" ? "Hosting" : event.role === "going" ? "Going" : "Maybe";
   const roleBg = event.role === "host" ? "rgba(255,255,255,0.14)" : "#C6F24E";
   const roleColor = event.role === "host" ? "#fff" : "#0a0b0e";
@@ -1537,6 +1658,13 @@ const HeroPosterCard = ({
   const daysUntil = getDaysUntil(event.date_time);
   const eyebrow = daysUntil === 0 ? "Today" : daysUntil === 1 ? "Tomorrow" : daysUntil != null ? `In ${daysUntil} days` : null;
   const titleGlow = withAlpha(accent, 0.55);
+  const titleFontFamily = `'${font.family}', ${font.cssFallback}`;
+  // A condensed display face (Bebas Neue et al.) reads as a poster in caps;
+  // a serif or script face reads *more* exciting in its natural case -
+  // forcing those into all-caps makes an elegant/handwritten page's own
+  // title look wrong instead of matching it.
+  const titleUppercase = font.cssFallback === "sans-serif";
+  const titleWeight = font.cssFallback === "cursive" || font.cssFallback === "serif" ? 700 : 400;
 
   return (
     <div
@@ -1560,6 +1688,11 @@ const HeroPosterCard = ({
           ★
         </span>
       ))}
+      {/* Stage-light glow behind where the title sits, plus a faint
+          diagonal shine sweep — real depth/lighting instead of a flat
+          gradient rectangle, without reintroducing any noise texture. */}
+      <div style={{ position: "absolute", left: "-20%", right: "-20%", bottom: "-10%", height: "65%", background: `radial-gradient(60% 100% at 50% 100%, ${withAlpha(accent, 0.55)} 0%, transparent 70%)`, filter: "blur(2px)" }} />
+      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(115deg, transparent 40%, rgba(255,255,255,0.10) 48%, transparent 58%)" }} />
       <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(6,7,9,.88) 0%, rgba(6,7,9,.35) 45%, rgba(6,7,9,0) 70%)" }} />
       <div style={{ position: "absolute", top: 14, right: 14 }}>
         <span
@@ -1608,13 +1741,13 @@ const HeroPosterCard = ({
         )}
         <div
           style={{
-            fontFamily: "'Bebas Neue', sans-serif",
-            fontWeight: 400,
-            fontSize: 40,
-            letterSpacing: "0.01em",
+            fontFamily: titleFontFamily,
+            fontWeight: titleWeight,
+            fontSize: titleUppercase ? 40 : 34,
+            letterSpacing: titleUppercase ? "0.01em" : "normal",
             color: accent,
             textShadow: `0 2px 28px ${titleGlow}, 0 1px 0 rgba(0,0,0,0.3)`,
-            lineHeight: 1.0,
+            lineHeight: 1.05,
             display: "-webkit-box",
             WebkitLineClamp: 2,
             WebkitBoxOrient: "vertical" as const,
@@ -1622,7 +1755,7 @@ const HeroPosterCard = ({
             marginBottom: 10,
           }}
         >
-          {(event.title || "Untitled Event").toUpperCase()}
+          {titleUppercase ? (event.title || "Untitled Event").toUpperCase() : event.title || "Untitled Event"}
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 6 }}>
           <span style={{ fontSize: 13, color: "rgba(255,255,255,0.6)" }}>{event.guest_count} going</span>
@@ -1641,7 +1774,8 @@ const CustomNextUpCard = ({ event, navigate }: { event: EventWithRole; navigate:
   const builtGradient = event.built_page_html ? extractBuiltPageCardGradient(event.built_page_html) : null;
   const accent = builtGradient ? builtGradient.accent : hslToColor(event.bubble_color, "#aaee44");
   const { style: bgStyle, hasStars } = getCustomCardBg(event.bg_photo, event.bg_color, event.built_page_html);
-  return <HeroPosterCard event={event} navigate={navigate} bgStyle={bgStyle} accent={accent} hasStars={hasStars} />;
+  const font = getEventCardFont(event);
+  return <HeroPosterCard event={event} navigate={navigate} bgStyle={bgStyle} accent={accent} font={font} hasStars={hasStars} />;
 };
 
 const CustomUpcomingCard = ({ event, navigate }: { event: EventWithRole; navigate: ReturnType<typeof useNavigate> }) => {
@@ -2349,6 +2483,7 @@ const Home = () => {
                 navigate={navigate}
                 bgStyle={{ background: getEventCardPalette(nextEvent).gradient }}
                 accent={getEventCardPalette(nextEvent).accent}
+                font={getEventCardFont(nextEvent)}
               />
             )}
           </div>
@@ -2368,67 +2503,9 @@ const Home = () => {
               className="cv-poster-row px-[18px]"
               style={{ display: "flex", gap: 14, overflowX: "auto", scrollSnapType: "x mandatory", scrollbarWidth: "none", paddingBottom: 2 }}
             >
-              {upcomingEvents.map((event) => {
-                const palette = getEventCardPalette(event);
-                const roleLabel = event.role === "host" ? "Hosting" : event.role === "going" ? "Going" : "Maybe";
-                const roleBg = event.role === "host" ? "rgba(255,255,255,0.14)" : "#C6F24E";
-                const roleColor = event.role === "host" ? "#fff" : "#0a0b0e";
-                return (
-                  <div
-                    key={event.id}
-                    style={{
-                      position: "relative",
-                      flex: "none",
-                      width: 150,
-                      aspectRatio: "3 / 4",
-                      borderRadius: 22,
-                      overflow: "hidden",
-                      cursor: "pointer",
-                      scrollSnapAlign: "start",
-                      background: palette.gradient,
-                    }}
-                    onClick={() => navigate(event.role === "host" ? `/event/${event.code}` : `/guest/${event.code}`)}
-                  >
-                    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(6,7,9,.85) 0%, rgba(6,7,9,.25) 48%, rgba(6,7,9,0) 68%)" }} />
-                    <div style={{ position: "absolute", top: 10, right: 10 }}>
-                      <span style={{ background: roleBg, color: roleColor, fontWeight: 700, fontSize: 10, padding: "4px 10px", borderRadius: 999, whiteSpace: "nowrap" as const }}>
-                        {roleLabel}
-                      </span>
-                    </div>
-                    <div style={{ position: "absolute", left: 14, right: 14, bottom: 12 }}>
-                      {event.date_time && (
-                        <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 3 }}>
-                          <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke={palette.accent} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-                          <span style={{ fontSize: 11, color: "rgba(255,255,255,0.8)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{formatDate(event.date_time)}</span>
-                        </div>
-                      )}
-                      {event.location && (
-                        <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 6 }}>
-                          <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke={palette.accent} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                          <span style={{ fontSize: 11, color: "rgba(255,255,255,0.8)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{event.location}</span>
-                        </div>
-                      )}
-                      <div
-                        style={{
-                          fontFamily: "'Bebas Neue', sans-serif",
-                          fontWeight: 400,
-                          fontSize: 22,
-                          letterSpacing: "0.01em",
-                          color: palette.accent,
-                          textShadow: `0 1px 16px ${withAlpha(palette.accent, 0.55)}`,
-                          lineHeight: 1.0,
-                          display: "-webkit-box",
-                          WebkitLineClamp: 2,
-                          WebkitBoxOrient: "vertical" as const,
-                          overflow: "hidden",
-                        }}
-                      >
-                        {(event.title || "Untitled Event").toUpperCase()}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+              {upcomingEvents.map((event) => (
+                <UpcomingPosterCard key={event.id} event={event} navigate={navigate} />
+              ))}
             </div>
           </div>
         )}
