@@ -262,6 +262,70 @@ export const withAlpha = (color: string, alpha: number): string => {
   return `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${alpha})`;
 };
 
+const darkenRgb = ([r, g, b]: [number, number, number], factor: number): [number, number, number] => [
+  Math.round(r * factor),
+  Math.round(g * factor),
+  Math.round(b * factor),
+];
+
+const rgbToCss = ([r, g, b]: [number, number, number]): string => `rgb(${r}, ${g}, ${b})`;
+
+const rgbDistance = (a: [number, number, number], b: [number, number, number]): number =>
+  Math.sqrt((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2 + (a[2] - b[2]) ** 2);
+
+/** A plain `background-color` on body/html - deliberately ignores
+ *  `background`/`background-image`, which may be a gradient, pattern image,
+ *  or noise/grain texture (generated pages are explicitly allowed to use
+ *  any of those for full-page atmosphere; naively reusing one on a small
+ *  decontextualized card looks like visual noise, not "a mini version of
+ *  the page"). */
+const extractSolidBodyBackground = (css: string): [number, number, number] | null => {
+  const ruleRe = /([^{}]+)\{([^{}]*)\}/g;
+  const bodySelectorRe = /\b(html|body)\b/i;
+  let m: RegExpExecArray | null;
+  while ((m = ruleRe.exec(css))) {
+    if (!bodySelectorRe.test(m[1])) continue;
+    const bgDecl = m[2].match(/background-color\s*:\s*([^;]+)/i);
+    if (!bgDecl) continue;
+    const rgb = parseColorToRgb(bgDecl[1].trim());
+    if (rgb) return rgb;
+  }
+  return null;
+};
+
+export type BuiltCardGradient = { gradient: string; accent: string };
+
+const BUILD_IT_DEFAULT_CARD_GRADIENT: BuiltCardGradient = {
+  gradient: "linear-gradient(160deg, #7c3aed 0%, #db2777 100%)",
+  accent: "#f5abfc",
+};
+
+/**
+ * Synthesizes a clean two-stop gradient from a generated page's own colours,
+ * for small, decontextualized surfaces like a home-feed card. Always built
+ * from two real solid colours (a plain `background-color` on body/html if
+ * one exists, else the accent darkened) - never the page's raw `background`
+ * declaration, which may be a multi-stop gradient, a pattern image, or an
+ * explicit noise/grain texture (all of which the generate prompt allows as
+ * full-page atmosphere, and all of which look like static at card scale).
+ */
+export const extractBuiltPageCardGradient = (html: string | null | undefined): BuiltCardGradient => {
+  if (!html) return BUILD_IT_DEFAULT_CARD_GRADIENT;
+  const styleMatch = html.match(/<style[^>]*>([\s\S]*?)<\/style>/i);
+  const css = styleMatch?.[1] ?? "";
+  if (!css.trim()) return BUILD_IT_DEFAULT_CARD_GRADIENT;
+
+  const palette = extractBuiltPagePalette(html);
+  const accentRgb = parseColorToRgb(palette.accent) ?? [168, 85, 247];
+
+  let baseRgb = extractSolidBodyBackground(css) ?? darkenRgb(accentRgb, 0.3);
+  // Guard against a near-identical base/accent (flat gradient, reads as a
+  // single dull colour rather than "rich") by forcing them apart.
+  if (rgbDistance(baseRgb, accentRgb) < 40) baseRgb = darkenRgb(accentRgb, 0.3);
+
+  return { gradient: `linear-gradient(160deg, ${rgbToCss(baseRgb)} 0%, ${rgbToCss(accentRgb)} 100%)`, accent: rgbToCss(accentRgb) };
+};
+
 /** Human-readable date for the generate prompt, e.g. "Sat 14 Nov 2026 at 20:00". */
 export const describeDateTime = (date: string, time: string): string => {
   if (!date) return time ? `Time: ${time}` : "";
