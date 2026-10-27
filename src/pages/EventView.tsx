@@ -1155,7 +1155,11 @@ const EventView = () => {
               title={event.title || "Event page"}
               offsetPx={58}
               editable={buildIt.textEditOpen}
-              onCtaClick={() => setBuildItRsvpOpen(true)}
+              onCtaClick={() => {
+                // eslint-disable-next-line no-console
+                console.log("[EventView] onCtaClick fired, opening RSVP bar");
+                setBuildItRsvpOpen(true);
+              }}
             />
           </div>
         </>

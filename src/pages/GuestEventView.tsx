@@ -887,7 +887,11 @@ const GuestEventView = () => {
               html={buildIt.builtHtml!}
               title={event.title || "Event page"}
               offsetPx={58}
-              onCtaClick={() => setBuildItRsvpOpen(true)}
+              onCtaClick={() => {
+                // eslint-disable-next-line no-console
+                console.log("[GuestEventView] onCtaClick fired, opening RSVP bar");
+                setBuildItRsvpOpen(true);
+              }}
             />
           </div>
         </>

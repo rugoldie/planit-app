@@ -216,17 +216,44 @@ const BuiltPageFrame = forwardRef<
       if (!doc) return;
       let touchHandledAt = 0;
       const handleTap = (e: Event) => {
-        if (!onCtaClickRef.current) return;
         const target = e.target as Element | null;
+        // TEMPORARY diagnostic logging - remove once the mobile/native RSVP
+        // blank-screen bug is actually confirmed fixed. Logs every tap
+        // inside the frame (not just ones that match), so we can see
+        // exactly what's being tapped and at which step this stops.
+        // eslint-disable-next-line no-console
+        console.log("[BuiltPageFrame] tap", {
+          type: e.type,
+          tag: target?.tagName,
+          id: (target as HTMLElement | null)?.id,
+          className: (target as HTMLElement | null)?.className,
+          text: (target?.textContent || "").trim().slice(0, 40),
+          hasOnCtaClick: !!onCtaClickRef.current,
+        });
+        if (!onCtaClickRef.current) return;
         const cta = findRsvpCta(target);
+        // eslint-disable-next-line no-console
+        console.log("[BuiltPageFrame] findRsvpCta result", {
+          matched: !!cta,
+          ctaTag: (cta as HTMLElement | null)?.tagName,
+          ctaId: (cta as HTMLElement | null)?.id,
+          ctaClassName: (cta as HTMLElement | null)?.className,
+          ctaText: (cta?.textContent || "").trim().slice(0, 40),
+        });
         if (!cta) return;
         e.preventDefault();
         e.stopPropagation();
         // A handled touchend is typically followed by a synthesized click
         // moments later even after preventDefault() - skip it rather than
         // fire the RSVP flow a second time for the same tap.
-        if (e.type === "click" && Date.now() - touchHandledAt < 600) return;
+        if (e.type === "click" && Date.now() - touchHandledAt < 600) {
+          // eslint-disable-next-line no-console
+          console.log("[BuiltPageFrame] skipping click - already handled via touchend");
+          return;
+        }
         if (e.type === "touchend") touchHandledAt = Date.now();
+        // eslint-disable-next-line no-console
+        console.log("[BuiltPageFrame] invoking onCtaClick");
         onCtaClickRef.current();
       };
       doc.addEventListener("touchend", handleTap, { capture: true, passive: false });
