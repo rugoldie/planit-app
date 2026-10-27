@@ -193,6 +193,20 @@ const BuiltPageFrame = forwardRef<
   // this sandbox leaves iframe.contentDocument null afterward). Suppressed
   // in text-edit mode, where tapping that same button should let the host
   // edit its label, not trigger an RSVP.
+  //
+  // 'click' alone works on desktop (a real mouse click always fires it) but
+  // is not reliable on mobile for a non-native element: findRsvpCta() above
+  // deliberately also matches a plain <div>/<span> styled as a button (the
+  // generate prompt never requires a real <button>/<a>, and with no
+  // `allow-scripts` Claude has no reason to use one) - and that's exactly
+  // the category where a touch tap is not guaranteed to synthesize a
+  // 'click' event. When it doesn't, preventDefault() never runs and the
+  // page's own default action proceeds unintercepted, blanking the frame -
+  // the same failure mode as the uncaught-`<a href="#">` case above, just
+  // reached because the tap never reached a handler at all. 'touchend'
+  // fires on physical contact end regardless of the target's native
+  // interactivity, so it closes that gap; the timestamp guard stops a tap
+  // that fires both from triggering the RSVP flow twice.
   useEffect(() => {
     if (editable) return;
     const iframe = iframeRef.current;
@@ -200,17 +214,27 @@ const BuiltPageFrame = forwardRef<
     const bind = () => {
       const doc = iframe.contentDocument;
       if (!doc) return;
-      const handleClick = (e: MouseEvent) => {
+      let touchHandledAt = 0;
+      const handleTap = (e: Event) => {
         if (!onCtaClickRef.current) return;
         const target = e.target as Element | null;
         const cta = findRsvpCta(target);
         if (!cta) return;
         e.preventDefault();
         e.stopPropagation();
+        // A handled touchend is typically followed by a synthesized click
+        // moments later even after preventDefault() - skip it rather than
+        // fire the RSVP flow a second time for the same tap.
+        if (e.type === "click" && Date.now() - touchHandledAt < 600) return;
+        if (e.type === "touchend") touchHandledAt = Date.now();
         onCtaClickRef.current();
       };
-      doc.addEventListener("click", handleClick, true);
-      return () => doc.removeEventListener("click", handleClick, true);
+      doc.addEventListener("touchend", handleTap, { capture: true, passive: false });
+      doc.addEventListener("click", handleTap, true);
+      return () => {
+        doc.removeEventListener("touchend", handleTap, true);
+        doc.removeEventListener("click", handleTap, true);
+      };
     };
     let cleanup = iframe.contentDocument?.readyState === "complete" ? bind() : undefined;
     const onLoad = () => {
